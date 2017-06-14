@@ -4,7 +4,8 @@
     "description": "Interactive math demos in JavaScript",
     "main": "build/interactive.js",
     "scripts": {
-        "build": "rollup -c"
+        "build": "rollup -c",
+        "test": "rollup -c test/rollup.unit.config.js -w"
     },
     "repository": {
         "type": "git",
