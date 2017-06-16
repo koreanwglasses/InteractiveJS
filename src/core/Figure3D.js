@@ -1,3 +1,10 @@
+/**
+ * TODO: Add functionality to link cameras between figures
+ * @param {*} parent 
+ * @param {*} container 
+ * @param {*} opts 
+ */
+
 function Figure3D(parent, container, opts) {
     this.type = 'Figure3D';
 
