@@ -4,6 +4,13 @@
 	(factory((global.Interactive = global.Interactive || {})));
 }(this, (function (exports) { 'use strict';
 
+/**
+ * TODO: Add functionality to link cameras between figures
+ * @param {*} parent 
+ * @param {*} container 
+ * @param {*} opts 
+ */
+
 function Figure3D(parent, container, opts) {
     this.type = 'Figure3D';
 
@@ -71,14 +78,9 @@ Figure3D.prototype.render = function() {
 function Plot() {
     this.type = 'Plot';
     var _figures = [];
-    var _cameraData = {};
 
     this.createFigure3D = function(container, opts) {
         return new Figure3D(this, container, opts);
-    };
-
-    this.getCameraData = function(cameraGroup) {
-        return this.cameras[cameraGroup];
     };
 }
 
