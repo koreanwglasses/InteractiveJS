@@ -5,87 +5,94 @@
 }(this, (function (exports) { 'use strict';
 
 /**
+ * 
  * TODO: Add functionality to link cameras between figures
  * @param {*} parent 
  * @param {*} container 
  * @param {*} opts 
  */
 
-function Figure3D(parent, container, opts) {
-    this.type = 'Figure3D';
+function Axes3D(parent, container, opts) {
+    /**
+     * The type of this object. (Read-only)
+     */
+    this.type = 'Axes3D';
 
-    // Keep track of the parent
-    var _parent = parent;
+    /**
+     * The plot that generated this figure. (Read-only)
+     */
+    this.parent = parent;
 
     // Make sure the container is a dom element
     if(!container instanceof Element) {
-        console.log('Interactive.Figure3D: Invalid container. Must be a DOM Element');
+        console.log('Interactive.Axes3D: Invalid container. Must be a DOM Element');
         return null;
     }
 
-    // Make sure opts is defined
+    // Avoid null pointer errors later on
     if(opts === undefined) opts = {};
 
-    // Define local vars and init renderer
-    var _width = container.clientWidth;
-    var _height = container.clientHeight;
+    /**
+     * Width of the viewport derived from the width of the container. (Read-only)
+     */
+    this.width = container.clientWidth;
 
-    var _renderer = new THREE.WebGLRenderer();
-    _renderer.setSize(_width, _height);
+    /**
+     * Height of the viewport derived from the width of the container. (Read-only)
+     */
+    this.height = container.clientHeight;
+
+    /**
+     * Renderer from Three.js. (Private)
+     */
+    this.renderer = new THREE.WebGLRenderer();
+
+    // Initialize renderer within container
+    this.renderer.setSize(this.width, this.height);
     container.innerHTML = '';
-    container.appendChild(_renderer.domElement);
+    container.appendChild(this.renderer.domElement);
 
-    var _scene = new THREE.Scene();
-    var _camera = new THREE.PerspectiveCamera( 50, _width / _height, 1, 1000);
-    _camera.position.y = 150;
-    _camera.position.z = 500;
-    _camera.lookAt(_scene.position);
+    /**
+     * Scene from Three.js where all the elements lie. (Private)
+     */    
+    this.scene = new THREE.Scene();
 
-    this.cameraGroup = opts.cameraGroup !== undefined ? opts.cameraGroup : 0;
+    /**
+     * Camera which renders the axes
+     */
+    this.camera = new THREE.PerspectiveCamera( 50, this.width / this.height, 1, 1000);
 
-    this.getWidth = function() {
-        return _width;
-    };
-
-    this.getHeight = function() {
-        return _height;
-    };
-
-    this.getRenderer = function() {
-        return _renderer;
-    };
-
-    this.getScene = function() {
-        return _scene;
-    };
-
-    this.getCamera = function() {
-        return _camera;
-    };
+    // Initialize camera position
+    this.camera.position.y = 150;
+    this.camera.position.z = 500;
+    this.camera.lookAt(this.scene.position);
 
     // Some test code
     var mesh = new THREE.Mesh( 
         new THREE.BoxGeometry( 200, 200, 200, 1, 1, 1 ), 
         new THREE.MeshBasicMaterial( { color : 0xff0000, wireframe: true } 
     ));
-    _scene.add( mesh );
+    this.scene.add( mesh );
 }
 
-Figure3D.prototype.render = function() {
-    this.getRenderer().render( this.getScene(), this.getCamera());
+/**
+ * Render the axes
+ */
+Axes3D.prototype.render = function() {
+    this.renderer.render( this.scene, this.camera );
 };
 
 function Plot() {
     this.type = 'Plot';
     var _figures = [];
 
-    this.createFigure3D = function(container, opts) {
-        return new Figure3D(this, container, opts);
+    this.createAxes3D = function(container, opts) {
+        return new Axes3D(this, container, opts);
     };
 }
 
 exports.Plot = Plot;
-exports.Figure3D = Figure3D;
+exports.Axes3D = Axes3D;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
