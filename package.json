@@ -1,23 +1,23 @@
 {
-    "name": "interactive",
-    "version": "0.0.0",
-    "description": "Interactive math demos in JavaScript",
-    "main": "build/interactive.js",
-    "scripts": {
-        "build": "rollup -c",
-        "test": "rollup -c test/rollup.unit.config.js -w"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/koreanwglasses/InteractiveJS.git"
-    },
-    "author": "Fred Choi",
-    "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/koreanwglasses/InteractiveJS/issues"
-    },
-    "homepage": "https://github.com/koreanwglasses/InteractiveJS#readme",
-    "devDependencies": {
-        "rollup": "^0.43.0"
-    }
+  "name": "interactive",
+  "version": "0.0.0",
+  "description": "Interactive math demos in JavaScript",
+  "main": "build/interactive.js",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/koreanwglasses/InteractiveJS.git"
+  },
+  "author": "Fred Choi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/koreanwglasses/InteractiveJS/issues"
+  },
+  "homepage": "https://github.com/koreanwglasses/InteractiveJS#readme",
+  "devDependencies": {
+    "rollup": "^0.43.0",
+    "rollup-watch": "^4.0.0"
+  }
 }

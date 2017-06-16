@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            #fig1 {
+                width: 200px;
+                height: 200px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="fig1">
+        <script src="../lib/three.min.js"></script>
+        <script src="../build/interactive.js"></script>
+        <script>
+            plot = new Interactive.Plot();
+            fig1 = plot.createFigure3D(document.getElementById('fig1'));
+
+            (function animate() {
+                requestAnimationFrame(animate);
+                fig1.render();
+            })();
+        </script>
+    </body>
+</html>

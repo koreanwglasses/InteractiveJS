@@ -1,9 +1,3 @@
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-	typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	(factory((global.Interactive = global.Interactive || {})));
-}(this, (function (exports) { 'use strict';
-
 function Figure3D(parent, container, opts) {
     this.type = 'Figure3D';
 
@@ -38,23 +32,23 @@ function Figure3D(parent, container, opts) {
 
     this.getWidth = function() {
         return _width;
-    };
+    }
 
     this.getHeight = function() {
         return _height;
-    };
+    }
 
     this.getRenderer = function() {
         return _renderer;
-    };
+    }
 
     this.getScene = function() {
         return _scene;
-    };
+    }
 
     this.getCamera = function() {
         return _camera;
-    };
+    }
 
     // Some test code
     var mesh = new THREE.Mesh( 
@@ -66,25 +60,6 @@ function Figure3D(parent, container, opts) {
 
 Figure3D.prototype.render = function() {
     this.getRenderer().render( this.getScene(), this.getCamera());
-};
-
-function Plot() {
-    this.type = 'Plot';
-    var _figures = [];
-    var _cameraData = {};
-
-    this.createFigure3D = function(container, opts) {
-        return new Figure3D(this, container, opts);
-    };
-
-    this.getCameraData = function(cameraGroup) {
-        return this.cameras[cameraGroup];
-    };
 }
 
-exports.Plot = Plot;
-exports.Figure3D = Figure3D;
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-})));
+export { Figure3D };
