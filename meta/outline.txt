@@ -1,0 +1,17 @@
+​Plot
+-Axis create2DAxis(cameraGroup)
+-Axis create3DAxis(cameraGroup)
+Axis2D
+-addPlot(plottable)
+-removePlot(plottable)
+-getCamera(); returns camera from associated camera group in parent
+-setCamera()
+-render(); rendering the different types is handled by the Axes
+Axis3D
+-addPlot(plottable)
+-removePlot(plottable)
+-getCamera()
+-setCamera()
+-render()
+Math: Function, Vector, Matrix, Variable, Interval
+Plottable: Point, Array, Curve, Mesh, Polygon
