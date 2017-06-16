@@ -15,6 +15,9 @@
         <script>
             plot = new Interactive.Plot();
             fig1 = plot.createAxes3D(document.getElementById('fig1'));
+            vec = new Interactive.Vector(1,0,0);
+            arr = new Interactive.Arrow3D(vec)
+            fig1.addPlot(arr);
 
             (function animate() {
                 requestAnimationFrame(animate);
