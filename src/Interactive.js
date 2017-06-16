@@ -1,2 +1,2 @@
 export { Plot } from '../src/core/Plot.js';
-export { Figure3D } from '../src/core/Figure3D.js';
+export { Axes3D } from '../src/core/Axes3D.js';
