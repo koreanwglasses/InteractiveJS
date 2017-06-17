@@ -32,7 +32,7 @@ function Frame(container, opts) {
     /**
      * Renderer from Three.js. (Private)
      */
-    this.renderer = new THREE.WebGLRenderer();
+    this.renderer = new THREE.WebGLRenderer(opts);
 
     // Initialize renderer within container
     this.renderer.setSize(this.width, this.height);

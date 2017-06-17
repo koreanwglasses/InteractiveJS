@@ -38,7 +38,7 @@ function Frame(container, opts) {
     /**
      * Renderer from Three.js. (Private)
      */
-    this.renderer = new THREE.WebGLRenderer();
+    this.renderer = new THREE.WebGLRenderer(opts);
 
     // Initialize renderer within container
     this.renderer.setSize(this.width, this.height);
@@ -59,8 +59,8 @@ Frame.prototype.render = function(camera) {
 };
 
 /**
- * Function that creates an arrow in 3d space. (Not an object. Do not use new)
- * @param {*} vector 
+ * Object that represents an arrow in 3d space.
+ * @param {*} vector The vector which this object is based on
  * @param {*} opts Options to customize the appearance of the arrow. Includes:
  * origin -- Point at which the arrow starts. Default is (0, 0, 0)
  * hex -- hexadecimal value to define color. Default is 0xffff00.
@@ -252,11 +252,48 @@ function Vector() {
     this.q = Array.from(arguments);
 }
 
+/**
+ * Object that represents basis axes in 3d space.
+ * @param {*} opts Options to customize the appearance of the arrows. Includes:
+ * origin -- Point of the origin. Default is (0, 0, 0)
+ * hex -- hexadecimal value to define color. Default is 0xffff00.
+ * headLength -- The length of the head of the arrow. Default is 0.2 * length.
+ * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
+ * (Derived from THREE.js)
+ */
+function BasisVectors3D(opts) {
+    opts = opts !== undefined ? opts : {};
+
+    this.xBasis = new Vector(1, 0, 0);
+    this.yBasis = new Vector(0, 1, 0);
+    this.zBasis = new Vector(0, 0, 1);
+
+    this.xArrow = new Arrow3D(this.xBasis, opts);   
+    this.yArrow = new Arrow3D(this.yBasis, opts);
+    this.zArrow = new Arrow3D(this.zBasis, opts);
+
+    this.sceneObject = null;
+}
+
+/**
+ * Returns an object that can be added to a THREE.js scene.
+ */
+BasisVectors3D.prototype.getSceneObject = function() {
+    if(this.sceneObject === null) {
+        this.sceneObject = new THREE.Group();
+        this.sceneObject.add(this.xArrow.getSceneObject());
+        this.sceneObject.add(this.yArrow.getSceneObject());
+        this.sceneObject.add(this.zArrow.getSceneObject());
+    }
+    return this.sceneObject;
+};
+
 exports.Plot = Plot;
 exports.Axes2D = Axes2D;
 exports.Axes3D = Axes3D;
 exports.Vector = Vector;
 exports.Arrow3D = Arrow3D;
+exports.BasisVectors3D = BasisVectors3D;
 exports.Frame = Frame;
 
 Object.defineProperty(exports, '__esModule', { value: true });

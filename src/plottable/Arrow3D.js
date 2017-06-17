@@ -1,6 +1,6 @@
 /**
- * Function that creates an arrow in 3d space. (Not an object. Do not use new)
- * @param {*} vector 
+ * Object that represents an arrow in 3d space.
+ * @param {*} vector The vector which this object is based on
  * @param {*} opts Options to customize the appearance of the arrow. Includes:
  * origin -- Point at which the arrow starts. Default is (0, 0, 0)
  * hex -- hexadecimal value to define color. Default is 0xffff00.
