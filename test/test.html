@@ -24,7 +24,7 @@
             fig1.addPlot(arr);
 
             fig2 = plot.createAxes2D(document.getElementById('fig2'), {antialias: true})
-            arr2 = new Interactive.Arrow2D(new Interactive.Vector(1,0));
+            arr2 = new Interactive.BasisVectors2D()
             fig2.addPlot(arr2);
 
             (function animate() {
