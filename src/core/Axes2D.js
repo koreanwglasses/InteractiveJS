@@ -64,14 +64,16 @@ function Axes2D(parent, container, opts) {
     });
 
     this.frame.container.addEventListener('pan', function(event) {
-        // Prevent default if mouse moved significantly
-        if((event.detail.screenX - event.detail.screenStartX) * (event.detail.screenX - event.detail.screenStartX) + (event.detail.screenY - event.detail.screenStartY) * (event.detail.screenY - event.detail.screenStartY) > 25) {
-            event.detail.suppressContextMenu();
+        if(event.detail.rightButtonDown) {
+            // Prevent default if mouse moved significantly
+            if((event.detail.screenX - event.detail.screenStartX) * (event.detail.screenX - event.detail.screenStartX) + (event.detail.screenY - event.detail.screenStartY) * (event.detail.screenY - event.detail.screenStartY) > 25) {
+                event.detail.suppressContextMenu();
+            }
+        
+            // Pan camera
+            _self.camera.position.x = -2 * (event.detail.screenX - event.detail.screenStartX) / _self.zoom + _cameraOriginX;
+            _self.camera.position.y = 2 * (event.detail.screenY - event.detail.screenStartY) / _self.zoom + _cameraOriginY;
         }
-    
-        // Pan camera
-        _self.camera.position.x = -2 * (event.detail.screenX - event.detail.screenStartX) / _self.zoom + _cameraOriginX;
-        _self.camera.position.y = 2 * (event.detail.screenY - event.detail.screenStartY) / _self.zoom + _cameraOriginY;
     });
 
     // Bind Events: Zooming
@@ -99,6 +101,9 @@ Axes2D.prototype.addPlot = function(object) {
     this.frame.scene.add(object.getSceneObject());
 }
 
+/**
+ * Apply changes to camera
+ */
 Axes2D.prototype.updateCamera = function() {
     this.camera.left = -this.frame.width / this.zoom
     this.camera.right = this.frame.width / this.zoom

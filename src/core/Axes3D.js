@@ -26,6 +26,11 @@ function Axes3D(parent, container, opts) {
     this.frame = new Frame(container, opts);
 
     /**
+     * The point which the camera will orbit around
+     */
+     this.corigin = this.frame.scene.position.clone();
+
+    /**
      * Camera which renders the axes. 
      */
     this.camera = new THREE.PerspectiveCamera( 50, this.frame.width / this.frame.height, .01, 50);
@@ -34,12 +39,65 @@ function Axes3D(parent, container, opts) {
     this.camera.position.x = 4;
     this.camera.position.y = 3;
     this.camera.position.z = 2;
-    this.camera.lookAt(this.frame.scene.position);
+    this.camera.lookAt(this.corigin);
 
     /**
      * Objects to plot
      */
     this.objects = []
+
+    // Bind events
+    var _self = this;
+
+    // Bind Events: Panning and Orbiting
+    var _cameraStartPol = 0;
+    var _cameraStartAz = 0;
+    var _cameraStartR = 1;
+    var _cameraStartO = null;
+    var _self = this;
+
+    this.frame.container.addEventListener('mousedown', function(event) {
+        if(event.buttons & 1) {
+            var sc = new THREE.Spherical();
+            sc.setFromVector3(_self.camera.position);
+            _cameraStartPol = sc.phi;
+            _cameraStartAz = sc.theta;
+            _cameraStartR = sc.r;
+        }
+    });
+
+    this.frame.container.addEventListener('pan', function(event) {
+        // Prevent default if mouse moved significantly
+        // if((event.detail.screenX - event.detail.screenStartX) * (event.detail.screenX - event.detail.screenStartX) + (event.detail.screenY - event.detail.screenStartY) * (event.detail.screenY - event.detail.screenStartY) > 25) {
+        //     event.detail.suppressContextMenu();
+        // }
+    
+        // Pan camera
+        // _self.camera.position.x = -2 * (event.detail.screenX - event.detail.screenStartX) / _self.zoom + _cameraOriginX;
+        // _self.camera.position.y = 2 * (event.detail.screenY - event.detail.screenStartY) / _self.zoom + _cameraOriginY;
+        if(event.detail.leftButtonDown) {
+            var r = _self.camera.position.distanceTo(_self.corigin);
+            var az = _cameraStartAz - (event.detail.screenX - event.detail.screenStartX) / 100
+            var pol = _cameraStartPol - (event.detail.screenY - event.detail.screenStartY) / 100
+
+            _self.camera.position.setFromSpherical(new THREE.Spherical(r, pol, az));
+            _self.camera.lookAt(_self.corigin);
+        }
+    });
+
+    // Bind Events: Zooming
+    this.frame.container.addEventListener('zoom', function(event) {
+        event.detail.suppressScrolling();
+        if(event.detail.amount > 0) {
+            var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), 1.25);
+            _self.camera.position.set(0,0,0).add(newPos);
+        }
+        else {
+            var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), 0.8);
+            _self.camera.position.set(0,0,0).add(newPos);
+        }
+        _self.camera.lookAt(_self.corigin);
+    });
 }
 
 /**

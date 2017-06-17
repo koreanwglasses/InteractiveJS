@@ -12,7 +12,9 @@ function TouchEventListener(container) {
     var _container = container;
 
     var _mouseInContainer = false;
-    var _rightMouseDown = false;
+    var _leftButtonDown = false;
+    var _rightButtonDown = false;
+    var _buttonsDown = 0;
     var _suppressContextMenu = false;
 
     var _screenStartX = 0;
@@ -27,14 +29,23 @@ function TouchEventListener(container) {
     });
 
     _container.addEventListener('mousedown', function(event) {
-        if(event.button & 2) _rightMouseDown = true;
-        
+        if(event.buttons & 2) _rightButtonDown = true;
+        if(event.buttons & 1) _leftButtonDown = true;
+        _buttonsDown |= event.buttons;
+
         _screenStartX = event.screenX;
         _screenStartY = event.screenY;
     });
 
-    _container.addEventListener('mouseup', function(event) {
-        if(event.button & 2) _rightMouseDown = false;
+    document.addEventListener('mouseup', function(event) {
+        if(event.button === 2) {
+            _rightButtonDown = false;
+            _buttonsDown &= 11011;
+        }
+        if(event.button === 0) {
+            _leftButtonDown = false;
+            _buttonsDown &= 11110;
+        }
     });
 
     _container.addEventListener('contextmenu', function(event) {
@@ -45,13 +56,16 @@ function TouchEventListener(container) {
     });
 
     document.addEventListener('mousemove', function(event) {
-        if(_rightMouseDown) {
+        if(_leftButtonDown || _rightButtonDown) {
             var e = new CustomEvent('pan', { 
                 detail: {
                     screenStartX: _screenStartX,
                     screenX: event.screenX,
                     screenStartY: _screenStartY,
                     screenY: event.screenY,
+                    leftButtonDown: _leftButtonDown,
+                    rightButtonDown: _rightButtonDown,
+                    buttons: _buttonsDown,
                     suppressContextMenu: function() {
                         _suppressContextMenu = true;
                     }
@@ -211,6 +225,11 @@ function Axes3D(parent, container, opts) {
     this.frame = new Frame(container, opts);
 
     /**
+     * The point which the camera will orbit around
+     */
+     this.corigin = this.frame.scene.position.clone();
+
+    /**
      * Camera which renders the axes. 
      */
     this.camera = new THREE.PerspectiveCamera( 50, this.frame.width / this.frame.height, .01, 50);
@@ -219,12 +238,65 @@ function Axes3D(parent, container, opts) {
     this.camera.position.x = 4;
     this.camera.position.y = 3;
     this.camera.position.z = 2;
-    this.camera.lookAt(this.frame.scene.position);
+    this.camera.lookAt(this.corigin);
 
     /**
      * Objects to plot
      */
     this.objects = [];
+
+    // Bind events
+    var _self = this;
+
+    // Bind Events: Panning and Orbiting
+    var _cameraStartPol = 0;
+    var _cameraStartAz = 0;
+    var _cameraStartR = 1;
+    var _cameraStartO = null;
+    var _self = this;
+
+    this.frame.container.addEventListener('mousedown', function(event) {
+        if(event.buttons & 1) {
+            var sc = new THREE.Spherical();
+            sc.setFromVector3(_self.camera.position);
+            _cameraStartPol = sc.phi;
+            _cameraStartAz = sc.theta;
+            _cameraStartR = sc.r;
+        }
+    });
+
+    this.frame.container.addEventListener('pan', function(event) {
+        // Prevent default if mouse moved significantly
+        // if((event.detail.screenX - event.detail.screenStartX) * (event.detail.screenX - event.detail.screenStartX) + (event.detail.screenY - event.detail.screenStartY) * (event.detail.screenY - event.detail.screenStartY) > 25) {
+        //     event.detail.suppressContextMenu();
+        // }
+    
+        // Pan camera
+        // _self.camera.position.x = -2 * (event.detail.screenX - event.detail.screenStartX) / _self.zoom + _cameraOriginX;
+        // _self.camera.position.y = 2 * (event.detail.screenY - event.detail.screenStartY) / _self.zoom + _cameraOriginY;
+        if(event.detail.leftButtonDown) {
+            var r = _self.camera.position.distanceTo(_self.corigin);
+            var az = _cameraStartAz - (event.detail.screenX - event.detail.screenStartX) / 100;
+            var pol = _cameraStartPol - (event.detail.screenY - event.detail.screenStartY) / 100;
+
+            _self.camera.position.setFromSpherical(new THREE.Spherical(r, pol, az));
+            _self.camera.lookAt(_self.corigin);
+        }
+    });
+
+    // Bind Events: Zooming
+    this.frame.container.addEventListener('zoom', function(event) {
+        event.detail.suppressScrolling();
+        if(event.detail.amount > 0) {
+            var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), 1.25);
+            _self.camera.position.set(0,0,0).add(newPos);
+        }
+        else {
+            var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), 0.8);
+            _self.camera.position.set(0,0,0).add(newPos);
+        }
+        _self.camera.lookAt(_self.corigin);
+    });
 }
 
 /**
@@ -307,14 +379,16 @@ function Axes2D(parent, container, opts) {
     });
 
     this.frame.container.addEventListener('pan', function(event) {
-        // Prevent default if mouse moved significantly
-        if((event.detail.screenX - event.detail.screenStartX) * (event.detail.screenX - event.detail.screenStartX) + (event.detail.screenY - event.detail.screenStartY) * (event.detail.screenY - event.detail.screenStartY) > 25) {
-            event.detail.suppressContextMenu();
+        if(event.detail.rightButtonDown) {
+            // Prevent default if mouse moved significantly
+            if((event.detail.screenX - event.detail.screenStartX) * (event.detail.screenX - event.detail.screenStartX) + (event.detail.screenY - event.detail.screenStartY) * (event.detail.screenY - event.detail.screenStartY) > 25) {
+                event.detail.suppressContextMenu();
+            }
+        
+            // Pan camera
+            _self.camera.position.x = -2 * (event.detail.screenX - event.detail.screenStartX) / _self.zoom + _cameraOriginX;
+            _self.camera.position.y = 2 * (event.detail.screenY - event.detail.screenStartY) / _self.zoom + _cameraOriginY;
         }
-    
-        // Pan camera
-        _self.camera.position.x = -2 * (event.detail.screenX - event.detail.screenStartX) / _self.zoom + _cameraOriginX;
-        _self.camera.position.y = 2 * (event.detail.screenY - event.detail.screenStartY) / _self.zoom + _cameraOriginY;
     });
 
     // Bind Events: Zooming
@@ -342,6 +416,9 @@ Axes2D.prototype.addPlot = function(object) {
     this.frame.scene.add(object.getSceneObject());
 };
 
+/**
+ * Apply changes to camera
+ */
 Axes2D.prototype.updateCamera = function() {
     this.camera.left = -this.frame.width / this.zoom;
     this.camera.right = this.frame.width / this.zoom;
@@ -481,7 +558,7 @@ function BasisVectors3D(opts) {
     this.zBasis = new Vector(0, 0, 1);
 
     this.xArrow = new Arrow3D(this.xBasis, opts);   
-    this.yArrow = new Arrow3D(this.yBasis, opts);
+    this.yArrow = new Arrow3D(this.yBasis, {hex: 0xff00});
     this.zArrow = new Arrow3D(this.zBasis, opts);
 
     this.sceneObject = null;

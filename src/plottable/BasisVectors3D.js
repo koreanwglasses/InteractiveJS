@@ -18,7 +18,7 @@ function BasisVectors3D(opts) {
     this.zBasis = new Vector(0, 0, 1);
 
     this.xArrow = new Arrow3D(this.xBasis, opts);   
-    this.yArrow = new Arrow3D(this.yBasis, opts);
+    this.yArrow = new Arrow3D(this.yBasis, {hex: 0xff00});
     this.zArrow = new Arrow3D(this.zBasis, opts);
 
     this.sceneObject = null;
