@@ -76,45 +76,45 @@ function Axes3D(parent, container, opts) {
         }
     });
 
-    this.frame.container.addEventListener('pan', function(event) {
-        if(event.detail.rightButtonDown) {
+    this.frame.touchEventListener.onpan = function(event) {
+        if(event.rightButtonDown) {
             // Prevent default if mouse moved significantly
-            if((event.detail.screenX - event.detail.screenStartX) * (event.detail.screenX - event.detail.screenStartX) + (event.detail.screenY - event.detail.screenStartY) * (event.detail.screenY - event.detail.screenStartY) > 25) {
-                event.detail.suppressContextMenu();
+            if((event.screenX - event.screenStartX) * (event.screenX - event.screenStartX) + (event.screenY - event.screenStartY) * (event.screenY - event.screenStartY) > 25) {
+                event.suppressContextMenu();
             }
         
             // Pan camera            
             var r = _self.camera.position.distanceTo(_self.corigin);
-            var disp = _upUnit.clone().multiplyScalar((event.detail.screenY - event.detail.screenStartY)).addScaledVector(_rightUnit, -(event.detail.screenX - event.detail.screenStartX))
+            var disp = _upUnit.clone().multiplyScalar((event.screenY - event.screenStartY)).addScaledVector(_rightUnit, -(event.screenX - event.screenStartX))
             var newCamPos = _cameraStartPos.clone().addScaledVector(disp, 0.002 * r)
-            _self.camera.position.set(0,0,0).add(newCamPos);
+            _self.camera.position.copy(newCamPos);
             var newOrPos = _cameraStartOr.clone().addScaledVector(disp, 0.002 * r)
-            _self.corigin.set(0,0,0).add(newOrPos);
+            _self.corigin.copy(newOrPos);
             _self.camera.lookAt(_self.corigin);
         }
-        if(event.detail.leftButtonDown) {
+        if(event.leftButtonDown) {
             var r = _self.camera.position.distanceTo(_self.corigin);
-            var az = _cameraStartAz - (event.detail.screenX - event.detail.screenStartX) / 100
-            var pol = _cameraStartPol - (event.detail.screenY - event.detail.screenStartY) / 100
+            var az = _cameraStartAz - (event.screenX - event.screenStartX) / 100
+            var pol = _cameraStartPol - (event.screenY - event.screenStartY) / 100
 
             _self.camera.position.setFromSpherical(new THREE.Spherical(r, pol, az)).add(_self.corigin);
             _self.camera.lookAt(_self.corigin);
         }
-    });
+    };
 
     // Bind Events: Zooming
-    this.frame.container.addEventListener('zoom', function(event) {
-        event.detail.suppressScrolling();
-        if(event.detail.amount > 0) {
+    this.frame.touchEventListener.onzoom = function(event) {
+        event.suppressScrolling();
+        if(event.amount > 0) {
             var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), 1.25);
-            _self.camera.position.set(0,0,0).add(newPos);
+            _self.camera.position.copy(newPos);
         }
         else {
             var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), 0.8);
-            _self.camera.position.set(0,0,0).add(newPos);
+            _self.camera.position.copy(newPos);
         }
         _self.camera.lookAt(_self.corigin);
-    });
+    };
 }
 
 /**
