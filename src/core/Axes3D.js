@@ -40,13 +40,6 @@ function Axes3D(parent, container, opts) {
      * Objects to plot
      */
     this.objects = []
-
-    // Some test code
-    // var mesh = new THREE.Mesh( 
-    //     new THREE.BoxGeometry( 200, 200, 200, 1, 1, 1 ), 
-    //     new THREE.MeshBasicMaterial( { color : 0xff0000, wireframe: true } 
-    // ));
-    // this.frame.scene.add( mesh );
 }
 
 /**
