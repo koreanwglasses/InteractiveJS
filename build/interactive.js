@@ -503,6 +503,7 @@ BasisVectors3D.prototype.getSceneObject = function() {
 exports.Plot = Plot;
 exports.Axes2D = Axes2D;
 exports.Axes3D = Axes3D;
+exports.TouchEventListener = TouchEventListener;
 exports.Vector = Vector;
 exports.Arrow2D = Arrow2D;
 exports.Arrow3D = Arrow3D;
