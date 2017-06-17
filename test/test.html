@@ -6,10 +6,15 @@
                 width: 400px;
                 height: 400px;
             }
+            #fig2 {
+                width: 400px;
+                height: 400px;
+            }
         </style>
     </head>
     <body>
         <div id="fig1"></div>
+        <div id="fig2"></div>
         <script src="../lib/three.min.js"></script>
         <script src="../build/interactive.js"></script>
         <script>
@@ -18,9 +23,14 @@
             arr = new Interactive.BasisVectors3D()
             fig1.addPlot(arr);
 
+            fig2 = plot.createAxes2D(document.getElementById('fig2'), {antialias: true})
+            arr2 = new Interactive.Arrow2D(new Interactive.Vector(1,0));
+            fig2.addPlot(arr2);
+
             (function animate() {
                 requestAnimationFrame(animate);
                 fig1.render();
+                fig2.render();
             })();
         </script>
     </body>

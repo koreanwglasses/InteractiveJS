@@ -131,7 +131,7 @@ function Axes3D(parent, container, opts) {
     /**
      * Camera which renders the axes. 
      */
-    this.camera = new THREE.PerspectiveCamera( 50, this.frame.width / this.frame.height, .01, 10);
+    this.camera = new THREE.PerspectiveCamera( 50, this.frame.width / this.frame.height, .01, 50);
 
     // Initialize camera position
     this.camera.position.x = 4;
@@ -143,13 +143,6 @@ function Axes3D(parent, container, opts) {
      * Objects to plot
      */
     this.objects = [];
-
-    // Some test code
-    // var mesh = new THREE.Mesh( 
-    //     new THREE.BoxGeometry( 200, 200, 200, 1, 1, 1 ), 
-    //     new THREE.MeshBasicMaterial( { color : 0xff0000, wireframe: true } 
-    // ));
-    // this.frame.scene.add( mesh );
 }
 
 /**
@@ -196,18 +189,23 @@ function Axes2D(parent, container, opts) {
     /**
      * Camera which renders the axes. 
      */
-    this.camera = new THREE.OrthographicCamera(-this.frame.width / 2, this.frame.width / 2, this.frame.height / 2, -this.frame.height / 2, 1, 1000);
+    this.camera = new THREE.OrthographicCamera(-this.frame.width / 200, this.frame.width / 200, this.frame.height / 200, -this.frame.height / 200, .01, 50);
 
     // Initialize camera position
-    this.camera.position.z = 500;
+    this.camera.position.z = 10;
     this.camera.lookAt(this.frame.scene.position);
 
     // Some test code
-    var mesh = new THREE.Mesh( 
-        new THREE.BoxGeometry( 200, 200, 200, 1, 1, 1 ), 
-        new THREE.MeshBasicMaterial( { color : 0xff0000, wireframe: true } 
-    ));
-    this.frame.scene.add( mesh );
+    // var mesh = new THREE.Mesh( 
+    //     new THREE.BoxGeometry( 1, 1, 1, 1, 1, 1 ), 
+    //     new THREE.MeshBasicMaterial( { color : 0xff0000, wireframe: true } 
+    // ));
+    // this.frame.scene.add( mesh );
+
+    /**
+     * Objects to plot
+     */
+    this.objects = [];
 }
 
 /**
@@ -215,6 +213,15 @@ function Axes2D(parent, container, opts) {
  */
 Axes2D.prototype.render = function() {
     this.frame.render( this.camera );
+};
+
+/**
+ * Add an object to plot
+ * @param {*} object Must be plottable
+ */
+Axes2D.prototype.addPlot = function(object) {
+    this.objects.push(object);
+    this.frame.scene.add(object.getSceneObject());
 };
 
 function Plot() {
@@ -251,6 +258,52 @@ function Vector() {
     // q is the general term for a coordinate
     this.q = Array.from(arguments);
 }
+
+/**
+ * Object that represents an arrow in 2d space.
+ * @param {*} vector The vector which this object is based on
+ * @param {*} opts Options to customize the appearance of the arrow. Includes:
+ * origin -- Point at which the arrow starts. Default is (0, 0)
+ * hex -- hexadecimal value to define color. Default is 0xffff00.
+ * headLength -- The length of the head of the arrow. Default is 0.2 * length.
+ * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
+ * (Derived from THREE.js)
+ */
+function Arrow2D(vector, opts) {
+    if (vector.type !== 'Vector') {
+        console.log('Interactive.Arrow2D: Parameter is not a vector.');
+        return null;
+    }
+
+    if (vector.dimensions !== 2) {
+        console.log('Interactive.Arrow2D: Vector dimension mismatch. 2D vector required.');
+        return null;
+    }
+
+    this.opts = opts !== undefined ? opts : {};
+
+    this.vector = vector;
+
+    this.sceneObject = null;
+}
+
+/**
+ * Returns an object that can be added to a THREE.js scene.
+ */
+Arrow2D.prototype.getSceneObject = function() {
+    if(this.sceneObject === null) {
+        var _vector2 = new THREE.Vector3(this.vector.q[0], this.vector.q[1]);
+        var _dir = _vector2.clone().normalize();
+        var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
+        var _length = _vector2.length();
+        var _hex = this.opts.hex !== undefined ? this.opts.hex : 0xffffff;
+        var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2 * _length;
+        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.2 * _headLength;
+
+        this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
+    }
+    return this.sceneObject;
+};
 
 /**
  * Object that represents basis axes in 3d space.
@@ -292,6 +345,7 @@ exports.Plot = Plot;
 exports.Axes2D = Axes2D;
 exports.Axes3D = Axes3D;
 exports.Vector = Vector;
+exports.Arrow2D = Arrow2D;
 exports.Arrow3D = Arrow3D;
 exports.BasisVectors3D = BasisVectors3D;
 exports.Frame = Frame;

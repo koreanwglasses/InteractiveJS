@@ -28,18 +28,23 @@ function Axes2D(parent, container, opts) {
     /**
      * Camera which renders the axes. 
      */
-    this.camera = new THREE.OrthographicCamera(-this.frame.width / 2, this.frame.width / 2, this.frame.height / 2, -this.frame.height / 2, 1, 1000);
+    this.camera = new THREE.OrthographicCamera(-this.frame.width / 200, this.frame.width / 200, this.frame.height / 200, -this.frame.height / 200, .01, 50);
 
     // Initialize camera position
-    this.camera.position.z = 500;
+    this.camera.position.z = 10;
     this.camera.lookAt(this.frame.scene.position);
 
     // Some test code
-    var mesh = new THREE.Mesh( 
-        new THREE.BoxGeometry( 200, 200, 200, 1, 1, 1 ), 
-        new THREE.MeshBasicMaterial( { color : 0xff0000, wireframe: true } 
-    ));
-    this.frame.scene.add( mesh );
+    // var mesh = new THREE.Mesh( 
+    //     new THREE.BoxGeometry( 1, 1, 1, 1, 1, 1 ), 
+    //     new THREE.MeshBasicMaterial( { color : 0xff0000, wireframe: true } 
+    // ));
+    // this.frame.scene.add( mesh );
+
+    /**
+     * Objects to plot
+     */
+    this.objects = []
 }
 
 /**
@@ -47,6 +52,15 @@ function Axes2D(parent, container, opts) {
  */
 Axes2D.prototype.render = function() {
     this.frame.render( this.camera );
+}
+
+/**
+ * Add an object to plot
+ * @param {*} object Must be plottable
+ */
+Axes2D.prototype.addPlot = function(object) {
+    this.objects.push(object);
+    this.frame.scene.add(object.getSceneObject());
 }
 
 export { Axes2D };

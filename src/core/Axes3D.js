@@ -28,7 +28,7 @@ function Axes3D(parent, container, opts) {
     /**
      * Camera which renders the axes. 
      */
-    this.camera = new THREE.PerspectiveCamera( 50, this.frame.width / this.frame.height, .01, 10);
+    this.camera = new THREE.PerspectiveCamera( 50, this.frame.width / this.frame.height, .01, 50);
 
     // Initialize camera position
     this.camera.position.x = 4;
