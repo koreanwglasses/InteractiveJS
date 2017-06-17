@@ -263,6 +263,12 @@ function Axes2D(parent, container, opts) {
     };
 
     // Bind Events: Zooming
+    this.frame.container.onwheel = function(event) {
+        event.preventDefault();
+        if(event.deltaY > 0) _self.zoom *= 0.8;
+        else _self.zoom *= 1.25;
+        _self.updateCamera();
+    };
 }
 
 /**
@@ -279,6 +285,14 @@ Axes2D.prototype.render = function() {
 Axes2D.prototype.addPlot = function(object) {
     this.objects.push(object);
     this.frame.scene.add(object.getSceneObject());
+};
+
+Axes2D.prototype.updateCamera = function() {
+    this.camera.left = -this.frame.width / this.zoom;
+    this.camera.right = this.frame.width / this.zoom;
+    this.camera.top = this.frame.height / this.zoom;
+    this.camera.bottom = -this.frame.height / this.zoom;
+    this.camera.updateProjectionMatrix();
 };
 
 function Plot() {
