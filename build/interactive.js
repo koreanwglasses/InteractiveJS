@@ -5,6 +5,78 @@
 }(this, (function (exports) { 'use strict';
 
 /**
+ * Creates several bindings and useful functions for mouse and touch interactions
+ * @param {*} container 
+ */
+function TouchEventListener(container) {
+    var _container = container;
+
+    var _mouseInContainer = false;
+    var _rightMouseDown = false;
+    var _suppressContextMenu = false;
+
+    var _screenStartX = 0;
+    var _screenStartY = 0;
+
+    _container.addEventListener('mouseenter', function() {
+        _mouseInContainer = true;
+    });
+
+    _container.addEventListener('mouseleave', function() {
+        _mouseInContainer = false;
+    });
+
+    _container.addEventListener('mousedown', function(event) {
+        if(event.button & 2) _rightMouseDown = true;
+        
+        _screenStartX = event.screenX;
+        _screenStartY = event.screenY;
+    });
+
+    _container.addEventListener('mouseup', function(event) {
+        if(event.button & 2) _rightMouseDown = false;
+    });
+
+    _container.addEventListener('contextmenu', function(event) {
+        if(_suppressContextMenu) {
+            event.preventDefault();
+            _suppressContextMenu = false;
+        }
+    });
+
+    document.addEventListener('mousemove', function(event) {
+        if(_rightMouseDown) {
+            var e = new CustomEvent('pan', { 
+                detail: {
+                    screenStartX: _screenStartX,
+                    screenX: event.screenX,
+                    screenStartY: _screenStartY,
+                    screenY: event.screenY,
+                    suppressContextMenu: function() {
+                        _suppressContextMenu = true;
+                    }
+                }
+            });
+            _container.dispatchEvent(e);
+        }
+    });
+
+    _container.addEventListener('wheel', function(event) {
+        var e = new CustomEvent('zoom', {
+            detail: {
+                amount: event.deltaY,
+                suppressScrolling: function() {
+                    event.preventDefault();
+                }
+            }
+        });
+
+        _container.dispatchEvent(e);
+    });
+
+}
+
+/**
  * Creates a scene and a renderer
  * @param {*} container 
  * @param {*} opts 
@@ -29,6 +101,11 @@ function Frame(container, opts) {
      * DOM Element which contains the frame
      */
     this.container = container;
+
+    /**
+     * Event Listener for touch and mouse events
+     */
+    this.touchEventListener = new TouchEventListener(this.container);
 
     /**
      * Width of the viewport derived from the width of the container. (Read-only)
@@ -218,57 +295,35 @@ function Axes2D(parent, container, opts) {
     this.objects = [];
 
     // Bind events: Panning
-    var _mouseInContainer = false;
-    var _mouseDown = false;
-    var _screenOriginX = 0;
-    var _screenOriginY = 0;
     var _cameraOriginX = 0;
     var _cameraOriginY = 0;
     var _self = this;
 
-    this.frame.container.onmouseenter = function() {
-        _mouseInContainer = true;
-    };
-
-    this.frame.container.onmouseleave = function() {
-        _mouseInContainer = false;
-    };
-
-    this.frame.container.onmousedown = function(event) {
+    this.frame.container.addEventListener('mousedown', function(event) {
         if(event.button & 2) {
-            _mouseDown = true;
-            _screenOriginX = event.screenX;
-            _screenOriginY = event.screenY;
             _cameraOriginX = _self.camera.position.x;
             _cameraOriginY = _self.camera.position.y;
         }
-    };
-    
-    this.frame.container.onmouseup = function(event) {
-        if(event.button & 2) _mouseDown = false;
-    };
+    });
 
-    this.frame.container.oncontextmenu = function(event) {
+    this.frame.container.addEventListener('pan', function(event) {
         // Prevent default if mouse moved significantly
-        if((event.screenX - _screenOriginX) * (event.screenX - _screenOriginX) + (event.screenY - _screenOriginY) * (event.screenY - _screenOriginY) > 25) {
-            event.preventDefault();
+        if((event.detail.screenX - event.detail.screenStartX) * (event.detail.screenX - event.detail.screenStartX) + (event.detail.screenY - event.detail.screenStartY) * (event.detail.screenY - event.detail.screenStartY) > 25) {
+            event.detail.suppressContextMenu();
         }
-    };
-
-    document.onmousemove = function(event) {
-        if(_mouseDown) {
-            _self.camera.position.x = -2 * (event.screenX - _screenOriginX) / _self.zoom + _cameraOriginX;
-            _self.camera.position.y = 2 * (event.screenY - _screenOriginY) / _self.zoom + _cameraOriginY;
-        }
-    };
+    
+        // Pan camera
+        _self.camera.position.x = -2 * (event.detail.screenX - event.detail.screenStartX) / _self.zoom + _cameraOriginX;
+        _self.camera.position.y = 2 * (event.detail.screenY - event.detail.screenStartY) / _self.zoom + _cameraOriginY;
+    });
 
     // Bind Events: Zooming
-    this.frame.container.onwheel = function(event) {
-        event.preventDefault();
-        if(event.deltaY > 0) _self.zoom *= 0.8;
+    this.frame.container.addEventListener('zoom', function(event) {
+        event.detail.suppressScrolling();
+        if(event.detail.amount > 0) _self.zoom *= 0.8;
         else _self.zoom *= 1.25;
         _self.updateCamera();
-    };
+    });
 }
 
 /**

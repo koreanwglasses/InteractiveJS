@@ -1,3 +1,5 @@
+import { TouchEventListener } from '../environment/TouchEventListener.js';
+
 /**
  * Creates a scene and a renderer
  * @param {*} container 
@@ -23,6 +25,11 @@ function Frame(container, opts) {
      * DOM Element which contains the frame
      */
     this.container = container;
+
+    /**
+     * Event Listener for touch and mouse events
+     */
+    this.touchEventListener = new TouchEventListener(this.container);
 
     /**
      * Width of the viewport derived from the width of the container. (Read-only)

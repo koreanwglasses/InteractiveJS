@@ -52,57 +52,35 @@ function Axes2D(parent, container, opts) {
     this.objects = []
 
     // Bind events: Panning
-    var _mouseInContainer = false;
-    var _mouseDown = false;
-    var _screenOriginX = 0;
-    var _screenOriginY = 0;
     var _cameraOriginX = 0;
     var _cameraOriginY = 0;
     var _self = this;
 
-    this.frame.container.onmouseenter = function() {
-        _mouseInContainer = true;
-    }
-
-    this.frame.container.onmouseleave = function() {
-        _mouseInContainer = false;
-    }
-
-    this.frame.container.onmousedown = function(event) {
+    this.frame.container.addEventListener('mousedown', function(event) {
         if(event.button & 2) {
-            _mouseDown = true;
-            _screenOriginX = event.screenX;
-            _screenOriginY = event.screenY;
             _cameraOriginX = _self.camera.position.x;
             _cameraOriginY = _self.camera.position.y;
         }
-    };
-    
-    this.frame.container.onmouseup = function(event) {
-        if(event.button & 2) _mouseDown = false;
-    }
+    });
 
-    this.frame.container.oncontextmenu = function(event) {
+    this.frame.container.addEventListener('pan', function(event) {
         // Prevent default if mouse moved significantly
-        if((event.screenX - _screenOriginX) * (event.screenX - _screenOriginX) + (event.screenY - _screenOriginY) * (event.screenY - _screenOriginY) > 25) {
-            event.preventDefault();
+        if((event.detail.screenX - event.detail.screenStartX) * (event.detail.screenX - event.detail.screenStartX) + (event.detail.screenY - event.detail.screenStartY) * (event.detail.screenY - event.detail.screenStartY) > 25) {
+            event.detail.suppressContextMenu();
         }
-    }
-
-    document.onmousemove = function(event) {
-        if(_mouseDown) {
-            _self.camera.position.x = -2 * (event.screenX - _screenOriginX) / _self.zoom + _cameraOriginX;
-            _self.camera.position.y = 2 * (event.screenY - _screenOriginY) / _self.zoom + _cameraOriginY;
-        }
-    }
+    
+        // Pan camera
+        _self.camera.position.x = -2 * (event.detail.screenX - event.detail.screenStartX) / _self.zoom + _cameraOriginX;
+        _self.camera.position.y = 2 * (event.detail.screenY - event.detail.screenStartY) / _self.zoom + _cameraOriginY;
+    });
 
     // Bind Events: Zooming
-    this.frame.container.onwheel = function(event) {
-        event.preventDefault();
-        if(event.deltaY > 0) _self.zoom *= 0.8;
+    this.frame.container.addEventListener('zoom', function(event) {
+        event.detail.suppressScrolling();
+        if(event.detail.amount > 0) _self.zoom *= 0.8;
         else _self.zoom *= 1.25;
         _self.updateCamera();
-    }
+    });
 }
 
 /**
