@@ -20,6 +20,11 @@ function Frame(container, opts) {
     if(opts === undefined) opts = {};
 
     /**
+     * DOM Element which contains the frame
+     */
+    this.container = container;
+
+    /**
      * Width of the viewport derived from the width of the container. (Read-only)
      */
     this.width = container.clientWidth;

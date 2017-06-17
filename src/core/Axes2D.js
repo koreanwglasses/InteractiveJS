@@ -26,9 +26,14 @@ function Axes2D(parent, container, opts) {
     this.frame = new Frame(container, opts);
 
     /**
+     * The zoom level of the camera. Denotes how many pixels should be one unit
+     */
+    this.zoom = 200;
+
+    /**
      * Camera which renders the axes. 
      */
-    this.camera = new THREE.OrthographicCamera(-this.frame.width / 200, this.frame.width / 200, this.frame.height / 200, -this.frame.height / 200, .01, 50);
+    this.camera = new THREE.OrthographicCamera(-this.frame.width / this.zoom, this.frame.width / this.zoom, this.frame.height / this.zoom, -this.frame.height / this.zoom, .01, 50);
 
     // Initialize camera position
     this.camera.position.z = 10;
@@ -45,6 +50,53 @@ function Axes2D(parent, container, opts) {
      * Objects to plot
      */
     this.objects = []
+
+    // Bind events: Panning
+    var _mouseInContainer = false;
+    var _mouseDown = false;
+    var _screenOriginX = 0;
+    var _screenOriginY = 0;
+    var _cameraOriginX = 0;
+    var _cameraOriginY = 0;
+    var _self = this;
+
+    this.frame.container.onmouseenter = function() {
+        _mouseInContainer = true;
+    }
+
+    this.frame.container.onmouseleave = function() {
+        _mouseInContainer = false;
+    }
+
+    this.frame.container.onmousedown = function(event) {
+        if(event.button & 2) {
+            _mouseDown = true;
+            _screenOriginX = event.screenX;
+            _screenOriginY = event.screenY;
+            _cameraOriginX = _self.camera.position.x;
+            _cameraOriginY = _self.camera.position.y;
+        }
+    };
+    
+    this.frame.container.onmouseup = function(event) {
+        if(event.button & 2) _mouseDown = false;
+    }
+
+    this.frame.container.oncontextmenu = function(event) {
+        // Prevent default if mouse moved significantly
+        if((event.screenX - _screenOriginX) * (event.screenX - _screenOriginX) + (event.screenY - _screenOriginY) * (event.screenY - _screenOriginY) > 25) {
+            event.preventDefault();
+        }
+    }
+
+    document.onmousemove = function(event) {
+        if(_mouseDown) {
+            _self.camera.position.x = -2 * (event.screenX - _screenOriginX) / _self.zoom + _cameraOriginX;
+            _self.camera.position.y = 2 * (event.screenY - _screenOriginY) / _self.zoom + _cameraOriginY;
+        }
+    }
+
+    // Bind Events: Zooming
 }
 
 /**
