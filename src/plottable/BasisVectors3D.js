@@ -11,15 +11,29 @@ import { Arrow3D } from './Arrow3D.js';
  * (Derived from THREE.js)
  */
 function BasisVectors3D(opts) {
-    opts = opts !== undefined ? opts : {};
+    var _opts = opts !== undefined ? opts : {};
 
     this.xBasis = new Vector(1, 0, 0);
     this.yBasis = new Vector(0, 1, 0);
     this.zBasis = new Vector(0, 0, 1);
 
-    this.xArrow = new Arrow3D(this.xBasis, opts);   
-    this.yArrow = new Arrow3D(this.yBasis, {hex: 0xff00});
-    this.zArrow = new Arrow3D(this.zBasis, opts);
+    var _xOpts = _opts;
+    var _yOpts = _opts;
+    var _zOpts = _opts;
+
+    if( _opts.xHex === undefined) {
+        _xOpts.hex = 0x880000;
+    }
+    if( _opts.yHex === undefined) {
+        _yOpts.hex = 0x008800;
+    }
+    if( _opts.zHex === undefined) {
+        _zOpts.hex = 0x000088;
+    }
+
+    this.xArrow = new Arrow3D(this.xBasis, _xOpts);   
+    this.yArrow = new Arrow3D(this.yBasis, _yOpts);
+    this.zArrow = new Arrow3D(this.zBasis, _zOpts);
 
     this.sceneObject = null;
 }
