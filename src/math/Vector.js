@@ -18,6 +18,7 @@ Vector.prototype.clone = function() {
     var newVec = new Vector();
     newVec.dimensions = this.dimensions;
     newVec.q = this.q.slice();
+    return newVec;
 }
 
 /**
@@ -31,6 +32,14 @@ Vector.prototype.add = function(v) {
     for(var i = 0; i < this.dimensions; i++) {
         this.q[i] += v.q[i];
     }
+    return this;
+}
+
+/**
+ * Sets this vector's coordinates to the input vector's
+ */
+Vector.prototype.set = function(v) {
+    this.q = v.q.slice();
     return this;
 }
 
