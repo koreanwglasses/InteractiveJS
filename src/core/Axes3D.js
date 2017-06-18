@@ -137,7 +137,7 @@ Axes3D.prototype.addFigure = function(object) {
 /**
  * Remove a plotted object
  */
-Axes2D.prototype.removeFigure = function(object) {
+Axes3D.prototype.removeFigure = function(object) {
     var index = this.objects.indexOf(object);
     if(index === -1) {
         console.log('Interactive.Axes3D: Figure not in axes')
@@ -150,7 +150,7 @@ Axes2D.prototype.removeFigure = function(object) {
 /**
  * Force the object to update
  */
-Axes2D.prototype.redrawFigure = function(object) {
+Axes3D.prototype.redrawFigure = function(object) {
     var index = this.objects.indexOf(object);
     if(index === -1) {
         console.log('Interactive.Axes3D: Figure not in axes')
