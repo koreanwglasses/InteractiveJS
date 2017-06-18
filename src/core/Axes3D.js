@@ -2,7 +2,7 @@ import { Frame } from '../render/Frame.js';
 import { Arrow3D } from '../plottable/Arrow3D.js';
 
 /**
- * Renders plots (not to be confused with the Plot class)
+ * Renders plots (not to be confused with the Figure class)
  * TODO: Add functionality to link cameras between figures
  * @param {*} parent 
  * @param {*} container 
@@ -128,7 +128,7 @@ Axes3D.prototype.render = function() {
  * Add an object to plot
  * @param {*} object Must be plottable
  */
-Axes3D.prototype.addPlot = function(object) {
+Axes3D.prototype.addFigure = function(object) {
     this.objects.push(object);
     this.frame.scene.add(object.getSceneObject());
 }
