@@ -11,13 +11,27 @@ import { Arrow2D } from './Arrow2D.js';
  * (Derived from THREE.js)
  */
 function BasisVectors2D(opts) {
-    opts = opts !== undefined ? opts : {};
+    var _opts = opts !== undefined ? opts : {};
 
     this.xBasis = new Vector(1, 0);
     this.yBasis = new Vector(0, 1);
 
-    this.xArrow = new Arrow2D(this.xBasis, {hex: 0x880000, headWidth: 0.04});   
-    this.yArrow = new Arrow2D(this.yBasis, {hex: 0x008800, headWidth: 0.04});
+    var _xOpts = _opts;
+    var _yOpts = _opts;
+
+    if( _opts.headWidth === undefined ) {
+        _xOpts.headWidth = 0.04;
+        _yOpts.headWidth = 0.04;
+    }
+    if( _opts.xHex === undefined) {
+        _xOpts.hex = 0x880000;
+    }
+    if( _opts.yHex === undefined) {
+        _yOpts.hex = 0x008800;
+    }
+
+    this.xArrow = new Arrow2D(this.xBasis, _xOpts);   
+    this.yArrow = new Arrow2D(this.yBasis, _yOpts);
 
     this.sceneObject = null;
 }
