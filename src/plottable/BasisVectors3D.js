@@ -17,9 +17,9 @@ function BasisVectors3D(opts) {
     this.yBasis = new Vector(0, 1, 0);
     this.zBasis = new Vector(0, 0, 1);
 
-    var _xOpts = _opts;
-    var _yOpts = _opts;
-    var _zOpts = _opts;
+    var _xOpts = Object.assign({},_opts);
+    var _yOpts = Object.assign({},_opts);
+    var _zOpts = Object.assign({},_opts);
 
     if( _opts.xHex === undefined) {
         _xOpts.hex = 0x880000;

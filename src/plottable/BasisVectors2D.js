@@ -16,8 +16,8 @@ function BasisVectors2D(opts) {
     this.xBasis = new Vector(1, 0);
     this.yBasis = new Vector(0, 1);
 
-    var _xOpts = _opts;
-    var _yOpts = _opts;
+    var _xOpts = Object.assign({},_opts);
+    var _yOpts = Object.assign({},_opts);
 
     if( _opts.headWidth === undefined ) {
         _xOpts.headWidth = 0.04;
