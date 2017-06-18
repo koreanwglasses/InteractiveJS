@@ -17,4 +17,14 @@ Vector.prototype.clone = function() {
     newVec.q = this.q.slice();
 }
 
+Vector.prototype.add = function(v) {
+    if(v.dimensions !== this.dimensions) {
+        console.log('Interactive.Vector: Dimensions mismatch');
+        return null;
+    }
+    for(var i = 0; i < this.dimensions; i++) {
+        this.q[i] += v.q[i];
+    }
+}
+
 export {Vector};
