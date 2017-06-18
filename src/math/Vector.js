@@ -11,12 +11,18 @@ function Vector() {
     this.q = Array.from(arguments);
 }
 
+/**
+ * Creates a copy of this vector
+ */
 Vector.prototype.clone = function() {
     var newVec = new Vector();
     newVec.dimensions = this.dimensions;
     newVec.q = this.q.slice();
 }
 
+/**
+ * Adds the vector to this vector
+ */
 Vector.prototype.add = function(v) {
     if(v.dimensions !== this.dimensions) {
         console.log('Interactive.Vector: Dimensions mismatch');
@@ -25,6 +31,7 @@ Vector.prototype.add = function(v) {
     for(var i = 0; i < this.dimensions; i++) {
         this.q[i] += v.q[i];
     }
+    return this;
 }
 
 export {Vector};
