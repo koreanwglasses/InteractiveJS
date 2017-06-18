@@ -358,6 +358,34 @@ Axes3D.prototype.addFigure = function(object) {
     this.frame.scene.add(object.getSceneObject());
 };
 
+
+/**
+ * Remove a plotted object
+ */
+Axes2D.prototype.removeFigure = function(object) {
+    var index = this.objects.indexOf(object);
+    if(index === -1) {
+        console.log('Interactive.Axes3D: Figure not in axes');
+        return null;
+    }
+    this.objects.splice(index, 1);
+    this.frame.scene.remove(object.getSceneObject());
+};
+
+/**
+ * Force the object to update
+ */
+Axes2D.prototype.redrawFigure = function(object) {
+    var index = this.objects.indexOf(object);
+    if(index === -1) {
+        console.log('Interactive.Axes3D: Figure not in axes');
+        return null;
+    }
+    this.frame.scene.remove(object.getSceneObject());
+    object.invalidate();
+    this.frame.scene.add(object.getSceneObject());    
+};
+
 function Hotspot2D(position) {
     this.type = 'Hotspot2D';
 
@@ -389,7 +417,7 @@ function Hotspot2D(position) {
  * @param {*} opts 
  */
 
-function Axes2D(parent, container, opts) {
+function Axes2D$1(parent, container, opts) {
     /**
      * The type of this object. (Read-only)
      */
@@ -523,7 +551,7 @@ function Axes2D(parent, container, opts) {
 /**
  * Render the axes
  */
-Axes2D.prototype.render = function() {
+Axes2D$1.prototype.render = function() {
     this.frame.render( this.camera );
 };
 
@@ -531,7 +559,7 @@ Axes2D.prototype.render = function() {
  * Add an object to plot
  * @param {*} object Must be plottable
  */
-Axes2D.prototype.addFigure = function(object) {
+Axes2D$1.prototype.addFigure = function(object) {
     this.objects.push(object);
     this.frame.scene.add(object.getSceneObject());
 };
@@ -539,7 +567,7 @@ Axes2D.prototype.addFigure = function(object) {
 /**
  * Remove a plotted object
  */
-Axes2D.prototype.removeFigure = function(object) {
+Axes2D$1.prototype.removeFigure = function(object) {
     var index = this.objects.indexOf(object);
     if(index === -1) {
         console.log('Interactive.Axes2D: Figure not in axes');
@@ -552,7 +580,7 @@ Axes2D.prototype.removeFigure = function(object) {
 /**
  * Force the object to update
  */
-Axes2D.prototype.redrawFigure = function(object) {
+Axes2D$1.prototype.redrawFigure = function(object) {
     var index = this.objects.indexOf(object);
     if(index === -1) {
         console.log('Interactive.Axes2D: Figure not in axes');
@@ -563,11 +591,10 @@ Axes2D.prototype.redrawFigure = function(object) {
     this.frame.scene.add(object.getSceneObject());    
 };
 
-
 /**
  * Apply changes to camera
  */
-Axes2D.prototype.updateCamera = function() {
+Axes2D$1.prototype.updateCamera = function() {
     this.camera.left = -this.frame.width / this.zoom;
     this.camera.right = this.frame.width / this.zoom;
     this.camera.top = this.frame.height / this.zoom;
@@ -575,7 +602,7 @@ Axes2D.prototype.updateCamera = function() {
     this.camera.updateProjectionMatrix();
 };
 
-Axes2D.prototype.addHotspot = function(hotspot) {
+Axes2D$1.prototype.addHotspot = function(hotspot) {
     if (hotspot.type !== 'Hotspot2D') {
         console.log('Interactive.Axes2D: Parameter is not a Hotspot2D.');
         return null;
@@ -602,7 +629,7 @@ function Plot() {
      * Create a 2D axis in the context of this plot
      */
     this.createAxes2D = function(container, opts) {
-        return new Axes2D(this, container, opts);
+        return new Axes2D$1(this, container, opts);
     };
 }
 
@@ -720,13 +747,27 @@ Arrow2D.prototype.invalidate = function() {
  * (Derived from THREE.js)
  */
 function BasisVectors2D(opts) {
-    opts = opts !== undefined ? opts : {};
+    var _opts = opts !== undefined ? opts : {};
 
     this.xBasis = new Vector(1, 0);
     this.yBasis = new Vector(0, 1);
 
-    this.xArrow = new Arrow2D(this.xBasis, {hex: 0x880000, headWidth: 0.04});   
-    this.yArrow = new Arrow2D(this.yBasis, {hex: 0x008800, headWidth: 0.04});
+    var _xOpts = _opts;
+    var _yOpts = _opts;
+
+    if( _opts.headWidth === undefined ) {
+        _xOpts.headWidth = 0.04;
+        _yOpts.headWidth = 0.04;
+    }
+    if( _opts.xHex === undefined) {
+        _xOpts.hex = 0x880000;
+    }
+    if( _opts.yHex === undefined) {
+        _yOpts.hex = 0x008800;
+    }
+
+    this.xArrow = new Arrow2D(this.xBasis, _xOpts);   
+    this.yArrow = new Arrow2D(this.yBasis, _yOpts);
 
     this.sceneObject = null;
 }
@@ -753,15 +794,29 @@ BasisVectors2D.prototype.getSceneObject = function() {
  * (Derived from THREE.js)
  */
 function BasisVectors3D(opts) {
-    opts = opts !== undefined ? opts : {};
+    var _opts = opts !== undefined ? opts : {};
 
     this.xBasis = new Vector(1, 0, 0);
     this.yBasis = new Vector(0, 1, 0);
     this.zBasis = new Vector(0, 0, 1);
 
-    this.xArrow = new Arrow3D(this.xBasis, opts);   
-    this.yArrow = new Arrow3D(this.yBasis, {hex: 0xff00});
-    this.zArrow = new Arrow3D(this.zBasis, opts);
+    var _xOpts = _opts;
+    var _yOpts = _opts;
+    var _zOpts = _opts;
+
+    if( _opts.xHex === undefined) {
+        _xOpts.hex = 0x880000;
+    }
+    if( _opts.yHex === undefined) {
+        _yOpts.hex = 0x008800;
+    }
+    if( _opts.zHex === undefined) {
+        _zOpts.hex = 0x000088;
+    }
+
+    this.xArrow = new Arrow3D(this.xBasis, _xOpts);   
+    this.yArrow = new Arrow3D(this.yBasis, _yOpts);
+    this.zArrow = new Arrow3D(this.zBasis, _zOpts);
 
     this.sceneObject = null;
 }
@@ -780,7 +835,7 @@ BasisVectors3D.prototype.getSceneObject = function() {
 };
 
 exports.Plot = Plot;
-exports.Axes2D = Axes2D;
+exports.Axes2D = Axes2D$1;
 exports.Axes3D = Axes3D;
 exports.TouchEventListener = TouchEventListener;
 exports.Vector = Vector;
