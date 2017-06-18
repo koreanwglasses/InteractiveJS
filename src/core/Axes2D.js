@@ -184,7 +184,6 @@ Axes2D.prototype.redrawFigure = function(object) {
     this.frame.scene.add(object.getSceneObject());    
 }
 
-
 /**
  * Apply changes to camera
  */
