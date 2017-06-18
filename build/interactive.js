@@ -227,7 +227,7 @@ Arrow3D.prototype.invalidate = function() {
 };
 
 /**
- * Renders plots (not to be confused with the Plot class)
+ * Renders plots (not to be confused with the Figure class)
  * TODO: Add functionality to link cameras between figures
  * @param {*} parent 
  * @param {*} container 
@@ -353,7 +353,7 @@ Axes3D.prototype.render = function() {
  * Add an object to plot
  * @param {*} object Must be plottable
  */
-Axes3D.prototype.addPlot = function(object) {
+Axes3D.prototype.addFigure = function(object) {
     this.objects.push(object);
     this.frame.scene.add(object.getSceneObject());
 };
@@ -372,7 +372,7 @@ function Hotspot2D(position) {
     }
 
     this.position = position;
-    this.size = 5;
+    this.size = 10;
     // this.onmouseenter = function() { return false; }
     // this.onmouseleave = function() { return false; }
     // this.onmousedown = function() { return false; }
@@ -381,7 +381,7 @@ function Hotspot2D(position) {
 }
 
 /**
- * Renders plots in 2D (not to be confused with the Plot class)
+ * Renders plots in 2D (not to be confused with the Figure class)
  * TODO: Add functionality to link cameras between figures
  * TODO: Add better control of the viewport
  * @param {*} parent 
@@ -531,7 +531,7 @@ Axes2D.prototype.render = function() {
  * Add an object to plot
  * @param {*} object Must be plottable
  */
-Axes2D.prototype.addPlot = function(object) {
+Axes2D.prototype.addFigure = function(object) {
     this.objects.push(object);
     this.frame.scene.add(object.getSceneObject());
 };
@@ -539,10 +539,10 @@ Axes2D.prototype.addPlot = function(object) {
 /**
  * Remove a plotted object
  */
-Axes2D.prototype.removePlot = function(object) {
+Axes2D.prototype.removeFigure = function(object) {
     var index = this.objects.indexOf(object);
     if(index === -1) {
-        console.log('Interactive.Axes2D: Plot not in axes');
+        console.log('Interactive.Axes2D: Figure not in axes');
         return null;
     }
     this.objects.splice(index, 1);
@@ -552,10 +552,10 @@ Axes2D.prototype.removePlot = function(object) {
 /**
  * Force the object to update
  */
-Axes2D.prototype.redrawPlot = function(object) {
+Axes2D.prototype.redrawFigure = function(object) {
     var index = this.objects.indexOf(object);
     if(index === -1) {
-        console.log('Interactive.Axes2D: Plot not in axes');
+        console.log('Interactive.Axes2D: Figure not in axes');
         return null;
     }
     this.frame.scene.remove(object.getSceneObject());

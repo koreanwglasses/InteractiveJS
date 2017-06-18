@@ -22,7 +22,7 @@
             plot = new Interactive.Plot();
             fig1 = plot.createAxes3D(document.getElementById('fig1'), {antialias: true});
             arr = new Interactive.BasisVectors3D()
-            fig1.addPlot(arr);
+            fig1.addFigure(arr);
 
             fig2 = plot.createAxes2D(document.getElementById('fig2'), {antialias: true})
             arr2 = new Interactive.BasisVectors2D()
@@ -32,10 +32,10 @@
             hot.ondrag = function(event) {
                 vec.q[0] = event.worldX;
                 vec.q[1] = event.worldY;
-                fig2.redrawPlot(arr3);
+                fig2.redrawFigure(arr3);
             }
-            fig2.addPlot(arr2);
-            fig2.addPlot(arr3);
+            fig2.addFigure(arr2);
+            fig2.addFigure(arr3);
             fig2.addHotspot(hot);
 
             (function animate() {
