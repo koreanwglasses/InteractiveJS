@@ -811,7 +811,7 @@ function BasisVectors3D(opts) {
         _yOpts.hex = 0x008800;
     }
     if( _opts.zHex === undefined) {
-        _zOpts.hex = 0x000088;
+        _zOpts.hex = 0x4444ff;
     }
 
     this.xArrow = new Arrow3D(this.xBasis, _xOpts);   
