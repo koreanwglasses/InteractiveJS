@@ -12,7 +12,7 @@ function Hotspot2D(position) {
     }
 
     this.position = position;
-    this.size = 5;
+    this.size = 10;
     // this.onmouseenter = function() { return false; }
     // this.onmouseleave = function() { return false; }
     // this.onmousedown = function() { return false; }
