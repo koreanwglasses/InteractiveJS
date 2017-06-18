@@ -14,6 +14,11 @@ function TouchEventListener(container) {
     var _screenStartX = 0;
     var _screenStartY = 0;
 
+    var _clientStartX = 0;
+    var _clientStartY = 0;
+
+    var _self = this;
+
     _container.addEventListener('mouseenter', function() {
         _mouseInContainer = true;
     });
@@ -29,6 +34,10 @@ function TouchEventListener(container) {
 
         _screenStartX = event.screenX;
         _screenStartY = event.screenY;
+
+        var containerBounds = _container.getBoundingClientRect();
+        _clientStartX = event.clientX - containerBounds.left;
+        _clientStartY = event.clientY - containerBounds.top;
     });
 
     document.addEventListener('mouseup', function(event) {
@@ -51,37 +60,44 @@ function TouchEventListener(container) {
 
     document.addEventListener('mousemove', function(event) {
         if(_leftButtonDown || _rightButtonDown) {
-            var e = new CustomEvent('pan', { 
-                detail: {
-                    screenStartX: _screenStartX,
-                    screenX: event.screenX,
-                    screenStartY: _screenStartY,
-                    screenY: event.screenY,
-                    leftButtonDown: _leftButtonDown,
-                    rightButtonDown: _rightButtonDown,
-                    buttons: _buttonsDown,
-                    suppressContextMenu: function() {
-                        _suppressContextMenu = true;
-                    }
+            var containerBounds = _container.getBoundingClientRect();
+            var e = {
+                screenStartX: _screenStartX,
+                screenX: event.screenX,
+                screenStartY: _screenStartY,
+                screenY: event.screenY,
+                clientStartX: _clientStartX,
+                clientX: event.clientX - containerBounds.left,
+                clientStartY: _clientStartY,
+                clientY: event.clientY - containerBounds.top,
+                leftButtonDown: _leftButtonDown,
+                rightButtonDown: _rightButtonDown,
+                buttons: _buttonsDown,
+                suppressContextMenu: function() {
+                    _suppressContextMenu = true;
                 }
-            });
-            _container.dispatchEvent(e);
+            }
+            _self.onpan(e);
         }
     });
 
     _container.addEventListener('wheel', function(event) {
-        var e = new CustomEvent('zoom', {
-            detail: {
-                amount: event.deltaY,
-                suppressScrolling: function() {
-                    event.preventDefault();
-                }
+        var e = {
+            amount: event.deltaY,
+            suppressScrolling: function() {
+                event.preventDefault();
             }
-        });
-
-        _container.dispatchEvent(e);
+        };
+        _self.onzoom(e);
     });
 
+    this.onpan = function() {
+        return false;
+    };
+
+    this.onzoom = function() {
+        return false;
+    }
 }
 
 export { TouchEventListener };

@@ -5,6 +5,7 @@
             #fig1 {
                 width: 400px;
                 height: 400px;
+                margin-bottom: 20px;
             }
             #fig2 {
                 width: 400px;
@@ -25,7 +26,17 @@
 
             fig2 = plot.createAxes2D(document.getElementById('fig2'), {antialias: true})
             arr2 = new Interactive.BasisVectors2D()
+            vec = new Interactive.Vector(1,.5);
+            arr3 = new Interactive.Arrow2D(vec);
+            hot = new Interactive.Hotspot2D(vec);
+            hot.ondrag = function(event) {
+                vec.q[0] = event.worldX;
+                vec.q[1] = event.worldY;
+                fig2.redrawPlot(arr3);
+            }
             fig2.addPlot(arr2);
+            fig2.addPlot(arr3);
+            fig2.addHotspot(hot);
 
             (function animate() {
                 requestAnimationFrame(animate);

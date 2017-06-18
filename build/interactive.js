@@ -20,6 +20,11 @@ function TouchEventListener(container) {
     var _screenStartX = 0;
     var _screenStartY = 0;
 
+    var _clientStartX = 0;
+    var _clientStartY = 0;
+
+    var _self = this;
+
     _container.addEventListener('mouseenter', function() {
         _mouseInContainer = true;
     });
@@ -35,6 +40,10 @@ function TouchEventListener(container) {
 
         _screenStartX = event.screenX;
         _screenStartY = event.screenY;
+
+        var containerBounds = _container.getBoundingClientRect();
+        _clientStartX = event.clientX - containerBounds.left;
+        _clientStartY = event.clientY - containerBounds.top;
     });
 
     document.addEventListener('mouseup', function(event) {
@@ -57,37 +66,44 @@ function TouchEventListener(container) {
 
     document.addEventListener('mousemove', function(event) {
         if(_leftButtonDown || _rightButtonDown) {
-            var e = new CustomEvent('pan', { 
-                detail: {
-                    screenStartX: _screenStartX,
-                    screenX: event.screenX,
-                    screenStartY: _screenStartY,
-                    screenY: event.screenY,
-                    leftButtonDown: _leftButtonDown,
-                    rightButtonDown: _rightButtonDown,
-                    buttons: _buttonsDown,
-                    suppressContextMenu: function() {
-                        _suppressContextMenu = true;
-                    }
+            var containerBounds = _container.getBoundingClientRect();
+            var e = {
+                screenStartX: _screenStartX,
+                screenX: event.screenX,
+                screenStartY: _screenStartY,
+                screenY: event.screenY,
+                clientStartX: _clientStartX,
+                clientX: event.clientX - containerBounds.left,
+                clientStartY: _clientStartY,
+                clientY: event.clientY - containerBounds.top,
+                leftButtonDown: _leftButtonDown,
+                rightButtonDown: _rightButtonDown,
+                buttons: _buttonsDown,
+                suppressContextMenu: function() {
+                    _suppressContextMenu = true;
                 }
-            });
-            _container.dispatchEvent(e);
+            };
+            _self.onpan(e);
         }
     });
 
     _container.addEventListener('wheel', function(event) {
-        var e = new CustomEvent('zoom', {
-            detail: {
-                amount: event.deltaY,
-                suppressScrolling: function() {
-                    event.preventDefault();
-                }
+        var e = {
+            amount: event.deltaY,
+            suppressScrolling: function() {
+                event.preventDefault();
             }
-        });
-
-        _container.dispatchEvent(e);
+        };
+        _self.onzoom(e);
     });
 
+    this.onpan = function() {
+        return false;
+    };
+
+    this.onzoom = function() {
+        return false;
+    };
 }
 
 /**
@@ -180,13 +196,15 @@ function Arrow3D(vector, opts) {
     this.vector = vector;
 
     this.sceneObject = null;
+
+    this.validated = false;
 }
 
 /**
  * Returns an object that can be added to a THREE.js scene.
  */
 Arrow3D.prototype.getSceneObject = function() {
-    if(this.sceneObject === null) {
+    if(this.validated === false) {
         var _vector3 = new THREE.Vector3(this.vector.q[0], this.vector.q[1], this.vector.q[2]);
         var _dir = _vector3.clone().normalize();
         var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
@@ -196,8 +214,16 @@ Arrow3D.prototype.getSceneObject = function() {
         var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.2 * _headLength;
 
         this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
+        this.validated = true;
     }
     return this.sceneObject;
+};
+
+/**
+ * Updates on the next call to render
+ */
+Arrow3D.prototype.invalidate = function() {
+    this.validated = false;
 };
 
 /**
@@ -275,47 +301,45 @@ function Axes3D(parent, container, opts) {
         }
     });
 
-    this.frame.container.addEventListener('pan', function(event) {
-        if(event.detail.rightButtonDown) {
+    this.frame.touchEventListener.onpan = function(event) {
+        if(event.rightButtonDown) {
             // Prevent default if mouse moved significantly
-            if((event.detail.screenX - event.detail.screenStartX) * (event.detail.screenX - event.detail.screenStartX) + (event.detail.screenY - event.detail.screenStartY) * (event.detail.screenY - event.detail.screenStartY) > 25) {
-                event.detail.suppressContextMenu();
+            if((event.screenX - event.screenStartX) * (event.screenX - event.screenStartX) + (event.screenY - event.screenStartY) * (event.screenY - event.screenStartY) > 25) {
+                event.suppressContextMenu();
             }
         
             // Pan camera            
             var r = _self.camera.position.distanceTo(_self.corigin);
-            var disp = _upUnit.clone().multiplyScalar((event.detail.screenY - event.detail.screenStartY)).addScaledVector(_rightUnit, -(event.detail.screenX - event.detail.screenStartX));
+            var disp = _upUnit.clone().multiplyScalar((event.screenY - event.screenStartY)).addScaledVector(_rightUnit, -(event.screenX - event.screenStartX));
             var newCamPos = _cameraStartPos.clone().addScaledVector(disp, 0.002 * r);
-            _self.camera.position.set(0,0,0).add(newCamPos);
+            _self.camera.position.copy(newCamPos);
             var newOrPos = _cameraStartOr.clone().addScaledVector(disp, 0.002 * r);
-            _self.corigin.set(0,0,0).add(newOrPos);
+            _self.corigin.copy(newOrPos);
             _self.camera.lookAt(_self.corigin);
-
-            console.log(_self.corigin);
         }
-        if(event.detail.leftButtonDown) {
+        if(event.leftButtonDown) {
             var r = _self.camera.position.distanceTo(_self.corigin);
-            var az = _cameraStartAz - (event.detail.screenX - event.detail.screenStartX) / 100;
-            var pol = _cameraStartPol - (event.detail.screenY - event.detail.screenStartY) / 100;
+            var az = _cameraStartAz - (event.screenX - event.screenStartX) / 100;
+            var pol = _cameraStartPol - (event.screenY - event.screenStartY) / 100;
 
             _self.camera.position.setFromSpherical(new THREE.Spherical(r, pol, az)).add(_self.corigin);
             _self.camera.lookAt(_self.corigin);
         }
-    });
+    };
 
     // Bind Events: Zooming
-    this.frame.container.addEventListener('zoom', function(event) {
-        event.detail.suppressScrolling();
-        if(event.detail.amount > 0) {
+    this.frame.touchEventListener.onzoom = function(event) {
+        event.suppressScrolling();
+        if(event.amount > 0) {
             var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), 1.25);
-            _self.camera.position.set(0,0,0).add(newPos);
+            _self.camera.position.copy(newPos);
         }
         else {
             var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), 0.8);
-            _self.camera.position.set(0,0,0).add(newPos);
+            _self.camera.position.copy(newPos);
         }
         _self.camera.lookAt(_self.corigin);
-    });
+    };
 }
 
 /**
@@ -333,6 +357,28 @@ Axes3D.prototype.addPlot = function(object) {
     this.objects.push(object);
     this.frame.scene.add(object.getSceneObject());
 };
+
+function Hotspot2D(position) {
+    this.type = 'Hotspot2D';
+
+    if (position.type !== 'Vector') {
+        console.log('Interactive.Hotspot2D: position is not a vector.');
+        return null;
+    }
+
+    if (position.dimensions !== 2) {
+        console.log('Interactive.Hotspot2D: Vector dimension mismatch. 2D vector required.');
+        return null;
+    }
+
+    this.position = position;
+    this.size = 5;
+    // this.onmouseenter = function() { return false; }
+    // this.onmouseleave = function() { return false; }
+    // this.onmousedown = function() { return false; }
+    // this.onmouseup = function() { return false; }
+    this.ondrag = function() { return false; };
+}
 
 /**
  * Renders plots in 2D (not to be confused with the Plot class)
@@ -380,43 +426,98 @@ function Axes2D(parent, container, opts) {
     // ));
     // this.frame.scene.add( mesh );
 
+    // For closures
+    var _self = this;
+
     /**
      * Objects to plot
      */
     this.objects = [];
 
+    /**
+     * Hotspots are draggable points
+     */
+    this.hotspots = [];
+
+    // Projects from world to client coords
+    var project = function(vector) {
+        var vector2 = new THREE.Vector2(vector.q[0], vector.q[1]);
+        var projected = vector2.clone().sub(_self.camera.position).multiplyScalar(_self.zoom / 2).add(new THREE.Vector2(_self.frame.width / 2, _self.frame.height / 2));
+        projected.y = _self.frame.height - projected.y;
+        return projected;
+    };
+
+    // Projects from client to world coords
+    var unproject = function(clientX, clientY) {        
+        var containerBounds = _self.frame.container.getBoundingClientRect();        
+        var clientCoords = new THREE.Vector2(clientX - containerBounds.left + 20, clientY - containerBounds.top - 20);
+        clientCoords.y = -clientCoords.y;
+        return clientCoords.clone().sub(new THREE.Vector2(_self.frame.width / 2, _self.frame.height / 2)).multiplyScalar(2 / _self.zoom).add(_self.camera.position);
+    };
+
+    var intersectsHotspot = function(clientX, clientY) {
+        var hotspot = null;
+        var leastDistance = 1000; // Arbitrarily large number
+
+        var containerBounds = _self.frame.container.getBoundingClientRect();
+        var clientCoords = new THREE.Vector2(clientX - containerBounds.left, clientY - containerBounds.top);
+
+        for(var i = 0; i < _self.hotspots.length; i++) {
+            var dist2 = project(_self.hotspots[i].position).distanceToSquared(clientCoords);
+            if(dist2 <= _self.hotspots[i].size * _self.hotspots[i].size && dist2 < leastDistance * leastDistance) {
+                hotspot = _self.hotspots[i];
+            }
+        }
+        return hotspot;
+    };
+
     // Bind events: Panning
     var _cameraOriginX = 0;
     var _cameraOriginY = 0;
-    var _self = this;
+
+    var _hotspot = null;
 
     this.frame.container.addEventListener('mousedown', function(event) {
-        if(event.button & 2) {
+        if(event.button === 0) {
+            _hotspot = intersectsHotspot(event.clientX, event.clientY);
+        }
+        if(event.button === 2) {
             _cameraOriginX = _self.camera.position.x;
             _cameraOriginY = _self.camera.position.y;
         }
     });
 
-    this.frame.container.addEventListener('pan', function(event) {
-        if(event.detail.rightButtonDown) {
+    this.frame.touchEventListener.onpan = function(event) {
+        if(event.leftButtonDown) {
+            if(_hotspot !== null) {
+                var containerBounds = _self.frame.container.getBoundingClientRect();
+                var wc = unproject(event.clientX - containerBounds.left, event.clientY - containerBounds.top);
+                var e = {
+                    worldX: wc.x,
+                    worldY: wc.y
+                };
+                _hotspot.ondrag(e);
+            }
+        }
+        if(event.rightButtonDown) {
             // Prevent default if mouse moved significantly
-            if((event.detail.screenX - event.detail.screenStartX) * (event.detail.screenX - event.detail.screenStartX) + (event.detail.screenY - event.detail.screenStartY) * (event.detail.screenY - event.detail.screenStartY) > 25) {
-                event.detail.suppressContextMenu();
+            if((event.screenX - event.screenStartX) * (event.screenX - event.screenStartX) + (event.screenY - event.screenStartY) * (event.screenY - event.screenStartY) > 25) {
+                event.suppressContextMenu();
             }
         
             // Pan camera
-            _self.camera.position.x = -2 * (event.detail.screenX - event.detail.screenStartX) / _self.zoom + _cameraOriginX;
-            _self.camera.position.y = 2 * (event.detail.screenY - event.detail.screenStartY) / _self.zoom + _cameraOriginY;
+            _self.camera.position.x = -2 * (event.screenX - event.screenStartX) / _self.zoom + _cameraOriginX;
+            _self.camera.position.y = 2 * (event.screenY - event.screenStartY) / _self.zoom + _cameraOriginY;
         }
-    });
+    };
 
     // Bind Events: Zooming
-    this.frame.container.addEventListener('zoom', function(event) {
-        event.detail.suppressScrolling();
-        if(event.detail.amount > 0) _self.zoom *= 0.8;
+    this.frame.touchEventListener.onzoom = function(event) {
+        event.suppressScrolling();
+        if(event.amount > 0) _self.zoom *= 0.8;
         else _self.zoom *= 1.25;
         _self.updateCamera();
-    });
+    };
 }
 
 /**
@@ -436,6 +537,34 @@ Axes2D.prototype.addPlot = function(object) {
 };
 
 /**
+ * Remove a plotted object
+ */
+Axes2D.prototype.removePlot = function(object) {
+    var index = this.objects.indexOf(object);
+    if(index === -1) {
+        console.log('Interactive.Axes2D: Plot not in axes');
+        return null;
+    }
+    this.objects.splice(index, 1);
+    this.frame.scene.remove(object.getSceneObject());
+};
+
+/**
+ * Force the object to update
+ */
+Axes2D.prototype.redrawPlot = function(object) {
+    var index = this.objects.indexOf(object);
+    if(index === -1) {
+        console.log('Interactive.Axes2D: Plot not in axes');
+        return null;
+    }
+    this.frame.scene.remove(object.getSceneObject());
+    object.invalidate();
+    this.frame.scene.add(object.getSceneObject());    
+};
+
+
+/**
  * Apply changes to camera
  */
 Axes2D.prototype.updateCamera = function() {
@@ -444,6 +573,15 @@ Axes2D.prototype.updateCamera = function() {
     this.camera.top = this.frame.height / this.zoom;
     this.camera.bottom = -this.frame.height / this.zoom;
     this.camera.updateProjectionMatrix();
+};
+
+Axes2D.prototype.addHotspot = function(hotspot) {
+    if (hotspot.type !== 'Hotspot2D') {
+        console.log('Interactive.Axes2D: Parameter is not a Hotspot2D.');
+        return null;
+    }
+
+    this.hotspots.push(hotspot);
 };
 
 function Plot() {
@@ -487,8 +625,8 @@ function Vector() {
  * @param {*} opts Options to customize the appearance of the arrow. Includes:
  * origin -- Point at which the arrow starts. Default is (0, 0)
  * hex -- hexadecimal value to define color. Default is 0xffff00.
- * headLength -- The length of the head of the arrow. Default is 0.2 * length.
- * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
+ * headLength -- The length of the head of the arrow. Default is 0.2.
+ * headWidth -- The length of the width of the arrow. Default is 0.1.
  * (Derived from THREE.js)
  */
 function Arrow2D(vector, opts) {
@@ -504,27 +642,40 @@ function Arrow2D(vector, opts) {
 
     this.opts = opts !== undefined ? opts : {};
 
+    /**
+     * (Read-only)
+     */
     this.vector = vector;
 
     this.sceneObject = null;
+
+    this.validated = false;
 }
 
 /**
  * Returns an object that can be added to a THREE.js scene.
  */
 Arrow2D.prototype.getSceneObject = function() {
-    if(this.sceneObject === null) {
+    if(this.validated === false) {
         var _vector2 = new THREE.Vector3(this.vector.q[0], this.vector.q[1]);
         var _dir = _vector2.clone().normalize();
         var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
         var _length = _vector2.length();
         var _hex = this.opts.hex !== undefined ? this.opts.hex : 0xffffff;
-        var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2 * _length;
-        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.2 * _headLength;
+        var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2;
+        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.1;
 
         this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
+        this.validated = true;
     }
     return this.sceneObject;
+};
+
+/**
+ * Updates on the next call to render
+ */
+Arrow2D.prototype.invalidate = function() {
+    this.validated = false;
 };
 
 /**
@@ -605,6 +756,7 @@ exports.Arrow2D = Arrow2D;
 exports.Arrow3D = Arrow3D;
 exports.BasisVectors2D = BasisVectors2D;
 exports.BasisVectors3D = BasisVectors3D;
+exports.Hotspot2D = Hotspot2D;
 exports.Frame = Frame;
 
 Object.defineProperty(exports, '__esModule', { value: true });

@@ -1,4 +1,5 @@
 import { Frame } from '../render/Frame.js';
+import { Hotspot2D } from '../plottable/Hotspot2D.js';
 
 /**
  * Renders plots in 2D (not to be confused with the Plot class)
@@ -46,43 +47,98 @@ function Axes2D(parent, container, opts) {
     // ));
     // this.frame.scene.add( mesh );
 
+    // For closures
+    var _self = this;
+
     /**
      * Objects to plot
      */
     this.objects = []
 
+    /**
+     * Hotspots are draggable points
+     */
+    this.hotspots = [];
+
+    // Projects from world to client coords
+    var project = function(vector) {
+        var vector2 = new THREE.Vector2(vector.q[0], vector.q[1]);
+        var projected = vector2.clone().sub(_self.camera.position).multiplyScalar(_self.zoom / 2).add(new THREE.Vector2(_self.frame.width / 2, _self.frame.height / 2));
+        projected.y = _self.frame.height - projected.y;
+        return projected;
+    }
+
+    // Projects from client to world coords
+    var unproject = function(clientX, clientY) {        
+        var containerBounds = _self.frame.container.getBoundingClientRect();        
+        var clientCoords = new THREE.Vector2(clientX - containerBounds.left + 20, clientY - containerBounds.top - 20);
+        clientCoords.y = -clientCoords.y;
+        return clientCoords.clone().sub(new THREE.Vector2(_self.frame.width / 2, _self.frame.height / 2)).multiplyScalar(2 / _self.zoom).add(_self.camera.position);
+    }
+
+    var intersectsHotspot = function(clientX, clientY) {
+        var hotspot = null;
+        var leastDistance = 1000; // Arbitrarily large number
+
+        var containerBounds = _self.frame.container.getBoundingClientRect();
+        var clientCoords = new THREE.Vector2(clientX - containerBounds.left, clientY - containerBounds.top);
+
+        for(var i = 0; i < _self.hotspots.length; i++) {
+            var dist2 = project(_self.hotspots[i].position).distanceToSquared(clientCoords);
+            if(dist2 <= _self.hotspots[i].size * _self.hotspots[i].size && dist2 < leastDistance * leastDistance) {
+                hotspot = _self.hotspots[i];
+            }
+        }
+        return hotspot;
+    }
+
     // Bind events: Panning
     var _cameraOriginX = 0;
     var _cameraOriginY = 0;
-    var _self = this;
+
+    var _hotspot = null;
 
     this.frame.container.addEventListener('mousedown', function(event) {
-        if(event.button & 2) {
+        if(event.button === 0) {
+            _hotspot = intersectsHotspot(event.clientX, event.clientY);
+        }
+        if(event.button === 2) {
             _cameraOriginX = _self.camera.position.x;
             _cameraOriginY = _self.camera.position.y;
         }
     });
 
-    this.frame.container.addEventListener('pan', function(event) {
-        if(event.detail.rightButtonDown) {
+    this.frame.touchEventListener.onpan = function(event) {
+        if(event.leftButtonDown) {
+            if(_hotspot !== null) {
+                var containerBounds = _self.frame.container.getBoundingClientRect();
+                var wc = unproject(event.clientX - containerBounds.left, event.clientY - containerBounds.top);
+                var e = {
+                    worldX: wc.x,
+                    worldY: wc.y
+                }
+                _hotspot.ondrag(e);
+            }
+        }
+        if(event.rightButtonDown) {
             // Prevent default if mouse moved significantly
-            if((event.detail.screenX - event.detail.screenStartX) * (event.detail.screenX - event.detail.screenStartX) + (event.detail.screenY - event.detail.screenStartY) * (event.detail.screenY - event.detail.screenStartY) > 25) {
-                event.detail.suppressContextMenu();
+            if((event.screenX - event.screenStartX) * (event.screenX - event.screenStartX) + (event.screenY - event.screenStartY) * (event.screenY - event.screenStartY) > 25) {
+                event.suppressContextMenu();
             }
         
             // Pan camera
-            _self.camera.position.x = -2 * (event.detail.screenX - event.detail.screenStartX) / _self.zoom + _cameraOriginX;
-            _self.camera.position.y = 2 * (event.detail.screenY - event.detail.screenStartY) / _self.zoom + _cameraOriginY;
+            _self.camera.position.x = -2 * (event.screenX - event.screenStartX) / _self.zoom + _cameraOriginX;
+            _self.camera.position.y = 2 * (event.screenY - event.screenStartY) / _self.zoom + _cameraOriginY;
         }
-    });
+    }
 
     // Bind Events: Zooming
-    this.frame.container.addEventListener('zoom', function(event) {
-        event.detail.suppressScrolling();
-        if(event.detail.amount > 0) _self.zoom *= 0.8;
+    this.frame.touchEventListener.onzoom = function(event) {
+        event.suppressScrolling();
+        if(event.amount > 0) _self.zoom *= 0.8;
         else _self.zoom *= 1.25;
         _self.updateCamera();
-    });
+    }
 }
 
 /**
@@ -102,6 +158,34 @@ Axes2D.prototype.addPlot = function(object) {
 }
 
 /**
+ * Remove a plotted object
+ */
+Axes2D.prototype.removePlot = function(object) {
+    var index = this.objects.indexOf(object);
+    if(index === -1) {
+        console.log('Interactive.Axes2D: Plot not in axes')
+        return null;
+    }
+    this.objects.splice(index, 1);
+    this.frame.scene.remove(object.getSceneObject());
+}
+
+/**
+ * Force the object to update
+ */
+Axes2D.prototype.redrawPlot = function(object) {
+    var index = this.objects.indexOf(object);
+    if(index === -1) {
+        console.log('Interactive.Axes2D: Plot not in axes')
+        return null;
+    }
+    this.frame.scene.remove(object.getSceneObject());
+    object.invalidate();
+    this.frame.scene.add(object.getSceneObject());    
+}
+
+
+/**
  * Apply changes to camera
  */
 Axes2D.prototype.updateCamera = function() {
@@ -110,6 +194,15 @@ Axes2D.prototype.updateCamera = function() {
     this.camera.top = this.frame.height / this.zoom
     this.camera.bottom = -this.frame.height / this.zoom
     this.camera.updateProjectionMatrix();
+}
+
+Axes2D.prototype.addHotspot = function(hotspot) {
+    if (hotspot.type !== 'Hotspot2D') {
+        console.log('Interactive.Axes2D: Parameter is not a Hotspot2D.');
+        return null;
+    }
+
+    this.hotspots.push(hotspot);
 }
 
 export { Axes2D };

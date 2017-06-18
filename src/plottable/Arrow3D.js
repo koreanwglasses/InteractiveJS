@@ -24,13 +24,15 @@ function Arrow3D(vector, opts) {
     this.vector = vector;
 
     this.sceneObject = null;
+
+    this.validated = false;
 }
 
 /**
  * Returns an object that can be added to a THREE.js scene.
  */
 Arrow3D.prototype.getSceneObject = function() {
-    if(this.sceneObject === null) {
+    if(this.validated === false) {
         var _vector3 = new THREE.Vector3(this.vector.q[0], this.vector.q[1], this.vector.q[2]);
         var _dir = _vector3.clone().normalize();
         var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
@@ -40,8 +42,16 @@ Arrow3D.prototype.getSceneObject = function() {
         var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.2 * _headLength;
 
         this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
+        this.validated = true;
     }
     return this.sceneObject;
+}
+
+/**
+ * Updates on the next call to render
+ */
+Arrow3D.prototype.invalidate = function() {
+    this.validated = false;
 }
 
 export { Arrow3D };
