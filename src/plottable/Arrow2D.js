@@ -5,7 +5,7 @@
  * origin -- Point at which the arrow starts. Default is (0, 0)
  * hex -- hexadecimal value to define color. Default is 0xffff00.
  * headLength -- The length of the head of the arrow. Default is 0.2.
- * headWidth -- The length of the width of the arrow. Default is 0.1.
+ * headWidth -- The length of the width of the arrow. Default is 0.05.
  * (Derived from THREE.js)
  */
 function Arrow2D(vector, opts) {
@@ -42,7 +42,7 @@ Arrow2D.prototype.getSceneObject = function() {
         var _length = _vector2.length();
         var _hex = this.opts.hex !== undefined ? this.opts.hex : 0xffffff;
         var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2;
-        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.1;
+        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.05;
 
         this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
         this.validated = true;
