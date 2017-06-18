@@ -76,9 +76,9 @@ function Axes2D(parent, container, opts) {
         var containerBounds = _self.frame.container.getBoundingClientRect();
         var clientCoords = new THREE.Vector2(clientX - containerBounds.left, clientY - containerBounds.top);
 
-        for(var i = 0; i < _self.hotspots.length; i++) {
+        for (var i = 0; i < _self.hotspots.length; i++) {
             var dist2 = project(_self.hotspots[i].position).distanceToSquared(clientCoords);
-            if(dist2 <= _self.hotspots[i].size * _self.hotspots[i].size && dist2 < leastDistance * leastDistance) {
+            if (dist2 <= _self.hotspots[i].size * _self.hotspots[i].size && dist2 < leastDistance * leastDistance) {
                 hotspot = _self.hotspots[i];
             }
         }
@@ -93,21 +93,21 @@ function Axes2D(parent, container, opts) {
     var _hotspotpos = null;
 
     this.frame.container.addEventListener('mousedown', function(event) {
-        if(event.button === 0) {
+        if (event.button === 0) {
             _hotspot = intersectsHotspot(event.clientX, event.clientY);
-            if(_hotspot) {
+            if (_hotspot) {
                 _hotspotpos = _hotspot.position.clone();
             }
         }
-        if(event.button === 2) {
+        if (event.button === 2) {
             _cameraOriginX = _self.camera.position.x;
             _cameraOriginY = _self.camera.position.y;
         }
     });
 
     this.frame.touchEventListener.onpan = function(event) {
-        if(event.leftButtonDown) {
-            if(_hotspot !== null) {
+        if (event.leftButtonDown) {
+            if (_hotspot !== null) {
                 var containerBounds = _self.frame.container.getBoundingClientRect();
                 var wc = _hotspotpos.clone().add(new Vector(2 * (event.screenX - event.screenStartX) / _self.zoom, -2 * (event.screenY - event.screenStartY) / _self.zoom))
                 var e = {
@@ -117,12 +117,12 @@ function Axes2D(parent, container, opts) {
                 _hotspot.ondrag(e);
             }
         }
-        if(event.rightButtonDown) {
+        if (event.rightButtonDown) {
             // Prevent default if mouse moved significantly
-            if((event.screenX - event.screenStartX) * (event.screenX - event.screenStartX) + (event.screenY - event.screenStartY) * (event.screenY - event.screenStartY) > 25) {
+            if ((event.screenX - event.screenStartX) * (event.screenX - event.screenStartX) + (event.screenY - event.screenStartY) * (event.screenY - event.screenStartY) > 25) {
                 event.suppressContextMenu();
             }
-        
+
             // Pan camera
             _self.camera.position.x = -2 * (event.screenX - event.screenStartX) / _self.zoom + _cameraOriginX;
             _self.camera.position.y = 2 * (event.screenY - event.screenStartY) / _self.zoom + _cameraOriginY;
@@ -132,8 +132,7 @@ function Axes2D(parent, container, opts) {
     // Bind Events: Zooming
     this.frame.touchEventListener.onzoom = function(event) {
         event.suppressScrolling();
-        if(event.amount > 0) _self.zoom *= 0.8;
-        else _self.zoom *= 1.25;
+        _self.zoom *= Math.pow(0.8, event.amount / 100);
         _self.updateCamera();
     }
 }
@@ -142,7 +141,7 @@ function Axes2D(parent, container, opts) {
  * Render the axes
  */
 Axes2D.prototype.render = function() {
-    this.frame.render( this.camera );
+    this.frame.render(this.camera);
 }
 
 /**
@@ -159,7 +158,7 @@ Axes2D.prototype.addFigure = function(object) {
  */
 Axes2D.prototype.removeFigure = function(object) {
     var index = this.objects.indexOf(object);
-    if(index === -1) {
+    if (index === -1) {
         console.log('Interactive.Axes2D: Figure not in axes')
         return null;
     }
@@ -172,13 +171,13 @@ Axes2D.prototype.removeFigure = function(object) {
  */
 Axes2D.prototype.redrawFigure = function(object) {
     var index = this.objects.indexOf(object);
-    if(index === -1) {
+    if (index === -1) {
         console.log('Interactive.Axes2D: Figure not in axes')
         return null;
     }
     this.frame.scene.remove(object.getSceneObject());
     object.invalidate();
-    this.frame.scene.add(object.getSceneObject());    
+    this.frame.scene.add(object.getSceneObject());
 }
 
 /**

@@ -105,14 +105,8 @@ function Axes3D(parent, container, opts) {
     // Bind Events: Zooming
     this.frame.touchEventListener.onzoom = function(event) {
         event.suppressScrolling();
-        if(event.amount > 0) {
-            var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), 1.25);
-            _self.camera.position.copy(newPos);
-        }
-        else {
-            var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), 0.8);
-            _self.camera.position.copy(newPos);
-        }
+        var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), Math.pow(0.8, event.amount / 100));
+        _self.camera.position.copy(newPos);
         _self.camera.lookAt(_self.corigin);
     };
 }
