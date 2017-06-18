@@ -520,14 +520,6 @@ function Axes2D(parent, container, opts) {
         return projected;
     };
 
-    // Projects from client to world coords
-    // var unproject = function(clientX, clientY) {        
-    //     var containerBounds = _self.frame.container.getBoundingClientRect();        
-    //     var clientCoords = new THREE.Vector2(clientX - containerBounds.left + 20, clientY - containerBounds.top - 20);
-    //     clientCoords.y = -clientCoords.y;
-    //     return clientCoords.clone().sub(new THREE.Vector2(_self.frame.width / 2, _self.frame.height / 2)).multiplyScalar(2 / _self.zoom).add(_self.camera.position);
-    // }
-
     var intersectsHotspot = function(clientX, clientY) {
         var hotspot = null;
         var leastDistance = 1000; // Arbitrarily large number
@@ -554,7 +546,9 @@ function Axes2D(parent, container, opts) {
     this.frame.container.addEventListener('mousedown', function(event) {
         if(event.button === 0) {
             _hotspot = intersectsHotspot(event.clientX, event.clientY);
-            _hotspotpos = _hotspot.position.clone();
+            if(_hotspot) {
+                _hotspotpos = _hotspot.position.clone();
+            }
         }
         if(event.button === 2) {
             _cameraOriginX = _self.camera.position.x;
