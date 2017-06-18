@@ -620,13 +620,45 @@ function Vector() {
 }
 
 /**
+ * Creates a copy of this vector
+ */
+Vector.prototype.clone = function() {
+    var newVec = new Vector();
+    newVec.dimensions = this.dimensions;
+    newVec.q = this.q.slice();
+    return newVec;
+};
+
+/**
+ * Adds the vector to this vector
+ */
+Vector.prototype.add = function(v) {
+    if(v.dimensions !== this.dimensions) {
+        console.log('Interactive.Vector: Dimensions mismatch');
+        return null;
+    }
+    for(var i = 0; i < this.dimensions; i++) {
+        this.q[i] += v.q[i];
+    }
+    return this;
+};
+
+/**
+ * Sets this vector's coordinates to the input vector's
+ */
+Vector.prototype.set = function(v) {
+    this.q = v.q.slice();
+    return this;
+};
+
+/**
  * Object that represents an arrow in 2d space.
  * @param {*} vector The vector which this object is based on
  * @param {*} opts Options to customize the appearance of the arrow. Includes:
  * origin -- Point at which the arrow starts. Default is (0, 0)
  * hex -- hexadecimal value to define color. Default is 0xffff00.
  * headLength -- The length of the head of the arrow. Default is 0.2.
- * headWidth -- The length of the width of the arrow. Default is 0.1.
+ * headWidth -- The length of the width of the arrow. Default is 0.05.
  * (Derived from THREE.js)
  */
 function Arrow2D(vector, opts) {
@@ -663,7 +695,7 @@ Arrow2D.prototype.getSceneObject = function() {
         var _length = _vector2.length();
         var _hex = this.opts.hex !== undefined ? this.opts.hex : 0xffffff;
         var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2;
-        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.1;
+        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.05;
 
         this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
         this.validated = true;
@@ -683,8 +715,8 @@ Arrow2D.prototype.invalidate = function() {
  * @param {*} opts Options to customize the appearance of the arrows. Includes:
  * origin -- Point of the origin. Default is (0, 0, 0)
  * hex -- hexadecimal value to define color. Default is 0xffff00.
- * headLength -- The length of the head of the arrow. Default is 0.2 * length.
- * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
+ * headLength -- The length of the head of the arrow. Default is 0.2.
+ * headWidth -- The length of the width of the arrow. Default is 0.04.
  * (Derived from THREE.js)
  */
 function BasisVectors2D(opts) {
@@ -693,8 +725,8 @@ function BasisVectors2D(opts) {
     this.xBasis = new Vector(1, 0);
     this.yBasis = new Vector(0, 1);
 
-    this.xArrow = new Arrow2D(this.xBasis, opts);   
-    this.yArrow = new Arrow2D(this.yBasis, opts);
+    this.xArrow = new Arrow2D(this.xBasis, {hex: 0x880000, headWidth: 0.04});   
+    this.yArrow = new Arrow2D(this.yBasis, {hex: 0x008800, headWidth: 0.04});
 
     this.sceneObject = null;
 }
