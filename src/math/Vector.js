@@ -11,4 +11,10 @@ function Vector() {
     this.q = Array.from(arguments);
 }
 
+Vector.prototype.clone = function() {
+    var newVec = new Vector();
+    newVec.dimensions = this.dimensions;
+    newVec.q = this.q.slice();
+}
+
 export {Vector};
