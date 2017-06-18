@@ -133,4 +133,32 @@ Axes3D.prototype.addFigure = function(object) {
     this.frame.scene.add(object.getSceneObject());
 }
 
+
+/**
+ * Remove a plotted object
+ */
+Axes2D.prototype.removeFigure = function(object) {
+    var index = this.objects.indexOf(object);
+    if(index === -1) {
+        console.log('Interactive.Axes3D: Figure not in axes')
+        return null;
+    }
+    this.objects.splice(index, 1);
+    this.frame.scene.remove(object.getSceneObject());
+}
+
+/**
+ * Force the object to update
+ */
+Axes2D.prototype.redrawFigure = function(object) {
+    var index = this.objects.indexOf(object);
+    if(index === -1) {
+        console.log('Interactive.Axes3D: Figure not in axes')
+        return null;
+    }
+    this.frame.scene.remove(object.getSceneObject());
+    object.invalidate();
+    this.frame.scene.add(object.getSceneObject());    
+}
+
 export { Axes3D };
