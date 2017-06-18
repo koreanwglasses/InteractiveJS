@@ -1,5 +1,6 @@
 import { Frame } from '../render/Frame.js';
 import { Hotspot2D } from '../plottable/Hotspot2D.js';
+import { Vector } from '../math/Vector.js';
 
 /**
  * Renders plots in 2D (not to be confused with the Figure class)
@@ -68,14 +69,6 @@ function Axes2D(parent, container, opts) {
         return projected;
     }
 
-    // Projects from client to world coords
-    var unproject = function(clientX, clientY) {        
-        var containerBounds = _self.frame.container.getBoundingClientRect();        
-        var clientCoords = new THREE.Vector2(clientX - containerBounds.left + 20, clientY - containerBounds.top - 20);
-        clientCoords.y = -clientCoords.y;
-        return clientCoords.clone().sub(new THREE.Vector2(_self.frame.width / 2, _self.frame.height / 2)).multiplyScalar(2 / _self.zoom).add(_self.camera.position);
-    }
-
     var intersectsHotspot = function(clientX, clientY) {
         var hotspot = null;
         var leastDistance = 1000; // Arbitrarily large number
@@ -97,10 +90,12 @@ function Axes2D(parent, container, opts) {
     var _cameraOriginY = 0;
 
     var _hotspot = null;
+    var _hotspotpos = null;
 
     this.frame.container.addEventListener('mousedown', function(event) {
         if(event.button === 0) {
             _hotspot = intersectsHotspot(event.clientX, event.clientY);
+            _hotspotpos = _hotspot.position.clone();
         }
         if(event.button === 2) {
             _cameraOriginX = _self.camera.position.x;
@@ -112,10 +107,10 @@ function Axes2D(parent, container, opts) {
         if(event.leftButtonDown) {
             if(_hotspot !== null) {
                 var containerBounds = _self.frame.container.getBoundingClientRect();
-                var wc = unproject(event.clientX - containerBounds.left, event.clientY - containerBounds.top);
+                var wc = _hotspotpos.clone().add(new Vector(2 * (event.screenX - event.screenStartX) / _self.zoom, -2 * (event.screenY - event.screenStartY) / _self.zoom))
                 var e = {
-                    worldX: wc.x,
-                    worldY: wc.y
+                    worldX: wc.q[0],
+                    worldY: wc.q[1]
                 }
                 _hotspot.ondrag(e);
             }
