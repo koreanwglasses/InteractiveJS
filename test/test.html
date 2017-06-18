@@ -2,46 +2,70 @@
 <html>
     <head>
         <style>
-            #fig1 {
+            #ax1 {
                 width: 400px;
                 height: 400px;
                 margin-bottom: 20px;
             }
-            #fig2 {
+            #ax2 {
                 width: 400px;
                 height: 400px;
             }
         </style>
     </head>
     <body>
-        <div id="fig1"></div>
-        <div id="fig2"></div>
+        <div id="ax1"></div>
+        <div id="ax2"></div>
         <script src="../lib/three.min.js"></script>
         <script src="../build/interactive.js"></script>
         <script>
             plot = new Interactive.Plot();
-            fig1 = plot.createAxes3D(document.getElementById('fig1'), {antialias: true});
+            ax1 = plot.createAxes3D(document.getElementById('ax1'), {antialias: true});
             arr = new Interactive.BasisVectors3D()
-            fig1.addFigure(arr);
+            ax1.addFigure(arr);
 
-            fig2 = plot.createAxes2D(document.getElementById('fig2'), {antialias: true})
+            ax2 = plot.createAxes2D(document.getElementById('ax2'), {antialias: true})
             arr2 = new Interactive.BasisVectors2D()
-            vec = new Interactive.Vector(1,.5);
-            arr3 = new Interactive.Arrow2D(vec);
-            hot = new Interactive.Hotspot2D(vec);
-            hot.ondrag = function(event) {
-                vec.q[0] = event.worldX;
-                vec.q[1] = event.worldY;
-                fig2.redrawFigure(arr3);
+
+            vec1 = new Interactive.Vector(1,.5);
+            vec2 = new Interactive.Vector(.5,1);
+            vec3 = new Interactive.Vector(1.5,1.5);
+
+            arr3 = new Interactive.Arrow2D(vec1, {hex: 0x00ffff});
+            arr4 = new Interactive.Arrow2D(vec2, {hex: 0xff0000});
+            arr5 = new Interactive.Arrow2D(vec3);
+
+            hot1 = new Interactive.Hotspot2D(vec1);
+            hot1.ondrag = function(event) {
+                vec1.q[0] = event.worldX;
+                vec1.q[1] = event.worldY;
+                ax2.redrawFigure(arr3);
+
+                vec3.set(vec1.clone().add(vec2));
+                ax2.redrawFigure(arr5);
             }
-            fig2.addFigure(arr2);
-            fig2.addFigure(arr3);
-            fig2.addHotspot(hot);
+
+            hot2 = new Interactive.Hotspot2D(vec2);
+            hot2.ondrag = function(event) {
+                vec2.q[0] = event.worldX;
+                vec2.q[1] = event.worldY;
+                ax2.redrawFigure(arr4);
+
+                vec3.set(vec1.clone().add(vec2));
+                ax2.redrawFigure(arr5);
+            }
+            
+            ax2.addFigure(arr2);
+            ax2.addFigure(arr3);
+            ax2.addFigure(arr4);
+            ax2.addFigure(arr5);
+            ax2.addHotspot(hot1);
+            ax2.addHotspot(hot2);
 
             (function animate() {
                 requestAnimationFrame(animate);
-                fig1.render();
-                fig2.render();
+                ax1.render();
+                ax2.render();
             })();
         </script>
     </body>
