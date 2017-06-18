@@ -95,7 +95,9 @@ function Axes2D(parent, container, opts) {
     this.frame.container.addEventListener('mousedown', function(event) {
         if(event.button === 0) {
             _hotspot = intersectsHotspot(event.clientX, event.clientY);
-            _hotspotpos = _hotspot.position.clone();
+            if(_hotspot) {
+                _hotspotpos = _hotspot.position.clone();
+            }
         }
         if(event.button === 2) {
             _cameraOriginX = _self.camera.position.x;
