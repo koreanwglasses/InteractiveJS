@@ -560,7 +560,8 @@ Expression.toJSFunction = function(string) {
 
             for(var i = 0; i < operations.length; i++) {
                 switch(operations[i].type) {
-                    case 'vector', 'interval':                        
+                    case 'vector':                        
+                    case 'interval':
                         operations[i].eval = Expression.toJSFunction(operations[i].str);
                         break;
                     case 'constant':
@@ -695,10 +696,17 @@ Expression.toJSFunction = function(string) {
 
             return func;
         } else if (type === 'variable') {
-            var func = function(context) {
-                return context[str];
-            };
-            return func;
+            if(typeof Math[str] === 'number') {
+                var func = function(context) {
+                    return Math[str];
+                };
+                return func;
+            } else {
+                var func = function(context) {
+                    return context[str];
+                };
+                return func;
+            }
         }
     }
 };
@@ -775,7 +783,12 @@ function Parametric3D(plot, expr, opts) {
 
     var parts = Expression.splitParametric(expr);
     this.func = new Expression(parts[0], this.plot.context);
-    this.interval = new Expression(parts[1], this.plot.context);
+    this.intervals = [];
+
+    for(var i = 1; i < parts.length; i++) {
+        this.intervals.push(new Expression(parts[i], this.plot.context));
+    }
+
     this.opts = opts !== undefined? opts: {};
 
     this.validated = false;
@@ -788,7 +801,7 @@ function Parametric3D(plot, expr, opts) {
 
 Parametric3D.prototype.createLine = function() {
     var geom = new THREE.Geometry();
-    var int = this.interval.evaluate();
+    var int = this.intervals[0].evaluate();
     var tarr = int.array();
     var context = {};
     for(var i = 0; i < tarr.length; i++) {
@@ -808,9 +821,42 @@ Parametric3D.prototype.createLine = function() {
     }
 };
 
+Parametric3D.prototype.createSurface = function() {
+    var geom = new THREE.Geometry();
+    var uint = this.intervals[0].evaluate();
+    var vint = this.intervals[1].evaluate();
+    var uarr = uint.array();
+    var varr = vint.array();
+    var context = {};
+
+    for(var i = 0; i < uarr.length; i++) {
+        context[uint.varstr] = uarr[i];
+        for(var j = 0; j < varr.length; j++) {
+            context[vint.varstr] = varr[j];
+
+            var v = this.func.evaluate(context).toVector3();
+            geom.vertices.push(v);
+
+            if(i > 0 && j > 0) {
+                geom.faces.push(new THREE.Face3(i * varr.length + j, i * varr.length + j - 1, (i - 1) * varr.length + j - 1));
+                geom.faces.push(new THREE.Face3(i * varr.length + j, (i - 1) * varr.length + j - 1, (i - 1) * varr.length + j));
+            }
+        }
+    }
+    geom.computeFaceNormals();
+
+    var mat = new THREE.MeshLambertMaterial();
+    // mat.wireframe = true;
+    return new THREE.Mesh( geom, mat );
+};
+
 Parametric3D.prototype.getSceneObject = function() {
     if(this.validated === false) {
-        this.sceneObject = this.createLine();
+        if(this.intervals.length === 1) {
+            this.sceneObject = this.createLine();
+        } else {
+            this.sceneObject = this.createSurface();
+        }
         this.validated = true;
     }
     return this.sceneObject;
@@ -933,12 +979,28 @@ function Axes3D(parent, container, opts) {
         _self.camera.position.copy(newPos);
         _self.camera.lookAt(_self.corigin);
     };
+
+    // Setup some 3d scene stuff
+    var ambientLight = new THREE.AmbientLight(0x303040);
+    var directionalLight1 = new THREE.DirectionalLight(0xffe8d8, .4);
+    var directionalLight2 = new THREE.DirectionalLight(0xffe8d8, .2);
+    directionalLight2.position.y = -1;
+
+    this.camLight = new THREE.PointLight(0xffffff, .5);
+
+    this.frame.scene.add(ambientLight);
+    this.frame.scene.add(directionalLight1);
+    this.frame.scene.add(directionalLight2);
 }
 
 /**
  * Render the axes
  */
 Axes3D.prototype.render = function() {
+    this.frame.scene.remove(this.camLight);
+    this.camLight.position.copy(this.camera.position);
+    this.frame.scene.add(this.camLight);
+
     this.frame.render( this.camera );
 };
 

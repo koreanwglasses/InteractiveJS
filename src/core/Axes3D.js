@@ -116,12 +116,28 @@ function Axes3D(parent, container, opts) {
         _self.camera.position.copy(newPos);
         _self.camera.lookAt(_self.corigin);
     };
+
+    // Setup some 3d scene stuff
+    var ambientLight = new THREE.AmbientLight(0x303040);
+    var directionalLight1 = new THREE.DirectionalLight(0xffe8d8, .4)
+    var directionalLight2 = new THREE.DirectionalLight(0xffe8d8, .2)
+    directionalLight2.position.y = -1
+
+    this.camLight = new THREE.PointLight(0xffffff, .5);
+
+    this.frame.scene.add(ambientLight);
+    this.frame.scene.add(directionalLight1);
+    this.frame.scene.add(directionalLight2);
 }
 
 /**
  * Render the axes
  */
 Axes3D.prototype.render = function() {
+    this.frame.scene.remove(this.camLight);
+    this.camLight.position.copy(this.camera.position);
+    this.frame.scene.add(this.camLight);
+
     this.frame.render( this.camera );
 }
 

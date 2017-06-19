@@ -6,7 +6,12 @@ function Parametric3D(plot, expr, opts) {
 
     var parts = Expression.splitParametric(expr);
     this.func = new Expression(parts[0], this.plot.context);
-    this.interval = new Expression(parts[1], this.plot.context);
+    this.intervals = [];
+
+    for(var i = 1; i < parts.length; i++) {
+        this.intervals.push(new Expression(parts[i], this.plot.context));
+    }
+
     this.opts = opts !== undefined? opts: {}
 
     this.validated = false;
@@ -19,7 +24,7 @@ function Parametric3D(plot, expr, opts) {
 
 Parametric3D.prototype.createLine = function() {
     var geom = new THREE.Geometry();
-    var int = this.interval.evaluate();
+    var int = this.intervals[0].evaluate();
     var tarr = int.array();
     var context = {};
     for(var i = 0; i < tarr.length; i++) {
@@ -39,9 +44,42 @@ Parametric3D.prototype.createLine = function() {
     }
 }
 
+Parametric3D.prototype.createSurface = function() {
+    var geom = new THREE.Geometry();
+    var uint = this.intervals[0].evaluate();
+    var vint = this.intervals[1].evaluate();
+    var uarr = uint.array();
+    var varr = vint.array();
+    var context = {};
+
+    for(var i = 0; i < uarr.length; i++) {
+        context[uint.varstr] = uarr[i];
+        for(var j = 0; j < varr.length; j++) {
+            context[vint.varstr] = varr[j];
+
+            var v = this.func.evaluate(context).toVector3()
+            geom.vertices.push(v);
+
+            if(i > 0 && j > 0) {
+                geom.faces.push(new THREE.Face3(i * varr.length + j, i * varr.length + j - 1, (i - 1) * varr.length + j - 1));
+                geom.faces.push(new THREE.Face3(i * varr.length + j, (i - 1) * varr.length + j - 1, (i - 1) * varr.length + j));
+            }
+        }
+    }
+    geom.computeFaceNormals();
+
+    var mat = new THREE.MeshLambertMaterial();
+    // mat.wireframe = true;
+    return new THREE.Mesh( geom, mat );
+}
+
 Parametric3D.prototype.getSceneObject = function() {
     if(this.validated === false) {
-        this.sceneObject = this.createLine();
+        if(this.intervals.length === 1) {
+            this.sceneObject = this.createLine();
+        } else {
+            this.sceneObject = this.createSurface();
+        }
         this.validated = true;
     }
     return this.sceneObject;

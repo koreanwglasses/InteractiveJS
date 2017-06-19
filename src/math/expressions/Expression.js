@@ -258,7 +258,8 @@ Expression.toJSFunction = function(string) {
 
             for(var i = 0; i < operations.length; i++) {
                 switch(operations[i].type) {
-                    case 'vector', 'interval':                        
+                    case 'vector':                        
+                    case 'interval':
                         operations[i].eval = Expression.toJSFunction(operations[i].str);
                         break;
                     case 'constant':
@@ -393,10 +394,17 @@ Expression.toJSFunction = function(string) {
 
             return func;
         } else if (type === 'variable') {
-            var func = function(context) {
-                return context[str];
+            if(typeof Math[str] === 'number') {
+                var func = function(context) {
+                    return Math[str];
+                }
+                return func;
+            } else {
+                var func = function(context) {
+                    return context[str];
+                }
+                return func;
             }
-            return func;
         }
     }
 }
