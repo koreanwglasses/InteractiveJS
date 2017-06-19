@@ -1,6 +1,8 @@
 import { Frame } from '../render/Frame.js';
+import { Arrow2D } from '../plottable/Arrow2D.js';
 import { Hotspot2D } from '../plottable/Hotspot2D.js';
 import { Vector } from '../math/Vector.js';
+import { Expression } from '../math/expressions/Expression.js';
 
 /**
  * Renders plots in 2D (not to be confused with the Figure class)
@@ -55,6 +57,11 @@ function Axes2D(parent, container, opts) {
      * Objects to plot
      */
     this.objects = []
+
+    /**
+     * Expressions to plot
+     */
+    this.expressions = {}
 
     /**
      * Hotspots are draggable points
@@ -145,6 +152,22 @@ Axes2D.prototype.render = function() {
 }
 
 /**
+ * Plot an expression
+ */
+Axes2D.prototype.plotExpression = function(expr, type, opts) {
+    switch(type) {
+        case 'arrow':
+            var expression = new Expression(expr, this.parent.context);
+            var figure = new Arrow2D(expression, opts)
+            this.expressions[expr] = figure;
+            this.addFigure(figure)
+        default:
+            console.log('Interactive.Axes2D: Invalid plot type');
+            return null;
+    }
+}
+
+/**
  * Add an object to plot
  * @param {*} object Must be plottable
  */
@@ -178,6 +201,19 @@ Axes2D.prototype.redrawFigure = function(object) {
     this.frame.scene.remove(object.getSceneObject());
     object.invalidate();
     this.frame.scene.add(object.getSceneObject());
+}
+
+/**
+ * Redraw all objects
+ */
+Axes2D.prototype.redrawAll = function(object) {
+    for(var i = 0; i < this.objects.length; i++) {
+        if(this.objects[i].invalidate !== undefined) {
+            this.frame.scene.remove(this.objects[i].getSceneObject());
+            this.objects[i].invalidate();
+            this.frame.scene.add(this.objects[i].getSceneObject());
+        }
+    }
 }
 
 /**

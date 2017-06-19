@@ -33,9 +33,9 @@
 
             console.log(plot.context);
 
-            arr3 = new Interactive.Arrow2D(new Interactive.Expression('v1', plot.context), {hex: 0x00ffff});
-            arr4 = new Interactive.Arrow2D(new Interactive.Expression('v2', plot.context), {hex: 0xff0000});
-            arr5 = new Interactive.Arrow2D(new Interactive.Expression('v3', plot.context));
+            ax2.plotExpression('v1', 'arrow', {hex: 0x00ffff})
+            ax2.plotExpression('v2', 'arrow', {hex: 0xff0000})
+            ax2.plotExpression('v3', 'arrow')
 
             hot1 = new Interactive.Hotspot2D(new Interactive.Vector(1,.5));
             hot1.ondrag = function(event) {
@@ -44,8 +44,7 @@
 
                 plot.context.v1.q[0] = event.worldX;
                 plot.context.v1.q[1] = event.worldY;
-                ax2.redrawFigure(arr3);
-                ax2.redrawFigure(arr5);
+                ax2.redrawAll();
             }
 
             hot2 = new Interactive.Hotspot2D(new Interactive.Vector(.5,1));
@@ -55,14 +54,10 @@
 
                 plot.context.v2.q[0] = event.worldX;
                 plot.context.v2.q[1] = event.worldY;
-                ax2.redrawFigure(arr4);
-                ax2.redrawFigure(arr5);
+                ax2.redrawAll();
             }
             
             ax2.addFigure(arr2);
-            ax2.addFigure(arr3);
-            ax2.addFigure(arr4);
-            ax2.addFigure(arr5);
             ax2.addHotspot(hot1);
             ax2.addHotspot(hot2);
 
