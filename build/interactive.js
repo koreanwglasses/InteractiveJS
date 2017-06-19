@@ -221,6 +221,21 @@ Vector.prototype.set = function(v) {
 };
 
 /**
+ * Convert this to a THREE vector2
+ */
+Vector.prototype.toVector2 = function() {
+    return new THREE.Vector2(this.q[0], this.q[1]);
+};
+
+/**
+ * Convert this to a THREE vector3
+ */
+Vector.prototype.toVector3 = function() {
+    if(this.dimensions === 2) return new THREE.Vector3(this.q[0], this.q[1], 0);
+    else return new THREE.Vector3(this.q[0], this.q[1], this.q[2]);
+};
+
+/**
  * Sets an expression for this vector which can be evalulated with eval
  */
 Vector.prototype.setExpression = function(expr) {
@@ -231,6 +246,55 @@ Vector.prototype.setExpression = function(expr) {
  * Sets this vector to the result of the evaulation of expression, or if expression is null, returns self
  */
 Vector.prototype.eval = function() {
+    if(this.expr !== null) {
+        this.set(this.expr.evaluate());
+    }
+    return this;
+};
+
+function Interval(start, end, steps) {
+    this.start = start;
+    this.end = end;
+    this.steps = steps;
+
+    this.expr = null;
+
+    this.arr = null;
+}
+
+/**
+ * Creates an array of evenly distributed values based on start end (inclusive) and steps
+ */
+Interval.prototype.array = function() {
+    if(this.arr === null) {
+        var step = (this.end - this.start) / (this.steps - 1);
+        var arr = [];
+        for(var x = this.start; x < this.end + step / 2; x += step) {
+            arr.push(x);
+        }
+        this.arr = arr;
+    }
+    return this.arr;
+};
+
+Interval.prototype.set = function(i) {
+    this.start = i.start;
+    this.end = i.end;
+    this.steps = i.steps;
+    this.arr = i.arr;
+};
+
+/**
+ * Sets an expression for this vector which can be evalulated with eval
+ */
+Interval.prototype.setExpression = function(expr) {
+    this.expr = expr;
+};
+
+/**
+ * Sets this vector to the result of the evaulation of expression, or if expression is null, returns self
+ */
+Interval.prototype.eval = function() {
     if(this.expr !== null) {
         this.set(this.expr.evaluate());
     }
@@ -249,6 +313,9 @@ function Expression(string, context) {
 Expression.typeOf = function(string) {
     var nestingLevel = 0;
     var isVector = false;
+    if(string.charAt(0) === '{' && string.charAt(string.length - 1) === '}') {
+        return 'interval'
+    }
     for(var i = 0; i < string.length; i++) {
         if(string.charAt(i) === '(') {
             nestingLevel++;
@@ -276,7 +343,15 @@ Expression.separate = function(str) {
     var nestingLevel = 0;
     var type = null;
     for(var i = 0; i < str.length; i++) {
-        if(str.charAt(i) === '(') {
+        if(type === 'interval') {
+            if(str.charAt(i) === '}') {
+                parts.push({str: str.substring(start, i + 1), type: type});
+                start = i + 1;
+                type = null;
+            }
+        } else if(str.charAt(i) === '{') {
+            type = 'interval';
+        } else  if(str.charAt(i) === '(') {
             nestingLevel++;
 
             if(type === null) {
@@ -372,7 +447,7 @@ Expression.toPostfix = function(parts) {
     return post;
 };
 
-Expression.splitVector = function(string) {
+Expression.splitTuple = function(string) {
     var str = string.substring(1,string.length - 1);
     var parts = [];
     var start = 0;
@@ -445,7 +520,7 @@ Expression.toJSFunction = function(string) {
                 return func;
             }
             if(leftPost[0].type === 'vector') {
-                var args = Expression.splitVector(leftPost[0].str);
+                var args = Expression.splitTuple(leftPost[0].str);
                 var func = function(context) {
                     return context[leftPost[leftPost.length - 1].str] = function(v) {
                         var temp = Object.assign({}, context);
@@ -473,7 +548,7 @@ Expression.toJSFunction = function(string) {
 
             for(var i = 0; i < operations.length; i++) {
                 switch(operations[i].type) {
-                    case 'vector':                        
+                    case 'vector', 'interval':                        
                         operations[i].eval = Expression.toJSFunction(operations[i].str);
                         break;
                     case 'constant':
@@ -576,7 +651,7 @@ Expression.toJSFunction = function(string) {
 
             return func;
         } else if (type === 'vector') {
-            var components = Expression.splitVector(str);
+            var components = Expression.splitTuple(str);
 
             var compeval = [];
             for(var i = 0; i < components.length; i++) {
@@ -590,6 +665,18 @@ Expression.toJSFunction = function(string) {
                     vector.q[i] = compeval[i](context);
                 }
                 return vector;
+            };
+
+            return func;
+        } else if (type === 'interval') {
+            var params = Expression.splitTuple(str);
+            var paramseval = [];
+            for(var i = 0; i < params.length; i++) {
+                paramseval.push(Expression.toJSFunction(params[i]));
+            }
+
+            var func = function(context) {
+                return new Interval(paramseval[0](context),paramseval[1](context),paramseval[2](context));
             };
 
             return func;
@@ -1303,17 +1390,54 @@ BasisVectors3D.prototype.getSceneObject = function() {
     return this.sceneObject;
 };
 
+function Parametric2D(func, interval, opts) {
+    this.func = func;
+    this.interval = interval;
+    this.opts = opts;
+
+    this.validated = false;
+    this.sceneObject = null;
+}
+
+Parametric2D.prototype.createLine = function() {
+    var geom = new THREE.Geometry();
+    var tarr = this.interval.array();
+    var X = this.func.evaluate();
+    var t = new Vector(0);
+    for(var i = 0; i < tarr.length; i++) {
+        t.q[0] = tarr[i];
+        geom.vertices.push(X(t).toVector3());
+    }
+    // geom.colors[0] = new THREE.Color(1,0,0);
+    // {color: 0xffffff, vertexColors: THREE.VertexColors}
+    return new THREE.Line(geom, new THREE.LineBasicMaterial());
+};
+
+Parametric2D.prototype.getSceneObject = function() {
+    if(this.validated === false) {
+        this.sceneObject = this.createLine();
+        this.validated = true;
+    }
+    return this.sceneObject;
+};
+
+Parametric2D.prototype.invalidate = function() {
+    this.validated = false;
+};
+
 exports.Plot = Plot;
 exports.Axes2D = Axes2D;
 exports.Axes3D = Axes3D;
 exports.TouchEventListener = TouchEventListener;
 exports.Expression = Expression;
+exports.Interval = Interval;
 exports.Vector = Vector;
 exports.Arrow2D = Arrow2D;
 exports.Arrow3D = Arrow3D;
 exports.BasisVectors2D = BasisVectors2D;
 exports.BasisVectors3D = BasisVectors3D;
 exports.Hotspot2D = Hotspot2D;
+exports.Parametric2D = Parametric2D;
 exports.Frame = Frame;
 
 Object.defineProperty(exports, '__esModule', { value: true });

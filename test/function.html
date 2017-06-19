@@ -32,7 +32,12 @@
             arr2 = new Interactive.BasisVectors2D()
             ax2.addFigure(arr2);
 
-            console.log(new )
+            context = {}
+            ex = new Interactive.Expression('X(t)=(sin(t),cos(t))', context);
+            int = new Interactive.Interval(0,2 * Math.PI, 100);
+            par = new Interactive.Parametric2D(ex, int);
+
+            ax2.addFigure(par);
 
             (function animate() {
                 requestAnimationFrame(animate);

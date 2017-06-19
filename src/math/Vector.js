@@ -49,6 +49,21 @@ Vector.prototype.set = function(v) {
 }
 
 /**
+ * Convert this to a THREE vector2
+ */
+Vector.prototype.toVector2 = function() {
+    return new THREE.Vector2(this.q[0], this.q[1]);
+}
+
+/**
+ * Convert this to a THREE vector3
+ */
+Vector.prototype.toVector3 = function() {
+    if(this.dimensions === 2) return new THREE.Vector3(this.q[0], this.q[1], 0);
+    else return new THREE.Vector3(this.q[0], this.q[1], this.q[2]);
+}
+
+/**
  * Sets an expression for this vector which can be evalulated with eval
  */
 Vector.prototype.setExpression = function(expr) {

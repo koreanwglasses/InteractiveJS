@@ -1,4 +1,5 @@
 import { Vector } from '../Vector.js';
+import { Interval } from '../Interval.js';
 
 function Expression(string, context) {
     this.type = 'Expression';
@@ -12,6 +13,9 @@ function Expression(string, context) {
 Expression.typeOf = function(string) {
     var nestingLevel = 0;
     var isVector = false;
+    if(string.charAt(0) === '{' && string.charAt(string.length - 1) === '}') {
+        return 'interval'
+    }
     for(var i = 0; i < string.length; i++) {
         if(string.charAt(i) === '(') {
             nestingLevel++;
@@ -39,7 +43,15 @@ Expression.separate = function(str) {
     var nestingLevel = 0;
     var type = null;
     for(var i = 0; i < str.length; i++) {
-        if(str.charAt(i) === '(') {
+        if(type === 'interval') {
+            if(str.charAt(i) === '}') {
+                parts.push({str: str.substring(start, i + 1), type: type})
+                start = i + 1;
+                type = null;
+            }
+        } else if(str.charAt(i) === '{') {
+            type = 'interval'
+        } else  if(str.charAt(i) === '(') {
             nestingLevel++
 
             if(type === null) {
@@ -135,7 +147,7 @@ Expression.toPostfix = function(parts) {
     return post;
 }
 
-Expression.splitVector = function(string) {
+Expression.splitTuple = function(string) {
     var str = string.substring(1,string.length - 1);
     var parts = []
     var start = 0;
@@ -208,7 +220,7 @@ Expression.toJSFunction = function(string) {
                 return func;
             }
             if(leftPost[0].type === 'vector') {
-                var args = Expression.splitVector(leftPost[0].str)
+                var args = Expression.splitTuple(leftPost[0].str)
                 var func = function(context) {
                     return context[leftPost[leftPost.length - 1].str] = function(v) {
                         var temp = Object.assign({}, context);
@@ -236,7 +248,7 @@ Expression.toJSFunction = function(string) {
 
             for(var i = 0; i < operations.length; i++) {
                 switch(operations[i].type) {
-                    case 'vector':                        
+                    case 'vector', 'interval':                        
                         operations[i].eval = Expression.toJSFunction(operations[i].str);
                         break;
                     case 'constant':
@@ -339,7 +351,7 @@ Expression.toJSFunction = function(string) {
 
             return func;
         } else if (type === 'vector') {
-            var components = Expression.splitVector(str);
+            var components = Expression.splitTuple(str);
 
             var compeval = [];
             for(var i = 0; i < components.length; i++) {
@@ -353,6 +365,18 @@ Expression.toJSFunction = function(string) {
                     vector.q[i] = compeval[i](context);
                 }
                 return vector;
+            }
+
+            return func;
+        } else if (type === 'interval') {
+            var params = Expression.splitTuple(str);
+            var paramseval = []
+            for(var i = 0; i < params.length; i++) {
+                paramseval.push(Expression.toJSFunction(params[i]));
+            }
+
+            var func = function(context) {
+                return new Interval(paramseval[0](context),paramseval[1](context),paramseval[2](context));
             }
 
             return func;
