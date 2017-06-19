@@ -71,14 +71,18 @@
             context = {
                 x: 2,
                 y: 1,
-                f: function(x) {return Math.sin(x)}
+                f: function(v) {
+                    return v.q[0] + v.q[1]
+                }
             }
-            ex1 = new Interactive.Expression('(f(x,1)+f(1,1))^2');
+            ex1 = new Interactive.Expression('x=sin(3)');
             ex2 = new Interactive.Expression('(y,x+1)+(1,1)');
-            ex3 = new Interactive.Expression('f(x+1)*22+(2-(2*2))^(1+2)');
+            ex3 = new Interactive.Expression('f(1,1)');
             ex4 = new Interactive.Expression('(1+1)^2-1');
-            // ex1.evaluate();
             console.log(ex2.evaluate(context));
+            console.log(ex1.evaluate(context));
+            console.log(ex2.evaluate(context));
+
             console.log(ex3.evaluate(context));
             console.log(ex4.evaluate(context));
         </script>

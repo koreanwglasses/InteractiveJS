@@ -403,7 +403,7 @@ function Hotspot2D(position) {
 }
 
 /**
- * Represents a vector with an arbitrary number of dimensions, and of any type that supports adding and scaling. Operations create new objects
+ * Represents a vector with an arbitrary number of dimensions, and of any type that supports adding and scaling. Operations create new instances
  */
 function Vector() {
     this.type = 'Vector';
@@ -433,6 +433,7 @@ Vector.prototype.add = function(v) {
         console.log('Interactive.Vector: Dimensions mismatch');
         return null;
     }
+
     var result = this.clone();
     for(var i = 0; i < this.dimensions; i++) {
         result.q[i] += v.q[i];
@@ -854,13 +855,20 @@ Expression.toJSFunction = function(string) {
 
     // Expression is an equation:
     if(str.match(/=/g) !== null && str.match(/=/g).length === 1) {
-        // // Expression is explicit
-        // var explicit = (function() {
-        //     // Only one  variable on the left
-        //     if(str.match(/^\w+=/) !== null || str.match(/^\w+\((\w|,)*\)=/) !== null) {
-        //         console.log(str)
-        //     }
-        // })();
+        var left = string.split('=')[0];
+        var right = string.split('=')[1];
+        
+        var leftParts = Expression.separate(left);
+        if(leftParts.length === 1 && leftParts[0].type !== 'constant') {
+            // Variable assignment
+            if(leftParts[0].type === 'variable') {
+                var righteval = Expression.toJSFunction(right);
+                var func = function(context) {
+                    return context[leftParts[0].str] = righteval(context);
+                };
+                return func;
+            }
+        }
     } else {
         var type = Expression.typeOf(str);
 
@@ -898,7 +906,15 @@ Expression.toJSFunction = function(string) {
                             break;
                         case 'function':
                             var v = stack.pop();
-                            stack.push(context[operations[i].str](v));
+                            if(!(v instanceof Vector)) {
+                                v = new Vector(v);
+                            }
+
+                            if(Math[operations[i].str] !== undefined) {
+                                stack.push(Math[operations[i].str].apply(null, v.q));
+                            } else {
+                                stack.push(context[operations[i].str](v));
+                            }
                             break;
                         case 'operator':
                             var b = stack.pop();
