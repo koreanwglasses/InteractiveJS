@@ -31,57 +31,19 @@
             plot.execExpression('v2:=(0.5,1)')
             plot.execExpression('v3=v1+v2')
 
-            console.log(plot.context);
-
             ax2.plotExpression('v1', 'arrow', {hex: 0x00ffff})
             ax2.plotExpression('v2', 'arrow', {hex: 0xff0000})
             ax2.plotExpression('v3', 'arrow')
-
-            hot1 = new Interactive.Hotspot2D(new Interactive.Vector(1,.5));
-            hot1.ondrag = function(event) {
-                hot1.position.q[0] = event.worldX;
-                hot1.position.q[1] = event.worldY;
-
-                plot.context.v1.q[0] = event.worldX;
-                plot.context.v1.q[1] = event.worldY;
-                ax2.redrawAll();
-            }
-
-            hot2 = new Interactive.Hotspot2D(new Interactive.Vector(.5,1));
-            hot2.ondrag = function(event) {
-                hot2.position.q[0] = event.worldX;
-                hot2.position.q[1] = event.worldY;
-
-                plot.context.v2.q[0] = event.worldX;
-                plot.context.v2.q[1] = event.worldY;
-                ax2.redrawAll();
-            }
+            ax2.plotExpression('v1', 'hotspot')
+            ax2.plotExpression('v2', 'hotspot')
             
             ax2.addFigure(arr2);
-            ax2.addHotspot(hot1);
-            ax2.addHotspot(hot2);
 
             (function animate() {
                 requestAnimationFrame(animate);
                 ax1.render();
                 ax2.render();
             })();
-
-            context = {
-                x: 2,
-                y: 1,
-                f: function(v) {
-                    return v.q[0] + v.q[1]
-                }
-            }
-            ex1 = new Interactive.Expression('v1:=(1,2)', context);
-            ex2 = new Interactive.Expression('v2:=(3,4)', context);
-            ex3 = new Interactive.Expression('v3=v1+v2', context);
-            ex4 = new Interactive.Expression('v3', context);
-            console.log(ex1.evaluate());
-            console.log(ex2.evaluate());
-            console.log(ex3.evaluate());
-            console.log(ex4.evaluate());
         </script>
     </body>
 </html>

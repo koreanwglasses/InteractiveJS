@@ -155,12 +155,17 @@ Axes2D.prototype.render = function() {
  * Plot an expression
  */
 Axes2D.prototype.plotExpression = function(expr, type, opts) {
+    var expression = new Expression(expr, this.parent.context);
     switch(type) {
-        case 'arrow':
-            var expression = new Expression(expr, this.parent.context);
+        case 'arrow':            
             var figure = new Arrow2D(expression, opts)
             this.expressions[expr] = figure;
             this.addFigure(figure)
+            return figure;
+        case 'hotspot':
+            var hotspot = new Hotspot2D(this, expression);
+            this.addHotspot(hotspot);
+            return hotspot;
         default:
             console.log('Interactive.Axes2D: Invalid plot type');
             return null;
