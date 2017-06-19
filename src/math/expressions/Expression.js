@@ -190,13 +190,46 @@ Expression.toJSFunction = function(string) {
         var right = string.split('=')[1];
         
         var leftParts = Expression.separate(left);
-        if(leftParts.length === 1 && leftParts[0].type !== 'constant') {
-            // Variable assignment
-            if(leftParts[0].type === 'variable') {
-                var righteval = Expression.toJSFunction(right);
+
+        // variable assignment
+        if(leftParts.length === 1 && leftParts[0].type === 'variable') {
+            var righteval = Expression.toJSFunction(right);
+            var func = function(context) {
+                return context[leftParts[0].str] = righteval(context);
+            }
+            return func;
+        } 
+        
+        var leftPost = Expression.toPostfix(leftParts);
+
+        // function definition
+        if(leftPost.length === 2 && leftPost[leftPost.length - 1].type === 'function') {
+            var righteval = Expression.toJSFunction(right);
+            if(leftPost[0].type === 'variable') {
                 var func = function(context) {
-                    return context[leftParts[0].str] = righteval(context);
+                    return context[leftPost[leftPost.length - 1].str] = function(v) {
+                        Object.assign({}, context);
+                        context[leftPost[0].str] = v.q[0];
+                        return righteval(context);
+                    }
                 }
+
+                return func;
+            }
+            if(leftPost[0].type === 'vector') {
+                var args = Expression.splitVector(leftPost[0].str)
+                console.log(args)
+
+                var func = function(context) {
+                    return context[leftPost[leftPost.length - 1].str] = function(v) {
+                        Object.assign({}, context);
+                        for(var i = 0; i < args.length; i++) {
+                            context[args[i]] = v.q[i];
+                        }
+                        return righteval(context);
+                    }
+                }
+
                 return func;
             }
         }
