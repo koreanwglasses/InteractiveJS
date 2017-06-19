@@ -60,6 +60,7 @@ function Axes3D(parent, container, opts) {
     var _cameraStartPol = 0;
     var _cameraStartAz = 0;
     var _cameraStartR = 1;
+    var _cameraStartUp = 1;
     var _cameraStartOr = null;
     var _cameraStartPos = null;
     var _upUnit = null;
@@ -73,6 +74,7 @@ function Axes3D(parent, container, opts) {
             _cameraStartPol = sc.phi;
             _cameraStartAz = sc.theta;
             _cameraStartR = sc.r;
+            _cameraStartUp = _self.camera.up.y;
         }
         if(event.buttons & 2) {
             _cameraStartOr = _self.corigin.clone();
@@ -93,30 +95,32 @@ function Axes3D(parent, container, opts) {
             // Pan camera            
             var r = _self.camera.position.distanceTo(_self.corigin);
             var disp = _upUnit.clone().multiplyScalar((event.screenY - event.screenStartY)).addScaledVector(_rightUnit, -(event.screenX - event.screenStartX))
-            var newCamPos = _cameraStartPos.clone().addScaledVector(disp, 0.002 * r)
+            var newCamPos = _cameraStartPos.clone().addScaledVector(disp, _self.camera.up.y * 0.002 * r)
+            var newOrPos = _cameraStartOr.clone().addScaledVector(disp, _self.camera.up.y * 0.002 * r)
             _self.camera.position.copy(newCamPos);
-            var newOrPos = _cameraStartOr.clone().addScaledVector(disp, 0.002 * r)
             _self.corigin.copy(newOrPos);
             _self.camera.lookAt(_self.corigin);
         }
         if(event.leftButtonDown) {
             var r = _self.camera.position.distanceTo(_self.corigin);
             var az = _cameraStartAz - (event.screenX - event.screenStartX) / 100
-            var pol = _cameraStartPol - (event.screenY - event.screenStartY) / 100
+            var pol = _cameraStartPol - _cameraStartUp * (event.screenY - event.screenStartY) / 100
 
-            if(pol > Math.PI) {
+            while(pol > Math.PI) {
                 pol -= 2 * Math.PI;
             } 
-            if(pol <= -Math.PI) {
+            while(pol <= -Math.PI) {
                 pol += 2 * Math.PI;
             }
 
-            if(pol < 0) {
+            if(pol * _cameraStartUp < 0) {
                 _self.camera.up.y = -1;
             }
-            if(pol > 0) {
+            if(pol * _cameraStartUp> 0) {
                 _self.camera.up.y = 1;
             }
+
+            console.log(pol)
 
             _self.camera.position.setFromSpherical(new THREE.Spherical(r, pol, az)).add(_self.corigin);
             _self.camera.lookAt(_self.corigin);
