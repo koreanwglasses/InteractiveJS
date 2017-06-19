@@ -4,6 +4,7 @@ export { Axes3D } from './core/Axes3D.js';
 
 export { TouchEventListener } from './environment/TouchEventListener.js';
 
+export { Expression } from './math/expressions/Expression.js';
 export { Vector } from './math/Vector.js';
 
 export { Arrow2D } from './plottable/Arrow2D.js';

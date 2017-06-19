@@ -109,7 +109,7 @@ function Axes2D(parent, container, opts) {
         if (event.leftButtonDown) {
             if (_hotspot !== null) {
                 var containerBounds = _self.frame.container.getBoundingClientRect();
-                var wc = _hotspotpos.clone().add(new Vector(2 * (event.screenX - event.screenStartX) / _self.zoom, -2 * (event.screenY - event.screenStartY) / _self.zoom))
+                var wc = _hotspotpos.add(new Vector(2 * (event.screenX - event.screenStartX) / _self.zoom, -2 * (event.screenY - event.screenStartY) / _self.zoom))
                 var e = {
                     worldX: wc.q[0],
                     worldY: wc.q[1]

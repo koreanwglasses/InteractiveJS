@@ -1,5 +1,5 @@
 /**
- * Represents a vector with an arbitrary number of dimensions, and of any type that supports adding and scaling. Operations are done in place where appropriate.
+ * Represents a vector with an arbitrary number of dimensions, and of any type that supports adding and scaling. Operations create new instances
  */
 function Vector() {
     this.type = 'Vector';
@@ -29,10 +29,12 @@ Vector.prototype.add = function(v) {
         console.log('Interactive.Vector: Dimensions mismatch');
         return null;
     }
+
+    var result = this.clone();
     for(var i = 0; i < this.dimensions; i++) {
-        this.q[i] += v.q[i];
+        result.q[i] += v.q[i];
     }
-    return this;
+    return result;
 }
 
 /**
