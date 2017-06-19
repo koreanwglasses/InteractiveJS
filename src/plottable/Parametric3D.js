@@ -98,7 +98,7 @@ Parametric3D.prototype.createSurface = function() {
         } else {
             var mat = new THREE.MeshBasicMaterial();
         }
-        mat.wireframe = true;
+        if(this.wireframe) mat.wireframe = true;
     } else {
         if(this.color !== undefined) {
             var mat = new THREE.MeshPhongMaterial({vertexColors: THREE.VertexColors});
