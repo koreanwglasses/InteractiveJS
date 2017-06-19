@@ -77,20 +77,21 @@ Parametric3D.prototype.createSurface = function() {
                 var f1 = new THREE.Face3(v1, v2, v4);
                 var f2 = new THREE.Face3(v1, v4, v3);
 
-                f1.vertexColors[0] = colors[v1];
-                f1.vertexColors[1] = colors[v2];
-                f1.vertexColors[2] = colors[v4];
+                if(this.color !== undefined) {
+                    f1.vertexColors[0] = colors[v1];
+                    f1.vertexColors[1] = colors[v2];
+                    f1.vertexColors[2] = colors[v4];
 
-                f2.vertexColors[0] = colors[v1];
-                f2.vertexColors[1] = colors[v4];
-                f2.vertexColors[2] = colors[v3];
+                    f2.vertexColors[0] = colors[v1];
+                    f2.vertexColors[1] = colors[v4];
+                    f2.vertexColors[2] = colors[v3];
+                }
 
                 geom.faces.push(f1);                
                 geom.faces.push(f2);
             }
         }
     }
-    geom.computeFaceNormals();
 
     if(this.opts.wireframe === true || this.opts.flat === true) {
         if(this.color !== undefined) {
@@ -106,6 +107,7 @@ Parametric3D.prototype.createSurface = function() {
             var mat = new THREE.MeshPhongMaterial();
         }
     }
+    mat.side = THREE.DoubleSide;
     return new THREE.Mesh( geom, mat );
 }
 
