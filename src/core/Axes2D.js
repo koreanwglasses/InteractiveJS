@@ -1,6 +1,7 @@
 import { Frame } from '../render/Frame.js';
 import { Arrow2D } from '../plottable/Arrow2D.js';
 import { Hotspot2D } from '../plottable/Hotspot2D.js';
+import { Parametric2D } from '../plottable/Parametric2D.js';
 import { Vector } from '../math/Vector.js';
 import { Expression } from '../math/expressions/Expression.js';
 
@@ -155,17 +156,21 @@ Axes2D.prototype.render = function() {
  * Plot an expression
  */
 Axes2D.prototype.plotExpression = function(expr, type, opts) {
-    var expression = new Expression(expr, this.parent.context);
     switch(type) {
         case 'arrow':            
-            var figure = new Arrow2D(expression, opts)
+            var figure = new Arrow2D(this.parent, expr, opts)
             this.expressions[expr] = figure;
             this.addFigure(figure)
             return figure;
         case 'hotspot':
-            var hotspot = new Hotspot2D(this.parent, expression);
+            var hotspot = new Hotspot2D(this.parent, expr);
             this.addHotspot(hotspot);
             return hotspot;
+        case 'parametric':           
+            var par = new Parametric2D(this.parent, expr, opts)
+            this.expressions[expr] = par;
+            this.addFigure(par);
+            return par;
         default:
             console.log('Interactive.Axes2D: Invalid plot type');
             return null;

@@ -11,11 +11,11 @@ import { Arrow2D } from './Arrow2D.js';
  * headWidth -- The length of the width of the arrow. Default is 0.04.
  * (Derived from THREE.js)
  */
-function BasisVectors2D(opts) {
+function BasisVectors2D(plot, opts) {
     var _opts = opts !== undefined ? opts : {};
 
-    this.xBasis = new Expression('(1,0)')
-    this.yBasis = new Expression('(0,1)')
+    this.xBasis = '(1,0)'
+    this.yBasis = '(0,1)'
 
     var _xOpts = Object.assign({},_opts);
     var _yOpts = Object.assign({},_opts);
@@ -31,8 +31,8 @@ function BasisVectors2D(opts) {
         _yOpts.hex = 0x008800;
     }
 
-    this.xArrow = new Arrow2D(this.xBasis, _xOpts);   
-    this.yArrow = new Arrow2D(this.yBasis, _yOpts);
+    this.xArrow = new Arrow2D(plot, this.xBasis, _xOpts);   
+    this.yArrow = new Arrow2D(plot, this.yBasis, _yOpts);
 
     this.sceneObject = null;
 }

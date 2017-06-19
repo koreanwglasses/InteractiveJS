@@ -1,3 +1,5 @@
+import { Expression } from '../math/expressions/Expression.js';
+
 /**
  * Object that represents an arrow in 3d space.
  * @param {*} vector The vector which this object is based on
@@ -8,13 +10,13 @@
  * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
  * (Derived from THREE.js)
  */
-function Arrow3D(expr, opts) {
+function Arrow3D(plot, expr, opts) {
     this.opts = opts !== undefined ? opts : {};
 
     /**
      * (Read-only)
      */
-    this.expr = expr;
+    this.expr = new Expression(expr, plot.context);
 
     this.sceneObject = null;
 

@@ -12,7 +12,7 @@ function Hotspot2D(plot, expr) {
     // }
 
     this.plot = plot;
-    this.expr = expr;
+    this.expr = new Expression(expr, plot.context);
     this.position = expr.evaluate();
     this.size = 10;
 }

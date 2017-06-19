@@ -11,12 +11,12 @@ import { Arrow3D } from './Arrow3D.js';
  * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
  * (Derived from THREE.js)
  */
-function BasisVectors3D(opts) {
+function BasisVectors3D(plot, opts) {
     var _opts = opts !== undefined ? opts : {};
 
-    this.xBasis = new Expression('(1,0,0)');
-    this.yBasis = new Expression('(0,1,0)');
-    this.zBasis = new Expression('(0,0,1)');
+    this.xBasis = '(1,0,0)'
+    this.yBasis = '(0,1,0)'
+    this.zBasis = '(0,0,1)'
 
     var _xOpts = Object.assign({},_opts);
     var _yOpts = Object.assign({},_opts);
@@ -32,9 +32,9 @@ function BasisVectors3D(opts) {
         _zOpts.hex = 0x4444ff;
     }
 
-    this.xArrow = new Arrow3D(this.xBasis, _xOpts);   
-    this.yArrow = new Arrow3D(this.yBasis, _yOpts);
-    this.zArrow = new Arrow3D(this.zBasis, _zOpts);
+    this.xArrow = new Arrow3D(plot, this.xBasis, _xOpts);   
+    this.yArrow = new Arrow3D(plot, this.yBasis, _yOpts);
+    this.zArrow = new Arrow3D(plot, this.zBasis, _zOpts);
 
     this.sceneObject = null;
 }

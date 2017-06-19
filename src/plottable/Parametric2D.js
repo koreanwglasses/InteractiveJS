@@ -1,22 +1,29 @@
 import { Vector } from '../math/Vector.js';
+import { Expression } from '../math/expressions/Expression.js';
 
-function Parametric2D(func, interval, opts) {
-    this.func = func;
-    this.interval = interval;
+function Parametric2D(plot, expr, opts) {
+    this.plot = plot
+
+    var parts = Expression.splitParametric(expr);
+    this.func = new Expression(parts[0], this.plot.context);
+    this.interval = new Expression(parts[1], this.plot.context);
     this.opts = opts !== undefined? opts: {}
 
     this.validated = false;
     this.sceneObject = null;
 
-    this.color = this.opts.color;
+    if(this.opts.color !== undefined) {
+        this.color = new Expression(this.opts.color, this.plot.context);
+    }
 }
 
 Parametric2D.prototype.createLine = function() {
     var geom = new THREE.Geometry();
-    var tarr = this.interval.array();
+    var int = this.interval.evaluate();
+    var tarr = int.array();
     var context = {};
     for(var i = 0; i < tarr.length; i++) {
-        context[this.interval.varstr] = tarr[i]
+        context[int.varstr] = tarr[i]
 
         geom.vertices.push(this.func.evaluate(context).toVector3());
 

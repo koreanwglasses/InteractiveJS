@@ -303,7 +303,7 @@ Interval.prototype.eval = function() {
     return this;
 };
 
-function Expression(string, context) {
+function Expression$1(string, context) {
     this.type = 'Expression';
 
     this.string = string;    
@@ -312,11 +312,14 @@ function Expression(string, context) {
     this.context = context;
 }
 
-Expression.typeOf = function(string) {
+Expression$1.typeOf = function(string) {
     var nestingLevel = 0;
     var isVector = false;
-    if(string.charAt(0) === '{' && string.charAt(string.length - 1) === '}') {
-        return 'interval'
+    if(string.charAt(string.length - 1) === '}') {
+        if(string.charAt(0) === '{')
+            return 'interval'
+        else    
+            return 'parametric'
     }
     if(string.includes('(') === false && string.includes(')') === false && !/[0-9]+/.test(string)) {
         return 'variable'
@@ -341,7 +344,7 @@ Expression.typeOf = function(string) {
     return 'expression';
 };
 
-Expression.separate = function(str) {
+Expression$1.separate = function(str) {
     // Separate into parts which alternate (expression/operator)
     var parts = [];
     var start = 0;
@@ -400,10 +403,10 @@ Expression.separate = function(str) {
     // Split the expressions if applicable
     for(var i = 0; i < parts.length; i++) {
         if(parts[i].type === 'expression') {
-            parts[i].type = Expression.typeOf(parts[i].str);
+            parts[i].type = Expression$1.typeOf(parts[i].str);
             if(parts[i].type === 'expression') {
                 var newstr = parts[i].str.slice(1,parts[i].str.length-1);
-                var newparts = [{str:'(',type:'('}].concat(Expression.separate(newstr));
+                var newparts = [{str:'(',type:'('}].concat(Expression$1.separate(newstr));
                 newparts.push({str:')',type:')'});
                 parts = parts.slice(0,i).concat(newparts).concat(parts.slice(i+1,parts.length));
                 i += newparts.length - 1;
@@ -416,7 +419,7 @@ Expression.separate = function(str) {
     return parts;
 };
 
-Expression.toPostfix = function(parts) {
+Expression$1.toPostfix = function(parts) {
     var post = [];
     var ops = [];
     var funs = [];
@@ -452,7 +455,7 @@ Expression.toPostfix = function(parts) {
     return post;
 };
 
-Expression.splitTuple = function(string) {
+Expression$1.splitTuple = function(string) {
     var str = string.substring(1,string.length - 1);
     var parts = [];
     var start = 0;
@@ -473,7 +476,11 @@ Expression.splitTuple = function(string) {
     return parts;
 };
 
-Expression.toJSFunction = function(string) {
+Expression$1.splitParametric = function(string) {
+    return string.split(/(?={)/);
+};
+
+Expression$1.toJSFunction = function(string) {
     var str = string.trim();
 
     // Expression is an equation:
@@ -487,11 +494,11 @@ Expression.toJSFunction = function(string) {
             right = string.split('=')[1];
         }
         
-        var leftParts = Expression.separate(left);
+        var leftParts = Expression$1.separate(left);
 
         // variable assignment
         if(leftParts.length === 1 && leftParts[0].type === 'variable') {
-            var righteval = Expression.toJSFunction(right);
+            var righteval = Expression$1.toJSFunction(right);
             var func;
             // Static assignment
             if(str.includes(':=')) {
@@ -501,18 +508,18 @@ Expression.toJSFunction = function(string) {
             } else { // Dynamic Assignment                
                 func = function(context) {
                     var v = righteval(context);
-                    v.setExpression(new Expression(right, context));
+                    v.setExpression(new Expression$1(right, context));
                     return context[leftParts[0].str] = v;
                 };
             }
             return func;
         } 
         
-        var leftPost = Expression.toPostfix(leftParts);
+        var leftPost = Expression$1.toPostfix(leftParts);
 
         // function definition
         if(leftPost.length === 2 && leftPost[leftPost.length - 1].type === 'function') {
-            var righteval = Expression.toJSFunction(right);
+            var righteval = Expression$1.toJSFunction(right);
             if(leftPost[0].type === 'variable') {
                 var func = function(context) {
                     return context[leftPost[leftPost.length - 1].str] = function(v) {
@@ -525,7 +532,7 @@ Expression.toJSFunction = function(string) {
                 return func;
             }
             if(leftPost[0].type === 'vector') {
-                var args = Expression.splitTuple(leftPost[0].str);
+                var args = Expression$1.splitTuple(leftPost[0].str);
                 var func = function(context) {
                     return context[leftPost[leftPost.length - 1].str] = function(v) {
                         var temp = Object.assign({}, context);
@@ -540,10 +547,10 @@ Expression.toJSFunction = function(string) {
             }
         }
     } else {
-        var type = Expression.typeOf(str);
+        var type = Expression$1.typeOf(str);
 
         if(type === 'expression') {
-            var operations = Expression.toPostfix(Expression.separate(str));
+            var operations = Expression$1.toPostfix(Expression$1.separate(str));
             
             // var postfix = ''
             // for(var i = 0; i < operations.length; i++) {
@@ -554,14 +561,14 @@ Expression.toJSFunction = function(string) {
             for(var i = 0; i < operations.length; i++) {
                 switch(operations[i].type) {
                     case 'vector', 'interval':                        
-                        operations[i].eval = Expression.toJSFunction(operations[i].str);
+                        operations[i].eval = Expression$1.toJSFunction(operations[i].str);
                         break;
                     case 'constant':
                         operations[i].value = parseFloat(operations[i].str);
                         break;
                 }
             }
-            
+
             var func = function(context) {
                 var stack = [];
                 for(var i = 0; i < operations.length; i++) {
@@ -656,11 +663,11 @@ Expression.toJSFunction = function(string) {
 
             return func;
         } else if (type === 'vector') {
-            var components = Expression.splitTuple(str);
+            var components = Expression$1.splitTuple(str);
 
             var compeval = [];
             for(var i = 0; i < components.length; i++) {
-                compeval.push(Expression.toJSFunction(components[i]));
+                compeval.push(Expression$1.toJSFunction(components[i]));
             }
 
             var func = function(context) {
@@ -674,14 +681,14 @@ Expression.toJSFunction = function(string) {
 
             return func;
         } else if (type === 'interval') {
-            var params = Expression.splitTuple(str);
+            var params = Expression$1.splitTuple(str);
             var paramseval = [];
             for(var i = 0; i < params.length; i++) {
-                paramseval.push(Expression.toJSFunction(params[i]));
+                paramseval.push(Expression$1.toJSFunction(params[i]));
             }
 
             var func = function(context) {
-                return new Interval(paramseval[0](context),paramseval[1](context),paramseval[2](context));
+                return new Interval(params[0],paramseval[1](context),paramseval[2](context),paramseval[3](context));
             };
 
             return func;
@@ -697,9 +704,9 @@ Expression.toJSFunction = function(string) {
 /**
  * Variables from given context will override variables from this context 
  */
-Expression.prototype.evaluate = function(context) {
+Expression$1.prototype.evaluate = function(context) {
     if(this.validated === false) {
-        this.function = Expression.toJSFunction(this.string);
+        this.function = Expression$1.toJSFunction(this.string);
         this.validated = true;
     }
     if(context !== undefined) {
@@ -721,13 +728,13 @@ Expression.prototype.evaluate = function(context) {
  * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
  * (Derived from THREE.js)
  */
-function Arrow3D(expr, opts) {
+function Arrow3D(plot, expr, opts) {
     this.opts = opts !== undefined ? opts : {};
 
     /**
      * (Read-only)
      */
-    this.expr = expr;
+    this.expr = new Expression$1(expr, plot.context);
 
     this.sceneObject = null;
 
@@ -887,7 +894,7 @@ Axes3D.prototype.render = function() {
  * Plot an expression
  */
 Axes3D.prototype.plotExpression = function(expr, type, opts) {
-    var expression = new Expression(expr, this.parent.context);
+    var expression = new Expression$1(expr, this.parent.context);
     switch(type) {
         case 'arrow':            
             var figure = new Arrow3D(expression, opts);
@@ -959,13 +966,13 @@ Axes3D.prototype.refresh = function(object) {
  * headWidth -- The length of the width of the arrow. Default is 0.05.
  * (Derived from THREE.js)
  */
-function Arrow2D(expr, opts) {
+function Arrow2D(plot, expr, opts) {
     this.opts = opts !== undefined ? opts : {};
 
     /**
      * (Read-only)
      */
-    this.expr = expr;
+    this.expr = new Expression$1(expr, plot.context);
 
     this.sceneObject = null;
 
@@ -1013,7 +1020,7 @@ function Hotspot2D(plot, expr) {
     // }
 
     this.plot = plot;
-    this.expr = expr;
+    this.expr = new Expression(expr, plot.context);
     this.position = expr.evaluate();
     this.size = 10;
 }
@@ -1026,6 +1033,56 @@ Hotspot2D.prototype.ondrag = function(event) {
     this.plot.context[this.expr.string].q[0] = event.worldX;
     this.plot.context[this.expr.string].q[1] = event.worldY;
     this.plot.refresh();
+};
+
+function Parametric2D(plot, expr, opts) {
+    this.plot = plot;
+
+    var parts = Expression$1.splitParametric(expr);
+    this.func = new Expression$1(parts[0], this.plot.context);
+    this.interval = new Expression$1(parts[1], this.plot.context);
+    this.opts = opts !== undefined? opts: {};
+
+    this.validated = false;
+    this.sceneObject = null;
+
+    if(this.opts.color !== undefined) {
+        this.color = new Expression$1(this.opts.color, this.plot.context);
+    }
+}
+
+Parametric2D.prototype.createLine = function() {
+    var geom = new THREE.Geometry();
+    var int = this.interval.evaluate();
+    var tarr = int.array();
+    var context = {};
+    for(var i = 0; i < tarr.length; i++) {
+        context[int.varstr] = tarr[i];
+
+        geom.vertices.push(this.func.evaluate(context).toVector3());
+
+        if(this.color !== undefined) {
+            var color = this.color.evaluate(context);
+            geom.colors[i] = new THREE.Color(color.q[0], color.q[1], color.q[2]);
+        }
+    } 
+    if(this.color !== undefined) {
+        return new THREE.Line(geom, new THREE.LineBasicMaterial({color: 0xffffff, vertexColors: THREE.VertexColors}));
+    } else {
+        return new THREE.Line(geom, new THREE.LineBasicMaterial());
+    }
+};
+
+Parametric2D.prototype.getSceneObject = function() {
+    if(this.validated === false) {
+        this.sceneObject = this.createLine();
+        this.validated = true;
+    }
+    return this.sceneObject;
+};
+
+Parametric2D.prototype.invalidate = function() {
+    this.validated = false;
 };
 
 /**
@@ -1179,17 +1236,21 @@ Axes2D.prototype.render = function() {
  * Plot an expression
  */
 Axes2D.prototype.plotExpression = function(expr, type, opts) {
-    var expression = new Expression(expr, this.parent.context);
     switch(type) {
         case 'arrow':            
-            var figure = new Arrow2D(expression, opts);
+            var figure = new Arrow2D(this.parent, expr, opts);
             this.expressions[expr] = figure;
             this.addFigure(figure);
             return figure;
         case 'hotspot':
-            var hotspot = new Hotspot2D(this.parent, expression);
+            var hotspot = new Hotspot2D(this.parent, expr);
             this.addHotspot(hotspot);
             return hotspot;
+        case 'parametric':           
+            var par = new Parametric2D(this.parent, expr, opts);
+            this.expressions[expr] = par;
+            this.addFigure(par);
+            return par;
         default:
             console.log('Interactive.Axes2D: Invalid plot type');
             return null;
@@ -1302,7 +1363,7 @@ function Plot() {
 }
 
 Plot.prototype.execExpression = function(expr) {
-    if(this.expressions[expr] === undefined) this.expressions[expr] = new Expression(expr, this.context);
+    if(this.expressions[expr] === undefined) this.expressions[expr] = new Expression$1(expr, this.context);
     return this.expressions[expr].evaluate();
 };
 
@@ -1321,11 +1382,11 @@ Plot.prototype.refresh = function() {
  * headWidth -- The length of the width of the arrow. Default is 0.04.
  * (Derived from THREE.js)
  */
-function BasisVectors2D(opts) {
+function BasisVectors2D(plot, opts) {
     var _opts = opts !== undefined ? opts : {};
 
-    this.xBasis = new Expression('(1,0)');
-    this.yBasis = new Expression('(0,1)');
+    this.xBasis = '(1,0)';
+    this.yBasis = '(0,1)';
 
     var _xOpts = Object.assign({},_opts);
     var _yOpts = Object.assign({},_opts);
@@ -1341,8 +1402,8 @@ function BasisVectors2D(opts) {
         _yOpts.hex = 0x008800;
     }
 
-    this.xArrow = new Arrow2D(this.xBasis, _xOpts);   
-    this.yArrow = new Arrow2D(this.yBasis, _yOpts);
+    this.xArrow = new Arrow2D(plot, this.xBasis, _xOpts);   
+    this.yArrow = new Arrow2D(plot, this.yBasis, _yOpts);
 
     this.sceneObject = null;
 }
@@ -1368,12 +1429,12 @@ BasisVectors2D.prototype.getSceneObject = function() {
  * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
  * (Derived from THREE.js)
  */
-function BasisVectors3D(opts) {
+function BasisVectors3D(plot, opts) {
     var _opts = opts !== undefined ? opts : {};
 
-    this.xBasis = new Expression('(1,0,0)');
-    this.yBasis = new Expression('(0,1,0)');
-    this.zBasis = new Expression('(0,0,1)');
+    this.xBasis = '(1,0,0)';
+    this.yBasis = '(0,1,0)';
+    this.zBasis = '(0,0,1)';
 
     var _xOpts = Object.assign({},_opts);
     var _yOpts = Object.assign({},_opts);
@@ -1389,9 +1450,9 @@ function BasisVectors3D(opts) {
         _zOpts.hex = 0x4444ff;
     }
 
-    this.xArrow = new Arrow3D(this.xBasis, _xOpts);   
-    this.yArrow = new Arrow3D(this.yBasis, _yOpts);
-    this.zArrow = new Arrow3D(this.zBasis, _zOpts);
+    this.xArrow = new Arrow3D(plot, this.xBasis, _xOpts);   
+    this.yArrow = new Arrow3D(plot, this.yBasis, _yOpts);
+    this.zArrow = new Arrow3D(plot, this.zBasis, _zOpts);
 
     this.sceneObject = null;
 }
@@ -1409,55 +1470,11 @@ BasisVectors3D.prototype.getSceneObject = function() {
     return this.sceneObject;
 };
 
-function Parametric2D(func, interval, opts) {
-    this.func = func;
-    this.interval = interval;
-    this.opts = opts !== undefined? opts: {};
-
-    this.validated = false;
-    this.sceneObject = null;
-
-    this.color = this.opts.color;
-}
-
-Parametric2D.prototype.createLine = function() {
-    var geom = new THREE.Geometry();
-    var tarr = this.interval.array();
-    var context = {};
-    for(var i = 0; i < tarr.length; i++) {
-        context[this.interval.varstr] = tarr[i];
-
-        geom.vertices.push(this.func.evaluate(context).toVector3());
-
-        if(this.color !== undefined) {
-            var color = this.color.evaluate(context);
-            geom.colors[i] = new THREE.Color(color.q[0], color.q[1], color.q[2]);
-        }
-    } 
-    if(this.color !== undefined) {
-        return new THREE.Line(geom, new THREE.LineBasicMaterial({color: 0xffffff, vertexColors: THREE.VertexColors}));
-    } else {
-        return new THREE.Line(geom, new THREE.LineBasicMaterial());
-    }
-};
-
-Parametric2D.prototype.getSceneObject = function() {
-    if(this.validated === false) {
-        this.sceneObject = this.createLine();
-        this.validated = true;
-    }
-    return this.sceneObject;
-};
-
-Parametric2D.prototype.invalidate = function() {
-    this.validated = false;
-};
-
 exports.Plot = Plot;
 exports.Axes2D = Axes2D;
 exports.Axes3D = Axes3D;
 exports.TouchEventListener = TouchEventListener;
-exports.Expression = Expression;
+exports.Expression = Expression$1;
 exports.Interval = Interval;
 exports.Vector = Vector;
 exports.Arrow2D = Arrow2D;

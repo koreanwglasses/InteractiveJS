@@ -13,8 +13,11 @@ function Expression(string, context) {
 Expression.typeOf = function(string) {
     var nestingLevel = 0;
     var isVector = false;
-    if(string.charAt(0) === '{' && string.charAt(string.length - 1) === '}') {
-        return 'interval'
+    if(string.charAt(string.length - 1) === '}') {
+        if(string.charAt(0) === '{')
+            return 'interval'
+        else    
+            return 'parametric'
     }
     if(string.includes('(') === false && string.includes(')') === false && !/[0-9]+/.test(string)) {
         return 'variable'
@@ -171,6 +174,10 @@ Expression.splitTuple = function(string) {
     return parts;
 }
 
+Expression.splitParametric = function(string) {
+    return string.split(/(?={)/);
+}
+
 Expression.toJSFunction = function(string) {
     var str = string.trim();
 
@@ -259,7 +266,7 @@ Expression.toJSFunction = function(string) {
                         break;
                 }
             }
-            
+
             var func = function(context) {
                 var stack = [];
                 for(var i = 0; i < operations.length; i++) {
@@ -379,7 +386,7 @@ Expression.toJSFunction = function(string) {
             }
 
             var func = function(context) {
-                return new Interval(paramseval[0](context),paramseval[1](context),paramseval[2](context));
+                return new Interval(params[0],paramseval[1](context),paramseval[2](context),paramseval[3](context));
             }
 
             return func;
