@@ -41,7 +41,7 @@
             ax2.plotExpression('X(t){t,0,2*PI,100}', 'parametric', {color: 'cX(t)'});
 
             ax1.plotExpression('Y(t){t,0,2*PI,100}', 'parametric', {color: 'cX(t)'});
-            ax1.plotExpression('Z(u,v){u,0,2*PI,100}{v,0,PI,100}', 'parametric');
+            ax1.plotExpression('Z(u,v){u,0,2*PI,100}{v,0,PI,100}', 'parametric', {wireframe: false});
 
             ;(function animate() {
                 requestAnimationFrame(animate);

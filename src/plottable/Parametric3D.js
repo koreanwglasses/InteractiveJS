@@ -20,6 +20,7 @@ function Parametric3D(plot, expr, opts) {
     if(this.opts.color !== undefined) {
         this.color = new Expression(this.opts.color, this.plot.context);
     }
+    if(this.opts.wireframe === undefined) this.opts.wireframe = false;
 }
 
 Parametric3D.prototype.createLine = function() {
@@ -68,8 +69,12 @@ Parametric3D.prototype.createSurface = function() {
     }
     geom.computeFaceNormals();
 
-    var mat = new THREE.MeshLambertMaterial();
-    // mat.wireframe = true;
+    if(this.opts.wireframe === true) {
+        var mat = new THREE.MeshBasicMaterial();
+        mat.wireframe = true;
+    } else {
+        var mat = new THREE.MeshLambertMaterial();
+    }
     return new THREE.Mesh( geom, mat );
 }
 
