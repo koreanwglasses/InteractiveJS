@@ -74,7 +74,6 @@ function Axes3D(parent, container, opts) {
             _cameraStartPol = sc.phi;
             _cameraStartAz = sc.theta;
             _cameraStartR = sc.r;
-            _cameraStartUp = _self.camera.up.y;
         }
         if(event.buttons & 2) {
             _cameraStartOr = _self.corigin.clone();
@@ -83,6 +82,7 @@ function Axes3D(parent, container, opts) {
             _rightUnit = nor.clone().cross(new THREE.Vector3(0,1,0));
             _upUnit = nor.clone().applyAxisAngle(_rightUnit, Math.PI / 2);
         }
+        _cameraStartUp = _self.camera.up.y;
     });
 
     this.frame.touchEventListener.onpan = function(event) {
