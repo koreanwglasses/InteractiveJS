@@ -14,17 +14,14 @@ function Parametric2D(func, interval, opts) {
 Parametric2D.prototype.createLine = function() {
     var geom = new THREE.Geometry();
     var tarr = this.interval.array();
-    var X = this.func.evaluate();
-    if(this.color !== undefined) {
-        var cX = this.color.evaluate();
-    }
-    var t = new Vector(0);
+    var context = {};
     for(var i = 0; i < tarr.length; i++) {
-        t.q[0] = tarr[i]
-        geom.vertices.push(X(t).toVector3());
+        context[this.interval.varstr] = tarr[i]
+
+        geom.vertices.push(this.func.evaluate(context).toVector3());
 
         if(this.color !== undefined) {
-            var color = cX(t);
+            var color = this.color.evaluate(context);
             geom.colors[i] = new THREE.Color(color.q[0], color.q[1], color.q[2])
         }
     } 

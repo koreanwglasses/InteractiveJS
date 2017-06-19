@@ -252,7 +252,9 @@ Vector.prototype.eval = function() {
     return this;
 };
 
-function Interval(start, end, steps) {
+function Interval(varstr, start, end, steps) {
+    this.varstr = varstr; 
+
     this.start = start;
     this.end = end;
     this.steps = steps;
@@ -315,6 +317,9 @@ Expression.typeOf = function(string) {
     var isVector = false;
     if(string.charAt(0) === '{' && string.charAt(string.length - 1) === '}') {
         return 'interval'
+    }
+    if(string.includes('(') === false && string.includes(')') === false && !/[0-9]+/.test(string)) {
+        return 'variable'
     }
     for(var i = 0; i < string.length; i++) {
         if(string.charAt(i) === '(') {
@@ -680,16 +685,30 @@ Expression.toJSFunction = function(string) {
             };
 
             return func;
+        } else if (type === 'variable') {
+            var func = function(context) {
+                return context[str];
+            };
+            return func;
         }
     }
 };
 
-Expression.prototype.evaluate = function() {
+/**
+ * Variables from given context will override variables from this context 
+ */
+Expression.prototype.evaluate = function(context) {
     if(this.validated === false) {
         this.function = Expression.toJSFunction(this.string);
         this.validated = true;
     }
-    return this.function(this.context);
+    if(context !== undefined) {
+        var temp = Object.assign({}, this.context);
+        Object.assign(temp, context);
+        return this.function(temp)
+    } else {
+        return this.function(this.context);
+    }
 };
 
 /**
@@ -1404,17 +1423,14 @@ function Parametric2D(func, interval, opts) {
 Parametric2D.prototype.createLine = function() {
     var geom = new THREE.Geometry();
     var tarr = this.interval.array();
-    var X = this.func.evaluate();
-    if(this.color !== undefined) {
-        var cX = this.color.evaluate();
-    }
-    var t = new Vector(0);
+    var context = {};
     for(var i = 0; i < tarr.length; i++) {
-        t.q[0] = tarr[i];
-        geom.vertices.push(X(t).toVector3());
+        context[this.interval.varstr] = tarr[i];
+
+        geom.vertices.push(this.func.evaluate(context).toVector3());
 
         if(this.color !== undefined) {
-            var color = cX(t);
+            var color = this.color.evaluate(context);
             geom.colors[i] = new THREE.Color(color.q[0], color.q[1], color.q[2]);
         }
     } 

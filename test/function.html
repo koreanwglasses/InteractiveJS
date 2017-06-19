@@ -34,9 +34,16 @@
 
             context = {}
             ex = new Interactive.Expression('X(t)=(sin(t),cos(t))', context);
-            ex2 = new Interactive.Expression('cX(t)=(sin(t),cos(t),1)', context)
-            int = new Interactive.Interval(0,2 * Math.PI, 100);
-            par = new Interactive.Parametric2D(ex, int, {color: ex2});
+            ex2 = new Interactive.Expression('cX(t)=(1,sin(t)^2,cos(t)^2)', context)
+            
+            ex.evaluate();
+            ex2.evaluate();
+
+            ex3 = new Interactive.Expression('X(t)', context)
+            ex4 = new Interactive.Expression('cX(t)', context)
+            
+            int = new Interactive.Interval('t',0,2 * Math.PI, 100);
+            par = new Interactive.Parametric2D(ex3, int, {color: ex4});
 
             ax2.addFigure(par);
 

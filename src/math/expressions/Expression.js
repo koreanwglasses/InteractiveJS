@@ -16,6 +16,9 @@ Expression.typeOf = function(string) {
     if(string.charAt(0) === '{' && string.charAt(string.length - 1) === '}') {
         return 'interval'
     }
+    if(string.includes('(') === false && string.includes(')') === false && !/[0-9]+/.test(string)) {
+        return 'variable'
+    }
     for(var i = 0; i < string.length; i++) {
         if(string.charAt(i) === '(') {
             nestingLevel++;
@@ -380,16 +383,30 @@ Expression.toJSFunction = function(string) {
             }
 
             return func;
+        } else if (type === 'variable') {
+            var func = function(context) {
+                return context[str];
+            }
+            return func;
         }
     }
 }
 
-Expression.prototype.evaluate = function() {
+/**
+ * Variables from given context will override variables from this context 
+ */
+Expression.prototype.evaluate = function(context) {
     if(this.validated === false) {
         this.function = Expression.toJSFunction(this.string);
         this.validated = true;
     }
-    return this.function(this.context);
+    if(context !== undefined) {
+        var temp = Object.assign({}, this.context);
+        Object.assign(temp, context);
+        return this.function(temp)
+    } else {
+        return this.function(this.context);
+    }
 }
 
 export { Expression };

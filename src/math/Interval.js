@@ -1,4 +1,6 @@
-function Interval(start, end, steps) {
+function Interval(varstr, start, end, steps) {
+    this.varstr = varstr; 
+
     this.start = start;
     this.end = end;
     this.steps = steps;
