@@ -14,5 +14,6 @@ export { BasisVectors2D } from './plottable/BasisVectors2D.js';
 export { BasisVectors3D } from './plottable/BasisVectors3D.js';
 export { Hotspot2D } from './plottable/Hotspot2D.js';
 export { Parametric2D } from './plottable/Parametric2D.js';
+export { Parametric3D } from './plottable/Parametric3D.js';
 
 export { Frame } from './render/Frame.js';

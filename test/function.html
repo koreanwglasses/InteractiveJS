@@ -35,7 +35,11 @@
             plot.execExpression('X(t)=(sin(t),cos(t))')
             plot.execExpression('cX(t)=(1,sin(t)^2,cos(t)^2)')
 
+            plot.execExpression('Y(t)=(sin(t),cos(t),sin(2*t))')
+
             ax2.plotExpression('X(t){t,0,2*PI,100}', 'parametric', {color: 'cX(t)'});
+
+            ax1.plotExpression('Y(t){t,0,2*PI,100}', 'parametric', {color: 'cX(t)'});
 
             ;(function animate() {
                 requestAnimationFrame(animate);

@@ -1,6 +1,7 @@
 import { Frame } from '../render/Frame.js';
 import { Expression } from '../math/expressions/Expression.js';
 import { Arrow3D } from '../plottable/Arrow3D.js';
+import { Parametric3D } from '../plottable/Parametric3D.js';
 
 /**
  * Renders plots (not to be confused with the Figure class)
@@ -134,6 +135,11 @@ Axes3D.prototype.plotExpression = function(expr, type, opts) {
             this.expressions[expr] = figure;
             this.addFigure(figure)
             return figure;
+        case 'parametric':           
+            var par = new Parametric3D(this.parent, expr, opts)
+            this.expressions[expr] = par;
+            this.addFigure(par);
+            return par;
         default:
             console.log('Interactive.Axes3D: Invalid plot type');
             return null;
