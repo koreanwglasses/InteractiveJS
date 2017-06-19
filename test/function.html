@@ -35,10 +35,10 @@
             plot.execExpression('X(t)=(sin(t),cos(t))')
             plot.execExpression('cX(t)=(0,sin(t)^2,cos(t)^2)')
 
-            plot.execExpression('Y(t)=(sin(t),cos(t),-cos(2*t))')
+            plot.execExpression('Y(t)=(sin(t),-cos(2*t),cos(t))')
             // plot.execExpression('Z(u,v)=(cos(u)*sin(v),sin(u)*sin(v),cos(v))')
             // plot.execExpression('cZ(u,v)=(cos(u)*sin(v), sin(u)*sin(v), cos(v))')
-            plot.execExpression('Z(u,v)=(u,v,u^2-v^2)')
+            plot.execExpression('Z(u,v)=(u,u^2-v^2,v)')
 
             ax2.plotExpression('X(t){t,0,2*PI,100}', 'parametric', {color: 'cX(t)'});
 
