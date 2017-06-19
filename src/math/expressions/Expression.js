@@ -57,13 +57,13 @@ Expression.separate = function(str) {
             }
         } else if(str.charAt(i) === '{') {
             type = 'interval'
-        } else  if(str.charAt(i) === '(') {
+        } else if(str.charAt(i) === '(') {
             nestingLevel++
 
             if(type === null) {
                 type = 'expression';
             }
-            if(type === 'operator') {
+            if(type === 'operator' || type === 'uoperator') {
                 parts.push({str: str.substring(start, i), type: type})
                 start = i;
                 type = 'expression';
@@ -75,8 +75,14 @@ Expression.separate = function(str) {
             }
         } else if(str.charAt(i) === ')') {
             nestingLevel--;
-        } else if(nestingLevel == 0) {                    
-            if(/[0-9a-zA-z.]/.test(str.charAt(i)) === false || str.charAt(i) === '^') {
+        } else if(nestingLevel == 0) {         
+            if(str.charAt(i) === '-' && (type === null || type === 'operator')) {
+                if(type === 'operator') {
+                    parts.push({str: str.substring(start, i), type: type})
+                    start = i;
+                }
+                type = 'uoperator';
+            } else if(/[0-9a-zA-Z.]/.test(str.charAt(i)) === false || str.charAt(i) === '^') {
                 parts.push({str: str.substring(start, i), type: type})
                 start = i;
                 type = 'operator';
@@ -84,7 +90,7 @@ Expression.separate = function(str) {
                 if(type === null) {
                     type = 'constant'
                 }
-                if(type === 'operator') {
+                if(type === 'operator' || type === 'uoperator') {
                     parts.push({str: str.substring(start, i), type: type})
                     start = i;
                     type = 'constant';
@@ -123,8 +129,8 @@ Expression.toPostfix = function(parts) {
     var funs = [];
     var precedence = {'+': 0, '-': 0, '*': 1, '/': 1, '^': 2, '(': -1, ')': -1}
     for(var i = 0; i < parts.length; i++) {
-        if(parts[i].type === 'operator') {
-            while(ops.length > 0 && precedence[ops[ops.length - 1].str] >= precedence[parts[i].str]) {
+        if(parts[i].type === 'operator' || parts[i].type === 'uoperator') {
+            while(ops.length > 0 && (ops[ops.length - 1].type === 'uoperator' || precedence[ops[ops.length - 1].str] >= precedence[parts[i].str])) {
                 post.push(ops.pop());
             }
             ops.push(parts[i]);
@@ -297,6 +303,14 @@ Expression.toJSFunction = function(string) {
                                 stack.push(Math[operations[i].str].apply(null, v.q))
                             } else {
                                 stack.push(context[operations[i].str](v));
+                            }
+                            break;
+                        case 'uoperator':
+                            var a = stack.pop();
+                            if(typeof a === 'number') {
+                                stack.push(-a);
+                            } else {
+                                stack.push(a.neg());
                             }
                             break;
                         case 'operator':
