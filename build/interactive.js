@@ -994,15 +994,15 @@ function Axes3D(parent, container, opts) {
             // Pan camera            
             var r = _self.camera.position.distanceTo(_self.corigin);
             var disp = _upUnit.clone().multiplyScalar((event.screenY - event.screenStartY)).addScaledVector(_rightUnit, -(event.screenX - event.screenStartX));
-            var newCamPos = _cameraStartPos.clone().addScaledVector(disp, _self.camera.up.y * 0.002 * r);
-            var newOrPos = _cameraStartOr.clone().addScaledVector(disp, _self.camera.up.y * 0.002 * r);
+            var newCamPos = _cameraStartPos.clone().addScaledVector(disp, _cameraStartUp * 0.002 * r);
+            var newOrPos = _cameraStartOr.clone().addScaledVector(disp, _cameraStartUp * 0.002 * r);
             _self.camera.position.copy(newCamPos);
             _self.corigin.copy(newOrPos);
             _self.camera.lookAt(_self.corigin);
         }
         if(event.leftButtonDown) {
             var r = _self.camera.position.distanceTo(_self.corigin);
-            var az = _cameraStartAz - (event.screenX - event.screenStartX) / 100;
+            var az = _cameraStartAz -  _cameraStartUp * (event.screenX - event.screenStartX) / 100;
             var pol = _cameraStartPol - _cameraStartUp * (event.screenY - event.screenStartY) / 100;
 
             while(pol > Math.PI) {
