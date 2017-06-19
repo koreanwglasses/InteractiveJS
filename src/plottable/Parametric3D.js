@@ -52,6 +52,7 @@ Parametric3D.prototype.createSurface = function() {
     var uarr = uint.array();
     var varr = vint.array();
     var context = {};
+    var colors = [];
 
     for(var i = 0; i < uarr.length; i++) {
         context[uint.varstr] = uarr[i];
@@ -61,19 +62,48 @@ Parametric3D.prototype.createSurface = function() {
             var v = this.func.evaluate(context).toVector3()
             geom.vertices.push(v);
 
+            if(this.color !== undefined) {
+                var color = this.color.evaluate(context);
+                colors.push(new THREE.Color(color.q[0], color.q[1], color.q[2]))
+            }
+
             if(i > 0 && j > 0) {
-                geom.faces.push(new THREE.Face3(i * varr.length + j, i * varr.length + j - 1, (i - 1) * varr.length + j - 1));
-                geom.faces.push(new THREE.Face3(i * varr.length + j, (i - 1) * varr.length + j - 1, (i - 1) * varr.length + j));
+                var v1 = i * varr.length + j;
+                var v2 = i * varr.length + j - 1;
+                var v3 = (i - 1) * varr.length + j;
+                var v4 = (i - 1) * varr.length + j - 1;
+
+                var f1 = new THREE.Face3(v1, v2, v4);
+                var f2 = new THREE.Face3(v1, v4, v3);
+
+                f1.vertexColors[0] = colors[v1];
+                f1.vertexColors[1] = colors[v2];
+                f1.vertexColors[2] = colors[v4];
+
+                f2.vertexColors[0] = colors[v1];
+                f2.vertexColors[1] = colors[v4];
+                f2.vertexColors[2] = colors[v3];
+
+                geom.faces.push(f1);                
+                geom.faces.push(f2);
             }
         }
     }
     geom.computeFaceNormals();
 
     if(this.opts.wireframe === true) {
-        var mat = new THREE.MeshBasicMaterial();
+        if(this.color !== undefined) {
+            var mat = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
+        } else {
+            var mat = new THREE.MeshBasicMaterial();
+        }
         mat.wireframe = true;
     } else {
-        var mat = new THREE.MeshLambertMaterial();
+        if(this.color !== undefined) {
+            var mat = new THREE.MeshLambertMaterial({vertexColors: THREE.VertexColors});
+        } else {            
+            var mat = new THREE.MeshLambertMaterial();
+        }
     }
     return new THREE.Mesh( geom, mat );
 }
