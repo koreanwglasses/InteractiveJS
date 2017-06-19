@@ -1,3 +1,5 @@
+import { Expression } from '../math/expressions/Expression.js';
+
 function Hotspot2D(plot, expr) {
     this.type = 'Hotspot2D'
 
@@ -13,7 +15,7 @@ function Hotspot2D(plot, expr) {
 
     this.plot = plot;
     this.expr = new Expression(expr, plot.context);
-    this.position = expr.evaluate();
+    this.position = this.expr.evaluate();
     this.size = 10;
 }
 

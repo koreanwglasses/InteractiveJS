@@ -128,10 +128,9 @@ Axes3D.prototype.render = function() {
  * Plot an expression
  */
 Axes3D.prototype.plotExpression = function(expr, type, opts) {
-    var expression = new Expression(expr, this.parent.context);
     switch(type) {
         case 'arrow':            
-            var figure = new Arrow3D(expression, opts)
+            var figure = new Arrow3D(this.parent, expr, opts)
             this.expressions[expr] = figure;
             this.addFigure(figure)
             return figure;

@@ -25,11 +25,11 @@
             plot = new Interactive.Plot();
 
             ax1 = plot.createAxes3D(document.getElementById('ax1'), {antialias: true});
-            arr = new Interactive.BasisVectors3D()
+            arr = new Interactive.BasisVectors3D(plot)
             ax1.addFigure(arr);
 
             ax2 = plot.createAxes2D(document.getElementById('ax2'), {antialias: true})
-            arr2 = new Interactive.BasisVectors2D()
+            arr2 = new Interactive.BasisVectors2D(plot)
             ax2.addFigure(arr2);
 
             plot.execExpression('v1:=(1,0.5)')

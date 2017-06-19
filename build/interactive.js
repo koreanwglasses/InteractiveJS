@@ -303,7 +303,7 @@ Interval.prototype.eval = function() {
     return this;
 };
 
-function Expression$1(string, context) {
+function Expression(string, context) {
     this.type = 'Expression';
 
     this.string = string;    
@@ -312,7 +312,7 @@ function Expression$1(string, context) {
     this.context = context;
 }
 
-Expression$1.typeOf = function(string) {
+Expression.typeOf = function(string) {
     var nestingLevel = 0;
     var isVector = false;
     if(string.charAt(string.length - 1) === '}') {
@@ -344,7 +344,7 @@ Expression$1.typeOf = function(string) {
     return 'expression';
 };
 
-Expression$1.separate = function(str) {
+Expression.separate = function(str) {
     // Separate into parts which alternate (expression/operator)
     var parts = [];
     var start = 0;
@@ -403,10 +403,10 @@ Expression$1.separate = function(str) {
     // Split the expressions if applicable
     for(var i = 0; i < parts.length; i++) {
         if(parts[i].type === 'expression') {
-            parts[i].type = Expression$1.typeOf(parts[i].str);
+            parts[i].type = Expression.typeOf(parts[i].str);
             if(parts[i].type === 'expression') {
                 var newstr = parts[i].str.slice(1,parts[i].str.length-1);
-                var newparts = [{str:'(',type:'('}].concat(Expression$1.separate(newstr));
+                var newparts = [{str:'(',type:'('}].concat(Expression.separate(newstr));
                 newparts.push({str:')',type:')'});
                 parts = parts.slice(0,i).concat(newparts).concat(parts.slice(i+1,parts.length));
                 i += newparts.length - 1;
@@ -419,7 +419,7 @@ Expression$1.separate = function(str) {
     return parts;
 };
 
-Expression$1.toPostfix = function(parts) {
+Expression.toPostfix = function(parts) {
     var post = [];
     var ops = [];
     var funs = [];
@@ -455,7 +455,7 @@ Expression$1.toPostfix = function(parts) {
     return post;
 };
 
-Expression$1.splitTuple = function(string) {
+Expression.splitTuple = function(string) {
     var str = string.substring(1,string.length - 1);
     var parts = [];
     var start = 0;
@@ -476,11 +476,11 @@ Expression$1.splitTuple = function(string) {
     return parts;
 };
 
-Expression$1.splitParametric = function(string) {
+Expression.splitParametric = function(string) {
     return string.split(/(?={)/);
 };
 
-Expression$1.toJSFunction = function(string) {
+Expression.toJSFunction = function(string) {
     var str = string.trim();
 
     // Expression is an equation:
@@ -494,11 +494,11 @@ Expression$1.toJSFunction = function(string) {
             right = string.split('=')[1];
         }
         
-        var leftParts = Expression$1.separate(left);
+        var leftParts = Expression.separate(left);
 
         // variable assignment
         if(leftParts.length === 1 && leftParts[0].type === 'variable') {
-            var righteval = Expression$1.toJSFunction(right);
+            var righteval = Expression.toJSFunction(right);
             var func;
             // Static assignment
             if(str.includes(':=')) {
@@ -508,18 +508,18 @@ Expression$1.toJSFunction = function(string) {
             } else { // Dynamic Assignment                
                 func = function(context) {
                     var v = righteval(context);
-                    v.setExpression(new Expression$1(right, context));
+                    v.setExpression(new Expression(right, context));
                     return context[leftParts[0].str] = v;
                 };
             }
             return func;
         } 
         
-        var leftPost = Expression$1.toPostfix(leftParts);
+        var leftPost = Expression.toPostfix(leftParts);
 
         // function definition
         if(leftPost.length === 2 && leftPost[leftPost.length - 1].type === 'function') {
-            var righteval = Expression$1.toJSFunction(right);
+            var righteval = Expression.toJSFunction(right);
             if(leftPost[0].type === 'variable') {
                 var func = function(context) {
                     return context[leftPost[leftPost.length - 1].str] = function(v) {
@@ -532,7 +532,7 @@ Expression$1.toJSFunction = function(string) {
                 return func;
             }
             if(leftPost[0].type === 'vector') {
-                var args = Expression$1.splitTuple(leftPost[0].str);
+                var args = Expression.splitTuple(leftPost[0].str);
                 var func = function(context) {
                     return context[leftPost[leftPost.length - 1].str] = function(v) {
                         var temp = Object.assign({}, context);
@@ -547,10 +547,10 @@ Expression$1.toJSFunction = function(string) {
             }
         }
     } else {
-        var type = Expression$1.typeOf(str);
+        var type = Expression.typeOf(str);
 
         if(type === 'expression') {
-            var operations = Expression$1.toPostfix(Expression$1.separate(str));
+            var operations = Expression.toPostfix(Expression.separate(str));
             
             // var postfix = ''
             // for(var i = 0; i < operations.length; i++) {
@@ -561,7 +561,7 @@ Expression$1.toJSFunction = function(string) {
             for(var i = 0; i < operations.length; i++) {
                 switch(operations[i].type) {
                     case 'vector', 'interval':                        
-                        operations[i].eval = Expression$1.toJSFunction(operations[i].str);
+                        operations[i].eval = Expression.toJSFunction(operations[i].str);
                         break;
                     case 'constant':
                         operations[i].value = parseFloat(operations[i].str);
@@ -663,11 +663,11 @@ Expression$1.toJSFunction = function(string) {
 
             return func;
         } else if (type === 'vector') {
-            var components = Expression$1.splitTuple(str);
+            var components = Expression.splitTuple(str);
 
             var compeval = [];
             for(var i = 0; i < components.length; i++) {
-                compeval.push(Expression$1.toJSFunction(components[i]));
+                compeval.push(Expression.toJSFunction(components[i]));
             }
 
             var func = function(context) {
@@ -681,10 +681,10 @@ Expression$1.toJSFunction = function(string) {
 
             return func;
         } else if (type === 'interval') {
-            var params = Expression$1.splitTuple(str);
+            var params = Expression.splitTuple(str);
             var paramseval = [];
             for(var i = 0; i < params.length; i++) {
-                paramseval.push(Expression$1.toJSFunction(params[i]));
+                paramseval.push(Expression.toJSFunction(params[i]));
             }
 
             var func = function(context) {
@@ -704,9 +704,9 @@ Expression$1.toJSFunction = function(string) {
 /**
  * Variables from given context will override variables from this context 
  */
-Expression$1.prototype.evaluate = function(context) {
+Expression.prototype.evaluate = function(context) {
     if(this.validated === false) {
-        this.function = Expression$1.toJSFunction(this.string);
+        this.function = Expression.toJSFunction(this.string);
         this.validated = true;
     }
     if(context !== undefined) {
@@ -734,7 +734,7 @@ function Arrow3D(plot, expr, opts) {
     /**
      * (Read-only)
      */
-    this.expr = new Expression$1(expr, plot.context);
+    this.expr = new Expression(expr, plot.context);
 
     this.sceneObject = null;
 
@@ -894,10 +894,9 @@ Axes3D.prototype.render = function() {
  * Plot an expression
  */
 Axes3D.prototype.plotExpression = function(expr, type, opts) {
-    var expression = new Expression$1(expr, this.parent.context);
     switch(type) {
         case 'arrow':            
-            var figure = new Arrow3D(expression, opts);
+            var figure = new Arrow3D(this.parent, expr, opts);
             this.expressions[expr] = figure;
             this.addFigure(figure);
             return figure;
@@ -972,7 +971,7 @@ function Arrow2D(plot, expr, opts) {
     /**
      * (Read-only)
      */
-    this.expr = new Expression$1(expr, plot.context);
+    this.expr = new Expression(expr, plot.context);
 
     this.sceneObject = null;
 
@@ -1021,7 +1020,7 @@ function Hotspot2D(plot, expr) {
 
     this.plot = plot;
     this.expr = new Expression(expr, plot.context);
-    this.position = expr.evaluate();
+    this.position = this.expr.evaluate();
     this.size = 10;
 }
 
@@ -1038,16 +1037,16 @@ Hotspot2D.prototype.ondrag = function(event) {
 function Parametric2D(plot, expr, opts) {
     this.plot = plot;
 
-    var parts = Expression$1.splitParametric(expr);
-    this.func = new Expression$1(parts[0], this.plot.context);
-    this.interval = new Expression$1(parts[1], this.plot.context);
+    var parts = Expression.splitParametric(expr);
+    this.func = new Expression(parts[0], this.plot.context);
+    this.interval = new Expression(parts[1], this.plot.context);
     this.opts = opts !== undefined? opts: {};
 
     this.validated = false;
     this.sceneObject = null;
 
     if(this.opts.color !== undefined) {
-        this.color = new Expression$1(this.opts.color, this.plot.context);
+        this.color = new Expression(this.opts.color, this.plot.context);
     }
 }
 
@@ -1363,7 +1362,7 @@ function Plot() {
 }
 
 Plot.prototype.execExpression = function(expr) {
-    if(this.expressions[expr] === undefined) this.expressions[expr] = new Expression$1(expr, this.context);
+    if(this.expressions[expr] === undefined) this.expressions[expr] = new Expression(expr, this.context);
     return this.expressions[expr].evaluate();
 };
 
@@ -1474,7 +1473,7 @@ exports.Plot = Plot;
 exports.Axes2D = Axes2D;
 exports.Axes3D = Axes3D;
 exports.TouchEventListener = TouchEventListener;
-exports.Expression = Expression$1;
+exports.Expression = Expression;
 exports.Interval = Interval;
 exports.Vector = Vector;
 exports.Arrow2D = Arrow2D;
