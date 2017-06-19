@@ -156,32 +156,6 @@ Expression.splitVector = function(string) {
     return parts;
 }
 
-// Expression.toJSExpression = function(str) {
-//     var parts = Expression.separate(str);
-//     var func = '';
-//     for(var i = 0; i < parts.length; i++) {
-//         if(parts[i].type === 'variable') {
-//             if(Math[parts[i].str] !== undefined) {
-//                 func += 'Math.' + parts[i].str;
-//             } else {
-//                 func += 'context.' + parts[i].str;
-//             }
-//         } else if (parts[i].type === 'vector') {
-//             var components = Expression.splitVector(parts[i].str);
-//             func += 'new Vector(';
-//             for(var j = 0; j < components.length; j++) {
-//                 func += Expression.toJSExpression(components[j])
-//                 func += ','
-//             }
-//             func = func.slice(0,func.length - 1)
-//             func += ')'
-//         } else {
-//             func += parts[i].str;
-//         }
-//     }
-//     return func;
-// }
-
 Expression.toJSFunction = function(string) {
     var str = string.trim();
 
@@ -253,6 +227,7 @@ Expression.toJSFunction = function(string) {
 
         if(type === 'expression') {
             var operations = Expression.toPostfix(Expression.separate(str));
+            
             // var postfix = ''
             // for(var i = 0; i < operations.length; i++) {
             //     postfix += operations[i].str + ' '
@@ -269,7 +244,6 @@ Expression.toJSFunction = function(string) {
                         break;
                 }
             }
-                console.log(operations);
             
             var func = function(context) {
                 var stack = [];
