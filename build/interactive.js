@@ -1002,6 +1002,22 @@ function Axes3D(parent, container, opts) {
             var az = _cameraStartAz - (event.screenX - event.screenStartX) / 100;
             var pol = _cameraStartPol - (event.screenY - event.screenStartY) / 100;
 
+            if(pol > Math.PI) {
+                pol -= 2 * Math.PI;
+            } 
+            if(pol <= -Math.PI) {
+                pol += 2 * Math.PI;
+            }
+
+            if(pol < 0) {
+                _self.camera.up.y = -1;
+            }
+            if(pol > 0) {
+                _self.camera.up.y = 1;
+            }
+
+            console.log(pol);
+
             _self.camera.position.setFromSpherical(new THREE.Spherical(r, pol, az)).add(_self.corigin);
             _self.camera.lookAt(_self.corigin);
         }
