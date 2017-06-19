@@ -9,6 +9,8 @@ function Vector() {
 
     // q is the general term for a coordinate
     this.q = Array.from(arguments);
+
+    this.expr = null;
 }
 
 /**
@@ -41,7 +43,25 @@ Vector.prototype.add = function(v) {
  * Sets this vector's coordinates to the input vector's
  */
 Vector.prototype.set = function(v) {
+    this.dimensions = v.dimensions;
     this.q = v.q.slice();
+    return this;
+}
+
+/**
+ * Sets an expression for this vector which can be evalulated with eval
+ */
+Vector.prototype.setExpression = function(expr) {
+    this.expr = expr;
+}
+
+/**
+ * Sets this vector to the result of the evaulation of expression, or if expression is null, returns self
+ */
+Vector.prototype.eval = function() {
+    if(this.expr !== null) {
+        this.set(this.expr.evaluate());
+    }
     return this;
 }
 

@@ -58,7 +58,7 @@ Expression.separate = function(str) {
         } else if(str.charAt(i) === ')') {
             nestingLevel--;
         } else if(nestingLevel == 0) {                    
-            if(/[0-9a-zA-z.]/.test(str.charAt(i)) === false) {
+            if(/[0-9a-zA-z.]/.test(str.charAt(i)) === false || str.charAt(i) === '^') {
                 parts.push({str: str.substring(start, i), type: type})
                 start = i;
                 type = 'operator';
@@ -207,10 +207,11 @@ Expression.toJSFunction = function(string) {
                 func = function(context) {
                     return context[leftParts[0].str] = righteval(context);
                 }
-            } else { // Dynamic Assignment
+            } else { // Dynamic Assignment                
                 func = function(context) {
-                    Object.defineProperty(context, leftParts[0].str, {get: function() { return righteval(context); }} );
-                    return context[leftParts[0].str]
+                    var v = righteval(context);
+                    v.setExpression(new Expression(right, context));
+                    return context[leftParts[0].str] = v;
                 }
             }
             return func;
@@ -224,9 +225,9 @@ Expression.toJSFunction = function(string) {
             if(leftPost[0].type === 'variable') {
                 var func = function(context) {
                     return context[leftPost[leftPost.length - 1].str] = function(v) {
-                        Object.assign({}, context);
-                        context[leftPost[0].str] = v.q[0];
-                        return righteval(context);
+                        var temp = Object.assign({}, context);
+                        temp[leftPost[0].str] = v.q[0];
+                        return righteval(temp);
                     }
                 }
 
@@ -236,11 +237,11 @@ Expression.toJSFunction = function(string) {
                 var args = Expression.splitVector(leftPost[0].str)
                 var func = function(context) {
                     return context[leftPost[leftPost.length - 1].str] = function(v) {
-                        Object.assign({}, context);
+                        var temp = Object.assign({}, context);
                         for(var i = 0; i < args.length; i++) {
-                            context[args[i]] = v.q[i];
+                            temp[args[i]] = v.q[i];
                         }
-                        return righteval(context);
+                        return righteval(temp);
                     }
                 }
 
@@ -268,6 +269,7 @@ Expression.toJSFunction = function(string) {
                         break;
                 }
             }
+                console.log(operations);
             
             var func = function(context) {
                 var stack = [];
@@ -280,7 +282,11 @@ Expression.toJSFunction = function(string) {
                             stack.push(operations[i].value);
                             break;
                         case 'variable':
-                            stack.push(context[operations[i].str]);
+                            if(context[operations[i].str].eval === undefined) {
+                                stack.push(context[operations[i].str]);
+                            } else {
+                                stack.push(context[operations[i].str].eval());
+                            }
                             break;
                         case 'function':
                             var v = stack.pop();
