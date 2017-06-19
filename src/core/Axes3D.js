@@ -118,8 +118,6 @@ function Axes3D(parent, container, opts) {
                 _self.camera.up.y = 1;
             }
 
-            console.log(pol)
-
             _self.camera.position.setFromSpherical(new THREE.Spherical(r, pol, az)).add(_self.corigin);
             _self.camera.lookAt(_self.corigin);
         }
