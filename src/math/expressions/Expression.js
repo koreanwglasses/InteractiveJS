@@ -1,11 +1,12 @@
 import { Vector } from '../Vector.js';
 
-function Expression(string) {
+function Expression(string, context) {
     this.type = 'Expression';
 
     this.string = string;    
     this.validated = false;
     this.function = null;
+    this.context = context;
 }
 
 Expression.typeOf = function(string) {
@@ -57,7 +58,7 @@ Expression.separate = function(str) {
         } else if(str.charAt(i) === ')') {
             nestingLevel--;
         } else if(nestingLevel == 0) {                    
-            if(/\w/.test(str.charAt(i)) === false) {
+            if(/[0-9a-zA-z.]/.test(str.charAt(i)) === false) {
                 parts.push({str: str.substring(start, i), type: type})
                 start = i;
                 type = 'operator';
@@ -70,7 +71,7 @@ Expression.separate = function(str) {
                     start = i;
                     type = 'constant';
                 }
-                if(/[0-9]/.test(str.charAt(i)) === false)
+                if(/[0-9.]/.test(str.charAt(i)) === false)
                     type = 'variable';
             }
         }
@@ -186,16 +187,31 @@ Expression.toJSFunction = function(string) {
 
     // Expression is an equation:
     if(str.match(/=/g) !== null && str.match(/=/g).length === 1) {
-        var left = string.split('=')[0];
-        var right = string.split('=')[1];
+        var left, right;
+        if(str.includes(':=')) {
+            left = string.split(':=')[0];
+            right = string.split(':=')[1];
+        } else {
+            left = string.split('=')[0];
+            right = string.split('=')[1];
+        }
         
         var leftParts = Expression.separate(left);
 
         // variable assignment
         if(leftParts.length === 1 && leftParts[0].type === 'variable') {
             var righteval = Expression.toJSFunction(right);
-            var func = function(context) {
-                return context[leftParts[0].str] = righteval(context);
+            var func;
+            // Static assignment
+            if(str.includes(':=')) {
+                func = function(context) {
+                    return context[leftParts[0].str] = righteval(context);
+                }
+            } else { // Dynamic Assignment
+                func = function(context) {
+                    Object.defineProperty(context, leftParts[0].str, {get: function() { return righteval(context); }} );
+                    return context[leftParts[0].str]
+                }
             }
             return func;
         } 
@@ -254,7 +270,7 @@ Expression.toJSFunction = function(string) {
                         break;
                 }
             }
-
+            
             var func = function(context) {
                 var stack = [];
                 for(var i = 0; i < operations.length; i++) {
@@ -366,12 +382,12 @@ Expression.toJSFunction = function(string) {
     }
 }
 
-Expression.prototype.evaluate = function(context) {
+Expression.prototype.evaluate = function() {
     if(this.validated === false) {
         this.function = Expression.toJSFunction(this.string);
         this.validated = true;
     }
-    return this.function(context);
+    return this.function(this.context);
 }
 
 export { Expression };

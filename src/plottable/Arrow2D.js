@@ -8,23 +8,23 @@
  * headWidth -- The length of the width of the arrow. Default is 0.05.
  * (Derived from THREE.js)
  */
-function Arrow2D(vector, opts) {
-    if (vector.type !== 'Vector') {
-        console.log('Interactive.Arrow2D: Parameter is not a vector.');
-        return null;
-    }
+function Arrow2D(expr, opts) {
+    // if (vector.type !== 'Vector') {
+    //     console.log('Interactive.Arrow2D: Parameter is not a vector.');
+    //     return null;
+    // }
 
-    if (vector.dimensions !== 2) {
-        console.log('Interactive.Arrow2D: Vector dimension mismatch. 2D vector required.')
-        return null;
-    }
+    // if (vector.dimensions !== 2) {
+    //     console.log('Interactive.Arrow2D: Vector dimension mismatch. 2D vector required.')
+    //     return null;
+    // }
 
     this.opts = opts !== undefined ? opts : {};
 
     /**
      * (Read-only)
      */
-    this.vector = vector;
+    this.expr = expr;
 
     this.sceneObject = null;
 
@@ -36,7 +36,8 @@ function Arrow2D(vector, opts) {
  */
 Arrow2D.prototype.getSceneObject = function() {
     if(this.validated === false) {
-        var _vector2 = new THREE.Vector3(this.vector.q[0], this.vector.q[1]);
+        var vector = this.expr.evaluate();
+        var _vector2 = new THREE.Vector3(vector.q[0], vector.q[1]);
         var _dir = _vector2.clone().normalize();
         var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
         var _length = _vector2.length();

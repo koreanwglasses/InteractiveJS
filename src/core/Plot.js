@@ -1,5 +1,6 @@
 import { Axes3D } from './Axes3D.js';
 import { Axes2D } from './Axes2D.js';
+import { Expression } from '../math/expressions/Expression.js';
 
 function Plot() {
     /**
@@ -21,6 +22,21 @@ function Plot() {
     this.createAxes2D = function(container, opts) {
         return new Axes2D(this, container, opts);
     };
+
+    /**
+     * The variables the expressions will reference
+     */
+    this.context = {}
+
+    /**
+     * Cached expressions
+     */
+    this.expressions = {}
+}
+
+Plot.prototype.execExpression = function(expr) {
+    if(this.expressions[expr] === undefined) this.expressions[expr] = new Expression(expr, this.context);
+    return this.expressions[expr].evaluate();
 }
 
 export { Plot };

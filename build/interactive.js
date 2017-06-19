@@ -647,34 +647,13 @@ Axes2D.prototype.addHotspot = function(hotspot) {
     this.hotspots.push(hotspot);
 };
 
-function Plot() {
-    /**
-     * The type of this object. (Read-only)
-     */
-    this.type = 'Plot';
-    var _figures = [];
-
-    /**
-     * Create a 3D axis in the context of this plot
-     */
-    this.createAxes3D = function(container, opts) {
-        return new Axes3D(this, container, opts);
-    };
-
-    /**
-     * Create a 2D axis in the context of this plot
-     */
-    this.createAxes2D = function(container, opts) {
-        return new Axes2D(this, container, opts);
-    };
-}
-
-function Expression(string) {
+function Expression(string, context) {
     this.type = 'Expression';
 
     this.string = string;    
     this.validated = false;
     this.function = null;
+    this.context = context;
 }
 
 Expression.typeOf = function(string) {
@@ -726,7 +705,7 @@ Expression.separate = function(str) {
         } else if(str.charAt(i) === ')') {
             nestingLevel--;
         } else if(nestingLevel == 0) {                    
-            if(/\w/.test(str.charAt(i)) === false) {
+            if(/[0-9a-zA-z.]/.test(str.charAt(i)) === false) {
                 parts.push({str: str.substring(start, i), type: type});
                 start = i;
                 type = 'operator';
@@ -739,7 +718,7 @@ Expression.separate = function(str) {
                     start = i;
                     type = 'constant';
                 }
-                if(/[0-9]/.test(str.charAt(i)) === false)
+                if(/[0-9.]/.test(str.charAt(i)) === false)
                     type = 'variable';
             }
         }
@@ -855,17 +834,32 @@ Expression.toJSFunction = function(string) {
 
     // Expression is an equation:
     if(str.match(/=/g) !== null && str.match(/=/g).length === 1) {
-        var left = string.split('=')[0];
-        var right = string.split('=')[1];
+        var left, right;
+        if(str.includes(':=')) {
+            left = string.split(':=')[0];
+            right = string.split(':=')[1];
+        } else {
+            left = string.split('=')[0];
+            right = string.split('=')[1];
+        }
         
         var leftParts = Expression.separate(left);
 
         // variable assignment
         if(leftParts.length === 1 && leftParts[0].type === 'variable') {
             var righteval = Expression.toJSFunction(right);
-            var func = function(context) {
-                return context[leftParts[0].str] = righteval(context);
-            };
+            var func;
+            // Static assignment
+            if(str.includes(':=')) {
+                func = function(context) {
+                    return context[leftParts[0].str] = righteval(context);
+                };
+            } else { // Dynamic Assignment
+                func = function(context) {
+                    Object.defineProperty(context, leftParts[0].str, {get: function() { return righteval(context); }} );
+                    return context[leftParts[0].str]
+                };
+            }
             return func;
         } 
         
@@ -923,7 +917,7 @@ Expression.toJSFunction = function(string) {
                         break;
                 }
             }
-
+            
             var func = function(context) {
                 var stack = [];
                 for(var i = 0; i < operations.length; i++) {
@@ -1035,12 +1029,49 @@ Expression.toJSFunction = function(string) {
     }
 };
 
-Expression.prototype.evaluate = function(context) {
+Expression.prototype.evaluate = function() {
     if(this.validated === false) {
         this.function = Expression.toJSFunction(this.string);
         this.validated = true;
     }
-    return this.function(context);
+    return this.function(this.context);
+};
+
+function Plot() {
+    /**
+     * The type of this object. (Read-only)
+     */
+    this.type = 'Plot';
+    var _figures = [];
+
+    /**
+     * Create a 3D axis in the context of this plot
+     */
+    this.createAxes3D = function(container, opts) {
+        return new Axes3D(this, container, opts);
+    };
+
+    /**
+     * Create a 2D axis in the context of this plot
+     */
+    this.createAxes2D = function(container, opts) {
+        return new Axes2D(this, container, opts);
+    };
+
+    /**
+     * The variables the expressions will reference
+     */
+    this.context = {};
+
+    /**
+     * Cached expressions
+     */
+    this.expressions = {};
+}
+
+Plot.prototype.execExpression = function(expr) {
+    if(this.expressions[expr] === undefined) this.expressions[expr] = new Expression(expr, this.context);
+    return this.expressions[expr].evaluate();
 };
 
 /**
@@ -1053,23 +1084,23 @@ Expression.prototype.evaluate = function(context) {
  * headWidth -- The length of the width of the arrow. Default is 0.05.
  * (Derived from THREE.js)
  */
-function Arrow2D(vector, opts) {
-    if (vector.type !== 'Vector') {
-        console.log('Interactive.Arrow2D: Parameter is not a vector.');
-        return null;
-    }
+function Arrow2D(expr, opts) {
+    // if (vector.type !== 'Vector') {
+    //     console.log('Interactive.Arrow2D: Parameter is not a vector.');
+    //     return null;
+    // }
 
-    if (vector.dimensions !== 2) {
-        console.log('Interactive.Arrow2D: Vector dimension mismatch. 2D vector required.');
-        return null;
-    }
+    // if (vector.dimensions !== 2) {
+    //     console.log('Interactive.Arrow2D: Vector dimension mismatch. 2D vector required.')
+    //     return null;
+    // }
 
     this.opts = opts !== undefined ? opts : {};
 
     /**
      * (Read-only)
      */
-    this.vector = vector;
+    this.expr = expr;
 
     this.sceneObject = null;
 
@@ -1081,7 +1112,8 @@ function Arrow2D(vector, opts) {
  */
 Arrow2D.prototype.getSceneObject = function() {
     if(this.validated === false) {
-        var _vector2 = new THREE.Vector3(this.vector.q[0], this.vector.q[1]);
+        var vector = this.expr.evaluate();
+        var _vector2 = new THREE.Vector3(vector.q[0], vector.q[1]);
         var _dir = _vector2.clone().normalize();
         var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
         var _length = _vector2.length();
@@ -1114,8 +1146,8 @@ Arrow2D.prototype.invalidate = function() {
 function BasisVectors2D(opts) {
     var _opts = opts !== undefined ? opts : {};
 
-    this.xBasis = new Vector(1, 0);
-    this.yBasis = new Vector(0, 1);
+    this.xBasis = new Expression('(1,0)');
+    this.yBasis = new Expression('(0,1)');
 
     var _xOpts = Object.assign({},_opts);
     var _yOpts = Object.assign({},_opts);

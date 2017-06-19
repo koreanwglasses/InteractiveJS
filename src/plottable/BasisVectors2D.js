@@ -1,4 +1,5 @@
 import { Vector } from '../math/Vector.js';
+import { Expression } from '../math/expressions/Expression.js'
 import { Arrow2D } from './Arrow2D.js';
 
 /**
@@ -13,8 +14,8 @@ import { Arrow2D } from './Arrow2D.js';
 function BasisVectors2D(opts) {
     var _opts = opts !== undefined ? opts : {};
 
-    this.xBasis = new Vector(1, 0);
-    this.yBasis = new Vector(0, 1);
+    this.xBasis = new Expression('(1,0)')
+    this.yBasis = new Expression('(0,1)')
 
     var _xOpts = Object.assign({},_opts);
     var _yOpts = Object.assign({},_opts);
