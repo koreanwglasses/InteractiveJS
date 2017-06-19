@@ -278,7 +278,9 @@ Expression.toJSFunction = function(string) {
                             stack.push(operations[i].value);
                             break;
                         case 'variable':
-                            if(context[operations[i].str].eval === undefined) {
+                            if(typeof Math[operations[i].str] === 'number') {
+                                stack.push(Math[operations[i].str])
+                            } else if(context[operations[i].str].eval === undefined) {
                                 stack.push(context[operations[i].str]);
                             } else {
                                 stack.push(context[operations[i].str].eval());
