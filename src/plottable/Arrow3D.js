@@ -8,20 +8,13 @@
  * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
  * (Derived from THREE.js)
  */
-function Arrow3D(vector, opts) {
-    if (vector.type !== 'Vector') {
-        console.log('Interactive.Arrow3D: Parameter is not a vector.');
-        return null;
-    }
-
-    if (vector.dimensions !== 3) {
-        console.log('Interactive.Arrow3D: Vector dimension mismatch. 3D vector required.')
-        return null;
-    }
-
+function Arrow3D(expr, opts) {
     this.opts = opts !== undefined ? opts : {};
 
-    this.vector = vector;
+    /**
+     * (Read-only)
+     */
+    this.expr = expr;
 
     this.sceneObject = null;
 
@@ -33,7 +26,8 @@ function Arrow3D(vector, opts) {
  */
 Arrow3D.prototype.getSceneObject = function() {
     if(this.validated === false) {
-        var _vector3 = new THREE.Vector3(this.vector.q[0], this.vector.q[1], this.vector.q[2]);
+        var vector = this.expr.evaluate();
+        var _vector3 = new THREE.Vector3(vector.q[0], vector.q[1], vector.q[2]);
         var _dir = _vector3.clone().normalize();
         var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
         var _length = _vector3.length();

@@ -163,7 +163,7 @@ Axes2D.prototype.plotExpression = function(expr, type, opts) {
             this.addFigure(figure)
             return figure;
         case 'hotspot':
-            var hotspot = new Hotspot2D(this, expression);
+            var hotspot = new Hotspot2D(this.parent, expression);
             this.addHotspot(hotspot);
             return hotspot;
         default:
@@ -211,7 +211,7 @@ Axes2D.prototype.redrawFigure = function(object) {
 /**
  * Redraw all objects
  */
-Axes2D.prototype.redrawAll = function(object) {
+Axes2D.prototype.refresh = function(object) {
     for(var i = 0; i < this.objects.length; i++) {
         if(this.objects[i].invalidate !== undefined) {
             this.frame.scene.remove(this.objects[i].getSceneObject());

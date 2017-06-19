@@ -1,4 +1,5 @@
 import { Frame } from '../render/Frame.js';
+import { Expression } from '../math/expressions/Expression.js';
 import { Arrow3D } from '../plottable/Arrow3D.js';
 
 /**
@@ -45,6 +46,11 @@ function Axes3D(parent, container, opts) {
      * Objects to plot
      */
     this.objects = []
+
+    /**
+     * Expressions to plot
+     */
+    this.expressions = {}
 
     // Bind events
     var _self = this;
@@ -119,6 +125,23 @@ Axes3D.prototype.render = function() {
 }
 
 /**
+ * Plot an expression
+ */
+Axes3D.prototype.plotExpression = function(expr, type, opts) {
+    var expression = new Expression(expr, this.parent.context);
+    switch(type) {
+        case 'arrow':            
+            var figure = new Arrow3D(expression, opts)
+            this.expressions[expr] = figure;
+            this.addFigure(figure)
+            return figure;
+        default:
+            console.log('Interactive.Axes3D: Invalid plot type');
+            return null;
+    }
+}
+
+/**
  * Add an object to plot
  * @param {*} object Must be plottable
  */
@@ -126,7 +149,6 @@ Axes3D.prototype.addFigure = function(object) {
     this.objects.push(object);
     this.frame.scene.add(object.getSceneObject());
 }
-
 
 /**
  * Remove a plotted object
@@ -153,6 +175,19 @@ Axes3D.prototype.redrawFigure = function(object) {
     this.frame.scene.remove(object.getSceneObject());
     object.invalidate();
     this.frame.scene.add(object.getSceneObject());    
+}
+
+/**
+ * Redraw all objects
+ */
+Axes3D.prototype.refresh = function(object) {
+    for(var i = 0; i < this.objects.length; i++) {
+        if(this.objects[i].invalidate !== undefined) {
+            this.frame.scene.remove(this.objects[i].getSceneObject());
+            this.objects[i].invalidate();
+            this.frame.scene.add(this.objects[i].getSceneObject());
+        }
+    }
 }
 
 export { Axes3D };

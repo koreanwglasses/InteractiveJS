@@ -171,305 +171,6 @@ Frame.prototype.render = function(camera) {
 };
 
 /**
- * Object that represents an arrow in 3d space.
- * @param {*} vector The vector which this object is based on
- * @param {*} opts Options to customize the appearance of the arrow. Includes:
- * origin -- Point at which the arrow starts. Default is (0, 0, 0)
- * hex -- hexadecimal value to define color. Default is 0xffff00.
- * headLength -- The length of the head of the arrow. Default is 0.2 * length.
- * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
- * (Derived from THREE.js)
- */
-function Arrow3D(vector, opts) {
-    if (vector.type !== 'Vector') {
-        console.log('Interactive.Arrow3D: Parameter is not a vector.');
-        return null;
-    }
-
-    if (vector.dimensions !== 3) {
-        console.log('Interactive.Arrow3D: Vector dimension mismatch. 3D vector required.');
-        return null;
-    }
-
-    this.opts = opts !== undefined ? opts : {};
-
-    this.vector = vector;
-
-    this.sceneObject = null;
-
-    this.validated = false;
-}
-
-/**
- * Returns an object that can be added to a THREE.js scene.
- */
-Arrow3D.prototype.getSceneObject = function() {
-    if(this.validated === false) {
-        var _vector3 = new THREE.Vector3(this.vector.q[0], this.vector.q[1], this.vector.q[2]);
-        var _dir = _vector3.clone().normalize();
-        var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
-        var _length = _vector3.length();
-        var _hex = this.opts.hex !== undefined ? this.opts.hex : 0xffffff;
-        var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2 * _length;
-        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.2 * _headLength;
-
-        this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
-        this.validated = true;
-    }
-    return this.sceneObject;
-};
-
-/**
- * Updates on the next call to render
- */
-Arrow3D.prototype.invalidate = function() {
-    this.validated = false;
-};
-
-/**
- * Renders plots (not to be confused with the Figure class)
- * TODO: Add functionality to link cameras between figures
- * @param {*} parent 
- * @param {*} container 
- * @param {*} opts 
- */
-
-function Axes3D(parent, container, opts) {
-    /**
-     * The type of this object. (Read-only)
-     */
-    this.type = 'Axes3D';
-
-    /**
-     * The plot that generated this figure. (Read-only)
-     */
-    this.parent = parent;
-
-    /**
-     * The frame which will render the axes
-     */
-    this.frame = new Frame(container, opts);
-
-    /**
-     * The point which the camera will orbit around
-     */
-     this.corigin = this.frame.scene.position.clone();
-
-    /**
-     * Camera which renders the axes. 
-     */
-    this.camera = new THREE.PerspectiveCamera( 50, this.frame.width / this.frame.height, .01, 50);
-
-    // Initialize camera position
-    this.camera.position.x = 4;
-    this.camera.position.y = 3;
-    this.camera.position.z = 2;
-    this.camera.lookAt(this.corigin);
-
-    /**
-     * Objects to plot
-     */
-    this.objects = [];
-
-    // Bind events
-    var _self = this;
-
-    // Bind Events: Panning and Orbiting
-    var _cameraStartPol = 0;
-    var _cameraStartAz = 0;
-    var _cameraStartR = 1;
-    var _cameraStartOr = null;
-    var _cameraStartPos = null;
-    var _upUnit = null;
-    var _rightUnit = null;
-    var _self = this;
-
-    this.frame.container.addEventListener('mousedown', function(event) {
-        if(event.buttons & 1) {
-            var sc = new THREE.Spherical();
-            sc.setFromVector3(_self.camera.position.clone().sub(_self.corigin));
-            _cameraStartPol = sc.phi;
-            _cameraStartAz = sc.theta;
-            _cameraStartR = sc.r;
-        }
-        if(event.buttons & 2) {
-            _cameraStartOr = _self.corigin.clone();
-            _cameraStartPos = _self.camera.position.clone();
-            var nor = _self.camera.getWorldDirection();
-            _rightUnit = nor.clone().cross(new THREE.Vector3(0,1,0));
-            _upUnit = nor.clone().applyAxisAngle(_rightUnit, Math.PI / 2);
-        }
-    });
-
-    this.frame.touchEventListener.onpan = function(event) {
-        if(event.rightButtonDown) {
-            // Prevent default if mouse moved significantly
-            if((event.screenX - event.screenStartX) * (event.screenX - event.screenStartX) + (event.screenY - event.screenStartY) * (event.screenY - event.screenStartY) > 25) {
-                event.suppressContextMenu();
-            }
-        
-            // Pan camera            
-            var r = _self.camera.position.distanceTo(_self.corigin);
-            var disp = _upUnit.clone().multiplyScalar((event.screenY - event.screenStartY)).addScaledVector(_rightUnit, -(event.screenX - event.screenStartX));
-            var newCamPos = _cameraStartPos.clone().addScaledVector(disp, 0.002 * r);
-            _self.camera.position.copy(newCamPos);
-            var newOrPos = _cameraStartOr.clone().addScaledVector(disp, 0.002 * r);
-            _self.corigin.copy(newOrPos);
-            _self.camera.lookAt(_self.corigin);
-        }
-        if(event.leftButtonDown) {
-            var r = _self.camera.position.distanceTo(_self.corigin);
-            var az = _cameraStartAz - (event.screenX - event.screenStartX) / 100;
-            var pol = _cameraStartPol - (event.screenY - event.screenStartY) / 100;
-
-            _self.camera.position.setFromSpherical(new THREE.Spherical(r, pol, az)).add(_self.corigin);
-            _self.camera.lookAt(_self.corigin);
-        }
-    };
-
-    // Bind Events: Zooming
-    this.frame.touchEventListener.onzoom = function(event) {
-        event.suppressScrolling();
-        var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), Math.pow(0.8, event.amount / 100));
-        _self.camera.position.copy(newPos);
-        _self.camera.lookAt(_self.corigin);
-    };
-}
-
-/**
- * Render the axes
- */
-Axes3D.prototype.render = function() {
-    this.frame.render( this.camera );
-};
-
-/**
- * Add an object to plot
- * @param {*} object Must be plottable
- */
-Axes3D.prototype.addFigure = function(object) {
-    this.objects.push(object);
-    this.frame.scene.add(object.getSceneObject());
-};
-
-
-/**
- * Remove a plotted object
- */
-Axes3D.prototype.removeFigure = function(object) {
-    var index = this.objects.indexOf(object);
-    if(index === -1) {
-        console.log('Interactive.Axes3D: Figure not in axes');
-        return null;
-    }
-    this.objects.splice(index, 1);
-    this.frame.scene.remove(object.getSceneObject());
-};
-
-/**
- * Force the object to update
- */
-Axes3D.prototype.redrawFigure = function(object) {
-    var index = this.objects.indexOf(object);
-    if(index === -1) {
-        console.log('Interactive.Axes3D: Figure not in axes');
-        return null;
-    }
-    this.frame.scene.remove(object.getSceneObject());
-    object.invalidate();
-    this.frame.scene.add(object.getSceneObject());    
-};
-
-/**
- * Object that represents an arrow in 2d space.
- * @param {*} vector The vector which this object is based on
- * @param {*} opts Options to customize the appearance of the arrow. Includes:
- * origin -- Point at which the arrow starts. Default is (0, 0)
- * hex -- hexadecimal value to define color. Default is 0xffff00.
- * headLength -- The length of the head of the arrow. Default is 0.2.
- * headWidth -- The length of the width of the arrow. Default is 0.05.
- * (Derived from THREE.js)
- */
-function Arrow2D(expr, opts) {
-    // if (vector.type !== 'Vector') {
-    //     console.log('Interactive.Arrow2D: Parameter is not a vector.');
-    //     return null;
-    // }
-
-    // if (vector.dimensions !== 2) {
-    //     console.log('Interactive.Arrow2D: Vector dimension mismatch. 2D vector required.')
-    //     return null;
-    // }
-
-    this.opts = opts !== undefined ? opts : {};
-
-    /**
-     * (Read-only)
-     */
-    this.expr = expr;
-
-    this.sceneObject = null;
-
-    this.validated = false;
-}
-
-/**
- * Returns an object that can be added to a THREE.js scene.
- */
-Arrow2D.prototype.getSceneObject = function() {
-    if(this.validated === false) {
-        var vector = this.expr.evaluate();
-        var _vector2 = new THREE.Vector3(vector.q[0], vector.q[1]);
-        var _dir = _vector2.clone().normalize();
-        var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
-        var _length = _vector2.length();
-        var _hex = this.opts.hex !== undefined ? this.opts.hex : 0xffffff;
-        var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2;
-        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.05;
-
-        this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
-        this.validated = true;
-    }
-    return this.sceneObject;
-};
-
-/**
- * Updates on the next call to render
- */
-Arrow2D.prototype.invalidate = function() {
-    this.validated = false;
-};
-
-function Hotspot2D(parent, expr) {
-    this.type = 'Hotspot2D';
-
-    // if (position.type !== 'Vector') {
-    //     console.log('Interactive.Hotspot2D: position is not a vector.');
-    //     return null;
-    // }
-
-    // if (position.dimensions !== 2) {
-    //     console.log('Interactive.Hotspot2D: Vector dimension mismatch. 2D vector required.')
-    //     return null;
-    // }
-
-    this.parent = parent;
-    this.expr = expr;
-    this.position = expr.evaluate();
-    this.size = 10;
-}
-
-Hotspot2D.prototype.ondrag = function(event) {
-    this.position.q[0] = event.worldX;
-    this.position.q[1] = event.worldY;
-
-    // Host plot = this.parent.parent
-    this.parent.parent.context[this.expr.string].q[0] = event.worldX;
-    this.parent.parent.context[this.expr.string].q[1] = event.worldY;
-    this.parent.redrawAll();
-};
-
-/**
  * Represents a vector with an arbitrary number of dimensions, and of any type that supports adding and scaling. Operations create new instances
  */
 function Vector() {
@@ -750,8 +451,6 @@ Expression.toJSFunction = function(string) {
             }
             if(leftPost[0].type === 'vector') {
                 var args = Expression.splitVector(leftPost[0].str);
-                console.log(args);
-
                 var func = function(context) {
                     return context[leftPost[leftPost.length - 1].str] = function(v) {
                         Object.assign({}, context);
@@ -904,6 +603,323 @@ Expression.prototype.evaluate = function() {
         this.validated = true;
     }
     return this.function(this.context);
+};
+
+/**
+ * Object that represents an arrow in 3d space.
+ * @param {*} vector The vector which this object is based on
+ * @param {*} opts Options to customize the appearance of the arrow. Includes:
+ * origin -- Point at which the arrow starts. Default is (0, 0, 0)
+ * hex -- hexadecimal value to define color. Default is 0xffff00.
+ * headLength -- The length of the head of the arrow. Default is 0.2 * length.
+ * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
+ * (Derived from THREE.js)
+ */
+function Arrow3D(expr, opts) {
+    this.opts = opts !== undefined ? opts : {};
+
+    /**
+     * (Read-only)
+     */
+    this.expr = expr;
+
+    this.sceneObject = null;
+
+    this.validated = false;
+}
+
+/**
+ * Returns an object that can be added to a THREE.js scene.
+ */
+Arrow3D.prototype.getSceneObject = function() {
+    if(this.validated === false) {
+        var vector = this.expr.evaluate();
+        var _vector3 = new THREE.Vector3(vector.q[0], vector.q[1], vector.q[2]);
+        var _dir = _vector3.clone().normalize();
+        var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
+        var _length = _vector3.length();
+        var _hex = this.opts.hex !== undefined ? this.opts.hex : 0xffffff;
+        var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2 * _length;
+        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.2 * _headLength;
+
+        this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
+        this.validated = true;
+    }
+    return this.sceneObject;
+};
+
+/**
+ * Updates on the next call to render
+ */
+Arrow3D.prototype.invalidate = function() {
+    this.validated = false;
+};
+
+/**
+ * Renders plots (not to be confused with the Figure class)
+ * TODO: Add functionality to link cameras between figures
+ * @param {*} parent 
+ * @param {*} container 
+ * @param {*} opts 
+ */
+
+function Axes3D(parent, container, opts) {
+    /**
+     * The type of this object. (Read-only)
+     */
+    this.type = 'Axes3D';
+
+    /**
+     * The plot that generated this figure. (Read-only)
+     */
+    this.parent = parent;
+
+    /**
+     * The frame which will render the axes
+     */
+    this.frame = new Frame(container, opts);
+
+    /**
+     * The point which the camera will orbit around
+     */
+     this.corigin = this.frame.scene.position.clone();
+
+    /**
+     * Camera which renders the axes. 
+     */
+    this.camera = new THREE.PerspectiveCamera( 50, this.frame.width / this.frame.height, .01, 50);
+
+    // Initialize camera position
+    this.camera.position.x = 4;
+    this.camera.position.y = 3;
+    this.camera.position.z = 2;
+    this.camera.lookAt(this.corigin);
+
+    /**
+     * Objects to plot
+     */
+    this.objects = [];
+
+    /**
+     * Expressions to plot
+     */
+    this.expressions = {};
+
+    // Bind events
+    var _self = this;
+
+    // Bind Events: Panning and Orbiting
+    var _cameraStartPol = 0;
+    var _cameraStartAz = 0;
+    var _cameraStartR = 1;
+    var _cameraStartOr = null;
+    var _cameraStartPos = null;
+    var _upUnit = null;
+    var _rightUnit = null;
+    var _self = this;
+
+    this.frame.container.addEventListener('mousedown', function(event) {
+        if(event.buttons & 1) {
+            var sc = new THREE.Spherical();
+            sc.setFromVector3(_self.camera.position.clone().sub(_self.corigin));
+            _cameraStartPol = sc.phi;
+            _cameraStartAz = sc.theta;
+            _cameraStartR = sc.r;
+        }
+        if(event.buttons & 2) {
+            _cameraStartOr = _self.corigin.clone();
+            _cameraStartPos = _self.camera.position.clone();
+            var nor = _self.camera.getWorldDirection();
+            _rightUnit = nor.clone().cross(new THREE.Vector3(0,1,0));
+            _upUnit = nor.clone().applyAxisAngle(_rightUnit, Math.PI / 2);
+        }
+    });
+
+    this.frame.touchEventListener.onpan = function(event) {
+        if(event.rightButtonDown) {
+            // Prevent default if mouse moved significantly
+            if((event.screenX - event.screenStartX) * (event.screenX - event.screenStartX) + (event.screenY - event.screenStartY) * (event.screenY - event.screenStartY) > 25) {
+                event.suppressContextMenu();
+            }
+        
+            // Pan camera            
+            var r = _self.camera.position.distanceTo(_self.corigin);
+            var disp = _upUnit.clone().multiplyScalar((event.screenY - event.screenStartY)).addScaledVector(_rightUnit, -(event.screenX - event.screenStartX));
+            var newCamPos = _cameraStartPos.clone().addScaledVector(disp, 0.002 * r);
+            _self.camera.position.copy(newCamPos);
+            var newOrPos = _cameraStartOr.clone().addScaledVector(disp, 0.002 * r);
+            _self.corigin.copy(newOrPos);
+            _self.camera.lookAt(_self.corigin);
+        }
+        if(event.leftButtonDown) {
+            var r = _self.camera.position.distanceTo(_self.corigin);
+            var az = _cameraStartAz - (event.screenX - event.screenStartX) / 100;
+            var pol = _cameraStartPol - (event.screenY - event.screenStartY) / 100;
+
+            _self.camera.position.setFromSpherical(new THREE.Spherical(r, pol, az)).add(_self.corigin);
+            _self.camera.lookAt(_self.corigin);
+        }
+    };
+
+    // Bind Events: Zooming
+    this.frame.touchEventListener.onzoom = function(event) {
+        event.suppressScrolling();
+        var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), Math.pow(0.8, event.amount / 100));
+        _self.camera.position.copy(newPos);
+        _self.camera.lookAt(_self.corigin);
+    };
+}
+
+/**
+ * Render the axes
+ */
+Axes3D.prototype.render = function() {
+    this.frame.render( this.camera );
+};
+
+/**
+ * Plot an expression
+ */
+Axes3D.prototype.plotExpression = function(expr, type, opts) {
+    var expression = new Expression(expr, this.parent.context);
+    switch(type) {
+        case 'arrow':            
+            var figure = new Arrow3D(expression, opts);
+            this.expressions[expr] = figure;
+            this.addFigure(figure);
+            return figure;
+        default:
+            console.log('Interactive.Axes3D: Invalid plot type');
+            return null;
+    }
+};
+
+/**
+ * Add an object to plot
+ * @param {*} object Must be plottable
+ */
+Axes3D.prototype.addFigure = function(object) {
+    this.objects.push(object);
+    this.frame.scene.add(object.getSceneObject());
+};
+
+/**
+ * Remove a plotted object
+ */
+Axes3D.prototype.removeFigure = function(object) {
+    var index = this.objects.indexOf(object);
+    if(index === -1) {
+        console.log('Interactive.Axes3D: Figure not in axes');
+        return null;
+    }
+    this.objects.splice(index, 1);
+    this.frame.scene.remove(object.getSceneObject());
+};
+
+/**
+ * Force the object to update
+ */
+Axes3D.prototype.redrawFigure = function(object) {
+    var index = this.objects.indexOf(object);
+    if(index === -1) {
+        console.log('Interactive.Axes3D: Figure not in axes');
+        return null;
+    }
+    this.frame.scene.remove(object.getSceneObject());
+    object.invalidate();
+    this.frame.scene.add(object.getSceneObject());    
+};
+
+/**
+ * Redraw all objects
+ */
+Axes3D.prototype.refresh = function(object) {
+    for(var i = 0; i < this.objects.length; i++) {
+        if(this.objects[i].invalidate !== undefined) {
+            this.frame.scene.remove(this.objects[i].getSceneObject());
+            this.objects[i].invalidate();
+            this.frame.scene.add(this.objects[i].getSceneObject());
+        }
+    }
+};
+
+/**
+ * Object that represents an arrow in 2d space.
+ * @param {*} vector The vector which this object is based on
+ * @param {*} opts Options to customize the appearance of the arrow. Includes:
+ * origin -- Point at which the arrow starts. Default is (0, 0)
+ * hex -- hexadecimal value to define color. Default is 0xffff00.
+ * headLength -- The length of the head of the arrow. Default is 0.2.
+ * headWidth -- The length of the width of the arrow. Default is 0.05.
+ * (Derived from THREE.js)
+ */
+function Arrow2D(expr, opts) {
+    this.opts = opts !== undefined ? opts : {};
+
+    /**
+     * (Read-only)
+     */
+    this.expr = expr;
+
+    this.sceneObject = null;
+
+    this.validated = false;
+}
+
+/**
+ * Returns an object that can be added to a THREE.js scene.
+ */
+Arrow2D.prototype.getSceneObject = function() {
+    if(this.validated === false) {
+        var vector = this.expr.evaluate();
+        var _vector2 = new THREE.Vector3(vector.q[0], vector.q[1]);
+        var _dir = _vector2.clone().normalize();
+        var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
+        var _length = _vector2.length();
+        var _hex = this.opts.hex !== undefined ? this.opts.hex : 0xffffff;
+        var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2;
+        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.05;
+
+        this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
+        this.validated = true;
+    }
+    return this.sceneObject;
+};
+
+/**
+ * Updates on the next call to render
+ */
+Arrow2D.prototype.invalidate = function() {
+    this.validated = false;
+};
+
+function Hotspot2D(plot, expr) {
+    this.type = 'Hotspot2D';
+
+    // if (position.type !== 'Vector') {
+    //     console.log('Interactive.Hotspot2D: position is not a vector.');
+    //     return null;
+    // }
+
+    // if (position.dimensions !== 2) {
+    //     console.log('Interactive.Hotspot2D: Vector dimension mismatch. 2D vector required.')
+    //     return null;
+    // }
+
+    this.plot = plot;
+    this.expr = expr;
+    this.position = expr.evaluate();
+    this.size = 10;
+}
+
+Hotspot2D.prototype.ondrag = function(event) {
+    this.position.q[0] = event.worldX;
+    this.position.q[1] = event.worldY;
+
+    // Host plot = this.parent.parent
+    this.plot.context[this.expr.string].q[0] = event.worldX;
+    this.plot.context[this.expr.string].q[1] = event.worldY;
+    this.plot.refresh();
 };
 
 /**
@@ -1065,7 +1081,7 @@ Axes2D.prototype.plotExpression = function(expr, type, opts) {
             this.addFigure(figure);
             return figure;
         case 'hotspot':
-            var hotspot = new Hotspot2D(this, expression);
+            var hotspot = new Hotspot2D(this.parent, expression);
             this.addHotspot(hotspot);
             return hotspot;
         default:
@@ -1113,7 +1129,7 @@ Axes2D.prototype.redrawFigure = function(object) {
 /**
  * Redraw all objects
  */
-Axes2D.prototype.redrawAll = function(object) {
+Axes2D.prototype.refresh = function(object) {
     for(var i = 0; i < this.objects.length; i++) {
         if(this.objects[i].invalidate !== undefined) {
             this.frame.scene.remove(this.objects[i].getSceneObject());
@@ -1148,20 +1164,24 @@ function Plot() {
      * The type of this object. (Read-only)
      */
     this.type = 'Plot';
-    var _figures = [];
+    this.axes = [];
 
     /**
      * Create a 3D axis in the context of this plot
      */
     this.createAxes3D = function(container, opts) {
-        return new Axes3D(this, container, opts);
+        var ax = new Axes3D(this, container, opts);
+        this.axes.push(ax);
+        return ax;
     };
 
     /**
      * Create a 2D axis in the context of this plot
      */
     this.createAxes2D = function(container, opts) {
-        return new Axes2D(this, container, opts);
+        var ax = new Axes2D(this, container, opts);
+        this.axes.push(ax);
+        return ax;
     };
 
     /**
@@ -1178,6 +1198,12 @@ function Plot() {
 Plot.prototype.execExpression = function(expr) {
     if(this.expressions[expr] === undefined) this.expressions[expr] = new Expression(expr, this.context);
     return this.expressions[expr].evaluate();
+};
+
+Plot.prototype.refresh = function() {
+    for(var i = 0; i < this.axes.length; i++) {
+        this.axes[i].refresh();
+    }
 };
 
 /**
@@ -1239,9 +1265,9 @@ BasisVectors2D.prototype.getSceneObject = function() {
 function BasisVectors3D(opts) {
     var _opts = opts !== undefined ? opts : {};
 
-    this.xBasis = new Vector(1, 0, 0);
-    this.yBasis = new Vector(0, 1, 0);
-    this.zBasis = new Vector(0, 0, 1);
+    this.xBasis = new Expression('(1,0,0)');
+    this.yBasis = new Expression('(0,1,0)');
+    this.zBasis = new Expression('(0,0,1)');
 
     var _xOpts = Object.assign({},_opts);
     var _yOpts = Object.assign({},_opts);

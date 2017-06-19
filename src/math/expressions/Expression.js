@@ -234,8 +234,6 @@ Expression.toJSFunction = function(string) {
             }
             if(leftPost[0].type === 'vector') {
                 var args = Expression.splitVector(leftPost[0].str)
-                console.log(args)
-
                 var func = function(context) {
                     return context[leftPost[leftPost.length - 1].str] = function(v) {
                         Object.assign({}, context);

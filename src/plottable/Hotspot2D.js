@@ -1,4 +1,4 @@
-function Hotspot2D(parent, expr) {
+function Hotspot2D(plot, expr) {
     this.type = 'Hotspot2D'
 
     // if (position.type !== 'Vector') {
@@ -11,7 +11,7 @@ function Hotspot2D(parent, expr) {
     //     return null;
     // }
 
-    this.parent = parent;
+    this.plot = plot;
     this.expr = expr;
     this.position = expr.evaluate();
     this.size = 10;
@@ -22,9 +22,9 @@ Hotspot2D.prototype.ondrag = function(event) {
     this.position.q[1] = event.worldY;
 
     // Host plot = this.parent.parent
-    this.parent.parent.context[this.expr.string].q[0] = event.worldX;
-    this.parent.parent.context[this.expr.string].q[1] = event.worldY;
-    this.parent.redrawAll();
+    this.plot.context[this.expr.string].q[0] = event.worldX;
+    this.plot.context[this.expr.string].q[1] = event.worldY;
+    this.plot.refresh();
 }
 
 export{ Hotspot2D };

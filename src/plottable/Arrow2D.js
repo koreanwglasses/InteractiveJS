@@ -9,16 +9,6 @@
  * (Derived from THREE.js)
  */
 function Arrow2D(expr, opts) {
-    // if (vector.type !== 'Vector') {
-    //     console.log('Interactive.Arrow2D: Parameter is not a vector.');
-    //     return null;
-    // }
-
-    // if (vector.dimensions !== 2) {
-    //     console.log('Interactive.Arrow2D: Vector dimension mismatch. 2D vector required.')
-    //     return null;
-    // }
-
     this.opts = opts !== undefined ? opts : {};
 
     /**
