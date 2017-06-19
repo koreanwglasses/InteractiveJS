@@ -92,6 +92,7 @@ Parametric3D.prototype.createSurface = function() {
             }
         }
     }
+    geom.computeFaceNormals();
 
     if(this.opts.wireframe === true || this.opts.flat === true) {
         if(this.color !== undefined) {
