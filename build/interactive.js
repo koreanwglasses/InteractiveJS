@@ -798,6 +798,7 @@ function Parametric3D(plot, expr, opts) {
         this.color = new Expression(this.opts.color, this.plot.context);
     }
     if(this.opts.wireframe === undefined) this.opts.wireframe = false;
+    if(this.opts.flat === undefined) this.opts.flat = this.opts.color !== undefined;
 }
 
 Parametric3D.prototype.createLine = function() {
@@ -868,7 +869,7 @@ Parametric3D.prototype.createSurface = function() {
     }
     geom.computeFaceNormals();
 
-    if(this.opts.wireframe === true) {
+    if(this.opts.wireframe === true || this.opts.flat === true) {
         if(this.color !== undefined) {
             var mat = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
         } else {
@@ -877,9 +878,9 @@ Parametric3D.prototype.createSurface = function() {
         mat.wireframe = true;
     } else {
         if(this.color !== undefined) {
-            var mat = new THREE.MeshLambertMaterial({vertexColors: THREE.VertexColors});
+            var mat = new THREE.MeshPhongMaterial({vertexColors: THREE.VertexColors});
         } else {            
-            var mat = new THREE.MeshLambertMaterial();
+            var mat = new THREE.MeshPhongMaterial();
         }
     }
     return new THREE.Mesh( geom, mat );
