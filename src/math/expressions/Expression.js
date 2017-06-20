@@ -12,6 +12,9 @@ function Expression(string, context) {
 }
 
 Expression.typeOf = function(string) {
+
+    if(string === '()') return 'null';
+
     var nestingLevel = 0;
     var isVector = false;
     if(string.charAt(string.length - 1) === '}') {
@@ -118,6 +121,10 @@ Expression.separate = function(str) {
             } else if (i > 0 && parts[i].type === 'vector' && parts[i - 1].type === 'function') {
                 parts.splice(i ,0,{str:'(',type:'('});
                 parts.splice(i+2, 0, {str:')',type:')'});
+            } else if(parts[i].type === 'null') {
+                parts[i].str='';
+                parts.splice(i ,0,{str:'(',type:'('});
+                parts.splice(i+2, 0, {str:')',type:')'});
             }
         }
     }
@@ -148,9 +155,6 @@ Expression.toPostfix = function(parts) {
             }
             ops.pop();
         } else {
-            if(parts[i].type === 'constant') {
-                parts[i].value = parseFloat(parts[i].str);
-            }
             post.push(parts[i]);
         }
     }
@@ -204,11 +208,13 @@ Expression.toJSExpression = function(string, specials, isparam) {
 
         // function definition
         if(leftParts[0].type === 'function') {
-            if(leftParts[2].type === 'vector') {
+            if (leftParts[2].type === 'null') {
+                var expr = 'context["'+leftParts[0].str+'"]=function(){ return '+Expression.toJSExpression(right)+'; }';
+            } else if(leftParts[2].type === 'vector') {
                 var expr = 'context["'+leftParts[0].str+'"]=function' + leftParts[2].str + '{ return '+Expression.toJSExpression(right, Expression.splitTuple(leftParts[2].str))+'; }';
-            } else {
+            } else if (leftParts[2].type === 'variable') {
                 var expr = 'context["'+leftParts[0].str+'"]=function(' + leftParts[2].str + '){ return '+Expression.toJSExpression(right, leftParts[2].str)+'; }';
-            }
+            } 
             return expr;
         }
     } else {
@@ -221,6 +227,9 @@ Expression.toJSExpression = function(string, specials, isparam) {
 
             for(var i = 0; i < operations.length; i++) {
                 switch(operations[i].type) {
+                    case 'null':
+                        stack.push('');
+                        break;
                     case 'variable':
                         if(specials !== undefined && specials.includes(operations[i].str)) {
                             stack.push(operations[i].str);

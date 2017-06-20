@@ -433,6 +433,9 @@ function Expression(string, context) {
 }
 
 Expression.typeOf = function(string) {
+
+    if(string === '()') return 'null';
+
     var nestingLevel = 0;
     var isVector = false;
     if(string.charAt(string.length - 1) === '}') {
@@ -539,6 +542,10 @@ Expression.separate = function(str) {
             } else if (i > 0 && parts[i].type === 'vector' && parts[i - 1].type === 'function') {
                 parts.splice(i ,0,{str:'(',type:'('});
                 parts.splice(i+2, 0, {str:')',type:')'});
+            } else if(parts[i].type === 'null') {
+                parts[i].str='';
+                parts.splice(i ,0,{str:'(',type:'('});
+                parts.splice(i+2, 0, {str:')',type:')'});
             }
         }
     }
@@ -569,9 +576,6 @@ Expression.toPostfix = function(parts) {
             }
             ops.pop();
         } else {
-            if(parts[i].type === 'constant') {
-                parts[i].value = parseFloat(parts[i].str);
-            }
             post.push(parts[i]);
         }
     }
@@ -625,11 +629,13 @@ Expression.toJSExpression = function(string, specials, isparam) {
 
         // function definition
         if(leftParts[0].type === 'function') {
-            if(leftParts[2].type === 'vector') {
+            if (leftParts[2].type === 'null') {
+                var expr = 'context["'+leftParts[0].str+'"]=function(){ return '+Expression.toJSExpression(right)+'; }';
+            } else if(leftParts[2].type === 'vector') {
                 var expr = 'context["'+leftParts[0].str+'"]=function' + leftParts[2].str + '{ return '+Expression.toJSExpression(right, Expression.splitTuple(leftParts[2].str))+'; }';
-            } else {
+            } else if (leftParts[2].type === 'variable') {
                 var expr = 'context["'+leftParts[0].str+'"]=function(' + leftParts[2].str + '){ return '+Expression.toJSExpression(right, leftParts[2].str)+'; }';
-            }
+            } 
             return expr;
         }
     } else {
@@ -642,6 +648,9 @@ Expression.toJSExpression = function(string, specials, isparam) {
 
             for(var i = 0; i < operations.length; i++) {
                 switch(operations[i].type) {
+                    case 'null':
+                        stack.push('');
+                        break;
                     case 'variable':
                         if(specials !== undefined && specials.includes(operations[i].str)) {
                             stack.push(operations[i].str);
@@ -1208,20 +1217,9 @@ Arrow2D.prototype.invalidate = function() {
 
 function Hotspot2D(plot, expr) {
     this.type = 'Hotspot2D';
-
-    // if (position.type !== 'Vector') {
-    //     console.log('Interactive.Hotspot2D: position is not a vector.');
-    //     return null;
-    // }
-
-    // if (position.dimensions !== 2) {
-    //     console.log('Interactive.Hotspot2D: Vector dimension mismatch. 2D vector required.')
-    //     return null;
-    // }
-
     this.plot = plot;
     this.expr = new Expression(expr, plot.context);
-    this.position = this.expr.evaluate();
+    this.position = this.expr.evaluate().clone();
     this.size = 10;
 }
 
@@ -1229,9 +1227,9 @@ Hotspot2D.prototype.ondrag = function(event) {
     this.position.q[0] = event.worldX;
     this.position.q[1] = event.worldY;
 
-    // Host plot = this.parent.parent
     this.plot.context[this.expr.string].q[0] = event.worldX;
     this.plot.context[this.expr.string].q[1] = event.worldY;
+
     this.plot.refresh();
 };
 
@@ -1351,7 +1349,7 @@ function Axes2D(parent, container, opts) {
 
     // Projects from world to client coords
     var project = function(vector) {
-        var vector2 = new THREE.Vector2(vector.q[0], vector.q[1]);
+        var vector2 = new THREE.Vector2(vector.q[0].value, vector.q[1].value);
         var projected = vector2.clone().sub(_self.camera.position).multiplyScalar(_self.zoom / 2).add(new THREE.Vector2(_self.frame.width / 2, _self.frame.height / 2));
         projected.y = _self.frame.height - projected.y;
         return projected;
@@ -1397,10 +1395,9 @@ function Axes2D(parent, container, opts) {
         if (event.leftButtonDown) {
             if (_hotspot !== null) {
                 var containerBounds = _self.frame.container.getBoundingClientRect();
-                var wc = _hotspotpos.add(new Vector(2 * (event.screenX - event.screenStartX) / _self.zoom, -2 * (event.screenY - event.screenStartY) / _self.zoom));
                 var e = {
-                    worldX: wc.q[0],
-                    worldY: wc.q[1]
+                    worldX: _hotspotpos.q[0].add(new Number(2 * (event.screenX - event.screenStartX) / _self.zoom)),
+                    worldY: _hotspotpos.q[1].add(new Number(-2 * (event.screenY - event.screenStartY) / _self.zoom))
                 };
                 _hotspot.ondrag(e);
             }

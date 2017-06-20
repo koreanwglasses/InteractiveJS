@@ -37,11 +37,11 @@
 
             plot.execExpression('v1=(1,0.5)')
             plot.execExpression('v2=(0.5,1)')
-            plot.execExpression('v3=v1+v2')
+            plot.execExpression('v3()=v1+v2')
 
             ax2.plotExpression('v1', 'arrow', {hex: 0x00ffff})
             ax2.plotExpression('v2', 'arrow', {hex: 0xff0000})
-            ax2.plotExpression('v3', 'arrow')
+            ax2.plotExpression('v3()', 'arrow')
             ax2.plotExpression('v1', 'hotspot')
             ax2.plotExpression('v2', 'hotspot');           
 

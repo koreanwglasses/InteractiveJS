@@ -3,6 +3,7 @@ import { Arrow2D } from '../plottable/Arrow2D.js';
 import { Hotspot2D } from '../plottable/Hotspot2D.js';
 import { Parametric2D } from '../plottable/Parametric2D.js';
 import { Vector } from '../math/Vector.js';
+import { Number } from '../math/Number.js';
 import { Expression } from '../math/expressions/Expression.js';
 
 /**
@@ -71,7 +72,7 @@ function Axes2D(parent, container, opts) {
 
     // Projects from world to client coords
     var project = function(vector) {
-        var vector2 = new THREE.Vector2(vector.q[0], vector.q[1]);
+        var vector2 = new THREE.Vector2(vector.q[0].value, vector.q[1].value);
         var projected = vector2.clone().sub(_self.camera.position).multiplyScalar(_self.zoom / 2).add(new THREE.Vector2(_self.frame.width / 2, _self.frame.height / 2));
         projected.y = _self.frame.height - projected.y;
         return projected;
@@ -117,10 +118,9 @@ function Axes2D(parent, container, opts) {
         if (event.leftButtonDown) {
             if (_hotspot !== null) {
                 var containerBounds = _self.frame.container.getBoundingClientRect();
-                var wc = _hotspotpos.add(new Vector(2 * (event.screenX - event.screenStartX) / _self.zoom, -2 * (event.screenY - event.screenStartY) / _self.zoom))
                 var e = {
-                    worldX: wc.q[0],
-                    worldY: wc.q[1]
+                    worldX: _hotspotpos.q[0].add(new Number(2 * (event.screenX - event.screenStartX) / _self.zoom)),
+                    worldY: _hotspotpos.q[1].add(new Number(-2 * (event.screenY - event.screenStartY) / _self.zoom))
                 }
                 _hotspot.ondrag(e);
             }
