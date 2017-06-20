@@ -35,6 +35,14 @@ MathPlus.sign = function(x) {
     return new Number(Math.sign(x.value));
 }
 
+MathPlus.abs = function(x) {
+    return new Number(Math.abs(x.value));
+}
+
+MathPlus.ssign = function(x) {
+    return MathPlus.sign(x).mul(MathPlus.abs(x).exp(new Number(0.2)));
+}
+
 MathPlus.PI = new Number(Math.PI);
 
 export{ MathPlus };
