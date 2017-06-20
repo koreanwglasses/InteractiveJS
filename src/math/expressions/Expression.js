@@ -228,9 +228,11 @@ Expression.toJSFunction = function(string) {
             if(leftPost[0].type === 'variable') {
                 var func = function(context) {
                     return context[leftPost[leftPost.length - 1].str] = function(v) {
-                        var temp = Object.assign({}, context);
-                        temp[leftPost[0].str] = v.q[0];
-                        return righteval(temp);
+                        var temp = context[leftPost[0].str]
+                        context[leftPost[0].str] = v.q[0];
+                        var result = righteval(context);
+                        context[leftPost[0].str] = temp;
+                        return result;
                     }
                 }
 
@@ -240,11 +242,14 @@ Expression.toJSFunction = function(string) {
                 var args = Expression.splitTuple(leftPost[0].str)
                 var func = function(context) {
                     return context[leftPost[leftPost.length - 1].str] = function(v) {
-                        var temp = Object.assign({}, context);
+                        var temp = {}
                         for(var i = 0; i < args.length; i++) {
-                            temp[args[i]] = v.q[i];
+                            temp[args[i]] = context[args[i]]
+                            context[args[i]] = v.q[i]
                         }
-                        return righteval(temp);
+                        var result = righteval(context);
+                        Object.assign(context, temp);
+                        return result;
                     }
                 }
 
@@ -439,7 +444,7 @@ Expression.prototype.evaluate = function(context) {
     if(context !== undefined) {
         var temp = Object.assign({}, this.context);
         Object.assign(temp, context);
-        return this.function(temp)
+        return this.function(temp);
     } else {
         return this.function(this.context);
     }
