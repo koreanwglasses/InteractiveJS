@@ -187,7 +187,6 @@ Expression.splitParametric = function(string) {
 
 Expression.toJSFunction = function(string) {
     var str = string.replace(/\s+/g,'')
-    console.log(str)
 
     // Expression is an equation:
     if(str.match(/=/g) !== null && str.match(/=/g).length === 1) {
@@ -306,7 +305,7 @@ Expression.toJSFunction = function(string) {
                             if(context[operations[i].str] !== undefined) {
                                 stack.push(context[operations[i].str](v));
                             } else if(MathPlus[operations[i].str] !== undefined) {
-                                stack.push(MathPlus[operations[i].str].apply(null, v.q))
+                                stack.push(MathPlus[operations[i].str].call(null, v))
                             } else if(Math[operations[i].str] !== undefined) {
                                 stack.push(Math[operations[i].str].apply(null, v.q))
                             }

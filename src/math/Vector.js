@@ -39,6 +39,50 @@ Vector.prototype.add = function(v) {
     return result;
 }
 
+Vector.prototype.sub = function(v) {
+    if(v.dimensions !== this.dimensions) {
+        console.log('Interactive.Vector: Dimensions mismatch');
+        return null;
+    }
+
+    var result = this.clone();
+    for(var i = 0; i < this.dimensions; i++) {
+        result.q[i] -= v.q[i];
+    }
+    return result;
+}
+
+Vector.prototype.crs = function(v) {
+    if(v.dimensions !== this.dimensions) {
+        console.log('Interactive.Vector: Dimensions mismatch');
+        return null;
+    }
+
+    if(this.dimensions === 3) {
+        return new Vector(this.q[1]*v.q[2]-this.q[2]*v.q[1], this.q[2]*v.q[0]-this.q[0]*v.q[2], this.q[0]*v.q[1]-this.q[1]*v.q[0]);
+    }
+}
+
+Vector.prototype.div = function(v) {
+    var result = this.clone();
+    for(var i = 0; i < this.dimensions; i++) {
+        result.q[i] /= v;
+    }
+    return result;
+}
+
+Vector.prototype.abs = function() {
+    var ss = 0;
+    for(var i = 0; i < this.dimensions; i++) {
+        ss += this.q[i] * this.q[i]
+    }
+    return Math.sqrt(ss)
+}
+
+Vector.prototype.norm = function() {
+    return this.div(this.abs());
+}
+
 /**
  * Sets this vector's coordinates to the input vector's
  */

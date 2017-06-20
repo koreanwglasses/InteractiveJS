@@ -81,6 +81,9 @@ function TouchEventListener(container) {
                 buttons: _buttonsDown,
                 suppressContextMenu: function() {
                     _suppressContextMenu = true;
+                },
+                preventDefault: function() {
+                    event.preventDefault();
                 }
             };
             _self.onpan(e);
@@ -211,6 +214,50 @@ Vector.prototype.add = function(v) {
     return result;
 };
 
+Vector.prototype.sub = function(v) {
+    if(v.dimensions !== this.dimensions) {
+        console.log('Interactive.Vector: Dimensions mismatch');
+        return null;
+    }
+
+    var result = this.clone();
+    for(var i = 0; i < this.dimensions; i++) {
+        result.q[i] -= v.q[i];
+    }
+    return result;
+};
+
+Vector.prototype.crs = function(v) {
+    if(v.dimensions !== this.dimensions) {
+        console.log('Interactive.Vector: Dimensions mismatch');
+        return null;
+    }
+
+    if(this.dimensions === 3) {
+        return new Vector(this.q[1]*v.q[2]-this.q[2]*v.q[1], this.q[2]*v.q[0]-this.q[0]*v.q[2], this.q[0]*v.q[1]-this.q[1]*v.q[0]);
+    }
+};
+
+Vector.prototype.div = function(v) {
+    var result = this.clone();
+    for(var i = 0; i < this.dimensions; i++) {
+        result.q[i] /= v;
+    }
+    return result;
+};
+
+Vector.prototype.abs = function() {
+    var ss = 0;
+    for(var i = 0; i < this.dimensions; i++) {
+        ss += this.q[i] * this.q[i];
+    }
+    return Math.sqrt(ss)
+};
+
+Vector.prototype.norm = function() {
+    return this.div(this.abs());
+};
+
 /**
  * Sets this vector's coordinates to the input vector's
  */
@@ -305,8 +352,29 @@ Interval.prototype.eval = function() {
 
 var MathPlus = {};
 
+MathPlus.epsilon = 1e-10;
+
 MathPlus.singleton = function(x) {
     return new Vector(x);
+};
+
+MathPlus.normal = function(x) {
+    var X = x.q[0];
+    var u = x.q[1];
+    var v = x.q[2];
+    var dxdu = X(new Vector(u + MathPlus.epsilon, v)).sub(X(new Vector(u - MathPlus.epsilon, v))).div(2 * MathPlus.epsilon);
+    var dxdv = X(new Vector(u, v + MathPlus.epsilon)).sub(X(new Vector(u, v - MathPlus.epsilon))).div(2 * MathPlus.epsilon);
+    return dxdu.crs(dxdv)
+};
+
+MathPlus.norm = function(x) {
+    return x.norm();
+};
+
+MathPlus.component = function(x) {
+    var v = x.q[0];
+    var i = x.q[1];
+    return v.q[i];
 };
 
 function Expression(string, context) {
@@ -494,7 +562,6 @@ Expression.splitParametric = function(string) {
 
 Expression.toJSFunction = function(string) {
     var str = string.replace(/\s+/g,'');
-    console.log(str);
 
     // Expression is an equation:
     if(str.match(/=/g) !== null && str.match(/=/g).length === 1) {
@@ -613,7 +680,7 @@ Expression.toJSFunction = function(string) {
                             if(context[operations[i].str] !== undefined) {
                                 stack.push(context[operations[i].str](v));
                             } else if(MathPlus[operations[i].str] !== undefined) {
-                                stack.push(MathPlus[operations[i].str].apply(null, v.q));
+                                stack.push(MathPlus[operations[i].str].call(null, v));
                             } else if(Math[operations[i].str] !== undefined) {
                                 stack.push(Math[operations[i].str].apply(null, v.q));
                             }
@@ -1029,6 +1096,8 @@ function Axes3D(parent, container, opts) {
             _self.camera.lookAt(_self.corigin);
         }
         if(event.leftButtonDown) {
+            event.preventDefault();
+
             var r = _self.camera.position.distanceTo(_self.corigin);
             var az = _cameraStartAz -  _cameraStartUp * (event.screenX - event.screenStartX) / 100;
             var pol = _cameraStartPol - _cameraStartUp * (event.screenY - event.screenStartY) / 100;
@@ -1568,6 +1637,12 @@ Plot.prototype.execExpression = function(expr) {
 Plot.prototype.refresh = function() {
     for(var i = 0; i < this.axes.length; i++) {
         this.axes[i].refresh();
+    }
+};
+
+Plot.prototype.linkCameras = function(from) {
+    for(var i = 1; i < arguments.length; i++) {
+        arguments[i].camera = from.camera;
     }
 };
 

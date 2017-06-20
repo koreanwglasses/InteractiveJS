@@ -49,4 +49,10 @@ Plot.prototype.refresh = function() {
     }
 }
 
+Plot.prototype.linkCameras = function(from) {
+    for(var i = 1; i < arguments.length; i++) {
+        arguments[i].camera = from.camera;
+    }
+}
+
 export { Plot };

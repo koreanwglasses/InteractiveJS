@@ -28,26 +28,20 @@
             plot = new Interactive.Plot();
 
             ax1 = plot.createAxes3D(document.getElementById('ax1'), {antialias: true});
-            arr = new Interactive.BasisVectors3D(plot)
-            ax1.addFigure(arr);
+            ax2 = plot.createAxes3D(document.getElementById('ax2'), {antialias: true});
 
-            ax2 = plot.createAxes2D(document.getElementById('ax2'), {antialias: true})
-            arr2 = new Interactive.BasisVectors2D(plot)
-            ax2.addFigure(arr2);
+            plot.linkCameras(ax1, ax2)
 
-            plot.execExpression('X(t)=(sin(t),cos(t))')
-            plot.execExpression('cX(t)=(0,sin(t)^2,cos(t)^2)')
+            plot.execExpression('X1(u,v)=((2 + cos(v))*cos(u), sin(v) + 0.2*sin(3*u), (2 + cos(v))*sin(u))')
+            plot.execExpression('N1(u,v)=norm(normal(X1,u,v))')
+            plot.execExpression('cX1(u,v)=(component(N1(u,v),0)/2 + 1/2, component(N1(u,v),1)/2 + 1/2, component(N1(u,v),2)/2 + 1/2)')
 
-            plot.execExpression('Y(t)=(sin(t),-cos(2*t),cos(t))')
-            plot.execExpression('Z(u,v)=((3 + cos(v))*cos(u), (3 + cos(v))*sin(u), sin(v))')
-            plot.execExpression('cZ(u,v)=(cos(u)*sin(v), sin(u)*sin(v), cos(v))')
-            // plot.execExpression('Z(u,v)=(u,u^2-v^2,v)')
+            plot.execExpression('X2(u,v)=(2*cos(u)*sin(v),2*sin(u)*sin(v),2*cos(v))')
+            plot.execExpression('N2(u,v)=norm(normal(X2,u,v))')
+            plot.execExpression('cX2(u,v)=(component(N2(u,v),0)/2 + 1/2, component(N2(u,v),1)/2 + 1/2, component(N2(u,v),2)/2 + 1/2)')
 
-            ax2.plotExpression('X(t){t,0,2*PI,100}', 'parametric', {color: 'cX(t)'});
-
-            ax1.plotExpression('Y(t){t,0,2*PI,100}', 'parametric', {color: 'cX(t)'});
-            ax1.plotExpression('Z(u,v){u,0,2*PI,100}{v,0,2*PI,100}', 'parametric', {color: 'cZ(u,v)', flat:true});
-            // ax1.plotExpression('Z(u,v){u,-1.2,1.2,50}{v,-1.2,1.2,50}', 'parametric', {flat:false});
+            ax1.plotExpression('X1(u,v){u,0,2*PI,100}{v,0,2*PI,50}', 'parametric', { color: 'cX1(u,v)'});
+            ax2.plotExpression('X2(u,v){u,0,2*PI,50}{v,0,PI,25}', 'parametric', { color: 'cX2(u,v)'});
 
             ;(function animate() {
                 requestAnimationFrame(animate);
