@@ -28,16 +28,20 @@
             plot = new Interactive.Plot();
 
             ax1 = plot.createAxes3D(document.getElementById('ax1'), {antialias: true});
-            ax2 = plot.createAxes2D(document.getElementById('ax2'), {antialias: true});
+            ax2 = plot.createAxes3D(document.getElementById('ax2'), {antialias: true});
 
-            plot.execExpression('X1(t)=(cos(t),sin(t),sin(2*t))')
-            plot.execExpression('cX1(t)=(cos(t)^2, sin(t)^2, 1)')
+            plot.linkCameras(ax1, ax2)
 
-            plot.execExpression('X2(t)=(cos(t),sin(t))')
+            plot.execExpression('X1(u,v)=((2 + cos(v))*cos(u), sin(v) + 0.2*sin(3*u), (2 + cos(v))*sin(u))')
+            plot.execExpression('N1(u,v)=norm(normal(X1,u,v))')
+            plot.execExpression('cX1(u,v)=(ssign(component(N1(u,v),0))/3 + 2/3, ssign(component(N1(u,v),1))/3 + 2/3, ssign(component(N1(u,v),2))/3 + 2/3)')
 
-            ax1.plotExpression('X1(t){t,0,2*PI,100}', 'parametric', {color: 'cX1'});
+            plot.execExpression('X2(u,v)=(2*cos(u)*sin(v),2*sin(u)*sin(v),2*cos(v))')
+            plot.execExpression('N2(u,v)=norm(normal(X2,u,v))')
+            plot.execExpression('cX2(u,v)=(ssign(component(N2(u,v),0))/3 + 2/3, ssign(component(N2(u,v),1))/3 + 2/3, ssign(component(N2(u,v),2))/3 + 2/3)')
 
-            ax2.plotExpression('X2(t){t,0,2*PI,100}', 'parametric', {color: 'cX1'})
+            ax1.plotExpression('X1(u,v){u,0,2*PI,200}{v,0,2*PI,100}', 'parametric', { color: 'cX1'});
+            ax2.plotExpression('X2(u,v){u,0,2*PI,50}{v,0,PI,25}', 'parametric', { color: 'cX2'});
 
             ;(function animate() {
                 requestAnimationFrame(animate);

@@ -13,24 +13,25 @@ function Parametric3D(plot, expr, opts) {
 
     if(this.opts.color !== undefined) {
         this.color = new Expression(this.opts.color, this.plot.context);
+        this.colorf = this.color.evaluate();
     }
     if(this.opts.wireframe === undefined) this.opts.wireframe = false;
     if(this.opts.flat === undefined) this.opts.flat = this.opts.color !== undefined;
 }
 
-Parametric3D.prototype.createLine = function() {
+Parametric3D.prototype.createLine = function(par) {
     var geom = new THREE.Geometry();
-    var int = this.intervals[0].evaluate();
+    var int = par.intervals[0]
     var tarr = int.array();
-    var context = {};
-    for(var i = 0; i < tarr.length; i++) {
-        context[int.varstr] = tarr[i]
 
-        geom.vertices.push(this.func.evaluate(context).toVector3());
+    for(var i = 0; i < tarr.length; i++) {
+        var t = tarr[i]
+
+        geom.vertices.push(par.func(t).toVector3());
 
         if(this.color !== undefined) {
-            var color = this.color.evaluate(context);
-            geom.colors[i] = new THREE.Color(color.q[0], color.q[1], color.q[2])
+            var color = this.colorf(t);
+            geom.colors[i] = new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value)
         }
     } 
     if(this.color !== undefined) {
@@ -46,10 +47,7 @@ Parametric3D.prototype.createSurface = function(par) {
     var vint = par.intervals[1];
     var uarr = uint.array();
     var varr = vint.array();
-    var context = {};
     var colors = [];
-
-    if(this.color !== undefined) var colorf = this.color.evaluate();
 
     for(var i = 0; i < uarr.length; i++) {
         var u = uarr[i];
@@ -60,7 +58,7 @@ Parametric3D.prototype.createSurface = function(par) {
             geom.vertices.push(vert);
 
             if(this.color !== undefined) {
-                var color = colorf(u,v);
+                var color = this.colorf(u,v);
                 colors.push(new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value))
             }
 
