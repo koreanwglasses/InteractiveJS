@@ -75,6 +75,9 @@ function TouchEventListener(container) {
                 buttons: _buttonsDown,
                 suppressContextMenu: function() {
                     _suppressContextMenu = true;
+                },
+                preventDefault: function() {
+                    event.preventDefault();
                 }
             }
             _self.onpan(e);

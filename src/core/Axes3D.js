@@ -102,6 +102,8 @@ function Axes3D(parent, container, opts) {
             _self.camera.lookAt(_self.corigin);
         }
         if(event.leftButtonDown) {
+            event.preventDefault();
+
             var r = _self.camera.position.distanceTo(_self.corigin);
             var az = _cameraStartAz -  _cameraStartUp * (event.screenX - event.screenStartX) / 100
             var pol = _cameraStartPol - _cameraStartUp * (event.screenY - event.screenStartY) / 100
