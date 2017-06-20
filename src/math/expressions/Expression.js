@@ -313,10 +313,23 @@ Expression.toJSExpression = function(string, specials, isparam) {
             return expr;
         } else if (type === 'parametric') {
             var params = Expression.splitParametric(str);
-            var intervals = [];
+            var func = 'function('
+            var intervals = '';
+
+            if(specials === undefined) specials = [];
+
             for(var i = 1; i < params.length; i++) {
-                intervals.push(Expression.toJSFunction(params[i])());
+                var arg = Expression.splitTuple(params[i])[0]
+                specials.push(arg)
+                func += arg+','
+
+                intervals += ','+Expression.toJSExpression(params[i]);
             }
+
+            func = func.slice(0, func.length - 1)+') { return '+Expression.toJSExpression(params[0],specials)+'; }';
+
+            var expr = 'new Interactive.Parametric('+func+intervals+')';
+            return expr;
         }
     }
 }

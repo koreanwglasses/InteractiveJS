@@ -1,6 +1,6 @@
 function Parametric(func, intervals) {
     this.func = func;
-    this.intervals = intervals;
+    this.intervals = Array.from(arguments).slice(1)
 }
 
 export { Parametric };

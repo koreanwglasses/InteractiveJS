@@ -732,6 +732,25 @@ Expression.toJSExpression = function(string, specials, isparam) {
             if(specials !== undefined && specials.includes(str)) return str
             var expr = 'context["'+str+'"]';
             return expr;
+        } else if (type === 'parametric') {
+            var params = Expression.splitParametric(str);
+            var func = 'function(';
+            var intervals = '';
+
+            if(specials === undefined) specials = [];
+
+            for(var i = 1; i < params.length; i++) {
+                var arg = Expression.splitTuple(params[i])[0];
+                specials.push(arg);
+                func += arg+',';
+
+                intervals += ','+Expression.toJSExpression(params[i]);
+            }
+
+            func = func.slice(0, func.length - 1)+') { return '+Expression.toJSExpression(params[0],specials)+'; }';
+
+            var expr = 'new Interactive.Parametric('+func+intervals+')';
+            return expr;
         }
     }
 };
@@ -815,14 +834,7 @@ Arrow3D.prototype.invalidate = function() {
 function Parametric3D(plot, expr, opts) {
     this.plot = plot;
 
-    var parts = Expression.splitParametric(expr);
-    this.func = new Expression(parts[0], this.plot.context);
-    this.intervals = [];
-
-    for(var i = 1; i < parts.length; i++) {
-        this.intervals.push(new Expression(parts[i], this.plot.context));
-    }
-
+    this.expr = new Expression(expr, plot.context);
     this.opts = opts !== undefined? opts: {};
 
     this.validated = false;
@@ -857,25 +869,27 @@ Parametric3D.prototype.createLine = function() {
     }
 };
 
-Parametric3D.prototype.createSurface = function() {
+Parametric3D.prototype.createSurface = function(par) {
     var geom = new THREE.Geometry();
-    var uint = this.intervals[0].evaluate();
-    var vint = this.intervals[1].evaluate();
+    var uint = par.intervals[0];
+    var vint = par.intervals[1];
     var uarr = uint.array();
     var varr = vint.array();
     var context = {};
     var colors = [];
 
-    for(var i = 0; i < uarr.length; i++) {
-        context[uint.varstr] = uarr[i];
-        for(var j = 0; j < varr.length; j++) {
-            context[vint.varstr] = varr[j];
+    if(this.color !== undefined) var colorf = this.color.evaluate();
 
-            var v = this.func.evaluate(context).toVector3();
-            geom.vertices.push(v);
+    for(var i = 0; i < uarr.length; i++) {
+        var u = uarr[i];
+        for(var j = 0; j < varr.length; j++) {
+            var v = varr[j];
+
+            var vert = par.func(u,v).toVector3();
+            geom.vertices.push(vert);
 
             if(this.color !== undefined) {
-                var color = this.color.evaluate(context);
+                var color = colorf(u,v);
                 colors.push(new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value));
             }
 
@@ -925,10 +939,11 @@ Parametric3D.prototype.createSurface = function() {
 
 Parametric3D.prototype.getSceneObject = function() {
     if(this.validated === false) {
-        if(this.intervals.length === 1) {
-            this.sceneObject = this.createLine();
+        var par = this.expr.evaluate();
+        if(par.intervals.length === 1) {
+            this.sceneObject = this.createLine(par);
         } else {
-            this.sceneObject = this.createSurface();
+            this.sceneObject = this.createSurface(par);
         }
         this.validated = true;
     }
@@ -1576,6 +1591,11 @@ Plot.prototype.linkCameras = function(from) {
     }
 };
 
+function Parametric(func, intervals) {
+    this.func = func;
+    this.intervals = Array.from(arguments).slice(1);
+}
+
 /**
  * Object that represents basis axes in 2d space.
  * @param {*} opts Options to customize the appearance of the arrows. Includes:
@@ -1681,6 +1701,7 @@ exports.Expression = Expression;
 exports.Interval = Interval;
 exports.MathPlus = MathPlus;
 exports.Number = Number;
+exports.Parametric = Parametric;
 exports.Vector = Vector;
 exports.Arrow2D = Arrow2D;
 exports.Arrow3D = Arrow3D;
