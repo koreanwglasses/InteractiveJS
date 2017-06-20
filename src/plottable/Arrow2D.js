@@ -29,7 +29,7 @@ function Arrow2D(plot, expr, opts) {
 Arrow2D.prototype.getSceneObject = function() {
     if(this.validated === false) {
         var vector = this.expr.evaluate();
-        var _vector2 = new THREE.Vector3(vector.q[0], vector.q[1]);
+        var _vector2 = new THREE.Vector3(vector.q[0].value, vector.q[1].value);
         var _dir = _vector2.clone().normalize();
         var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
         var _length = _vector2.length();

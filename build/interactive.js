@@ -197,6 +197,10 @@ Number.prototype.exp = function(n) {
     return new Number(Math.pow(this.value, n.value));
 };
 
+Number.prototype.neg = function() {
+    return new Number(-this.value);
+};
+
 /**
  * Represents a vector with an arbitrary number of dimensions, and of any type that supports adding and scaling. Operations create new instances
  */
@@ -632,58 +636,63 @@ Expression.toJSExpression = function(string, specials, isparam) {
         var type = Expression.typeOf(str);
 
         if(type === 'expression') {
-            var operations = Expression.separate(str);
+            var operations = Expression.toPostfix(Expression.separate(str));
 
-            var expr = '(';
+            var stack = [];
 
             for(var i = 0; i < operations.length; i++) {
-                if(specials !== undefined && specials.includes(operations[i].str)) {
-                    expr += operations[i].str;
-                } else {
-                    switch(operations[i].type) {
-                        case 'variable':
-                        case 'function':
-                            expr += 'context["'+operations[i].str+'"]';
-                            break;
-                        case 'vector':
-                            var param = i > 1 && operations[i-2].type === 'function';
-                            expr += Expression.toJSExpression(operations[i].str, specials, param);
-                            break;
-                        case 'constant':
-                            expr += 'new Interactive.Number('+operations[i].str+')';
-                            break;
-                        case 'uoperator':
-                            expr += '.neg()';
-                            break;
-                        case 'operator':
-                            switch(operations[i].str) {
-                                case '+':
-                                    expr += ').add(';
-                                    break;
-                                case '-':
-                                    expr += ').sub(';
-                                    break;
-                                case '*':
-                                    expr += ').mul(';
-                                    break;
-                                case '/':
-                                    expr += ').div(';
-                                    break;
-                                case '^':
-                                    expr += ').exp(';
-                                    break;
-                                default:
-                                    expr += operations[i].str;                                                             
-                            }
-                            break;
-                        default:
-                            expr += operations[i].str;
-                    }
+                switch(operations[i].type) {
+                    case 'variable':
+                        if(specials !== undefined && specials.includes(operations[i].str)) {
+                            stack.push(operations[i].str);
+                        } else {
+                            stack.push('context["'+operations[i].str+'"]');
+                        }
+                        break;
+                    case 'constant':
+                        stack.push('new Interactive.Number('+operations[i].str+')');
+                        break;     
+                    case 'vector':
+                        var param = operations[i+1].type === 'function';
+                        stack.push(Expression.toJSExpression(operations[i].str, specials, param));
+                        break;                       
+                    case 'function':
+                        var a = stack.pop();
+                        stack.push('context["'+operations[i].str+'"]('+a+')');
+                        break;
+                    case 'uoperator':
+                        var a = stack.pop();
+                        stack.push(a+'.neg()');
+                        break;
+                    case 'operator':
+                        var b = stack.pop();
+                        var a = stack.pop();
+                        switch(operations[i].str) {
+                            case '+':
+                                stack.push(a+'.add('+b+')');
+                                break;
+                            case '-':
+                                stack.push(a+'.sub('+b+')');
+                                break;
+                            case '*':
+                                stack.push(a+'.mul('+b+')');
+                                break;
+                            case '/':
+                                stack.push(a+'.div('+b+')');
+                                break;
+                            case '^':
+                                stack.push(a+'.exp('+b+')');
+                                break;
+                            default:
+                                console.log('Interactive.Expression: Unknown symbol');                                                       
+                        }
+                        break;
+                    default:
+                        console.log('Interactive.Expression: Unknown symbol');
                 }
             }
-            expr += ')';
 
-            return expr;
+            return stack[0];
         } else if (type === 'vector') {
             var components = Expression.splitTuple(str);
             if(isparam) {
@@ -718,259 +727,8 @@ Expression.toJSExpression = function(string, specials, isparam) {
     }
 };
 
-/*
-Expression.toJSFunction = function(string) {
-    var str = string.replace(/\s+/g,'')
-
-    // Expression is an equation:
-    if(str.match(/=/g) !== null && str.match(/=/g).length === 1) {
-        var left, right;
-        if(str.includes(':=')) {
-            left = string.split(':=')[0];
-            right = string.split(':=')[1];
-        } else {
-            left = string.split('=')[0];
-            right = string.split('=')[1];
-        }
-        
-        var leftParts = Expression.separate(left);
-
-        // variable assignment
-        if(leftParts.length === 1 && leftParts[0].type === 'variable') {
-            var righteval = Expression.toJSFunction(right);
-            var func;
-            // Static assignment
-            if(str.includes(':=')) {
-                func = function(context) {
-                    return context[leftParts[0].str] = righteval(context);
-                }
-            } else { // Dynamic Assignment                
-                func = function(context) {
-                    var v = righteval(context);
-                    v.setExpression(new Expression(right, context));
-                    return context[leftParts[0].str] = v;
-                }
-            }
-            return func;
-        } 
-        
-        var leftPost = Expression.toPostfix(leftParts);
-
-        // function definition
-        if(leftPost.length === 2 && leftPost[leftPost.length - 1].type === 'function') {
-            var righteval = Expression.toJSFunction(right);
-            if(leftPost[0].type === 'variable') {
-                var func = function(context) {
-                    return context[leftPost[leftPost.length - 1].str] = function(v) {
-                        var temp = context[leftPost[0].str]
-                        context[leftPost[0].str] = v.q[0];
-                        var result = righteval(context);
-                        context[leftPost[0].str] = temp;
-                        return result;
-                    }
-                }
-
-                return func;
-            }
-            if(leftPost[0].type === 'vector') {
-                var args = Expression.splitTuple(leftPost[0].str)
-                var func = function(context) {
-                    return context[leftPost[leftPost.length - 1].str] = function(v) {
-                        var temp = {}
-                        for(var i = 0; i < args.length; i++) {
-                            temp[args[i]] = context[args[i]]
-                            context[args[i]] = v.q[i]
-                        }
-                        var result = righteval(context);
-                        Object.assign(context, temp);
-                        return result;
-                    }
-                }
-
-                return func;
-            }
-        }
-    } else {
-        var type = Expression.typeOf(str);
-
-        if(type === 'expression') {
-            var operations = Expression.toPostfix(Expression.separate(str));
-            
-            // var postfix = ''
-            // for(var i = 0; i < operations.length; i++) {
-            //     postfix += operations[i].str + ' '
-            // }
-            // console.log(postfix);
-
-            for(var i = 0; i < operations.length; i++) {
-                switch(operations[i].type) {
-                    case 'vector':                        
-                    case 'interval':
-                        operations[i].eval = Expression.toJSFunction(operations[i].str);
-                        break;
-                    case 'constant':
-                        operations[i].value = parseFloat(operations[i].str);
-                        break;
-                }
-            }
-
-            var func = function(context) {
-                var stack = [];
-                for(var i = 0; i < operations.length; i++) {
-                    switch(operations[i].type) {
-                        case 'vector':
-                            stack.push(operations[i].eval(context));
-                            break;
-                        case 'constant':
-                            stack.push(operations[i].value);
-                            break;
-                        case 'variable':
-                            if(context[operations[i].str] !== undefined) {
-                                if(context[operations[i].str].eval === undefined) {
-                                    stack.push(context[operations[i].str]);
-                                } else {
-                                    stack.push(context[operations[i].str].eval());
-                                }
-                            } else if(typeof Math[operations[i].str] === 'number') {
-                                stack.push(Math[operations[i].str])
-                            }
-                            break;
-                        case 'function':
-                            var v = stack.pop();
-                            if(!(v instanceof Vector)) {
-                                v = new Vector(v);
-                            }
-
-                            if(context[operations[i].str] !== undefined) {
-                                stack.push(context[operations[i].str](v));
-                            } else if(MathPlus[operations[i].str] !== undefined) {
-                                stack.push(MathPlus[operations[i].str].call(null, v))
-                            } else if(Math[operations[i].str] !== undefined) {
-                                stack.push(Math[operations[i].str].apply(null, v.q))
-                            }
-                            break;
-                        case 'uoperator':
-                            var a = stack.pop();
-                            if(typeof a === 'number') {
-                                stack.push(-a);
-                            } else {
-                                stack.push(a.neg());
-                            }
-                            break;
-                        case 'operator':
-                            var b = stack.pop();
-                            var a = stack.pop();
-                            if(typeof a === 'number' && typeof b === 'number') {
-                                switch(operations[i].str) {
-                                    case '+':
-                                        stack.push(a + b);
-                                        break;
-                                    case '-':
-                                        stack.push(a - b);
-                                        break;
-                                    case '*':
-                                        stack.push(a * b);
-                                        break;
-                                    case '/':
-                                        stack.push(a / b);
-                                        break;
-                                    case '^':
-                                        stack.push(Math.pow(a, b));
-                                        break;                                                                    
-                                }
-                            } else if(typeof a === 'number') {
-                                switch(operations[i].str) {
-                                    case '+':
-                                        stack.push(b.preAdd(a));
-                                        break;
-                                    case '-':
-                                        stack.push(b.preSub(a));
-                                        break;
-                                    case '*':
-                                        stack.push(b.preMul(a));
-                                        break;
-                                    case '/':
-                                        stack.push(b.preDiv(a));
-                                        break;
-                                    case '^':
-                                        stack.push(b.preExp(a));
-                                        break;                                                                    
-                                }
-                            } else {
-                                switch(operations[i].str) {
-                                    case '+':
-                                        stack.push(a.add(b));
-                                        break;
-                                    case '-':
-                                        stack.push(a.sub(b));
-                                        break;
-                                    case '*':
-                                        stack.push(a.mul(b));
-                                        break;
-                                    case '/':
-                                        stack.push(a.div(b));
-                                        break;
-                                    case '^':
-                                        stack.push(a.exp(b));
-                                        break;                                                                    
-                                }
-                            }
-                    }
-                }
-                return stack.pop();
-            }
-
-            return func;
-        } else if (type === 'vector') {
-            var components = Expression.splitTuple(str);
-
-            var compeval = [];
-            for(var i = 0; i < components.length; i++) {
-                compeval.push(Expression.toJSFunction(components[i]));
-            }
-
-            var func = function(context) {
-                var vector = new Vector();
-                vector.dimensions = compeval.length;
-                for(var i = 0; i < compeval.length; i++) {
-                    vector.q[i] = compeval[i](context);
-                }
-                return vector;
-            }
-
-            return func;
-        } else if (type === 'interval') {
-            var params = Expression.splitTuple(str);
-            var paramseval = []
-            for(var i = 0; i < params.length; i++) {
-                paramseval.push(Expression.toJSFunction(params[i]));
-            }
-
-            var func = function(context) {
-                return new Interval(params[0],paramseval[1](context),paramseval[2](context),paramseval[3](context));
-            }
-
-            return func;
-        } else if (type === 'variable') {
-            if(typeof Math[str] === 'number') {
-                var func = function(context) {
-                    return Math[str];
-                }
-                return func;
-            } else {
-                var func = function(context) {
-                    return context[str];
-                }
-                return func;
-            }
-        }
-    }
-}
-*/
-
 Expression.toJSFunction = function(string) {
     var expr = Expression.toJSExpression(string);
-    console.log(expr);
     return Function('context', 'return '+expr+';');
 };
 
@@ -1024,7 +782,7 @@ function Arrow3D(plot, expr, opts) {
 Arrow3D.prototype.getSceneObject = function() {
     if(this.validated === false) {
         var vector = this.expr.evaluate();
-        var _vector3 = new THREE.Vector3(vector.q[0], vector.q[1], vector.q[2]);
+        var _vector3 = new THREE.Vector3(vector.q[0].value, vector.q[1].value, vector.q[2].value);
         var _dir = _vector3.clone().normalize();
         var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
         var _length = _vector3.length();
@@ -1427,7 +1185,7 @@ function Arrow2D(plot, expr, opts) {
 Arrow2D.prototype.getSceneObject = function() {
     if(this.validated === false) {
         var vector = this.expr.evaluate();
-        var _vector2 = new THREE.Vector3(vector.q[0], vector.q[1]);
+        var _vector2 = new THREE.Vector3(vector.q[0].value, vector.q[1].value);
         var _dir = _vector2.clone().normalize();
         var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
         var _length = _vector2.length();

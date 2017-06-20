@@ -22,4 +22,8 @@ Number.prototype.exp = function(n) {
     return new Number(Math.pow(this.value, n.value));
 }
 
+Number.prototype.neg = function() {
+    return new Number(-this.value);
+}
+
 export{ Number };
