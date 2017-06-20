@@ -185,6 +185,123 @@ Expression.splitParametric = function(string) {
     return string.split(/(?={)/);
 }
 
+Expression.toJSExpression = function(string, specials, isparam) {
+    var str = string.replace(/\s+/g,'')
+
+    // Expression is an equation:
+    if(str.match(/=/g) !== null && str.match(/=/g).length === 1) {
+        var left, right;
+        left = string.split('=')[0];
+        right = string.split('=')[1];
+        
+        var leftParts = Expression.separate(left);
+
+        // variable assignment
+        if(leftParts.length === 1 && leftParts[0].type === 'variable') {
+            var expr = 'context["'+ left + '"]='+Expression.toJSExpression(right);
+            return expr;
+        }
+
+        // function definition
+        if(leftParts[0].type === 'function') {
+            if(leftParts[2].type === 'vector') {
+                var expr = 'context["'+leftParts[0].str+'"]=function' + leftParts[2].str + '{ return '+Expression.toJSExpression(right, Expression.splitTuple(leftParts[2].str))+'; }';
+            } else {
+                var expr = 'context["'+leftParts[0].str+'"]=function(' + leftParts[2].str + '){ return '+Expression.toJSExpression(right, leftParts[2].str)+'; }';
+            }
+            return expr;
+        }
+    } else {
+        var type = Expression.typeOf(str);
+
+        if(type === 'expression') {
+            var operations = Expression.separate(str);
+
+            var expr = '('
+
+            for(var i = 0; i < operations.length; i++) {
+                if(specials !== undefined && specials.includes(operations[i].str)) {
+                    expr += operations[i].str;
+                } else {
+                    switch(operations[i].type) {
+                        case 'variable':
+                        case 'function':
+                            expr += 'context["'+operations[i].str+'"]'
+                            break;
+                        case 'vector':
+                            var param = i > 1 && operations[i-2].type === 'function';
+                            expr += Expression.toJSExpression(operations[i].str, specials, param);
+                            break;
+                        case 'constant':
+                            expr += 'new Interactive.Number('+operations[i].str+')'
+                            break;
+                        case 'uoperator':
+                            expr += '.neg()'
+                            break;
+                        case 'operator':
+                            switch(operations[i].str) {
+                                case '+':
+                                    expr += ').add('
+                                    break;
+                                case '-':
+                                    expr += ').sub('
+                                    break;
+                                case '*':
+                                    expr += ').mul('
+                                    break;
+                                case '/':
+                                    expr += ').div('
+                                    break;
+                                case '^':
+                                    expr += ').exp('
+                                    break;
+                                default:
+                                    expr += operations[i].str                                                             
+                            }
+                            break;
+                        default:
+                            expr += operations[i].str
+                    }
+                }
+            }
+            expr += ')';
+
+            return expr;
+        } else if (type === 'vector') {
+            var components = Expression.splitTuple(str);
+            if(isparam) {
+                var expr = ''
+                for(var i = 0; i < components.length; i++) {
+                    expr += Expression.toJSExpression(components[i], specials) + ',';
+                }
+                expr = expr.slice(0, expr.length - 1)
+                return expr;
+            } else {
+                var expr = 'new Interactive.Vector('
+                for(var i = 0; i < components.length; i++) {
+                    expr += Expression.toJSExpression(components[i], specials) + ',';
+                }
+                expr = expr.slice(0, expr.length - 1) + ')'
+                return expr;
+            }
+        } else if (type === 'interval') {
+            var params = Expression.splitTuple(str);
+
+            var expr = 'new Interactive.Interval("'+params[0]+'",';
+            for(var i = 1; i < params.length; i++) {
+                expr += Expression.toJSExpression(params[i], specials) + ',';
+            }
+            expr = expr.slice(0, expr.length - 1) + ')'            
+            return expr;
+        } else if (type === 'variable') {
+            if(specials !== undefined && specials.includes(str)) return str
+            var expr = 'context["'+str+'"]'
+            return expr;
+        }
+    }
+}
+
+/*
 Expression.toJSFunction = function(string) {
     var str = string.replace(/\s+/g,'')
 
@@ -432,6 +549,13 @@ Expression.toJSFunction = function(string) {
         }
     }
 }
+*/
+
+Expression.toJSFunction = function(string) {
+    var expr = Expression.toJSExpression(string);
+    console.log(expr);
+    return Function('context', 'return '+expr+';');
+}
 
 /**
  * Variables from given context will override variables from this context 
@@ -448,6 +572,10 @@ Expression.prototype.evaluate = function(context) {
     } else {
         return this.function(this.context);
     }
+}
+
+Expression.getDefaultContext = function() {
+    return Object.assign({}, MathPlus);
 }
 
 export { Expression };

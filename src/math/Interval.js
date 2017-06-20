@@ -1,3 +1,5 @@
+import { Number } from './Number.js';
+
 function Interval(varstr, start, end, steps) {
     this.varstr = varstr; 
 
@@ -15,10 +17,10 @@ function Interval(varstr, start, end, steps) {
  */
 Interval.prototype.array = function() {
     if(this.arr === null) {
-        var step = (this.end - this.start) / (this.steps - 1);
+        var step = (this.end.value - this.start.value) / (this.steps.value - 1);
         var arr = [];
-        for(var x = this.start; x < this.end + step / 2; x += step) {
-            arr.push(x);
+        for(var x = this.start.value; x < this.end.value + step / 2; x += step) {
+            arr.push(new Number(x));
         }
         this.arr = arr;
     }

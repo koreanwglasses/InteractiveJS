@@ -1,5 +1,6 @@
 import { Vector } from '../math/Vector.js';
 import { Expression } from '../math/expressions/Expression.js';
+import { Interval } from '../math/Interval.js';
 
 function Parametric3D(plot, expr, opts) {
     this.plot = plot
@@ -60,12 +61,12 @@ Parametric3D.prototype.createSurface = function() {
         for(var j = 0; j < varr.length; j++) {
             context[vint.varstr] = varr[j];
 
-            var v = this.func.evaluate(context).toVector3()
+            var v = this.func.evaluate(context).toVector3();
             geom.vertices.push(v);
 
             if(this.color !== undefined) {
                 var color = this.color.evaluate(context);
-                colors.push(new THREE.Color(color.q[0], color.q[1], color.q[2]))
+                colors.push(new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value))
             }
 
             if(i > 0 && j > 0) {

@@ -1,19 +1,17 @@
 import { Vector } from './Vector.js';
+import { Number } from './Number.js';
 
 var MathPlus = {}
 
-MathPlus.epsilon = 1e-10;
+MathPlus.epsilon = new Number(1e-10);
 
 MathPlus.singleton = function(x) {
     return new Vector(x);
 }
 
-MathPlus.normal = function(x) {
-    var X = x.q[0];
-    var u = x.q[1];
-    var v = x.q[2];
-    var dxdu = X(new Vector(u + MathPlus.epsilon, v)).sub(X(new Vector(u - MathPlus.epsilon, v))).div(2 * MathPlus.epsilon);
-    var dxdv = X(new Vector(u, v + MathPlus.epsilon)).sub(X(new Vector(u, v - MathPlus.epsilon))).div(2 * MathPlus.epsilon);
+MathPlus.normal = function(X,u,v) {
+    var dxdu = X(u.add(MathPlus.epsilon), v).sub(X(u.sub(MathPlus.epsilon), v)).div(MathPlus.epsilon.mul(new Number(2)));
+    var dxdv = X(u, v.add(MathPlus.epsilon)).sub(X(u, v.sub(MathPlus.epsilon))).div(MathPlus.epsilon.mul(new Number(2)));
     return dxdu.crs(dxdv)
 }
 
@@ -21,10 +19,22 @@ MathPlus.norm = function(x) {
     return x.norm();
 }
 
-MathPlus.component = function(x) {
-    var v = x.q[0];
-    var i = x.q[1];
-    return v.q[i];
+MathPlus.component = function(v,i) {
+    return v.q[i.value];
 }
+
+MathPlus.cos = function(x) {
+    return new Number(Math.cos(x.value));
+}
+
+MathPlus.sin = function(x) {
+    return new Number(Math.sin(x.value));
+}
+
+MathPlus.sign = function(x) {
+    return new Number(Math.sign(x.value));
+}
+
+MathPlus.PI = new Number(Math.PI);
 
 export{ MathPlus };

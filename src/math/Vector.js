@@ -1,3 +1,5 @@
+import { Number } from './Number.js';
+
 /**
  * Represents a vector with an arbitrary number of dimensions, and of any type that supports adding and scaling. Operations create new instances
  */
@@ -34,7 +36,7 @@ Vector.prototype.add = function(v) {
 
     var result = this.clone();
     for(var i = 0; i < this.dimensions; i++) {
-        result.q[i] += v.q[i];
+        result.q[i] = result.q[i].add(v.q[i]);
     }
     return result;
 }
@@ -47,7 +49,7 @@ Vector.prototype.sub = function(v) {
 
     var result = this.clone();
     for(var i = 0; i < this.dimensions; i++) {
-        result.q[i] -= v.q[i];
+        result.q[i] = result.q[i].sub(v.q[i]);
     }
     return result;
 }
@@ -59,14 +61,14 @@ Vector.prototype.crs = function(v) {
     }
 
     if(this.dimensions === 3) {
-        return new Vector(this.q[1]*v.q[2]-this.q[2]*v.q[1], this.q[2]*v.q[0]-this.q[0]*v.q[2], this.q[0]*v.q[1]-this.q[1]*v.q[0]);
+        return new Vector(this.q[1].mul(v.q[2]).sub(this.q[2].mul(v.q[1])), this.q[2].mul(v.q[0]).sub(this.q[0].mul(v.q[2])), this.q[0].mul(v.q[1]).sub(this.q[1].mul(v.q[0])));
     }
 }
 
 Vector.prototype.div = function(v) {
     var result = this.clone();
     for(var i = 0; i < this.dimensions; i++) {
-        result.q[i] /= v;
+        result.q[i] = result.q[i].div(v);
     }
     return result;
 }
@@ -74,13 +76,13 @@ Vector.prototype.div = function(v) {
 Vector.prototype.abs = function() {
     var ss = 0;
     for(var i = 0; i < this.dimensions; i++) {
-        ss += this.q[i] * this.q[i]
+        ss += this.q[i].value * this.q[i].value
     }
-    return Math.sqrt(ss)
+    return new Number(Math.sqrt(ss))
 }
 
 Vector.prototype.norm = function() {
-    if(this.abs() === 0) return this.clone();
+    if(this.abs().value === 0) return this.clone();
     return this.div(this.abs());
 }
 
@@ -104,8 +106,8 @@ Vector.prototype.toVector2 = function() {
  * Convert this to a THREE vector3
  */
 Vector.prototype.toVector3 = function() {
-    if(this.dimensions === 2) return new THREE.Vector3(this.q[0], this.q[1], 0);
-    else return new THREE.Vector3(this.q[0], this.q[1], this.q[2]);
+    if(this.dimensions === 2) return new THREE.Vector3(this.q[0].value, this.q[1].value, 0);
+    else return new THREE.Vector3(this.q[0].value, this.q[1].value, this.q[2].value);
 }
 
 /**

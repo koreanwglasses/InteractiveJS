@@ -173,6 +173,30 @@ Frame.prototype.render = function(camera) {
     this.renderer.render( this.scene, camera );
 };
 
+function Number(value) {
+    this.value = value;
+} 
+
+Number.prototype.add = function(n) {
+    return new Number(this.value + n.value);
+};
+
+Number.prototype.sub = function(n) {
+    return new Number(this.value - n.value);
+};
+
+Number.prototype.mul = function(n) {
+    return new Number(this.value * n.value);
+};
+
+Number.prototype.div = function(n) {
+    return new Number(this.value / n.value);
+};
+
+Number.prototype.exp = function(n) {
+    return new Number(Math.pow(this.value, n.value));
+};
+
 /**
  * Represents a vector with an arbitrary number of dimensions, and of any type that supports adding and scaling. Operations create new instances
  */
@@ -209,7 +233,7 @@ Vector.prototype.add = function(v) {
 
     var result = this.clone();
     for(var i = 0; i < this.dimensions; i++) {
-        result.q[i] += v.q[i];
+        result.q[i] = result.q[i].add(v.q[i]);
     }
     return result;
 };
@@ -222,7 +246,7 @@ Vector.prototype.sub = function(v) {
 
     var result = this.clone();
     for(var i = 0; i < this.dimensions; i++) {
-        result.q[i] -= v.q[i];
+        result.q[i] = result.q[i].sub(v.q[i]);
     }
     return result;
 };
@@ -234,14 +258,14 @@ Vector.prototype.crs = function(v) {
     }
 
     if(this.dimensions === 3) {
-        return new Vector(this.q[1]*v.q[2]-this.q[2]*v.q[1], this.q[2]*v.q[0]-this.q[0]*v.q[2], this.q[0]*v.q[1]-this.q[1]*v.q[0]);
+        return new Vector(this.q[1].mul(v.q[2]).sub(this.q[2].mul(v.q[1])), this.q[2].mul(v.q[0]).sub(this.q[0].mul(v.q[2])), this.q[0].mul(v.q[1]).sub(this.q[1].mul(v.q[0])));
     }
 };
 
 Vector.prototype.div = function(v) {
     var result = this.clone();
     for(var i = 0; i < this.dimensions; i++) {
-        result.q[i] /= v;
+        result.q[i] = result.q[i].div(v);
     }
     return result;
 };
@@ -249,13 +273,13 @@ Vector.prototype.div = function(v) {
 Vector.prototype.abs = function() {
     var ss = 0;
     for(var i = 0; i < this.dimensions; i++) {
-        ss += this.q[i] * this.q[i];
+        ss += this.q[i].value * this.q[i].value;
     }
-    return Math.sqrt(ss)
+    return new Number(Math.sqrt(ss))
 };
 
 Vector.prototype.norm = function() {
-    if(this.abs() === 0) return this.clone();
+    if(this.abs().value === 0) return this.clone();
     return this.div(this.abs());
 };
 
@@ -279,8 +303,8 @@ Vector.prototype.toVector2 = function() {
  * Convert this to a THREE vector3
  */
 Vector.prototype.toVector3 = function() {
-    if(this.dimensions === 2) return new THREE.Vector3(this.q[0], this.q[1], 0);
-    else return new THREE.Vector3(this.q[0], this.q[1], this.q[2]);
+    if(this.dimensions === 2) return new THREE.Vector3(this.q[0].value, this.q[1].value, 0);
+    else return new THREE.Vector3(this.q[0].value, this.q[1].value, this.q[2].value);
 };
 
 /**
@@ -317,10 +341,10 @@ function Interval(varstr, start, end, steps) {
  */
 Interval.prototype.array = function() {
     if(this.arr === null) {
-        var step = (this.end - this.start) / (this.steps - 1);
+        var step = (this.end.value - this.start.value) / (this.steps.value - 1);
         var arr = [];
-        for(var x = this.start; x < this.end + step / 2; x += step) {
-            arr.push(x);
+        for(var x = this.start.value; x < this.end.value + step / 2; x += step) {
+            arr.push(new Number(x));
         }
         this.arr = arr;
     }
@@ -353,18 +377,15 @@ Interval.prototype.eval = function() {
 
 var MathPlus = {};
 
-MathPlus.epsilon = 1e-10;
+MathPlus.epsilon = new Number(1e-10);
 
 MathPlus.singleton = function(x) {
     return new Vector(x);
 };
 
-MathPlus.normal = function(x) {
-    var X = x.q[0];
-    var u = x.q[1];
-    var v = x.q[2];
-    var dxdu = X(new Vector(u + MathPlus.epsilon, v)).sub(X(new Vector(u - MathPlus.epsilon, v))).div(2 * MathPlus.epsilon);
-    var dxdv = X(new Vector(u, v + MathPlus.epsilon)).sub(X(new Vector(u, v - MathPlus.epsilon))).div(2 * MathPlus.epsilon);
+MathPlus.normal = function(X,u,v) {
+    var dxdu = X(u.add(MathPlus.epsilon), v).sub(X(u.sub(MathPlus.epsilon), v)).div(MathPlus.epsilon.mul(new Number(2)));
+    var dxdv = X(u, v.add(MathPlus.epsilon)).sub(X(u, v.sub(MathPlus.epsilon))).div(MathPlus.epsilon.mul(new Number(2)));
     return dxdu.crs(dxdv)
 };
 
@@ -372,11 +393,23 @@ MathPlus.norm = function(x) {
     return x.norm();
 };
 
-MathPlus.component = function(x) {
-    var v = x.q[0];
-    var i = x.q[1];
-    return v.q[i];
+MathPlus.component = function(v,i) {
+    return v.q[i.value];
 };
+
+MathPlus.cos = function(x) {
+    return new Number(Math.cos(x.value));
+};
+
+MathPlus.sin = function(x) {
+    return new Number(Math.sin(x.value));
+};
+
+MathPlus.sign = function(x) {
+    return new Number(Math.sign(x.value));
+};
+
+MathPlus.PI = new Number(Math.PI);
 
 function Expression(string, context) {
     this.type = 'Expression';
@@ -561,8 +594,125 @@ Expression.splitParametric = function(string) {
     return string.split(/(?={)/);
 };
 
-Expression.toJSFunction = function(string) {
+Expression.toJSExpression = function(string, specials, isparam) {
     var str = string.replace(/\s+/g,'');
+
+    // Expression is an equation:
+    if(str.match(/=/g) !== null && str.match(/=/g).length === 1) {
+        var left, right;
+        left = string.split('=')[0];
+        right = string.split('=')[1];
+        
+        var leftParts = Expression.separate(left);
+
+        // variable assignment
+        if(leftParts.length === 1 && leftParts[0].type === 'variable') {
+            var expr = 'context["'+ left + '"]='+Expression.toJSExpression(right);
+            return expr;
+        }
+
+        // function definition
+        if(leftParts[0].type === 'function') {
+            if(leftParts[2].type === 'vector') {
+                var expr = 'context["'+leftParts[0].str+'"]=function' + leftParts[2].str + '{ return '+Expression.toJSExpression(right, Expression.splitTuple(leftParts[2].str))+'; }';
+            } else {
+                var expr = 'context["'+leftParts[0].str+'"]=function(' + leftParts[2].str + '){ return '+Expression.toJSExpression(right, leftParts[2].str)+'; }';
+            }
+            return expr;
+        }
+    } else {
+        var type = Expression.typeOf(str);
+
+        if(type === 'expression') {
+            var operations = Expression.separate(str);
+
+            var expr = '(';
+
+            for(var i = 0; i < operations.length; i++) {
+                if(specials !== undefined && specials.includes(operations[i].str)) {
+                    expr += operations[i].str;
+                } else {
+                    switch(operations[i].type) {
+                        case 'variable':
+                        case 'function':
+                            expr += 'context["'+operations[i].str+'"]';
+                            break;
+                        case 'vector':
+                            var param = i > 1 && operations[i-2].type === 'function';
+                            expr += Expression.toJSExpression(operations[i].str, specials, param);
+                            break;
+                        case 'constant':
+                            expr += 'new Interactive.Number('+operations[i].str+')';
+                            break;
+                        case 'uoperator':
+                            expr += '.neg()';
+                            break;
+                        case 'operator':
+                            switch(operations[i].str) {
+                                case '+':
+                                    expr += ').add(';
+                                    break;
+                                case '-':
+                                    expr += ').sub(';
+                                    break;
+                                case '*':
+                                    expr += ').mul(';
+                                    break;
+                                case '/':
+                                    expr += ').div(';
+                                    break;
+                                case '^':
+                                    expr += ').exp(';
+                                    break;
+                                default:
+                                    expr += operations[i].str;                                                             
+                            }
+                            break;
+                        default:
+                            expr += operations[i].str;
+                    }
+                }
+            }
+            expr += ')';
+
+            return expr;
+        } else if (type === 'vector') {
+            var components = Expression.splitTuple(str);
+            if(isparam) {
+                var expr = '';
+                for(var i = 0; i < components.length; i++) {
+                    expr += Expression.toJSExpression(components[i], specials) + ',';
+                }
+                expr = expr.slice(0, expr.length - 1);
+                return expr;
+            } else {
+                var expr = 'new Interactive.Vector(';
+                for(var i = 0; i < components.length; i++) {
+                    expr += Expression.toJSExpression(components[i], specials) + ',';
+                }
+                expr = expr.slice(0, expr.length - 1) + ')';
+                return expr;
+            }
+        } else if (type === 'interval') {
+            var params = Expression.splitTuple(str);
+
+            var expr = 'new Interactive.Interval("'+params[0]+'",';
+            for(var i = 1; i < params.length; i++) {
+                expr += Expression.toJSExpression(params[i], specials) + ',';
+            }
+            expr = expr.slice(0, expr.length - 1) + ')';            
+            return expr;
+        } else if (type === 'variable') {
+            if(specials !== undefined && specials.includes(str)) return str
+            var expr = 'context["'+str+'"]';
+            return expr;
+        }
+    }
+};
+
+/*
+Expression.toJSFunction = function(string) {
+    var str = string.replace(/\s+/g,'')
 
     // Expression is an equation:
     if(str.match(/=/g) !== null && str.match(/=/g).length === 1) {
@@ -585,13 +735,13 @@ Expression.toJSFunction = function(string) {
             if(str.includes(':=')) {
                 func = function(context) {
                     return context[leftParts[0].str] = righteval(context);
-                };
+                }
             } else { // Dynamic Assignment                
                 func = function(context) {
                     var v = righteval(context);
                     v.setExpression(new Expression(right, context));
                     return context[leftParts[0].str] = v;
-                };
+                }
             }
             return func;
         } 
@@ -604,30 +754,30 @@ Expression.toJSFunction = function(string) {
             if(leftPost[0].type === 'variable') {
                 var func = function(context) {
                     return context[leftPost[leftPost.length - 1].str] = function(v) {
-                        var temp = context[leftPost[0].str];
+                        var temp = context[leftPost[0].str]
                         context[leftPost[0].str] = v.q[0];
                         var result = righteval(context);
                         context[leftPost[0].str] = temp;
                         return result;
                     }
-                };
+                }
 
                 return func;
             }
             if(leftPost[0].type === 'vector') {
-                var args = Expression.splitTuple(leftPost[0].str);
+                var args = Expression.splitTuple(leftPost[0].str)
                 var func = function(context) {
                     return context[leftPost[leftPost.length - 1].str] = function(v) {
-                        var temp = {};
+                        var temp = {}
                         for(var i = 0; i < args.length; i++) {
-                            temp[args[i]] = context[args[i]];
-                            context[args[i]] = v.q[i];
+                            temp[args[i]] = context[args[i]]
+                            context[args[i]] = v.q[i]
                         }
                         var result = righteval(context);
                         Object.assign(context, temp);
                         return result;
                     }
-                };
+                }
 
                 return func;
             }
@@ -674,7 +824,7 @@ Expression.toJSFunction = function(string) {
                                     stack.push(context[operations[i].str].eval());
                                 }
                             } else if(typeof Math[operations[i].str] === 'number') {
-                                stack.push(Math[operations[i].str]);
+                                stack.push(Math[operations[i].str])
                             }
                             break;
                         case 'function':
@@ -686,9 +836,9 @@ Expression.toJSFunction = function(string) {
                             if(context[operations[i].str] !== undefined) {
                                 stack.push(context[operations[i].str](v));
                             } else if(MathPlus[operations[i].str] !== undefined) {
-                                stack.push(MathPlus[operations[i].str].call(null, v));
+                                stack.push(MathPlus[operations[i].str].call(null, v))
                             } else if(Math[operations[i].str] !== undefined) {
-                                stack.push(Math[operations[i].str].apply(null, v.q));
+                                stack.push(Math[operations[i].str].apply(null, v.q))
                             }
                             break;
                         case 'uoperator':
@@ -760,7 +910,7 @@ Expression.toJSFunction = function(string) {
                     }
                 }
                 return stack.pop();
-            };
+            }
 
             return func;
         } else if (type === 'vector') {
@@ -778,35 +928,42 @@ Expression.toJSFunction = function(string) {
                     vector.q[i] = compeval[i](context);
                 }
                 return vector;
-            };
+            }
 
             return func;
         } else if (type === 'interval') {
             var params = Expression.splitTuple(str);
-            var paramseval = [];
+            var paramseval = []
             for(var i = 0; i < params.length; i++) {
                 paramseval.push(Expression.toJSFunction(params[i]));
             }
 
             var func = function(context) {
                 return new Interval(params[0],paramseval[1](context),paramseval[2](context),paramseval[3](context));
-            };
+            }
 
             return func;
         } else if (type === 'variable') {
             if(typeof Math[str] === 'number') {
                 var func = function(context) {
                     return Math[str];
-                };
+                }
                 return func;
             } else {
                 var func = function(context) {
                     return context[str];
-                };
+                }
                 return func;
             }
         }
     }
+}
+*/
+
+Expression.toJSFunction = function(string) {
+    var expr = Expression.toJSExpression(string);
+    console.log(expr);
+    return Function('context', 'return '+expr+';');
 };
 
 /**
@@ -824,6 +981,10 @@ Expression.prototype.evaluate = function(context) {
     } else {
         return this.function(this.context);
     }
+};
+
+Expression.getDefaultContext = function() {
+    return Object.assign({}, MathPlus);
 };
 
 /**
@@ -940,7 +1101,7 @@ Parametric3D.prototype.createSurface = function() {
 
             if(this.color !== undefined) {
                 var color = this.color.evaluate(context);
-                colors.push(new THREE.Color(color.q[0], color.q[1], color.q[2]));
+                colors.push(new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value));
             }
 
             if(i > 0 && j > 0) {
@@ -1627,7 +1788,7 @@ function Plot() {
     /**
      * The variables the expressions will reference
      */
-    this.context = {};
+    this.context = Expression.getDefaultContext();
 
     /**
      * Cached expressions
@@ -1756,6 +1917,7 @@ exports.TouchEventListener = TouchEventListener;
 exports.Expression = Expression;
 exports.Interval = Interval;
 exports.MathPlus = MathPlus;
+exports.Number = Number;
 exports.Vector = Vector;
 exports.Arrow2D = Arrow2D;
 exports.Arrow3D = Arrow3D;

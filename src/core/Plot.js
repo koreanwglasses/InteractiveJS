@@ -30,7 +30,7 @@ function Plot() {
     /**
      * The variables the expressions will reference
      */
-    this.context = {}
+    this.context = Expression.getDefaultContext();
 
     /**
      * Cached expressions
