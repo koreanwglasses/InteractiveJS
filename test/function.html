@@ -39,15 +39,15 @@
             plot.execExpression('cX(t)=(0,sin(t)^2,cos(t)^2)')
 
             plot.execExpression('Y(t)=(sin(t),-cos(2*t),cos(t))')
-            // plot.execExpression('Z(u,v)=(cos(u)*sin(v),sin(u)*sin(v),cos(v))')
-            // plot.execExpression('cZ(u,v)=(cos(u)*sin(v), sin(u)*sin(v), cos(v))')
-            plot.execExpression('Z(u,v)=(u,u^2-v^2,v)')
+            plot.execExpression('Z(u,v)=((3 + cos(v))*cos(u), (3 + cos(v))*sin(u), sin(v))')
+            plot.execExpression('cZ(u,v)=(cos(u)*sin(v), sin(u)*sin(v), cos(v))')
+            // plot.execExpression('Z(u,v)=(u,u^2-v^2,v)')
 
             ax2.plotExpression('X(t){t,0,2*PI,100}', 'parametric', {color: 'cX(t)'});
 
             ax1.plotExpression('Y(t){t,0,2*PI,100}', 'parametric', {color: 'cX(t)'});
-            // ax1.plotExpression('Z(u,v){u,0,2*PI,100}{v,0,PI,100}', 'parametric', {color: 'cZ(u,v)', flat:true});
-            ax1.plotExpression('Z(u,v){u,-1.2,1.2,50}{v,-1.2,1.2,50}', 'parametric', {flat:false});
+            ax1.plotExpression('Z(u,v){u,0,2*PI,100}{v,0,2*PI,100}', 'parametric', {color: 'cZ(u,v)', flat:true});
+            // ax1.plotExpression('Z(u,v){u,-1.2,1.2,50}{v,-1.2,1.2,50}', 'parametric', {flat:false});
 
             ;(function animate() {
                 requestAnimationFrame(animate);

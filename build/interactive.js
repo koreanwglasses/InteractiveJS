@@ -303,6 +303,12 @@ Interval.prototype.eval = function() {
     return this;
 };
 
+var MathPlus = {};
+
+MathPlus.singleton = function(x) {
+    return new Vector(x);
+};
+
 function Expression(string, context) {
     this.type = 'Expression';
 
@@ -487,7 +493,8 @@ Expression.splitParametric = function(string) {
 };
 
 Expression.toJSFunction = function(string) {
-    var str = string.replace(' ','');
+    var str = string.replace(/\s+/g,'');
+    console.log(str);
 
     // Expression is an equation:
     if(str.match(/=/g) !== null && str.match(/=/g).length === 1) {
@@ -605,6 +612,8 @@ Expression.toJSFunction = function(string) {
 
                             if(context[operations[i].str] !== undefined) {
                                 stack.push(context[operations[i].str](v));
+                            } else if(MathPlus[operations[i].str] !== undefined) {
+                                stack.push(MathPlus[operations[i].str].apply(null, v.q));
                             } else if(Math[operations[i].str] !== undefined) {
                                 stack.push(Math[operations[i].str].apply(null, v.q));
                             }
@@ -1665,6 +1674,7 @@ exports.Axes3D = Axes3D;
 exports.TouchEventListener = TouchEventListener;
 exports.Expression = Expression;
 exports.Interval = Interval;
+exports.MathPlus = MathPlus;
 exports.Vector = Vector;
 exports.Arrow2D = Arrow2D;
 exports.Arrow3D = Arrow3D;
