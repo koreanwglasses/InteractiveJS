@@ -587,12 +587,14 @@ Expression.toJSFunction = function(string) {
                             stack.push(operations[i].value);
                             break;
                         case 'variable':
-                            if(typeof Math[operations[i].str] === 'number') {
+                            if(context[operations[i].str] !== undefined) {
+                                if(context[operations[i].str].eval === undefined) {
+                                    stack.push(context[operations[i].str]);
+                                } else {
+                                    stack.push(context[operations[i].str].eval());
+                                }
+                            } else if(typeof Math[operations[i].str] === 'number') {
                                 stack.push(Math[operations[i].str]);
-                            } else if(context[operations[i].str].eval === undefined) {
-                                stack.push(context[operations[i].str]);
-                            } else {
-                                stack.push(context[operations[i].str].eval());
                             }
                             break;
                         case 'function':
@@ -601,10 +603,10 @@ Expression.toJSFunction = function(string) {
                                 v = new Vector(v);
                             }
 
-                            if(Math[operations[i].str] !== undefined) {
-                                stack.push(Math[operations[i].str].apply(null, v.q));
-                            } else {
+                            if(context[operations[i].str] !== undefined) {
                                 stack.push(context[operations[i].str](v));
+                            } else if(Math[operations[i].str] !== undefined) {
+                                stack.push(Math[operations[i].str].apply(null, v.q));
                             }
                             break;
                         case 'uoperator':
