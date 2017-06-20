@@ -80,6 +80,7 @@ Vector.prototype.abs = function() {
 }
 
 Vector.prototype.norm = function() {
+    if(this.abs() === 0) return this.clone();
     return this.div(this.abs());
 }
 
