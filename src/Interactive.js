@@ -6,6 +6,7 @@ export { TouchEventListener } from './environment/TouchEventListener.js';
 
 export { Expression } from './math/expressions/Expression.js';
 export { Interval } from './math/Interval.js';
+export { MathPlus } from './math/MathPlus.js';
 export { Vector } from './math/Vector.js';
 
 export { Arrow2D } from './plottable/Arrow2D.js';

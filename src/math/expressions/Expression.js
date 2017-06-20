@@ -1,5 +1,6 @@
 import { Vector } from '../Vector.js';
 import { Interval } from '../Interval.js';
+import { MathPlus } from '../MathPlus.js';
 
 function Expression(string, context) {
     this.type = 'Expression';
@@ -303,6 +304,8 @@ Expression.toJSFunction = function(string) {
 
                             if(context[operations[i].str] !== undefined) {
                                 stack.push(context[operations[i].str](v));
+                            } else if(MathPlus[operations[i].str] !== undefined) {
+                                stack.push(MathPlus[operations[i].str].apply(null, v.q))
                             } else if(Math[operations[i].str] !== undefined) {
                                 stack.push(Math[operations[i].str].apply(null, v.q))
                             }
