@@ -311,6 +311,12 @@ Expression.toJSExpression = function(string, specials, isparam) {
             if(specials !== undefined && specials.includes(str)) return str
             var expr = 'context["'+str+'"]'
             return expr;
+        } else if (type === 'parametric') {
+            var params = Expression.splitParametric(str);
+            var intervals = [];
+            for(var i = 1; i < params.length; i++) {
+                intervals.push(Expression.toJSFunction(params[i])());
+            }
         }
     }
 }

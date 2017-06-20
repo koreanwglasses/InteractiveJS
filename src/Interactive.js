@@ -8,6 +8,7 @@ export { Expression } from './math/expressions/Expression.js';
 export { Interval } from './math/Interval.js';
 export { MathPlus } from './math/MathPlus.js';
 export { Number } from './math/Number.js';
+export { Parametric } from './math/Parametric.js';
 export { Vector } from './math/Vector.js';
 
 export { Arrow2D } from './plottable/Arrow2D.js';
