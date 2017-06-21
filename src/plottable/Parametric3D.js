@@ -16,7 +16,8 @@ function Parametric3D(plot, expr, opts) {
         this.colorf = this.color.evaluate();
     }
     if(this.opts.wireframe === undefined) this.opts.wireframe = false;
-    if(this.opts.flat === undefined) this.opts.flat = this.opts.color !== undefined;
+    if(this.opts.flat === undefined) this.opts.flat = false;
+    if(this.opts.smooth === undefined) this.opts.smooth = true;
 }
 
 Parametric3D.prototype.createLine = function(par) {
@@ -86,21 +87,22 @@ Parametric3D.prototype.createSurface = function(par) {
             }
         }
     }
-    geom.computeFaceNormals();
+    geom.mergeVertices();
+    geom.computeVertexNormals();
+
+    var opts = {};
+    if(this.color !== undefined) {
+        opts['vertexColors'] = THREE.VertexColors;
+    }
+    if(this.opts.smooth === false) {
+        opts['shading'] = THREE.FlatShading;
+    }
 
     if(this.opts.wireframe === true || this.opts.flat === true) {
-        if(this.color !== undefined) {
-            var mat = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
-        } else {
-            var mat = new THREE.MeshBasicMaterial();
-        }
+        var mat = new THREE.MeshBasicMaterial(opts);
         if(this.wireframe) mat.wireframe = true;
     } else {
-        if(this.color !== undefined) {
-            var mat = new THREE.MeshPhongMaterial({vertexColors: THREE.VertexColors});
-        } else {            
-            var mat = new THREE.MeshPhongMaterial();
-        }
+        var mat = new THREE.MeshLambertMaterial(opts);
     }
     mat.side = THREE.DoubleSide;
     return new THREE.Mesh( geom, mat );

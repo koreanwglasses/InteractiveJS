@@ -1,5 +1,6 @@
 import { Axes3D } from './Axes3D.js';
 import { Axes2D } from './Axes2D.js';
+import { Panel } from './Panel.js';
 import { Expression } from '../math/expressions/Expression.js';
 
 function Plot() {
@@ -8,6 +9,7 @@ function Plot() {
      */
     this.type = 'Plot';
     this.axes = [];
+    this.panels = [];
 
     /**
      * Create a 3D axis in the context of this plot
@@ -53,6 +55,12 @@ Plot.prototype.linkCameras = function(from) {
     for(var i = 1; i < arguments.length; i++) {
         arguments[i].camera = from.camera;
     }
+}
+
+Plot.prototype.createPanel = function(container, opts) {
+    var panel = new Panel(this, container, opts);
+    this.panels.push(panel);
+    return panel;
 }
 
 export { Plot };

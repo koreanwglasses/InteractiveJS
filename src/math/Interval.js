@@ -6,6 +6,7 @@ function Interval(varstr, start, end, steps) {
     this.start = start;
     this.end = end;
     this.steps = steps;
+    this.step = end.sub(start).div(steps);
 
     this.expr = null;
 

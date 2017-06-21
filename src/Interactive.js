@@ -1,6 +1,7 @@
-export { Plot } from './core/Plot.js';
 export { Axes2D } from './core/Axes2D.js';
 export { Axes3D } from './core/Axes3D.js';
+export { Panel } from './core/Panel.js';
+export { Plot } from './core/Plot.js';
 
 export { TouchEventListener } from './environment/TouchEventListener.js';
 

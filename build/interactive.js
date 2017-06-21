@@ -334,6 +334,7 @@ function Interval(varstr, start, end, steps) {
     this.start = start;
     this.end = end;
     this.steps = steps;
+    this.step = end.sub(start).div(steps);
 
     this.expr = null;
 
@@ -782,403 +783,6 @@ Expression.getDefaultContext = function() {
 };
 
 /**
- * Object that represents an arrow in 3d space.
- * @param {*} vector The vector which this object is based on
- * @param {*} opts Options to customize the appearance of the arrow. Includes:
- * origin -- Point at which the arrow starts. Default is (0, 0, 0)
- * hex -- hexadecimal value to define color. Default is 0xffff00.
- * headLength -- The length of the head of the arrow. Default is 0.2 * length.
- * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
- * (Derived from THREE.js)
- */
-function Arrow3D(plot, expr, opts) {
-    this.opts = opts !== undefined ? opts : {};
-
-    /**
-     * (Read-only)
-     */
-    this.expr = new Expression(expr, plot.context);
-
-    this.sceneObject = null;
-
-    this.validated = false;
-}
-
-/**
- * Returns an object that can be added to a THREE.js scene.
- */
-Arrow3D.prototype.getSceneObject = function() {
-    if(this.validated === false) {
-        var vector = this.expr.evaluate();
-        var _vector3 = new THREE.Vector3(vector.q[0].value, vector.q[1].value, vector.q[2].value);
-        var _dir = _vector3.clone().normalize();
-        var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
-        var _length = _vector3.length();
-        var _hex = this.opts.hex !== undefined ? this.opts.hex : 0xffffff;
-        var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2 * _length;
-        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.2 * _headLength;
-
-        this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
-        this.validated = true;
-    }
-    return this.sceneObject;
-};
-
-/**
- * Updates on the next call to render
- */
-Arrow3D.prototype.invalidate = function() {
-    this.validated = false;
-};
-
-function Parametric3D(plot, expr, opts) {
-    this.plot = plot;
-
-    this.expr = new Expression(expr, plot.context);
-    this.opts = opts !== undefined? opts: {};
-
-    this.validated = false;
-    this.sceneObject = null;
-
-    if(this.opts.color !== undefined) {
-        this.color = new Expression(this.opts.color, this.plot.context);
-        this.colorf = this.color.evaluate();
-    }
-    if(this.opts.wireframe === undefined) this.opts.wireframe = false;
-    if(this.opts.flat === undefined) this.opts.flat = this.opts.color !== undefined;
-}
-
-Parametric3D.prototype.createLine = function(par) {
-    var geom = new THREE.Geometry();
-    var int = par.intervals[0];
-    var tarr = int.array();
-
-    for(var i = 0; i < tarr.length; i++) {
-        var t = tarr[i];
-
-        geom.vertices.push(par.func(t).toVector3());
-
-        if(this.color !== undefined) {
-            var color = this.colorf(t);
-            geom.colors[i] = new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value);
-        }
-    } 
-    if(this.color !== undefined) {
-        return new THREE.Line(geom, new THREE.LineBasicMaterial({color: 0xffffff, vertexColors: THREE.VertexColors}));
-    } else {
-        return new THREE.Line(geom, new THREE.LineBasicMaterial());
-    }
-};
-
-Parametric3D.prototype.createSurface = function(par) {
-    var geom = new THREE.Geometry();
-    var uint = par.intervals[0];
-    var vint = par.intervals[1];
-    var uarr = uint.array();
-    var varr = vint.array();
-    var colors = [];
-
-    for(var i = 0; i < uarr.length; i++) {
-        var u = uarr[i];
-        for(var j = 0; j < varr.length; j++) {
-            var v = varr[j];
-
-            var vert = par.func(u,v).toVector3();
-            geom.vertices.push(vert);
-
-            if(this.color !== undefined) {
-                var color = this.colorf(u,v);
-                colors.push(new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value));
-            }
-
-            if(i > 0 && j > 0) {
-                var v1 = i * varr.length + j;
-                var v2 = i * varr.length + j - 1;
-                var v3 = (i - 1) * varr.length + j;
-                var v4 = (i - 1) * varr.length + j - 1;
-
-                var f1 = new THREE.Face3(v1, v2, v4);
-                var f2 = new THREE.Face3(v1, v4, v3);
-
-                if(this.color !== undefined) {
-                    f1.vertexColors[0] = colors[v1];
-                    f1.vertexColors[1] = colors[v2];
-                    f1.vertexColors[2] = colors[v4];
-
-                    f2.vertexColors[0] = colors[v1];
-                    f2.vertexColors[1] = colors[v4];
-                    f2.vertexColors[2] = colors[v3];
-                }
-
-                geom.faces.push(f1);                
-                geom.faces.push(f2);
-            }
-        }
-    }
-    geom.computeFaceNormals();
-
-    if(this.opts.wireframe === true || this.opts.flat === true) {
-        if(this.color !== undefined) {
-            var mat = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
-        } else {
-            var mat = new THREE.MeshBasicMaterial();
-        }
-        if(this.wireframe) mat.wireframe = true;
-    } else {
-        if(this.color !== undefined) {
-            var mat = new THREE.MeshPhongMaterial({vertexColors: THREE.VertexColors});
-        } else {            
-            var mat = new THREE.MeshPhongMaterial();
-        }
-    }
-    mat.side = THREE.DoubleSide;
-    return new THREE.Mesh( geom, mat );
-};
-
-Parametric3D.prototype.getSceneObject = function() {
-    if(this.validated === false) {
-        var par = this.expr.evaluate();
-        if(par.intervals.length === 1) {
-            this.sceneObject = this.createLine(par);
-        } else {
-            this.sceneObject = this.createSurface(par);
-        }
-        this.validated = true;
-    }
-    return this.sceneObject;
-};
-
-Parametric3D.prototype.invalidate = function() {
-    this.validated = false;
-};
-
-/**
- * Renders plots (not to be confused with the Figure class)
- * TODO: Add functionality to link cameras between figures
- * @param {*} parent 
- * @param {*} container 
- * @param {*} opts 
- */
-
-function Axes3D(parent, container, opts) {
-    /**
-     * The type of this object. (Read-only)
-     */
-    this.type = 'Axes3D';
-
-    /**
-     * The plot that generated this figure. (Read-only)
-     */
-    this.parent = parent;
-
-    /**
-     * The frame which will render the axes
-     */
-    this.frame = new Frame(container, opts);
-
-    /**
-     * The point which the camera will orbit around
-     */
-     this.corigin = this.frame.scene.position.clone();
-
-    /**
-     * Camera which renders the axes. 
-     */
-    this.camera = new THREE.PerspectiveCamera( 50, this.frame.width / this.frame.height, .01, 50);
-
-    // Initialize camera position
-    this.camera.position.x = 4;
-    this.camera.position.y = 3;
-    this.camera.position.z = 2;
-    this.camera.lookAt(this.corigin);
-
-    /**
-     * Objects to plot
-     */
-    this.objects = [];
-
-    /**
-     * Expressions to plot
-     */
-    this.expressions = {};
-
-    // Bind events
-    var _self = this;
-
-    // Bind Events: Panning and Orbiting
-    var _cameraStartPol = 0;
-    var _cameraStartAz = 0;
-    var _cameraStartR = 1;
-    var _cameraStartUp = 1;
-    var _cameraStartOr = null;
-    var _cameraStartPos = null;
-    var _upUnit = null;
-    var _rightUnit = null;
-    var _self = this;
-
-    this.frame.container.addEventListener('mousedown', function(event) {
-        if(event.buttons & 1) {
-            var sc = new THREE.Spherical();
-            sc.setFromVector3(_self.camera.position.clone().sub(_self.corigin));
-            _cameraStartPol = sc.phi;
-            _cameraStartAz = sc.theta;
-            _cameraStartR = sc.r;
-        }
-        if(event.buttons & 2) {
-            _cameraStartOr = _self.corigin.clone();
-            _cameraStartPos = _self.camera.position.clone();
-            var nor = _self.camera.getWorldDirection();
-            _rightUnit = nor.clone().cross(new THREE.Vector3(0,1,0));
-            _upUnit = nor.clone().applyAxisAngle(_rightUnit, Math.PI / 2);
-        }
-        _cameraStartUp = _self.camera.up.y;
-    });
-
-    this.frame.touchEventListener.onpan = function(event) {
-        if(event.rightButtonDown) {
-            // Prevent default if mouse moved significantly
-            if((event.screenX - event.screenStartX) * (event.screenX - event.screenStartX) + (event.screenY - event.screenStartY) * (event.screenY - event.screenStartY) > 25) {
-                event.suppressContextMenu();
-            }
-        
-            // Pan camera            
-            var r = _self.camera.position.distanceTo(_self.corigin);
-            var disp = _upUnit.clone().multiplyScalar((event.screenY - event.screenStartY)).addScaledVector(_rightUnit, -(event.screenX - event.screenStartX));
-            var newCamPos = _cameraStartPos.clone().addScaledVector(disp, _cameraStartUp * 0.002 * r);
-            var newOrPos = _cameraStartOr.clone().addScaledVector(disp, _cameraStartUp * 0.002 * r);
-            _self.camera.position.copy(newCamPos);
-            _self.corigin.copy(newOrPos);
-            _self.camera.lookAt(_self.corigin);
-        }
-        if(event.leftButtonDown) {
-            event.preventDefault();
-
-            var r = _self.camera.position.distanceTo(_self.corigin);
-            var az = _cameraStartAz -  _cameraStartUp * (event.screenX - event.screenStartX) / 100;
-            var pol = _cameraStartPol - _cameraStartUp * (event.screenY - event.screenStartY) / 100;
-
-            while(pol > Math.PI) {
-                pol -= 2 * Math.PI;
-            } 
-            while(pol <= -Math.PI) {
-                pol += 2 * Math.PI;
-            }
-
-            if(pol * _cameraStartUp < 0) {
-                _self.camera.up.y = -1;
-            }
-            if(pol * _cameraStartUp> 0) {
-                _self.camera.up.y = 1;
-            }
-
-            _self.camera.position.setFromSpherical(new THREE.Spherical(r, pol, az)).add(_self.corigin);
-            _self.camera.lookAt(_self.corigin);
-        }
-    };
-
-    // Bind Events: Zooming
-    this.frame.touchEventListener.onzoom = function(event) {
-        event.suppressScrolling();
-        var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), Math.pow(1.25, event.amount / 100));
-        _self.camera.position.copy(newPos);
-        _self.camera.lookAt(_self.corigin);
-    };
-
-    // Setup some 3d scene stuff
-    var ambientLight = new THREE.AmbientLight(0x303040);
-    var directionalLight1 = new THREE.DirectionalLight(0xffe8d8, .4);
-    var directionalLight2 = new THREE.DirectionalLight(0xffe8d8, .2);
-    directionalLight2.position.y = -1;
-
-    this.camLight = new THREE.PointLight(0xffffff, .5);
-
-    this.frame.scene.add(ambientLight);
-    this.frame.scene.add(directionalLight1);
-    this.frame.scene.add(directionalLight2);
-}
-
-/**
- * Render the axes
- */
-Axes3D.prototype.render = function() {
-    this.frame.scene.remove(this.camLight);
-    this.camLight.position.copy(this.camera.position);
-    this.frame.scene.add(this.camLight);
-
-    this.frame.render( this.camera );
-};
-
-/**
- * Plot an expression
- */
-Axes3D.prototype.plotExpression = function(expr, type, opts) {
-    switch(type) {
-        case 'arrow':            
-            var figure = new Arrow3D(this.parent, expr, opts);
-            this.expressions[expr] = figure;
-            this.addFigure(figure);
-            return figure;
-        case 'parametric':           
-            var par = new Parametric3D(this.parent, expr, opts);
-            this.expressions[expr] = par;
-            this.addFigure(par);
-            return par;
-        default:
-            console.log('Interactive.Axes3D: Invalid plot type');
-            return null;
-    }
-};
-
-/**
- * Add an object to plot
- * @param {*} object Must be plottable
- */
-Axes3D.prototype.addFigure = function(object) {
-    this.objects.push(object);
-    this.frame.scene.add(object.getSceneObject());
-};
-
-/**
- * Remove a plotted object
- */
-Axes3D.prototype.removeFigure = function(object) {
-    var index = this.objects.indexOf(object);
-    if(index === -1) {
-        console.log('Interactive.Axes3D: Figure not in axes');
-        return null;
-    }
-    this.objects.splice(index, 1);
-    this.frame.scene.remove(object.getSceneObject());
-};
-
-/**
- * Force the object to update
- */
-Axes3D.prototype.redrawFigure = function(object) {
-    var index = this.objects.indexOf(object);
-    if(index === -1) {
-        console.log('Interactive.Axes3D: Figure not in axes');
-        return null;
-    }
-    this.frame.scene.remove(object.getSceneObject());
-    object.invalidate();
-    this.frame.scene.add(object.getSceneObject());    
-};
-
-/**
- * Redraw all objects
- */
-Axes3D.prototype.refresh = function(object) {
-    for(var i = 0; i < this.objects.length; i++) {
-        if(this.objects[i].invalidate !== undefined) {
-            this.frame.scene.remove(this.objects[i].getSceneObject());
-            this.objects[i].invalidate();
-            this.frame.scene.add(this.objects[i].getSceneObject());
-        }
-    }
-};
-
-/**
  * Object that represents an arrow in 2d space.
  * @param {*} vector The vector which this object is based on
  * @param {*} opts Options to customize the appearance of the arrow. Includes:
@@ -1538,12 +1142,449 @@ Axes2D.prototype.addHotspot = function(hotspot) {
     this.hotspots.push(hotspot);
 };
 
+/**
+ * Object that represents an arrow in 3d space.
+ * @param {*} vector The vector which this object is based on
+ * @param {*} opts Options to customize the appearance of the arrow. Includes:
+ * origin -- Point at which the arrow starts. Default is (0, 0, 0)
+ * hex -- hexadecimal value to define color. Default is 0xffff00.
+ * headLength -- The length of the head of the arrow. Default is 0.2 * length.
+ * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
+ * (Derived from THREE.js)
+ */
+function Arrow3D(plot, expr, opts) {
+    this.opts = opts !== undefined ? opts : {};
+
+    /**
+     * (Read-only)
+     */
+    this.expr = new Expression(expr, plot.context);
+
+    this.sceneObject = null;
+
+    this.validated = false;
+}
+
+/**
+ * Returns an object that can be added to a THREE.js scene.
+ */
+Arrow3D.prototype.getSceneObject = function() {
+    if(this.validated === false) {
+        var vector = this.expr.evaluate();
+        var _vector3 = new THREE.Vector3(vector.q[0].value, vector.q[1].value, vector.q[2].value);
+        var _dir = _vector3.clone().normalize();
+        var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
+        var _length = _vector3.length();
+        var _hex = this.opts.hex !== undefined ? this.opts.hex : 0xffffff;
+        var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2 * _length;
+        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.2 * _headLength;
+
+        this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
+        this.validated = true;
+    }
+    return this.sceneObject;
+};
+
+/**
+ * Updates on the next call to render
+ */
+Arrow3D.prototype.invalidate = function() {
+    this.validated = false;
+};
+
+function Parametric3D(plot, expr, opts) {
+    this.plot = plot;
+
+    this.expr = new Expression(expr, plot.context);
+    this.opts = opts !== undefined? opts: {};
+
+    this.validated = false;
+    this.sceneObject = null;
+
+    if(this.opts.color !== undefined) {
+        this.color = new Expression(this.opts.color, this.plot.context);
+        this.colorf = this.color.evaluate();
+    }
+    if(this.opts.wireframe === undefined) this.opts.wireframe = false;
+    if(this.opts.flat === undefined) this.opts.flat = false;
+    if(this.opts.smooth === undefined) this.opts.smooth = true;
+}
+
+Parametric3D.prototype.createLine = function(par) {
+    var geom = new THREE.Geometry();
+    var int = par.intervals[0];
+    var tarr = int.array();
+
+    for(var i = 0; i < tarr.length; i++) {
+        var t = tarr[i];
+
+        geom.vertices.push(par.func(t).toVector3());
+
+        if(this.color !== undefined) {
+            var color = this.colorf(t);
+            geom.colors[i] = new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value);
+        }
+    } 
+    if(this.color !== undefined) {
+        return new THREE.Line(geom, new THREE.LineBasicMaterial({color: 0xffffff, vertexColors: THREE.VertexColors}));
+    } else {
+        return new THREE.Line(geom, new THREE.LineBasicMaterial());
+    }
+};
+
+Parametric3D.prototype.createSurface = function(par) {
+    var geom = new THREE.Geometry();
+    var uint = par.intervals[0];
+    var vint = par.intervals[1];
+    var uarr = uint.array();
+    var varr = vint.array();
+    var colors = [];
+
+    for(var i = 0; i < uarr.length; i++) {
+        var u = uarr[i];
+        for(var j = 0; j < varr.length; j++) {
+            var v = varr[j];
+
+            var vert = par.func(u,v).toVector3();
+            geom.vertices.push(vert);
+
+            if(this.color !== undefined) {
+                var color = this.colorf(u,v);
+                colors.push(new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value));
+            }
+
+            if(i > 0 && j > 0) {
+                var v1 = i * varr.length + j;
+                var v2 = i * varr.length + j - 1;
+                var v3 = (i - 1) * varr.length + j;
+                var v4 = (i - 1) * varr.length + j - 1;
+
+                var f1 = new THREE.Face3(v1, v2, v4);
+                var f2 = new THREE.Face3(v1, v4, v3);
+
+                if(this.color !== undefined) {
+                    f1.vertexColors[0] = colors[v1];
+                    f1.vertexColors[1] = colors[v2];
+                    f1.vertexColors[2] = colors[v4];
+
+                    f2.vertexColors[0] = colors[v1];
+                    f2.vertexColors[1] = colors[v4];
+                    f2.vertexColors[2] = colors[v3];
+                }
+
+                geom.faces.push(f1);                
+                geom.faces.push(f2);
+            }
+        }
+    }
+    geom.mergeVertices();
+    geom.computeVertexNormals();
+
+    var opts = {};
+    if(this.color !== undefined) {
+        opts['vertexColors'] = THREE.VertexColors;
+    }
+    if(this.opts.smooth === false) {
+        opts['shading'] = THREE.FlatShading;
+    }
+
+    if(this.opts.wireframe === true || this.opts.flat === true) {
+        var mat = new THREE.MeshBasicMaterial(opts);
+        if(this.wireframe) mat.wireframe = true;
+    } else {
+        var mat = new THREE.MeshLambertMaterial(opts);
+    }
+    mat.side = THREE.DoubleSide;
+    return new THREE.Mesh( geom, mat );
+};
+
+Parametric3D.prototype.getSceneObject = function() {
+    if(this.validated === false) {
+        var par = this.expr.evaluate();
+        if(par.intervals.length === 1) {
+            this.sceneObject = this.createLine(par);
+        } else {
+            this.sceneObject = this.createSurface(par);
+        }
+        this.validated = true;
+    }
+    return this.sceneObject;
+};
+
+Parametric3D.prototype.invalidate = function() {
+    this.validated = false;
+};
+
+/**
+ * Renders plots (not to be confused with the Figure class)
+ * TODO: Add functionality to link cameras between figures
+ * @param {*} parent 
+ * @param {*} container 
+ * @param {*} opts 
+ */
+
+function Axes3D(parent, container, opts) {
+    /**
+     * The type of this object. (Read-only)
+     */
+    this.type = 'Axes3D';
+
+    /**
+     * The plot that generated this figure. (Read-only)
+     */
+    this.parent = parent;
+
+    /**
+     * The frame which will render the axes
+     */
+    this.frame = new Frame(container, opts);
+
+    /**
+     * The point which the camera will orbit around
+     */
+     this.corigin = this.frame.scene.position.clone();
+
+    /**
+     * Camera which renders the axes. 
+     */
+    this.camera = new THREE.PerspectiveCamera( 50, this.frame.width / this.frame.height, .01, 50);
+
+    // Initialize camera position
+    this.camera.position.x = 4;
+    this.camera.position.y = 3;
+    this.camera.position.z = 2;
+    this.camera.lookAt(this.corigin);
+
+    /**
+     * Objects to plot
+     */
+    this.objects = [];
+
+    /**
+     * Expressions to plot
+     */
+    this.expressions = {};
+
+    // Bind events
+    var _self = this;
+
+    // Bind Events: Panning and Orbiting
+    var _cameraStartPol = 0;
+    var _cameraStartAz = 0;
+    var _cameraStartR = 1;
+    var _cameraStartUp = 1;
+    var _cameraStartOr = null;
+    var _cameraStartPos = null;
+    var _upUnit = null;
+    var _rightUnit = null;
+    var _self = this;
+
+    this.frame.container.addEventListener('mousedown', function(event) {
+        if(event.buttons & 1) {
+            var sc = new THREE.Spherical();
+            sc.setFromVector3(_self.camera.position.clone().sub(_self.corigin));
+            _cameraStartPol = sc.phi;
+            _cameraStartAz = sc.theta;
+            _cameraStartR = sc.r;
+        }
+        if(event.buttons & 2) {
+            _cameraStartOr = _self.corigin.clone();
+            _cameraStartPos = _self.camera.position.clone();
+            var nor = _self.camera.getWorldDirection();
+            _rightUnit = nor.clone().cross(new THREE.Vector3(0,1,0));
+            _upUnit = nor.clone().applyAxisAngle(_rightUnit, Math.PI / 2);
+        }
+        _cameraStartUp = _self.camera.up.y;
+    });
+
+    this.frame.touchEventListener.onpan = function(event) {
+        if(event.rightButtonDown) {
+            // Prevent default if mouse moved significantly
+            if((event.screenX - event.screenStartX) * (event.screenX - event.screenStartX) + (event.screenY - event.screenStartY) * (event.screenY - event.screenStartY) > 25) {
+                event.suppressContextMenu();
+            }
+        
+            // Pan camera            
+            var r = _self.camera.position.distanceTo(_self.corigin);
+            var disp = _upUnit.clone().multiplyScalar((event.screenY - event.screenStartY)).addScaledVector(_rightUnit, -(event.screenX - event.screenStartX));
+            var newCamPos = _cameraStartPos.clone().addScaledVector(disp, _cameraStartUp * 0.002 * r);
+            var newOrPos = _cameraStartOr.clone().addScaledVector(disp, _cameraStartUp * 0.002 * r);
+            _self.camera.position.copy(newCamPos);
+            _self.corigin.copy(newOrPos);
+            _self.camera.lookAt(_self.corigin);
+        }
+        if(event.leftButtonDown) {
+            event.preventDefault();
+
+            var r = _self.camera.position.distanceTo(_self.corigin);
+            var az = _cameraStartAz -  _cameraStartUp * (event.screenX - event.screenStartX) / 100;
+            var pol = _cameraStartPol - _cameraStartUp * (event.screenY - event.screenStartY) / 100;
+
+            while(pol > Math.PI) {
+                pol -= 2 * Math.PI;
+            } 
+            while(pol <= -Math.PI) {
+                pol += 2 * Math.PI;
+            }
+
+            if(pol * _cameraStartUp < 0) {
+                _self.camera.up.y = -1;
+            }
+            if(pol * _cameraStartUp> 0) {
+                _self.camera.up.y = 1;
+            }
+
+            _self.camera.position.setFromSpherical(new THREE.Spherical(r, pol, az)).add(_self.corigin);
+            _self.camera.lookAt(_self.corigin);
+        }
+    };
+
+    // Bind Events: Zooming
+    this.frame.touchEventListener.onzoom = function(event) {
+        event.suppressScrolling();
+        var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), Math.pow(1.25, event.amount / 100));
+        _self.camera.position.copy(newPos);
+        _self.camera.lookAt(_self.corigin);
+    };
+
+    // Setup some 3d scene stuff
+    var ambientLight = new THREE.AmbientLight(0x303040);
+    var directionalLight1 = new THREE.DirectionalLight(0xffe8d8, .4);
+    var directionalLight2 = new THREE.DirectionalLight(0xffe8d8, .2);
+    directionalLight2.position.y = -1;
+
+    this.camLight = new THREE.PointLight(0xffffff, .5);
+
+    this.frame.scene.add(ambientLight);
+    this.frame.scene.add(directionalLight1);
+    this.frame.scene.add(directionalLight2);
+}
+
+/**
+ * Render the axes
+ */
+Axes3D.prototype.render = function() {
+    this.frame.scene.remove(this.camLight);
+    this.camLight.position.copy(this.camera.position);
+    this.frame.scene.add(this.camLight);
+
+    this.frame.render( this.camera );
+};
+
+/**
+ * Plot an expression
+ */
+Axes3D.prototype.plotExpression = function(expr, type, opts) {
+    switch(type) {
+        case 'arrow':            
+            var figure = new Arrow3D(this.parent, expr, opts);
+            this.expressions[expr] = figure;
+            this.addFigure(figure);
+            return figure;
+        case 'parametric':           
+            var par = new Parametric3D(this.parent, expr, opts);
+            this.expressions[expr] = par;
+            this.addFigure(par);
+            return par;
+        default:
+            console.log('Interactive.Axes3D: Invalid plot type');
+            return null;
+    }
+};
+
+/**
+ * Add an object to plot
+ * @param {*} object Must be plottable
+ */
+Axes3D.prototype.addFigure = function(object) {
+    this.objects.push(object);
+    this.frame.scene.add(object.getSceneObject());
+};
+
+/**
+ * Remove a plotted object
+ */
+Axes3D.prototype.removeFigure = function(object) {
+    var index = this.objects.indexOf(object);
+    if(index === -1) {
+        console.log('Interactive.Axes3D: Figure not in axes');
+        return null;
+    }
+    this.objects.splice(index, 1);
+    this.frame.scene.remove(object.getSceneObject());
+};
+
+/**
+ * Force the object to update
+ */
+Axes3D.prototype.redrawFigure = function(object) {
+    var index = this.objects.indexOf(object);
+    if(index === -1) {
+        console.log('Interactive.Axes3D: Figure not in axes');
+        return null;
+    }
+    this.frame.scene.remove(object.getSceneObject());
+    object.invalidate();
+    this.frame.scene.add(object.getSceneObject());    
+};
+
+/**
+ * Redraw all objects
+ */
+Axes3D.prototype.refresh = function(object) {
+    for(var i = 0; i < this.objects.length; i++) {
+        if(this.objects[i].invalidate !== undefined) {
+            this.frame.scene.remove(this.objects[i].getSceneObject());
+            this.objects[i].invalidate();
+            this.frame.scene.add(this.objects[i].getSceneObject());
+        }
+    }
+};
+
+function Panel (parent, container) {
+    this.parent = parent;
+
+    this.container = container;
+}
+
+Panel.prototype.addSlider = function(expr, opts) {
+    if(opts === undefined) opts = {};
+
+    var interval = new Expression(expr, parent.context).evaluate();
+
+    var slider = document.createElement('input');
+    slider.setAttribute('type', 'range');
+    slider.min = interval.start.value;
+    slider.max = interval.end.value;
+    slider.step = interval.step.value;
+
+    if(this.parent.context[interval.varstr] !== undefined) {
+        slider.value = this.parent.context[interval.varstr].value;
+    }
+
+    var _self = this;
+    if(opts.continuous === undefined || opts.continuous === false) {
+        slider.onchange = function() {            
+            _self.parent.context[interval.varstr] = new Number(parseFloat(slider.value));
+            _self.parent.refresh();
+        };
+    } else if(opts.continuous === true) {
+        slider.oninput = function() {
+            _self.parent.context[interval.varstr] = new Number(parseFloat(slider.value));
+            _self.parent.refresh();
+        };
+    }
+
+    this.container.appendChild(slider);
+};
+
 function Plot() {
     /**
      * The type of this object. (Read-only)
      */
     this.type = 'Plot';
     this.axes = [];
+    this.panels = [];
 
     /**
      * Create a 3D axis in the context of this plot
@@ -1589,6 +1630,12 @@ Plot.prototype.linkCameras = function(from) {
     for(var i = 1; i < arguments.length; i++) {
         arguments[i].camera = from.camera;
     }
+};
+
+Plot.prototype.createPanel = function(container, opts) {
+    var panel = new Panel(this, container, opts);
+    this.panels.push(panel);
+    return panel;
 };
 
 function Parametric(func, intervals) {
@@ -1693,9 +1740,10 @@ BasisVectors3D.prototype.getSceneObject = function() {
     return this.sceneObject;
 };
 
-exports.Plot = Plot;
 exports.Axes2D = Axes2D;
 exports.Axes3D = Axes3D;
+exports.Panel = Panel;
+exports.Plot = Plot;
 exports.TouchEventListener = TouchEventListener;
 exports.Expression = Expression;
 exports.Interval = Interval;

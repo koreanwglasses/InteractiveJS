@@ -22,10 +22,12 @@
     <body>
         <div id="ax1"></div>
         <div id="ax2"></div>
+        <div id="panel"></div>
         <script src="../lib/three.min.js"></script>
         <script src="../build/interactive.js"></script>
         <script>
             plot = new Interactive.Plot();
+            panel = plot.createPanel(document.getElementById('panel'));
 
             ax1 = plot.createAxes3D(document.getElementById('ax1'), {antialias: true});
             arr = new Interactive.BasisVectors3D(plot)
@@ -35,10 +37,16 @@
             arr2 = new Interactive.BasisVectors2D(plot)
             ax2.addFigure(arr2);
 
+            plot.execExpression('a=0');
+            
+            panel.addSlider('{a,-1,1,100}');
+
             plot.execExpression('X1(t)=(cos(t),sin(t),sin(2*t))')
             plot.execExpression('cX1(t)=(cos(t)^2, sin(t)^2, 1)')
 
-            plot.execExpression('X2(t)=(cos(t),sin(t))')
+            plot.execExpression('X2(t)=(cos(t)+a,sin(t))')
+
+            console.log(plot.context.X2)
 
             ax1.plotExpression('X1(t){t,0,2*PI,100}', 'parametric', {color: 'cX1'});
 
