@@ -24,7 +24,7 @@ Expression.typeOf = function(string) {
             return 'parametric'
     }
     if(string.includes('(') === false && string.includes(')') === false) {
-        if(/^[0-9]+$/.test(string)) {
+        if(/^[0-9.]+$/.test(string)) {
             return 'constant'
         } else if(string.includes('+')||string.includes('-')||string.includes('*')||string.includes('/')||string.includes('^')) {
             return 'expression'
