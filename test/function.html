@@ -54,8 +54,9 @@
 
             plot.execExpression('X4(t)=normal(X1,t)')
 
-            ax1.plotExpression('X1(t){t,a,b,100}', 'parametric', {color: 'cX1'});
-            ax1.plotExpression('X4(t){t,a,b,200}', 'parametric')
+            ax1.plotExpression('X1(t){t,0,2*PI,100}', 'parametric', {color: 'cX1'});
+            // ax1.plotExpression('X4(t){t,a,b,200}', 'parametric')
+            ax1.plotExpression('X4(a)/2', 'arrow', {origin: 'X1(a)'})
 
             ax2.plotExpression('X2(t){t,0,2*PI,50}', 'parametric', {color: 'cX2'})
 

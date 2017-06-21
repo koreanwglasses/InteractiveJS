@@ -15,7 +15,7 @@ Hotspot2D.prototype.ondrag = function(event) {
     this.plot.context[this.expr.string].q[0] = event.worldX;
     this.plot.context[this.expr.string].q[1] = event.worldY;
 
-    this.plot.refresh();
+    this.plot.refresh(this.expr.string);
 }
 
 export{ Hotspot2D };

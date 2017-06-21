@@ -105,6 +105,27 @@ MathPlus.select = function(i) {
     return arguments[i.value];
 }
 
+MathPlus.spectrum = function(x) {
+    var y = x.value % 3;
+    if(y < 0) y += 3;
+
+    if(y < 1/3) {
+        r = 1-y*3;
+        g = y*3;
+        b = 0;
+    } else if (y < 2/3) {
+        r = 0;
+        g = 2-y*3;
+        b = y*3-1
+    } else {
+        r = y*3-2
+        g = 0;
+        b = 3-y*3;
+    }
+
+    return new Vector(new Number(r), new Number(g), new Number(b))
+}
+
 MathPlus.abs = function(x) {
     return new Number(Math.abs(x.value));
 }
