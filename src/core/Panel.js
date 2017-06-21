@@ -10,7 +10,7 @@ function Panel (parent, container) {
 Panel.prototype.addSlider = function(expr, opts) {
     if(opts === undefined) opts = {};
 
-    var interval = new Expression(expr, parent.context).evaluate();
+    var interval = new Expression(expr, this.parent.context).evaluate();
 
     var slider = document.createElement('input');
     slider.setAttribute('type', 'range');
@@ -35,6 +35,8 @@ Panel.prototype.addSlider = function(expr, opts) {
         }
     }
 
+    var label = document.createTextNode(interval.varstr + ' = ');
+    this.container.appendChild(label);
     this.container.appendChild(slider);
 }
 

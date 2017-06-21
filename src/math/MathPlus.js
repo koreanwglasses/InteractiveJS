@@ -3,16 +3,29 @@ import { Number } from './Number.js';
 
 var MathPlus = {}
 
-MathPlus.epsilon = new Number(1e-10);
+MathPlus.epsilon = new Number(1e-6);
+MathPlus.epsilonx2 = MathPlus.epsilon.mul(new Number(2))
 
 MathPlus.singleton = function(x) {
     return new Vector(x);
 }
 
+MathPlus.derivative = function(X, t) {
+    return X(t.add(MathPlus.epsilon)).sub(X(t.sub(MathPlus.epsilon))).div(MathPlus.epsilonx2)
+}
+
+MathPlus.binormal = function(X, t) {
+    return MathPlus.derivative(X, t.add(MathPlus.epsilon)).crs(MathPlus.derivative(X, t.sub(MathPlus.epsilon))).norm();
+}
+
 MathPlus.normal = function(X,u,v) {
-    var dxdu = X(u.add(MathPlus.epsilon), v).sub(X(u.sub(MathPlus.epsilon), v)).div(MathPlus.epsilon.mul(new Number(2)));
-    var dxdv = X(u, v.add(MathPlus.epsilon)).sub(X(u, v.sub(MathPlus.epsilon))).div(MathPlus.epsilon.mul(new Number(2)));
-    return dxdu.crs(dxdv)
+    if(v === undefined) {
+        return MathPlus.derivative(X, u).crs(MathPlus.binormal(X, u)).norm();
+    } else {
+        var dxdu = X(u.add(MathPlus.epsilon), v).sub(X(u.sub(MathPlus.epsilon), v)).div(MathPlus.epsilonx2);
+        var dxdv = X(u, v.add(MathPlus.epsilon)).sub(X(u, v.sub(MathPlus.epsilon))).div(MathPlus.epsilonx2);
+        return dxdu.crs(dxdv).norm();
+    }
 }
 
 MathPlus.norm = function(x) {

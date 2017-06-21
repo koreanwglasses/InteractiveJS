@@ -24,7 +24,11 @@ Expression.typeOf = function(string) {
             return 'parametric'
     }
     if(string.includes('(') === false && string.includes(')') === false && !/[0-9]+/.test(string)) {
-        return 'variable'
+        if(string.includes('+')||string.includes('-')||string.includes('*')||string.includes('/')||string.includes('^')) {
+            return 'expression'
+        } else {
+            return 'variable'
+        }
     }
     for(var i = 0; i < string.length; i++) {
         if(string.charAt(i) === '(') {
