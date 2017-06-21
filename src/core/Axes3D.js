@@ -219,9 +219,9 @@ Axes3D.prototype.redrawFigure = function(object) {
 /**
  * Redraw all objects
  */
-Axes3D.prototype.refresh = function(object) {
+Axes3D.prototype.refresh = function(expr) {
     for(var i = 0; i < this.objects.length; i++) {
-        if(this.objects[i].invalidate !== undefined) {
+        if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().includes(expr))) {
             this.frame.scene.remove(this.objects[i].getSceneObject());
             this.objects[i].invalidate();
             this.frame.scene.add(this.objects[i].getSceneObject());

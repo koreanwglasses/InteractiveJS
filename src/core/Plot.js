@@ -45,9 +45,9 @@ Plot.prototype.execExpression = function(expr) {
     return this.expressions[expr].evaluate();
 }
 
-Plot.prototype.refresh = function() {
+Plot.prototype.refresh = function(expr) {
     for(var i = 0; i < this.axes.length; i++) {
-        this.axes[i].refresh();
+        this.axes[i].refresh(expr);
     }
 }
 

@@ -225,12 +225,16 @@ Axes2D.prototype.redrawFigure = function(object) {
     this.frame.scene.add(object.getSceneObject());
 }
 
+Axes2D.prototype.redrawExpression = function(expr) {
+    this.redrawFigure(this.expressions[expr]);
+}
+
 /**
  * Redraw all objects
  */
-Axes2D.prototype.refresh = function(object) {
+Axes2D.prototype.refresh = function(expr) {
     for(var i = 0; i < this.objects.length; i++) {
-        if(this.objects[i].invalidate !== undefined) {
+        if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().includes(expr))) {
             this.frame.scene.remove(this.objects[i].getSceneObject());
             this.objects[i].invalidate();
             this.frame.scene.add(this.objects[i].getSceneObject());

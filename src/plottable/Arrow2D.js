@@ -27,6 +27,11 @@ function Arrow2D(plot, expr, opts) {
     this.validated = false;
 }
 
+Arrow2D.prototype.getVariables = function() {
+    if(this.opts.origin !== undefined) return this.expr.getVariables().concat(this.opts.origin.getVariables());
+    else return this.expr.getVariables()
+}
+
 /**
  * Returns an object that can be added to a THREE.js scene.
  */

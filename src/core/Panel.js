@@ -26,12 +26,12 @@ Panel.prototype.addSlider = function(expr, opts) {
     if(opts.continuous === undefined || opts.continuous === false) {
         slider.onchange = function() {            
             _self.parent.context[interval.varstr] = new Number(parseFloat(slider.value));
-            _self.parent.refresh();
+            _self.parent.refresh(interval.varstr);
         }
     } else if(opts.continuous === true) {
         slider.oninput = function() {
             _self.parent.context[interval.varstr] = new Number(parseFloat(slider.value));
-            _self.parent.refresh();
+            _self.parent.refresh(interval.varstr);
         }
     }
 

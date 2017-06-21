@@ -18,6 +18,11 @@ function Parametric2D(plot, expr, opts) {
     if(this.opts.thick === undefined) this.opts.thick = true;
 }
 
+Parametric2D.prototype.getVariables = function() {
+    if(this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
+    else return this.expr.getVariables();
+}
+
 Parametric2D.prototype.createLine = function(par) {
     var geom = new THREE.Geometry();
     var int = par.intervals[0]

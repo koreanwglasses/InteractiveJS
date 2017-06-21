@@ -20,6 +20,11 @@ function Parametric3D(plot, expr, opts) {
     if(this.opts.smooth === undefined) this.opts.smooth = true;
 }
 
+Parametric3D.prototype.getVariables = function() {
+    if(this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
+    else return this.expr.getVariables();
+}
+
 Parametric3D.prototype.createLine = function(par) {
     var geom = new THREE.Geometry();
     var int = par.intervals[0]

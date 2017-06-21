@@ -2704,6 +2704,27 @@ MathPlus.select = function(i) {
     return arguments[i.value];
 };
 
+MathPlus.spectrum = function(x) {
+    var y = x.value % 3;
+    if(y < 0) y += 3;
+
+    if(y < 1/3) {
+        r = 1-y*3;
+        g = y*3;
+        b = 0;
+    } else if (y < 2/3) {
+        r = 0;
+        g = 2-y*3;
+        b = y*3-1;
+    } else {
+        r = y*3-2;
+        g = 0;
+        b = 3-y*3;
+    }
+
+    return new Vector(new Number(r), new Number(g), new Number(b))
+};
+
 MathPlus.abs = function(x) {
     return new Number(Math.abs(x.value));
 };
@@ -2721,11 +2742,26 @@ MathPlus.PI = new Number(Math.PI);
 function Expression(string, context) {
     this.type = 'Expression';
 
-    this.string = string;    
-    this.validated = false;
-    this.function = null;
+    this.string = string;   
+    
     this.context = context;
+
+    this.variables = [];    
+    this.function = this.toJSFunction(this.string);
 }
+
+Expression.prototype.getVariables = function() {
+    var variables = [];
+    for(var i = 0; i < this.variables.length; i++) {
+        var v = this.variables[i];
+        if(this.context.functions[v] !== undefined && variables.includes(v) === false) {
+            variables = variables.concat(this.context.functions[v].getVariables());
+        } else {
+            variables.push(v);
+        }
+    }
+    return variables;
+};
 
 Expression.typeOf = function(string) {
 
@@ -2911,7 +2947,7 @@ Expression.splitParametric = function(string) {
     return string.split(/(?={)/);
 };
 
-Expression.toJSExpression = function(string, specials, isparam) {
+Expression.prototype.toJSExpression = function(string, specials, isparam, variables) {
     var str = string.replace(/\s+/g,'');
 
     // Expression is an equation:
@@ -2924,19 +2960,20 @@ Expression.toJSExpression = function(string, specials, isparam) {
 
         // variable assignment
         if(leftParts.length === 1 && leftParts[0].type === 'variable') {
-            var expr = 'context["'+ left + '"]='+Expression.toJSExpression(right);
+            var expr = 'context["'+ left + '"]='+this.toJSExpression(right);
             return expr;
         }
 
         // function definition
         if(leftParts[0].type === 'function') {
             if (leftParts[2].type === 'null') {
-                var expr = 'context["'+leftParts[0].str+'"]=function(){ return '+Expression.toJSExpression(right)+'; }';
+                var expr = 'context["'+leftParts[0].str+'"]=function(){ return '+this.toJSExpression(right)+'; }';
             } else if(leftParts[2].type === 'vector') {
-                var expr = 'context["'+leftParts[0].str+'"]=function' + leftParts[2].str + '{ return '+Expression.toJSExpression(right, Expression.splitTuple(leftParts[2].str))+'; }';
+                var expr = 'context["'+leftParts[0].str+'"]=function' + leftParts[2].str + '{ return '+this.toJSExpression(right, Expression.splitTuple(leftParts[2].str))+'; }';
             } else if (leftParts[2].type === 'variable') {
-                var expr = 'context["'+leftParts[0].str+'"]=function(' + leftParts[2].str + '){ return '+Expression.toJSExpression(right, leftParts[2].str)+'; }';
-            } 
+                var expr = 'context["'+leftParts[0].str+'"]=function(' + leftParts[2].str + '){ return '+this.toJSExpression(right, leftParts[2].str)+'; }';
+            }
+            this.context.functions[leftParts[0].str] = this;
             return expr;
         }
     } else {
@@ -2957,6 +2994,7 @@ Expression.toJSExpression = function(string, specials, isparam) {
                             stack.push(operations[i].str);
                         } else {
                             stack.push('context["'+operations[i].str+'"]');
+                            if(this.variables.includes(operations[i].str) === false) this.variables.push(operations[i].str);
                         }
                         break;
                     case 'constant':
@@ -2964,11 +3002,12 @@ Expression.toJSExpression = function(string, specials, isparam) {
                         break;     
                     case 'vector':
                         var param = operations[i+1].type === 'function';
-                        stack.push(Expression.toJSExpression(operations[i].str, specials, param));
+                        stack.push(this.toJSExpression(operations[i].str, specials, param));
                         break;                       
                     case 'function':
                         var a = stack.pop();
-                        stack.push('context["'+operations[i].str+'"]('+a+')');
+                        stack.push('context["'+operations[i].str+'"]('+a+')');                        
+                        if(this.variables.includes(operations[i].str) === false) this.variables.push(operations[i].str);
                         break;
                     case 'uoperator':
                         var a = stack.pop();
@@ -3008,14 +3047,14 @@ Expression.toJSExpression = function(string, specials, isparam) {
             if(isparam) {
                 var expr = '';
                 for(var i = 0; i < components.length; i++) {
-                    expr += Expression.toJSExpression(components[i], specials) + ',';
+                    expr += this.toJSExpression(components[i], specials) + ',';
                 }
                 expr = expr.slice(0, expr.length - 1);
                 return expr;
             } else {
                 var expr = 'new Interactive.Vector(';
                 for(var i = 0; i < components.length; i++) {
-                    expr += Expression.toJSExpression(components[i], specials) + ',';
+                    expr += this.toJSExpression(components[i], specials) + ',';
                 }
                 expr = expr.slice(0, expr.length - 1) + ')';
                 return expr;
@@ -3025,13 +3064,14 @@ Expression.toJSExpression = function(string, specials, isparam) {
 
             var expr = 'new Interactive.Interval("'+params[0]+'",';
             for(var i = 1; i < params.length; i++) {
-                expr += Expression.toJSExpression(params[i], specials) + ',';
+                expr += this.toJSExpression(params[i], specials) + ',';
             }
             expr = expr.slice(0, expr.length - 1) + ')';            
             return expr;
         } else if (type === 'variable') {
             if(specials !== undefined && specials.includes(str)) return str
             var expr = 'context["'+str+'"]';
+            if(this.variables.includes(str) === false) this.variables.push(str);
             return expr;
         } else if (type === 'parametric') {
             var params = Expression.splitParametric(str);
@@ -3045,10 +3085,10 @@ Expression.toJSExpression = function(string, specials, isparam) {
                 specials.push(arg);
                 func += arg+',';
 
-                intervals += ','+Expression.toJSExpression(params[i]);
+                intervals += ','+this.toJSExpression(params[i]);
             }
 
-            func = func.slice(0, func.length - 1)+') { return '+Expression.toJSExpression(params[0],specials)+'; }';
+            func = func.slice(0, func.length - 1)+') { return '+this.toJSExpression(params[0],specials)+'; }';
 
             var expr = 'new Interactive.Parametric('+func+intervals+')';
             return expr;
@@ -3059,30 +3099,20 @@ Expression.toJSExpression = function(string, specials, isparam) {
     }
 };
 
-Expression.toJSFunction = function(string) {
-    var expr = Expression.toJSExpression(string);
+Expression.prototype.toJSFunction = function(string) {
+    var expr = this.toJSExpression(string);
     return Function('context', 'return '+expr+';');
 };
 
 /**
  * Variables from given context will override variables from this context 
  */
-Expression.prototype.evaluate = function(context) {
-    if(this.validated === false) {
-        this.function = Expression.toJSFunction(this.string);
-        this.validated = true;
-    }
-    if(context !== undefined) {
-        var temp = Object.assign({}, this.context);
-        Object.assign(temp, context);
-        return this.function(temp);
-    } else {
-        return this.function(this.context);
-    }
+Expression.prototype.evaluate = function() {
+    return this.function(this.context);
 };
 
 Expression.getDefaultContext = function() {
-    return Object.assign({}, MathPlus);
+    return Object.assign({functions: {}}, MathPlus);
 };
 
 /**
@@ -3111,6 +3141,11 @@ function Arrow2D(plot, expr, opts) {
 
     this.validated = false;
 }
+
+Arrow2D.prototype.getVariables = function() {
+    if(this.opts.origin !== undefined) return this.expr.getVariables().concat(this.opts.origin.getVariables());
+    else return this.expr.getVariables()
+};
 
 /**
  * Returns an object that can be added to a THREE.js scene.
@@ -3154,7 +3189,7 @@ Hotspot2D.prototype.ondrag = function(event) {
     this.plot.context[this.expr.string].q[0] = event.worldX;
     this.plot.context[this.expr.string].q[1] = event.worldY;
 
-    this.plot.refresh();
+    this.plot.refresh(this.expr.string);
 };
 
 function Parametric2D(plot, expr, opts) {
@@ -3172,6 +3207,11 @@ function Parametric2D(plot, expr, opts) {
     }
     if(this.opts.thick === undefined) this.opts.thick = true;
 }
+
+Parametric2D.prototype.getVariables = function() {
+    if(this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
+    else return this.expr.getVariables();
+};
 
 Parametric2D.prototype.createLine = function(par) {
     var geom = new THREE.Geometry();
@@ -3427,12 +3467,16 @@ Axes2D.prototype.redrawFigure = function(object) {
     this.frame.scene.add(object.getSceneObject());
 };
 
+Axes2D.prototype.redrawExpression = function(expr) {
+    this.redrawFigure(this.expressions[expr]);
+};
+
 /**
  * Redraw all objects
  */
-Axes2D.prototype.refresh = function(object) {
+Axes2D.prototype.refresh = function(expr) {
     for(var i = 0; i < this.objects.length; i++) {
-        if(this.objects[i].invalidate !== undefined) {
+        if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().includes(expr))) {
             this.frame.scene.remove(this.objects[i].getSceneObject());
             this.objects[i].invalidate();
             this.frame.scene.add(this.objects[i].getSceneObject());
@@ -3478,10 +3522,19 @@ function Arrow3D(plot, expr, opts) {
      */
     this.expr = new Expression(expr, plot.context);
 
+    if(this.opts.origin !== undefined) {
+        this.opts.origin = new Expression(this.opts.origin, plot.context);
+    }
+
     this.sceneObject = null;
 
     this.validated = false;
 }
+
+Arrow3D.prototype.getVariables = function() {    
+    if(this.opts.origin !== undefined) return this.expr.getVariables().concat(this.opts.origin.getVariables());
+    else return this.expr.getVariables()
+};
 
 /**
  * Returns an object that can be added to a THREE.js scene.
@@ -3491,7 +3544,7 @@ Arrow3D.prototype.getSceneObject = function() {
         var vector = this.expr.evaluate();
         var _vector3 = new THREE.Vector3(vector.q[0].value, vector.q[1].value, vector.q[2].value);
         var _dir = _vector3.clone().normalize();
-        var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
+        var _origin = this.opts.origin !== undefined ? this.opts.origin.evaluate().toVector3() : new THREE.Vector3(0,0,0);
         var _length = _vector3.length();
         var _hex = this.opts.hex !== undefined ? this.opts.hex : 0xffffff;
         var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2 * _length;
@@ -3527,6 +3580,11 @@ function Parametric3D(plot, expr, opts) {
     if(this.opts.flat === undefined) this.opts.flat = false;
     if(this.opts.smooth === undefined) this.opts.smooth = true;
 }
+
+Parametric3D.prototype.getVariables = function() {
+    if(this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
+    else return this.expr.getVariables();
+};
 
 Parametric3D.prototype.createLine = function(par) {
     var geom = new THREE.Geometry();
@@ -3849,9 +3907,9 @@ Axes3D.prototype.redrawFigure = function(object) {
 /**
  * Redraw all objects
  */
-Axes3D.prototype.refresh = function(object) {
+Axes3D.prototype.refresh = function(expr) {
     for(var i = 0; i < this.objects.length; i++) {
-        if(this.objects[i].invalidate !== undefined) {
+        if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().includes(expr))) {
             this.frame.scene.remove(this.objects[i].getSceneObject());
             this.objects[i].invalidate();
             this.frame.scene.add(this.objects[i].getSceneObject());
@@ -3884,12 +3942,12 @@ Panel.prototype.addSlider = function(expr, opts) {
     if(opts.continuous === undefined || opts.continuous === false) {
         slider.onchange = function() {            
             _self.parent.context[interval.varstr] = new Number(parseFloat(slider.value));
-            _self.parent.refresh();
+            _self.parent.refresh(interval.varstr);
         };
     } else if(opts.continuous === true) {
         slider.oninput = function() {
             _self.parent.context[interval.varstr] = new Number(parseFloat(slider.value));
-            _self.parent.refresh();
+            _self.parent.refresh(interval.varstr);
         };
     }
 
@@ -3940,9 +3998,9 @@ Plot.prototype.execExpression = function(expr) {
     return this.expressions[expr].evaluate();
 };
 
-Plot.prototype.refresh = function() {
+Plot.prototype.refresh = function(expr) {
     for(var i = 0; i < this.axes.length; i++) {
-        this.axes[i].refresh();
+        this.axes[i].refresh(expr);
     }
 };
 
