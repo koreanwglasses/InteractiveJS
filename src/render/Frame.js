@@ -41,6 +41,8 @@ function Frame(container, opts) {
      */
     this.height = container.clientHeight;
 
+    if(opts.antialias === undefined) opts.antialias = true;
+
     /**
      * Renderer from Three.js. (Private)
      */
