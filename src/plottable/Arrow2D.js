@@ -18,6 +18,10 @@ function Arrow2D(plot, expr, opts) {
      */
     this.expr = new Expression(expr, plot.context);
 
+    if(this.opts.origin !== undefined) {
+        this.opts.origin = new Expression(this.opts.origin, plot.context);
+    }
+
     this.sceneObject = null;
 
     this.validated = false;
@@ -31,7 +35,7 @@ Arrow2D.prototype.getSceneObject = function() {
         var vector = this.expr.evaluate();
         var _vector2 = new THREE.Vector3(vector.q[0].value, vector.q[1].value);
         var _dir = _vector2.clone().normalize();
-        var _origin = this.opts.origin !== undefined ? this.opts.origin : new THREE.Vector3(0,0,0);
+        var _origin = this.opts.origin !== undefined ? this.opts.origin.evaluate().toVector3() : new THREE.Vector3(0,0,0);
         var _length = _vector2.length();
         var _hex = this.opts.hex !== undefined ? this.opts.hex : 0xffffff;
         var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2;
