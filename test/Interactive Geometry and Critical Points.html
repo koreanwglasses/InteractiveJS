@@ -13,6 +13,13 @@
 <body id="body" data-gr-c-s-loaded="true">
     <script src="../lib/three.min.js"></script>
     <script src="../build/interactive.js"></script>
+    <script>
+        function checkVisible(elm) {
+            var rect = elm.getBoundingClientRect();
+            var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+            return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
+        }
+    </script>
 
     <div id="body_div">
         <table id="eJMT_header_table">
@@ -227,12 +234,27 @@ does for a local maximum or minimum.
             <br>
             <div class="centered">Figure 1: The family of cubic equations</div>
             <br>
-            <div class="centered">
+            <div id="fig1" class="centered">
+                <div id="ax1" style="width:250px;height:250px;display:inline-block;"></div>
+                <div id="pan1" style="display:inline-block;"></div>
                 <script>
+                    var plot1 = new Interactive.Plot();
+                    var ax1 = plot1.createAxes2D(document.getElementById('ax1'), {zoom: 100});
+                    var pan1 = plot1.createPanel(document.getElementById('pan1'))
+                    plot1.execExpression('m=-1')
+                    plot1.execExpression('f(x)=x^3+m*x')
                     
+                    pan1.addSlider('{m,-3,3,100}', {continuous: true});
+                    ax1.plotExpression('(t,f(t)){t,-2,2,100}', 'parametric')
+
+                    ;(function animate() {
+                        requestAnimationFrame(animate);
+                        if(checkVisible(document.getElementById('fig1'))) {
+                            ax1.render();
+                        }
+                    })();
                 </script>
             </div>
-            <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_cubiccurvesdemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
         </div>
         <p><br>
             <span class="sectiontitlespan">3. The
