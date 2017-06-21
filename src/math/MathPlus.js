@@ -49,6 +49,10 @@ MathPlus.normal = function(X,u,v) {
     }
 }
 
+MathPlus.interpolate = function(a, b, alpha) {
+    return a.mul(alpha).add(b.mul(Number[1].sub(alpha)));
+}
+
 MathPlus.norm = function(x) {
     return x.norm();
 }
