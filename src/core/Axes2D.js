@@ -49,7 +49,7 @@ function Axes2D(parent, container, opts) {
     this.camera.lookAt(this.frame.scene.position);
 
     if(opts.position !== undefined) {
-        camera.position = opts.position;
+        this.camera.position.add(opts.position);
     }
 
     // Some test code
