@@ -49,6 +49,12 @@ MathPlus.normal = function(X,u,v) {
     }
 }
 
+MathPlus.perp = function(x) {
+    if(x.dimensions === 2) {
+        return new Vector(x.q[1], x.q[0].neg())
+    }
+}
+
 MathPlus.interpolate = function(a, b, alpha) {
     return a.mul(alpha).add(b.mul(Number[1].sub(alpha)));
 }
@@ -77,6 +83,26 @@ MathPlus.signclamp = function(x, lower, upper) {
     if(x.compareTo(Number[0]) < 0) return lower;
     else if(x.compareTo(Number[0]) > 0) return upper;
     else return Number[0]
+}
+
+MathPlus.quadrant = function(x) {
+    // if(x.q[0].value === 0 && x.q[1].value === 0) return Number[0];
+    if(x.q[0].value >= 0 && x.q[1].value >= 0) {
+        return Number[1];
+    }
+    if(x.q[0].value <= 0 && x.q[1].value >= 0) {
+        return Number[2];
+    }
+    if(x.q[0].value <= 0 && x.q[1].value <= 0) {
+        return Number[3];
+    }
+    if(x.q[0].value >= 0 && x.q[1].value <= 0) {
+        return Number[4];
+    }
+}
+
+MathPlus.select = function(i) {
+    return arguments[i.value];
 }
 
 MathPlus.abs = function(x) {

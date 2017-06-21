@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+(<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <!-- saved from url=(0063)https://php.radford.edu/~ejmt/deliveryBoy.php?paper=eJMT_v2n2p2 -->
 <html class="gr__php_radford_edu">
 
@@ -245,7 +245,7 @@ does for a local maximum or minimum.
                     var pan1 = plot1.createPanel(document.getElementById('pan1'))
                     plot1.execExpression('m=-1')
                     plot1.execExpression('f(x)=x^3+m*x')
-                    plot1.execExpression('c(t)=interpolate((1,0,0),(1,1,1),signclamp(derivative(f,t),0,1))*signclamp(derivative2(f,t),0.6,1)')
+                    plot1.execExpression('c(t)=interpolate((1,0,0),(1,1,1),signclamp(derivative(f,t),0,1))*signclamp(derivative2(f,t),0.5,1)')
 
                     pan1.addSlider('{m,-3,3,100}', {continuous: true});
                     ax1.plotExpression('(t,f(t)){t,-3,3,100}', 'parametric', {color: 'c'})
@@ -303,62 +303,29 @@ does for a local maximum or minimum.
             <br>
             <div class="centered">Figure 2: The family of quartic equations</div>
             <br>
-            <div class="centered">
-                <applet codebase="./v2n2p2" archive="Demo.jar" code="DemoApplet" height="50" width="400">
-                    <param name="NAME" value="Quartic curves">
-                    <param name="DATA" value="filever 100.0 env {interval $t= -1,1,20$ variable $a= -1,1,2$ 0.0 variable 
-$b= -1,1,2$ 1.0 function $X(u)=(cos(u), sin(u))$ interval $x= -1,1,20$ interval 
-$u1=0, pi/2,24$ interval $u4= 3*pi/2, 2*pi,24$ interval $u3=pi,3* pi/2,24$ 
-interval $u2=pi/2, pi,24$ value $A=(1.029869054813665 , 0.19997457375022623)$ 
-constant $v0= A_2$ constant $u0= A_1$ function $f(x)=u0*x^2 +v0*x - x^4$} 
-objects [{frame.2d obj0 {canvas {canvas.3d obj5 {tool 0.0 points true graph 
-{graph.3d obj6 {light false graph {plots [{plot.curve obj1 {super {super 
-{transpt $0$ visible true addedz 0.0} color {coloring.group obj7 {colors 
-[{coloring.constant obj8 {color [1.0 1.0 0.0 1.0]}}] opacities [1.0] mixings 
-[0.0]}} expr $X(u4)$} thick true}} {plot.curve obj3 {super {super {transpt $0$ 
-visible true addedz 0.0} color {coloring.group obj9 {colors [{coloring.constant 
-obj10 {color [1.0 0.7 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} expr $X(u3)$} 
-thick true}} {plot.axes obj11 {super {transpt $0$ visible true addedz 0.0} 
-labels [x y]}} {plot.curve obj2 {super {super {transpt $0$ visible true addedz 
-0.0} color {coloring.group obj12 {colors [{coloring.constant obj13 {color [1.0 
-1.0 1.0 1.0]}}] opacities [1.0] mixings [0.0]}} expr $X(u1)$} thick true}} 
-{plot.curve obj4 {super {super {transpt $0$ visible true addedz 0.0} color 
-{coloring.group obj14 {colors [{coloring.constant obj15 {color [1.0 0.0 0.0 
-1.0]}}] opacities [1.0] mixings [0.0]}} expr $X(u2)$} thick true}}]} alpha false 
-scale 100.01271474132783 surfacemode 1.0 drawmode 1.0 transf [1.0 0.0 0.0 0.0 
-0.0 1.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0]}} group null hotspots [] 
-drawmode 0.0}} graph {id obj6} frame {visible false plots [{id obj1} {id obj2} 
-{id obj3} {id obj4}] title $2D Graph$ labels [$ Curve: X(u4)$ $ Curve: X(u1)$ 
-$ Curve: X(u3)$ $ Curve: X(u2)$]}}} {frame.2d obj16 {canvas {canvas.3d obj20 
-{tool 0.0 points true graph {graph.3d obj21 {light false graph {plots 
-[{plot.point obj17 {super {transpt $0$ visible true addedz 0.0} color 
-{coloring.group obj22 {colors [{coloring.constant obj23 {color [1.0 1.0 1.0 
-1.0]}}] opacities [1.0] mixings [0.0]}} label $(u0, v0)$ size 10.0 style 0.0 
-showlabel true dim 2.0 expr $A$}} {plot.curve obj19 {super {super {transpt $0$ 
-visible true addedz 0.0} color {coloring.constant obj24 {color [0.0 1.0 0.0 
-1.0]}} expr $(1.5*t^2, t^3)$} thick true}} {plot.axes obj18 {super {transpt $0$ 
-visible true addedz 0.0} labels [u v]}}]} alpha false scale 100.01271474132783 
-surfacemode 1.0 drawmode 1.0 transf [1.0 0.0 0.0 16.0 0.0 1.0 0.0 -5.0 0.0 0.0 
-1.0 0.0 0.0 0.0 0.0 1.0]}} group null hotspots [{hotspot obj25 {origin $0, 0$ 
-entry A constraint $Point$ cmode 0.0 cobjs []}}] drawmode 0.0}} graph {id obj21} 
-frame {visible true plots [{id obj17} {id obj18} {id obj19}] title $2D Graph$ 
-labels [$ Point: A$ $ Axes: u, v$ $ Curve: (1.5*t^2, t^3)$]}}} {controls obj26 
-{constants [] intervals [] objects [] readouts [] functions [f] variables []}} 
-{frame.2d obj27 {canvas {canvas.3d obj29 {tool 1.0 points true graph {graph.3d 
-obj30 {light false graph {plots [{plot.axes obj31 {super {transpt $0$ visible 
-true addedz 0.0} labels [x y]}} {plot.curve obj28 {super {super {transpt $0$ 
-visible true addedz 0.0} color {coloring.group obj32 {colors [{coloring.gradient 
-obj33 {colors [{coloring.constant obj34 {color [0.25 0.25 0.25 1.0]}} 
-{coloring.constant obj35 {color [0.5 0.0 0.0 1.0]}} {coloring.constant obj36 
-{color [0.75 0.75 0.75 1.0]}} {coloring.constant obj37 {color [1.0 0.0 0.0 
-1.0]}}] values [$-3.0$ $-1.0$ $1.0$ $3$] expr $sign(f&#39;(x)) + 2*sign(f&#39;&#39;(x))$}}] 
-opacities [1.0] mixings [0.0]}} expr $(x,f(x))$} thick true}}]} alpha false 
-scale 100.01271474132783 surfacemode 1.0 drawmode 1.0 transf [0.9075191553171648 
-0.0 0.0 0.0 0.0 0.9075191553171648 0.0 0.0 0.0 0.0 0.9075191553171648 0.0 0.0 
-0.0 0.0 1.0]}} group null hotspots [] drawmode 0.0}} graph {id obj30} frame 
-{visible true plots [{id obj28}] title $Quartic curve$ labels 
-[$ Curve: (x,f(x))$]}}}] ">
-                </applet>
+            <div id="fig2" class="centered">
+                <div id="ax2" style="width:250px;height:250px;display:inline-block;"></div>
+                <div id="pan2" style="display:inline-block;"></div>
+                <script>
+                    var plot2 = new Interactive.Plot();
+                    var ax2 = plot2.createAxes2D(document.getElementById('ax2'), {zoom: 100});
+                    var pan2 = plot2.createPanel(document.getElementById('pan2'))
+                    plot2.execExpression('u=-1')
+                    plot2.execExpression('v=-1')
+                    plot2.execExpression('f(x)=-x^4+u*x^2+v*x')
+                    plot2.execExpression('c(t)=interpolate((1,0,0),(1,1,1),signclamp(derivative(f,t),0,1))*signclamp(derivative2(f,t),0.5,1)')
+
+                    pan2.addSlider('{u,-2,2,100}', {continuous: true});
+                    pan2.addSlider('{v,-2,2,100}', {continuous: true});
+                    ax2.plotExpression('(t,f(t)){t,-3,3,100}', 'parametric', {color: 'c'})
+
+                    ;(function animate() {
+                        requestAnimationFrame(animate);
+                        if(checkVisible(document.getElementById('fig2'))) {
+                            ax2.render();
+                        }
+                    })();
+                </script>
             </div>
             <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_quarticcurvesdemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
         </div>
@@ -409,59 +376,42 @@ scale 100.01271474132783 surfacemode 1.0 drawmode 1.0 transf [0.9075191553171648
             <br>
             <div class="centered">Figure 3: Color-labeled parametric curves in the plane</div>
             <br>
-            <div class="centered">
-                <applet codebase="./v2n2p2" archive="Demo.jar" code="DemoApplet" height="50" width="400">
-                    <param name="NAME" value="Parametric curves in the plane">
-                    <param name="DATA" value="filever 100.0 env {function $X(u)=(cos(u), cos(u)*sin(u))$ interval 
-$u=0,2*pi,200$ interval $u2=pi/2, pi,24$ variable $u0= 0,2*pi, 24$ 0.0 interval 
-$u1=0, pi/2,24$ interval $u4= 3*pi/2, 2*pi,24$ interval $u3=pi,3* pi/2,24$ 
-function $Z(u,v)=(X_1(u),X_2(u), v)$} objects [{frame.2d obj0 {canvas {canvas.3d 
-obj3 {tool 1.0 points true graph {graph.3d obj4 {light false graph {plots 
-[{plot.axes obj5 {super {transpt $0$ visible true addedz 0.0} labels [x y]}} 
-{plot.vector obj1 {base $X(u0)$ endstyle 1.0 dir $N_1(Z)(u0,0), N_2(Z)(u0,0)$ 
-color {coloring.constant obj6 {color [1.0 1.0 1.0 1.0]}} dim 2.0 thick true 
-basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true 
-addedz 0.0} endsize 10.0}} {plot.curve obj2 {super {super {transpt $0$ visible 
-true addedz 0.0} color {coloring.group obj7 {colors [{coloring.gradient obj8 
-{colors [{coloring.constant obj9 {color [1.0 0.7 0.0 1.0]}} {coloring.constant 
-obj10 {color [1.0 0.0 0.0 1.0]}} {coloring.constant obj11 {color [0.0 0.0 0.0 
-1.0]}} {coloring.constant obj12 {color [1.0 1.0 0.0 1.0]}} {coloring.constant 
-obj13 {color [1.0 1.0 1.0 1.0]}}] values [$-3.0$ $-1.0$ $0.0$ $1.0$ $3.0$] expr 
-$2*sign(N_1(Z)(u,0)) + sign(N_2(Z)(u,0))$}}] opacities [1.0] mixings [0.0]}} 
-expr $X(u)$} thick true}}]} alpha false scale 100.01271474132783 surfacemode 1.0 
-drawmode 1.0 transf [1.2657565939702815 0.0 0.0 0.0 0.0 1.2657565939702815 0.0 
-0.0 0.0 0.0 1.2657565939702815 0.0 0.0 0.0 0.0 1.0]}} group null hotspots [] 
-drawmode 0.0}} graph {id obj4} frame {visible true plots [{id obj1} {id obj2}] 
-title $X(u)$ labels [$ Vector: N_1(Z)(u0,0), N_2(Z)(u0,0)  starting at X(u0)$ 
-$ Curve: X(u)$]}}} {frame.2d obj14 {canvas {canvas.3d obj20 {tool 0.0 points 
-true graph {graph.3d obj21 {light false graph {plots [{plot.curve obj17 {super 
-{super {transpt $0$ visible true addedz 0.0} color {coloring.group obj22 {colors 
-[{coloring.constant obj23 {color [1.0 1.0 0.0 1.0]}}] opacities [1.0] mixings 
-[0.0]}} expr $(cos(u4),sin(u4))$} thick true}} {plot.axes obj24 {super {transpt 
-$0$ visible true addedz 0.0} labels [x y]}} {plot.curve obj15 {super {super 
-{transpt $0$ visible true addedz 0.0} color {coloring.group obj25 {colors 
-[{coloring.constant obj26 {color [1.0 0.7 0.0 1.0]}}] opacities [1.0] mixings 
-[0.0]}} expr $(cos(u3),sin(u3))$} thick true}} {plot.curve obj16 {super {super 
-{transpt $0$ visible true addedz 0.0} color {coloring.group obj27 {colors 
-[{coloring.constant obj28 {color [1.0 0.0 0.0 1.0]}}] opacities [1.0] mixings 
-[0.0]}} expr $(cos(u2),sin(u2))$} thick true}} {plot.curve obj19 {super {super 
-{transpt $0$ visible true addedz 0.0} color {coloring.group obj29 {colors 
-[{coloring.constant obj30 {color [1.0 1.0 1.0 1.0]}}] opacities [1.0] mixings 
-[0.0]}} expr $(cos(u1),sin(u1))$} thick true}} {plot.vector obj18 {base 
-$N_1(Z)(u0,0), N_2(Z)(u0,0)$ endstyle 1.0 dir $N_1(Z)(u0,0), N_2(Z)(u0,0)$ color 
-{coloring.constant obj31 {color [1.0 1.0 1.0 1.0]}} dim 2.0 thick true basestyle 
-0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 
-0.0} endsize 10.0}}]} alpha false scale 100.01271474132783 surfacemode 1.0 
-drawmode 1.0 transf [1.2834258975629091 0.0 0.0 -6.021922504575755 0.0 
-1.2834258975629091 0.0 -19.305062081295944 0.0 0.0 1.2834258975629091 0.0 0.0 
-0.0 0.0 1.0]}} group null hotspots [] drawmode 0.0}} graph {id obj21} frame 
-{visible true plots [{id obj15} {id obj16} {id obj17} {id obj18} {id obj19}] 
-title $Normal map$ labels [$ Curve: (cos(u3),sin(u3))$ 
-$ Curve: (cos(u2),sin(u2))$ $ Curve: (cos(u4),sin(u4))$ 
-$ Vector: N_1(Z)(u0,0), N_2(Z)(u0,0)  starting at N_1(Z)(u0,0), N_2(Z)(u0,0)$ 
-$ Curve: (cos(u1),sin(u1))$]}}} {controls obj32 {constants [] intervals [] 
-objects [] readouts [] functions [X] variables [$u0$]}}] ">
-                </applet>
+            <div id="fig3" class="centered">
+                <div id="ax3a" style="width:300px;height:250px;display:inline-block;"></div>
+                <div id="ax3b" style="width:250px;height:250px;display:inline-block;"></div>
+                <div id="pan3" style="display:inline-block;"></div>
+                <script>
+                    var plot3 = new Interactive.Plot();
+                    var ax3a = plot3.createAxes2D(document.getElementById('ax3a'), {zoom: 200});
+                    var ax3b = plot3.createAxes2D(document.getElementById('ax3b'), {zoom: 150});
+                    var pan3 = plot3.createPanel(document.getElementById('pan3'))
+
+                    plot3.execExpression('N(X,u)=norm(perp(derivative(X,u)))*0.5')
+                    plot3.execExpression('c(X,u)=select(quadrant(N(X,u)),(1,1,1),(1,0,0),(1,.5,0),(1,1,0))')
+
+                    plot3.execExpression('u=0')
+                    pan3.addSlider('{u,0,6.3,100}', {continuous: true});
+
+                    plot3.execExpression('X1(u)=(cos(u),cos(u)*sin(u))')
+                    plot3.execExpression('c1(u)=c(X1,u)')
+
+                    ax3a.plotExpression('X1(u){u,0,2*PI,100}', 'parametric', {color: 'c1'})
+                    ax3a.plotExpression('N(X1,u)', 'arrow', {origin: 'X1(u)'})
+
+                    plot3.execExpression('X2(u)=(cos(u),sin(u))')
+                    plot3.execExpression('c2(u)=c(X2,u)')
+
+                    ax3b.plotExpression('X2(u){u,0,2*PI,100}', 'parametric', {color: 'c2'})
+                    ax3b.plotExpression('N(X2,u)', 'arrow', {origin: 'X2(u)'})
+
+                    ;(function animate() {
+                        requestAnimationFrame(animate);
+                        if(checkVisible(document.getElementById('fig3'))) {
+                            ax3a.render();
+                            ax3b.render();
+                        }
+                    })();
+                </script>
             </div>
             <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_parametricdemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
         </div>
@@ -505,60 +455,45 @@ objects [] readouts [] functions [X] variables [$u0$]}}] ">
             <br>
             <div class="centered">Figure 4: The cardioid family, color-coded</div>
             <br>
-            <div class="centered">
-                <applet codebase="./v2n2p2" archive="Demo.jar" code="DemoApplet" height="50" width="400">
-                    <param name="NAME" value="The cardioid family">
-                    <param name="DATA" value="filever 100.0 env {variable $c= -2,2,20$ 0.6000000000000001 interval 
-$u4= 3*pi/2, 2*pi,24$ interval $u1=0, pi/2,24$ variable $t0= 0, 2*pi, 24$ 0.0 
-interval $u3=pi,3* pi/2,24$ interval $u2=pi/2, pi,24$ interval $t= 0,2*pi, 240$ 
-function $X(t)=-((c + cos(t))*cos(t), (c + cos(t))*sin(t))$ function 
-$Z(u,v)=(X_1(u),X_2(u), v)$} objects [{frame.2d obj0 {canvas {canvas.3d obj3 
-{tool 1.0 points true graph {graph.3d obj4 {light false graph {plots [{plot.axes 
-obj5 {super {transpt $0$ visible true addedz 0.0} labels [x y]}} {plot.vector 
-obj2 {base $X(t0)$ endstyle 1.0 dir $N_1(Z)(t0,0), N_2(Z)(t0,0)$ color 
-{coloring.constant obj6 {color [1.0 1.0 1.0 1.0]}} dim 2.0 thick true basestyle 
-0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 
-0.0} endsize 10.0}} {plot.curve obj1 {super {super {transpt $0$ visible true 
-addedz 0.0} color {coloring.group obj7 {colors [{coloring.gradient obj8 {colors 
-[{coloring.constant obj9 {color [1.0 0.7 0.0 1.0]}} {coloring.constant obj10 
-{color [1.0 0.0 0.0 1.0]}} {coloring.constant obj11 {color [0.0 0.0 0.0 1.0]}} 
-{coloring.constant obj12 {color [1.0 1.0 0.0 1.0]}} {coloring.constant obj13 
-{color [1.0 1.0 1.0 1.0]}}] values [$-3.0$ $-1.0$ $0.0$ $1.0$ $3.0$] expr 
-$2*sign(N_1(Z)(t,0)) + sign(N_2(Z)(t,0))$}}] opacities [1.0] mixings [0.0]}} 
-expr $X(t)$} thick true}}]} alpha false scale 100.01271474132783 surfacemode 1.0 
-drawmode 1.0 transf [0.913831450229406 0.0 0.0 0.0 0.0 0.913831450229406 0.0 0.0 
-0.0 0.0 0.913831450229406 0.0 0.0 0.0 0.0 1.0]}} group null hotspots [] drawmode 
-0.0}} graph {id obj4} frame {visible true plots [{id obj1} {id obj2}] title 
-curve labels [$ Curve: X(t)$ 
-$ Vector: N_1(Z)(t0,0), N_2(Z)(t0,0)  starting at X(t0)$]}}} {frame.2d obj14 
-{canvas {canvas.3d obj20 {tool 1.0 points true graph {graph.3d obj21 {light 
-false graph {plots [{plot.curve obj17 {super {super {transpt $0$ visible true 
-addedz 0.0} color {coloring.group obj22 {colors [{coloring.constant obj23 {color 
-[1.0 0.7 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} expr $(cos(u3),sin(u3))$} 
-thick true}} {plot.curve obj18 {super {super {transpt $0$ visible true addedz 
-0.0} color {coloring.group obj24 {colors [{coloring.constant obj25 {color [1.0 
-1.0 1.0 1.0]}}] opacities [1.0] mixings [0.0]}} expr $(cos(u1),sin(u1))$} thick 
-true}} {plot.vector obj16 {base $N_1(Z)(t0,0), N_2(Z)(t0,0)$ endstyle 1.0 dir 
-$N_1(Z)(t0,0), N_2(Z)(t0,0)$ color {coloring.constant obj26 {color [1.0 1.0 1.0 
-1.0]}} dim 2.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super 
-{transpt $0$ visible true addedz 0.0} endsize 10.0}} {plot.axes obj27 {super 
-{transpt $0$ visible true addedz 0.0} labels [x y]}} {plot.curve obj15 {super 
-{super {transpt $0$ visible true addedz 0.0} color {coloring.group obj28 {colors 
-[{coloring.constant obj29 {color [1.0 0.0 0.0 1.0]}}] opacities [1.0] mixings 
-[0.0]}} expr $(cos(u2),sin(u2))$} thick true}} {plot.curve obj19 {super {super 
-{transpt $0$ visible true addedz 0.0} color {coloring.group obj30 {colors 
-[{coloring.constant obj31 {color [1.0 1.0 0.0 1.0]}}] opacities [1.0] mixings 
-[0.0]}} expr $(cos(u4),sin(u4))$} thick true}}]} alpha false scale 
-100.01271474132783 surfacemode 1.0 drawmode 1.0 transf [0.7474246243174695 0.0 
-0.0 0.0 0.0 0.7474246243174695 0.0 0.7474246243174695 0.0 0.0 0.7474246243174695 
-0.0 0.0 0.0 0.0 1.0]}} group null hotspots [] drawmode 0.0}} graph {id obj21} 
-frame {visible true plots [{id obj15} {id obj16} {id obj17} {id obj18} {id 
-obj19}] title $2D Graph$ labels [$ Curve: (cos(u2),sin(u2))$ 
-$ Vector: N_1(Z)(t0,0), N_2(Z)(t0,0)  starting at N_1(Z)(t0,0), N_2(Z)(t0,0)$ 
-$ Curve: (cos(u3),sin(u3))$ $ Curve: (cos(u1),sin(u1))$ 
-$ Curve: (cos(u4),sin(u4))$]}}} {controls obj32 {constants [] intervals [t] 
-objects [] readouts [] functions [X] variables [$t0$ c]}}] ">
-                </applet>
+            <div id="fig4" class="centered">
+                <div id="ax4a" style="width:250px;height:250px;display:inline-block;"></div>
+                <div id="ax4b" style="width:250px;height:250px;display:inline-block;"></div>
+                <div id="pan4" style="display:inline-block;"></div>
+                <script>
+                    var plot4 = new Interactive.Plot();
+                    var ax4a = plot4.createAxes2D(document.getElementById('ax4a'), {zoom: 200, position: new THREE.Vector3(-.75,0)});
+                    var ax4b = plot4.createAxes2D(document.getElementById('ax4b'), {zoom: 150});
+                    var pan4 = plot4.createPanel(document.getElementById('pan4'))
+
+                    plot4.execExpression('N(X,t)=norm(perp(derivative(X,t)))*0.5')
+                    plot4.execExpression('c(X,t)=select(quadrant(N(X,t)),(1,1,1),(1,0,0),(1,.5,0),(1,1,0))')
+
+                    plot4.execExpression('u=0.5')
+                    pan4.addSlider('{u,-2,2,100}', {continuous: true});
+
+                    plot4.execExpression('t=0')
+                    pan4.addSlider('{t,0,6.3,100}', {continuous: true});
+
+                    plot4.execExpression('X1(t)=(-(u+cos(t))*cos(t),-(u+cos(t))*sin(t))')
+                    plot4.execExpression('c1(t)=c(X1,t)')
+
+                    ax4a.plotExpression('X1(t){t,0,2*PI,100}', 'parametric', {color: 'c1'})
+                    ax4a.plotExpression('N(X1,t+PI)', 'arrow', {origin: 'X1(t+PI)'})
+
+                    plot4.execExpression('X2(t)=(cos(t),sin(t))')
+                    plot4.execExpression('c2(t)=c(X2,t)')
+
+                    ax4b.plotExpression('X2(t){t,0,2*PI,100}', 'parametric', {color: 'c2'})
+                    ax4b.plotExpression('N(X2,t)', 'arrow', {origin: 'X2(t)'})
+
+                    ;(function animate() {
+                        requestAnimationFrame(animate);
+                        if(checkVisible(document.getElementById('fig4'))) {
+                            ax4a.render();
+                            ax4b.render();
+                        }
+                    })();
+                </script>
             </div>
             <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_cardioiddemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
         </div>
@@ -1955,4 +1890,4 @@ Education, Vol. 14 (2007), p. 17-31.</span>
 
 </body>
 
-</html>
+</html>)
