@@ -31,10 +31,13 @@ function Axes2D(parent, container, opts) {
      */
     this.frame = new Frame(container, opts);
 
+    // avoid null pointer errors
+    if(opts === undefined) opts = {};
+
     /**
      * The zoom level of the camera. Denotes how many pixels should be one unit
      */
-    this.zoom = 200;
+    this.zoom = opts.zoom !== undefined? opts.zoom : 200;
 
     /**
      * Camera which renders the axes. 
@@ -64,6 +67,11 @@ function Axes2D(parent, container, opts) {
      * Expressions to plot
      */
     this.expressions = {}
+
+    if(opts.showAxes !== false) {
+        var arr = new Interactive.BasisVectors2D(this.parent)
+        this.addFigure(arr);
+    }
 
     /**
      * Hotspots are draggable points
