@@ -22,8 +22,23 @@ Number.prototype.exp = function(n) {
     return new Number(Math.pow(this.value, n.value));
 }
 
+Number.prototype.abs = function() {
+    return new Number(Math.abs(this.value));
+}
+
 Number.prototype.neg = function() {
     return new Number(-this.value);
+}
+
+Number.prototype.compareTo = function(n) {
+    if(this.value > n.value) return 1;
+    if(this.value < n.value) return -1;
+    if(this.value === n.value) return 0;
+    return null;
+}
+
+for(var i = 0; i < 10; i++) {
+    Number[i] = new Number(i);
 }
 
 export{ Number };

@@ -7,8 +7,8 @@ MathPlus.epsilon = new Number(1e-7);
 MathPlus.epsilonx2 = MathPlus.epsilon.mul(new Number(2))
 
 MathPlus.optimalh = function(x) {
-    if(x > 1) {
-        return MathPlus.epsilon.mul(x);
+    if(x.abs().compareTo(Number[1]) > 0) {
+        return MathPlus.epsilon.mul(x.abs());
     } else {
         return MathPlus.epsilon;
     }
@@ -24,6 +24,14 @@ MathPlus.derivative = function(X, t) {
     var tmh = t.sub(h);
     var dt = tph.sub(tmh);
     return X(tph).sub(X(tmh)).div(dt)
+}
+
+MathPlus.derivative2 = function(X, t) {
+    var h = MathPlus.optimalh(t);
+    var tph = t.add(h);
+    var tmh = t.sub(h);
+    var h2 = tph.sub(t).add(t.sub(tmh));
+    return MathPlus.derivative(X, tph).sub(MathPlus.derivative(X, tmh)).div(h2)
 }
 
 MathPlus.binormal = function(X, t) {
@@ -67,6 +75,10 @@ MathPlus.abs = function(x) {
 
 MathPlus.ssign = function(x) {
     return MathPlus.sign(x).mul(MathPlus.abs(x).exp(new Number(0.2)));
+}
+
+MathPlus.log = function(x) {
+    return new Number(Math.log(x.value))
 }
 
 MathPlus.PI = new Number(Math.PI);
