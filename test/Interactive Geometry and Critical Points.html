@@ -14,10 +14,12 @@
     <script src="../lib/three.min.js"></script>
     <script src="../build/interactive.js"></script>
     <script>
-        function checkVisible(elm) {
-            var rect = elm.getBoundingClientRect();
-            var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
-            return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
+        function checkVisible(el) {
+            var elemTop = el.getBoundingClientRect().top;
+            var elemBottom = el.getBoundingClientRect().bottom;
+
+            var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+            return isVisible;
         }
     </script>
 
@@ -243,9 +245,12 @@ does for a local maximum or minimum.
                     var pan1 = plot1.createPanel(document.getElementById('pan1'))
                     plot1.execExpression('m=-1')
                     plot1.execExpression('f(x)=x^3+m*x')
+                    plot1.execExpression('c(t)=(1,1,1)*sign(derivative(f,t))+(1,0,0)*(1-sign(derivative(f,t)))')
+                    console.log(plot1.context.c)
+                    console.log(plot1.execExpression('(1,1,1)*2'))
                     
                     pan1.addSlider('{m,-3,3,100}', {continuous: true});
-                    ax1.plotExpression('(t,f(t)){t,-2,2,100}', 'parametric')
+                    ax1.plotExpression('(t,f(t)){t,-3,3,100}', 'parametric', {})
 
                     ;(function animate() {
                         requestAnimationFrame(animate);

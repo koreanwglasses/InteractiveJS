@@ -283,6 +283,14 @@ Vector.prototype.crs = function(v) {
     }
 };
 
+Vector.prototype.mul = function(v) {
+    var result = this.clone();
+    for(var i = 0; i < this.dimensions; i++) {
+        result.q[i] = result.q[i].mul(v);
+    }
+    return result;
+};
+
 Vector.prototype.div = function(v) {
     var result = this.clone();
     for(var i = 0; i < this.dimensions; i++) {
@@ -508,8 +516,10 @@ Expression.typeOf = function(string) {
         else    
             return 'parametric'
     }
-    if(string.includes('(') === false && string.includes(')') === false && !/[0-9]+/.test(string)) {
-        if(string.includes('+')||string.includes('-')||string.includes('*')||string.includes('/')||string.includes('^')) {
+    if(string.includes('(') === false && string.includes(')') === false) {
+        if(/^[0-9]+$/.test(string)) {
+            return 'constant'
+        } else if(string.includes('+')||string.includes('-')||string.includes('*')||string.includes('/')||string.includes('^')) {
             return 'expression'
         } else {
             return 'variable'
@@ -818,6 +828,9 @@ Expression.toJSExpression = function(string, specials, isparam) {
             func = func.slice(0, func.length - 1)+') { return '+Expression.toJSExpression(params[0],specials)+'; }';
 
             var expr = 'new Interactive.Parametric('+func+intervals+')';
+            return expr;
+        } else if (type === 'constant') {
+            var expr = 'new Interactive.Number('+str+')';
             return expr;
         }
     }

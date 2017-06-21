@@ -65,6 +65,14 @@ Vector.prototype.crs = function(v) {
     }
 }
 
+Vector.prototype.mul = function(v) {
+    var result = this.clone();
+    for(var i = 0; i < this.dimensions; i++) {
+        result.q[i] = result.q[i].mul(v);
+    }
+    return result;
+}
+
 Vector.prototype.div = function(v) {
     var result = this.clone();
     for(var i = 0; i < this.dimensions; i++) {
