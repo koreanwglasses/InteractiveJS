@@ -48,6 +48,10 @@ function Axes2D(parent, container, opts) {
     this.camera.position.z = 10;
     this.camera.lookAt(this.frame.scene.position);
 
+    if(opts.position !== undefined) {
+        camera.position = opts.position;
+    }
+
     // Some test code
     // var mesh = new THREE.Mesh( 
     //     new THREE.BoxGeometry( 1, 1, 1, 1, 1, 1 ), 
