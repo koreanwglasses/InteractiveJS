@@ -15,8 +15,7 @@ function Parametric2D(plot, expr, opts) {
         this.color = new Expression(this.opts.color, this.plot.context);
         this.colorf = this.color.evaluate();
     }
-    if(this.opts.wireframe === undefined) this.opts.wireframe = false;
-    if(this.opts.flat === undefined) this.opts.flat = this.opts.color !== undefined;
+    if(this.opts.thick === undefined) this.opts.thick = true;
 }
 
 Parametric2D.prototype.createLine = function(par) {

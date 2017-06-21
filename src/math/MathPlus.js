@@ -73,6 +73,12 @@ MathPlus.sign = function(x) {
     return new Number(Math.sign(x.value));
 }
 
+MathPlus.signclamp = function(x, lower, upper) {
+    if(x.compareTo(Number[0]) < 0) return lower;
+    else if(x.compareTo(Number[0]) > 0) return upper;
+    else return Number[0]
+}
+
 MathPlus.abs = function(x) {
     return new Number(Math.abs(x.value));
 }

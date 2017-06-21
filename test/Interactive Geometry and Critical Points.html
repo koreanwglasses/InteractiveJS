@@ -245,12 +245,10 @@ does for a local maximum or minimum.
                     var pan1 = plot1.createPanel(document.getElementById('pan1'))
                     plot1.execExpression('m=-1')
                     plot1.execExpression('f(x)=x^3+m*x')
-                    plot1.execExpression('c(t)=(1,1,1)*sign(derivative(f,t))+(1,0,0)*(1-sign(derivative(f,t)))')
-                    console.log(plot1.context.c)
-                    console.log(plot1.execExpression('(1,1,1)*2'))
-                    
+                    plot1.execExpression('c(t)=interpolate((1,0,0),(1,1,1),signclamp(derivative(f,t),0,1))*signclamp(derivative2(f,t),0.6,1)')
+
                     pan1.addSlider('{m,-3,3,100}', {continuous: true});
-                    ax1.plotExpression('(t,f(t)){t,-3,3,100}', 'parametric', {})
+                    ax1.plotExpression('(t,f(t)){t,-3,3,100}', 'parametric', {color: 'c'})
 
                     ;(function animate() {
                         requestAnimationFrame(animate);
