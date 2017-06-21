@@ -73,6 +73,14 @@ Vector.prototype.div = function(v) {
     return result;
 }
 
+Vector.prototype.neg = function() {
+    var result = this.clone();
+    for(var i = 0; i < this.dimensions; i++) {
+        result.q[i] = result.q[i].neg();
+    }
+    return result;
+}
+
 Vector.prototype.abs = function() {
     var ss = 0;
     for(var i = 0; i < this.dimensions; i++) {
