@@ -1,571 +1,287 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
+<!-- saved from url=(0063)https://php.radford.edu/~ejmt/deliveryBoy.php?paper=eJMT_v2n2p2 -->
+<html class="gr__php_radford_edu">
+
 <head>
-  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
-  <title>Interactive Geometry and Critical Points</title>
-  <link rel="stylesheet"
-      type="text/css"
-      href="eJMT_Papers.css"
-      media="screen"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+    <title>Interactive Geometry and Critical Points</title>
+    <link rel="stylesheet" type="text/css" href="./Interactive Geometry and Critical Points_files/eJMT_Papers.css" media="screen">
+
 </head>
 
-<body id="body">
-<div id="body_div">
-  <table id="eJMT_header_table">
-    <tr>
-      <td class="eJMT_header_td">The Electronic Journal of Mathematics and Technology, Volume 2, Number 2, ISSN 1933-2823</td>
-    </tr>
-  </table>
+<body id="body" data-gr-c-s-loaded="true">
+    <script src="../lib/three.min.js"></script>
+    <script src="../build/interactive.js"></script>
 
-<div id="titlediv" class="centered">Interactive Geometry and Critical Points</div>
-<p/><br/>
-<div class="centered">
-  <em>Thomas F. Banchoff</span></em><br>
-  Thomas_Banchoff@brown.edu<br>
-  Mathematics Department<br>
-  Brown University<br>
-  Providence, RI 02912<br>
-  U.S.A.
-</div>
-<p/><br/>
-<div class="centered"><b>Abstract</b></div>
-<br/>
-<div id="abstractdiv">
-    Interactive geometry programs make it possible
-    to explore critical points of functions of one and many variables,
-    in courses at various levels and in research projects.  In this
-    article, we show how easy-to-use Java applets illustrate critical point
-    phenomena for families of curves and surfaces from several different
-    viewpoints.  Our methods introduce circular and spherical
-    images of parametric curves and surfaces, leading to results on the
-    tangential degree of a closed curve in the plane, and the Hopf Theorem
-    on the normal degree of a surface in three-space.  We also indicate
-    the relationship with the basic critical point theorem of Marston
-    Morse concerning pits, peaks, and passes of a function of two variables.
-</div>
+    <div id="body_div">
+        <table id="eJMT_header_table">
+            <tbody>
+                <tr>
+                    <td class="eJMT_header_td">The Electronic Journal of Mathematics and Technology, Volume 2, Number 2, ISSN 1933-2823</td>
+                </tr>
+            </tbody>
+        </table>
 
-<p/><br/>
+        <div id="titlediv" class="centered">Interactive Geometry and Critical Points</div>
+        <p><br>
+        </p>
+        <div class="centered">
+            <em>Thomas F. Banchoff</em><br> Thomas_Banchoff@brown.edu
+            <br> Mathematics Department<br> Brown University<br> Providence, RI 02912<br> U.S.A.
+        </div>
+        <p><br>
+        </p>
+        <div class="centered"><b>Abstract</b></div>
+        <br>
+        <div id="abstractdiv">
+            Interactive geometry programs make it possible to explore critical points of functions of one and many variables, in courses
+            at various levels and in research projects. In this article, we show how easy-to-use Java applets illustrate
+            critical point phenomena for families of curves and surfaces from several different viewpoints. Our methods introduce
+            circular and spherical images of parametric curves and surfaces, leading to results on the tangential degree
+            of a closed curve in the plane, and the Hopf Theorem on the normal degree of a surface in three-space. We also
+            indicate the relationship with the basic critical point theorem of Marston Morse concerning pits, peaks, and
+            passes of a function of two variables.
+        </div>
 
-<span class="sectiontitlespan">Introduction</span>
-<p/>
-<div class="textdiv">How does an
-interactive geometry
-program make it possible to treat a broad subject like critical points
-of
-functions in a unified way, across a wide range of courses at different
-levels? In this article, we show how
-coloring the graph of function of one or more variables can display
-basic
-information about the shape of the graph, in particular the numbers of
-critical
-points of different types. A certain
-amount of information is already available if we look at a single
-picture of a
-function, but we gain a great deal more insight into the geometry of
-the graph
-by interacting with images, in particular by deforming them in a
-controlled way
-using special sets of parameters. In
-this way we can investigate entire families of functions of one and
-more
-variables, showing how the behavior of critical points changes when we
-alter
-the parameters in different ways.
-</div>
-<div class="textdiv">The
-interactive Java demonstrations presented in this article are intended
-to
-illustrate the power of software generated by teams of students over a
-period
-of years under the direction of the author. Running the applets require no computer algebra system or other
-commercial software. It is possible for
-a user to introduce new functions into the program, although in order
-to save
-such modifications it is necessary to be running an expanded program on
-a file
-server. Furthermore it is possible to
-incorporate programs like those illustrated in this article into
-worksheets or
-laboratory settings for use in conjunction with classes in calculus of
-one or
-more variables. We will not go into
-detail about the pedagogical implications of using such demonstrations
-in
-conjunction with traditional lecture courses, or in the context of a
-courseware
-programs. A report on such efforts, with
-emphasis on assessment, is found in the author&#8217;s paper at the
-International
-Conference at KAIST, <st1:place w:st="on"><st1:city w:st="on">Daejon</st1:city>,
-<st1:country-region w:st="on">Korea</st1:country-region></st1:place>
-[B2].
-</div>
-<div class="textdiv">
-At several places in this article we indicate how the same approaches can
-be used
-to study more advanced topics in parametric curves and surfaces, in
-courses in
-calculus and in introductory differential geometry and topology.<span
- style="">&nbsp; </span>Readers familiar with the geometry of
-characteristic classes will recognize ways in which the examples
-presented here
-are fundamental in the study of singularities of mappings of manifolds
-into
-Euclidean spaces, as well as the geometric theory of catastrophes.
-</div>
-<p/>
-<span class="sectiontitlespan">1. Graphs of Functions of a Single Variable</span>
-<p/>
-<div class="textdiv">
-We start with
-the graph of a
-function of one variable defined over an interval on the real line.<span
- style="">&nbsp; </span>By the simple device of coloring all segments
-of positive slope red in a polygonal approximation of the function, and
-coloring
-the segments with negative slope white, we can see immediately where
-the
-function has local maxima and minima.Assuming that there are no horizontal segments on the graph, as
-we move
-from the left endpoint through the domain of the function, we can
-observe when
-the color of the graph changes, from red to white as we pass a local
-maximum
-and from white back to red at a local minimum.
-If we start with a red segment and end with a white one, then
-there must
-be an odd number of color changes, so there are an odd number of
-critical
-points in the domain. The number of
-local maxima is one greater than the number of local minima and in
-particular
-there is at least one local maximum.
-Similarly, if the segments at the endpoints of the interval have
-the
-same color, then the number of critical points in the interval is even,
-with
-the same number of local maxima as local minima. So
-far these observations depend on studying
-the changes of slope from positive to negative or conversely in a
-polygonal
-approximation of a function, and this can be done in a course in
-pre-calculus
-mathematics.
-</div>
-<div class="textdiv">
-In a
-course in calculus of one variable, the corresponding results are
-expressed in
-classical theorems. For the graph of a
-differentiable function of one variable f(x), the number of points c
-where
-f'(c) = 0 in the interval [a,b] is even if f'(a) and f'(b) have the
-same sign
-and this number is odd if the signs are different, (assuming that there
-are a
-finite number of critical points in the interval and that the sign of
-the derivative
-changes as we go from left to right past a zero of the first
-derivative). Beginning students will
-appreciate the
-difference in two basic examples: the function f(x) = x<sup>2</sup> has
-an odd
-number of
-critical points in the interval [-2,2] since f&#8217;(x) = 2x so f&#8217;(-2) and
-f&#8217;(2)
-have different signs; on the other hand, the function f(x) = x</span><span
- style="color: black;"><sup>3</sup></span><span style="color: black;">
-&#8211; 3x has f&#8217;(x) = 3x</span><span
- style="color: black;"><sup>2</sup></span><span style="color: black;">
-&#8211; 3 so f&#8217;(-2) and f&#8217;(2) are
+        <p><br>
+
+            <span class="sectiontitlespan">Introduction</span>
+        </p>
+        <p>
+        </p>
+        <div class="textdiv">How does an interactive geometry program make it possible to treat a broad subject like critical points of functions
+            in a unified way, across a wide range of courses at different levels? In this article, we show how coloring the
+            graph of function of one or more variables can display basic information about the shape of the graph, in particular
+            the numbers of critical points of different types. A certain amount of information is already available if we
+            look at a single picture of a function, but we gain a great deal more insight into the geometry of the graph
+            by interacting with images, in particular by deforming them in a controlled way using special sets of parameters.
+            In this way we can investigate entire families of functions of one and more variables, showing how the behavior
+            of critical points changes when we alter the parameters in different ways.
+        </div>
+        <div class="textdiv">The interactive Java demonstrations presented in this article are intended to illustrate the power of software generated
+            by teams of students over a period of years under the direction of the author. Running the applets require no
+            computer algebra system or other commercial software. It is possible for a user to introduce new functions into
+            the program, although in order to save such modifications it is necessary to be running an expanded program on
+            a file server. Furthermore it is possible to incorporate programs like those illustrated in this article into
+            worksheets or laboratory settings for use in conjunction with classes in calculus of one or more variables. We
+            will not go into detail about the pedagogical implications of using such demonstrations in conjunction with traditional
+            lecture courses, or in the context of a courseware programs. A report on such efforts, with emphasis on assessment,
+            is found in the author�s paper at the International Conference at KAIST,
+            <st1:place w:st="on">
+                <st1:city w:st="on">Daejon</st1:city>,
+                <st1:country-region w:st="on">Korea</st1:country-region>
+            </st1:place>
+            [B2].
+        </div>
+        <div class="textdiv">
+            At several places in this article we indicate how the same approaches can be used to study more advanced topics in parametric
+            curves and surfaces, in courses in calculus and in introductory differential geometry and topology.
+            <span
+                style="">&nbsp; </span>Readers familiar with the geometry of characteristic classes will recognize ways in which the examples
+                presented here are fundamental in the study of singularities of mappings of manifolds into Euclidean spaces,
+                as well as the geometric theory of catastrophes.
+        </div>
+        <p>
+            <span class="sectiontitlespan">1. Graphs of Functions of a Single Variable</span>
+        </p>
+        <p>
+        </p>
+        <div class="textdiv">
+            We start with the graph of a function of one variable defined over an interval on the real line.<span style="">&nbsp; </span>By
+            the simple device of coloring all segments of positive slope red in a polygonal approximation of the function,
+            and coloring the segments with negative slope white, we can see immediately where the function has local maxima
+            and minima.Assuming that there are no horizontal segments on the graph, as we move from the left endpoint through
+            the domain of the function, we can observe when the color of the graph changes, from red to white as we pass
+            a local maximum and from white back to red at a local minimum. If we start with a red segment and end with a
+            white one, then there must be an odd number of color changes, so there are an odd number of critical points in
+            the domain. The number of local maxima is one greater than the number of local minima and in particular there
+            is at least one local maximum. Similarly, if the segments at the endpoints of the interval have the same color,
+            then the number of critical points in the interval is even, with the same number of local maxima as local minima.
+            So far these observations depend on studying the changes of slope from positive to negative or conversely in
+            a polygonal approximation of a function, and this can be done in a course in pre-calculus mathematics.
+        </div>
+        <div class="textdiv">
+            In a course in calculus of one variable, the corresponding results are expressed in classical theorems. For the graph of
+            a differentiable function of one variable f(x), the number of points c where f'(c) = 0 in the interval [a,b]
+            is even if f'(a) and f'(b) have the same sign and this number is odd if the signs are different, (assuming that
+            there are a finite number of critical points in the interval and that the sign of the derivative changes as we
+            go from left to right past a zero of the first derivative). Beginning students will appreciate the difference
+            in two basic examples: the function f(x) = x<sup>2</sup> has an odd number of critical points in
+            the interval [-2,2] since f�(x) = 2x so f�(-2) and f�(2) have different signs; on the other hand, the function
+            f(x) = x<span style="color: black;"><sup>3</sup></span><span style="color: black;">
+� 3x has f�(x) = 3x</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">
+� 3 so f�(-2) and f�(2) are
 both positive and the function must have an even number of critical
 points in
 the domain, in this case two.
-</div>
-<div class="textdiv">
-For the graph of a
-differentiable function, we can describe the coloring scheme in a
-different way
-that will be useful in our generalizations.
-The normal line at a point of the graph of a differentiable
-function is
-perpendicular to the tangent line to the function graph at the point.<span
- style="">&nbsp; </span>For each point, the unit vector pointing
-upward from the origin that is parallel to the normal line at the point
-is
-called the &#8220;circular image&#8221; of the point.
-If we color the left half of this upper semicircle red and the
-right
-half white, we can reinterpret the coloring introduced in the previous
-paragraph by saying that a point on the graph is given the same color
-as its
-circular image.</span>
-</div>
-<div class="textdiv">
-It is easy to illustrate the color
-scheme described above by showing a few pictures. What can interactive
-computer
-graphics add to the experience of the teacher and the students?<span
- style="">&nbsp; </span>With interactive graphics, we can carry out
-online investigations of families of functions depending on one or more
-parameters. We present some simple
-examples of this procedure, and then show how to use the same setup for
-more
-advanced investigations. We will confine
-ourselves to polynomial functions in the introductory parts of the
-paper, and
-introduce trigonometric examples when we study parametric curves and
-surfaces.
-</div>
-<div class="textdiv">
-As examples of such families, we
-can see what happens as we change the coefficients of polynomials.<span
- style="">&nbsp;&nbsp; </span>For linear functions, f(x) = mx + b,
-changing the slope m will just rotate the line about its y-intercept,
-and
-changing the y-intercept b will move the graph up and down without
-altering its
-shape. Also making a change in the
-domain gives us a function g(x) = f(x+h) = m(x+h) + b = mx + (mh+b),
-which
-moves the graph right or left, keeping the slope the same.
-If m is not equal to zero, we can choose h =
--b/m so the equation takes the simple form g(x) = mx.
-</div>
-<div class="textdiv">
-For a
-quadratic function f(x) = ax</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> + mx + b with a positive, the graph is a
+</span></div>
+        <div class="textdiv">
+            For the graph of a differentiable function, we can describe the coloring scheme in a different way that will be useful in
+            our generalizations. The normal line at a point of the graph of a differentiable function is perpendicular to
+            the tangent line to the function graph at the point.<span style="">&nbsp; </span>For each point,
+            the unit vector pointing upward from the origin that is parallel to the normal line at the point is called the
+            �circular image� of the point. If we color the left half of this upper semicircle red and the right half white,
+            we can reinterpret the coloring introduced in the previous paragraph by saying that a point on the graph is given
+            the same color as its circular image.
+        </div>
+        <div class="textdiv">
+            It is easy to illustrate the color scheme described above by showing a few pictures. What can interactive computer graphics
+            add to the experience of the teacher and the students?<span style="">&nbsp; </span>With interactive
+            graphics, we can carry out online investigations of families of functions depending on one or more parameters.
+            We present some simple examples of this procedure, and then show how to use the same setup for more advanced
+            investigations. We will confine ourselves to polynomial functions in the introductory parts of the paper, and
+            introduce trigonometric examples when we study parametric curves and surfaces.
+        </div>
+        <div class="textdiv">
+            As examples of such families, we can see what happens as we change the coefficients of polynomials.<span style="">&nbsp;&nbsp; </span>For
+            linear functions, f(x) = mx + b, changing the slope m will just rotate the line about its y-intercept, and changing
+            the y-intercept b will move the graph up and down without altering its shape. Also making a change in the domain
+            gives us a function g(x) = f(x+h) = m(x+h) + b = mx + (mh+b), which moves the graph right or left, keeping the
+            slope the same. If m is not equal to zero, we can choose h = -b/m so the equation takes the simple form g(x)
+            = mx.
+        </div>
+        <div class="textdiv">
+            For a quadratic function f(x) = ax<span style="color: black;"><sup>2</sup></span><span style="color: black;"> + mx + b with a positive, the graph is a
 parabola
-opening upwards and with a negative, a parabola opening downwards.<span
- style="">&nbsp; </span>Changing the constant term b shifts the graph
-vertically. A change from x to x+h
-shifts the graph horizontally without changing its shape, and g(x) =
-f(x+h) =
-a(x+h)</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> + m(x+h) + b = ax</span><span
- style="color: black;"><sup>2</sup></span><span style="color: black;">
-+ (2ah + m)x + (ah</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> + mh + b). If a is
+opening upwards and with a negative, a parabola opening downwards.<span style="">&nbsp; </span>Changing the constant term
+            b shifts the graph vertically. A change from x to x+h shifts the graph horizontally without changing its shape,
+            and g(x) = f(x+h) = a(x+h)
+            </span><span style="color: black;"><sup>2</sup></span><span style="color: black;"> + m(x+h) + b = ax</span>
+            <span
+                style="color: black;"><sup>2</sup></span><span style="color: black;">
++ (2ah + m)x + (ah</span><span style="color: black;"><sup>2</sup></span><span style="color: black;"> + mh + b). If a is
 non-zero, we can choose h = -m/2a so
-that the equation takes the form g(x) = ax</span><span
- style="color: black;"><sup>2</sup></span><span style="color: black;">
-+ (-m</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;">/4a + b), with no
+that the equation takes the form g(x) = ax</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">
++ (-m</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">/4a + b), with no
 linear
 term and with the graph symmetric with respect to the y-axis.<o:p></o:p></span>
-</div>
-<p/><br/>
-<span class="sectiontitlespan">2. The Family of Cubic Equations</span>
-<p/>
-<div class="textdiv">
-What
-about cubic equations of the form f(x) = x</span><span
- style="color: black;"><sup>3</sup></span><span style="color: black;">
-+ ax</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> + mx + b?  As
+        </div>
+        <p><br>
+            <span class="sectiontitlespan">2. The Family of Cubic Equations</span>
+        </p>
+        <p>
+        </p>
+        <div class="textdiv">
+            What about cubic equations of the form f(x) = x<span style="color: black;"><sup>3</sup></span><span style="color: black;">
++ ax</span><span style="color: black;"><sup>2</sup></span><span style="color: black;"> + mx + b?  As
 before, in order to shift right or
 left,
-we set g(x) = f(x+h) = (x+h)</span><span style="color: black;"><sup>3</sup></span><span
- style="color: black;"> + a(x+h)</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> + m(x+h) + b = x</span><span
- style="color: black;"><sup>3</sup></span><span style="color: black;">
-+ (3h +
-a)x</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> +
-3h</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> + 2ah + m)x + (h</span><span
- style="color: black;"><sup>3</sup></span><span style="color: black;">
-+ ah</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> + mh + b).
-By choosing h = -a/3 we obtain a function of the form g(x) = x</span><span
- style="color: black;"><sup>3</sup></span><span style="color: black;">
-+ Mx +
-B, where M and B are constants that we can manipulate.
-If we choose B = 0, we have a one-parameter
-family of cubics with no squared term and no constant terms.<span
- style="">&nbsp; </span>Any cubic will have the shape of exactly one
-of the cubics of this special form.
-</div>
-<div class="textdiv">
-Students
-can now investigate functions of the form f(x) = x</span><span
- style="color: black;"><sup>3</sup></span><span style="color: black;">
-+ mx by changing
-the
-parameter m and observing the numbers of critical points of the graph.<span
- style="">&nbsp; </span>Immediately we are led to the conjecture that
-when m is positive, there are no critical points for the function and
-when m is
-negative, the number of critical points is two.
-Students can prove this conjecture can then be proven by finding
-the
-derivative f&#8217;(x) = 3x</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> + m, which will never be zero if m is positive
+we set g(x) = f(x+h) = (x+h)</span><span style="color: black;"><sup>3</sup></span><span style="color: black;"> + a(x+h)</span>
+            <span
+                style="color: black;"><sup>2</sup></span><span style="color: black;"> + m(x+h) + b = x</span><span style="color: black;"><sup>3</sup></span>
+                <span
+                    style="color: black;">
+                    + (3h + a)x
+                    </span><span style="color: black;"><sup>2</sup></span><span style="color: black;"> +
+3h</span><span style="color: black;"><sup>2</sup></span><span style="color: black;"> + 2ah + m)x + (h</span><span style="color: black;"><sup>3</sup></span>
+                    <span
+                        style="color: black;">
+                        + ah</span><span style="color: black;"><sup>2</sup></span><span style="color: black;"> + mh + b).
+By choosing h = -a/3 we obtain a function of the form g(x) = x</span><span style="color: black;"><sup>3</sup></span>
+                        <span
+                            style="color: black;">
+                            + Mx + B, where M and B are constants that we can manipulate. If we choose B = 0, we have a one-parameter family of cubics
+                            with no squared term and no constant terms.<span style="">&nbsp; </span>Any
+                            cubic will have the shape of exactly one of the cubics of this special form.
+                            </span>
+        </div>
+        <div class="textdiv">
+            Students can now investigate functions of the form f(x) = x<span style="color: black;"><sup>3</sup></span>
+            <span
+                style="color: black;">
+                + mx by changing the parameter m and observing the numbers of critical points of the graph.<span style="">&nbsp; </span>Immediately
+                we are led to the conjecture that when m is positive, there are no critical points for the function and when
+                m is negative, the number of critical points is two. Students can prove this conjecture can then be proven
+                by finding the derivative f�(x) = 3x</span><span style="color: black;"><sup>2</sup></span><span style="color: black;"> + m, which will never be zero if m is positive
 and which
 is zero for exactly two values of x when m is negative.
 The intermediate case, with m = 0, has a
 horizontal inflection point at the origin when x = 0.
-The value x is called a &#8220;degenerate&#8221;
-critical point, since f&#8217;(0) = 0
-so the tangent line is horizontal, but f&#8217;(x) is positive for all other
+The value x is called a �degenerate�
+critical point, since f�(0) = 0
+so the tangent line is horizontal, but f�(x) is positive for all other
 x, so
 the sign of the derivative does not change at the critical point, the
 way it
 does for a local maximum or minimum.
-</div>
-<div class="textdiv">
-The color
-coding introduced in the
-previous paragraphs makes it easy to see how the critical point
-behavior
-changes as we change the value of m in an interactive demonstration.<span
- style="">&nbsp; </span>The Java applet following the first
-illustration makes it possible for a teacher and students to
-investigate this
-behavior by changing the &#8220;slider bar&#8221; that gives the value for m.<span
-    style="">&nbsp;&nbsp; </span>
-</div>
-<div class="textdiv">
-In addition to
-indicating the slope
-of the tangent line, we can color the points on the graph by a darker
-color
-when the slope of the tangent line is negative, so we have a visual
-record of
-the places where the slope changes from positive to negative<span
- style=""> </span>(the local maxima of the curve, colored with
-a darker color) and where it changes from negative to positive (at the
-local
-minima, with lighter color).
-</div>
-<div class="textdiv">
-Note that
-f&#8217;&#8217;(x) = 6x no matter
-what m is, so the concavity of the graph changes from convex downward
-to convex
-upward as x goes from negative values to positive values in the domain.<span
- style="">&nbsp; </span>By making the graph thick when the second
-derivative is positive and thin where it is negative, we can observe
-the
-inflections points of the graph, where the second derivative changes
-sign and
-the concavity of the graph changes.
-<div class="centered"><img style="width: 553px; height: 215px;" alt="Figure 1" src="./v2n2p2/figure1.JPG"></div>
-<br/>
-<div class="centered">Figure 1: The family of cubic equations</div>
-<br/>
-<div class="centered">
-<applet codebase="./v2n2p2"
-        code="DemoApplet"
-        height="50"
-        width="400">
-        <param name="archive" value="Demo.jar">
-        <param name="NAME" value="Cubic curves">
-        <param name="DATA"
-               value="filever 100.0 env {function $x(t)=t$ interval $planey= -10,10,1$ variable 
-$c= -2,2,40$ -0.3999999999999999 interval $d2= -1,1,2$ interval $d1= -1,1,2$ 
-interval $t=-2,2,100$ interval $planex= -10,10,1$ interval $surf= 0,1,1$ 
-variable $b= -1,1,2$ -1.0 function $y2(t,d1,d2)=t^3 + d1*t$ constant $n= 4$ 
-variable $a= -1,1,20$ -1.0 function $y(t)=t^3 + a*t$} objects [{frame.2d obj0 
-{canvas {canvas.3d obj2 {tool 1.0 points true graph {graph.3d obj3 {light false 
-graph {plots [{plot.curve obj1 {super {super {transpt $0$ visible true addedz 
-0.0} color {coloring.group obj4 {colors [{coloring.gradient obj5 {colors 
-[{coloring.constant obj6 {color [0.0 0.0 0.0 0.0]}} {coloring.constant obj7 
-{color [0.5 0.5 0.0 1.0]}} {coloring.constant obj8 {color [0.5 0.5 0.5 1.0]}} 
-{coloring.constant obj9 {color [0.5 0.4 0.0 1.0]}} {coloring.constant obj10 
-{color [0.5 0.0 0.0 1.0]}} {coloring.constant obj11 {color [1.0 1.0 0.0 1.0]}} 
-{coloring.constant obj12 {color [1.0 1.0 1.0 1.0]}} {coloring.constant obj13 
-{color [1.0 0.8 0.0 1.0]}} {coloring.constant obj14 {color [1.0 0.0 0.0 1.0]}}] 
-values [$- 1$ $0.0$ $1.0$ $2.0$ $3.0$ $4.0$ $5.0$ $6.0$ $7.0$] expr 
-$(4 - 2*(1 + sign(x''(t)*y'(t) - y''(t)*x'(t)))) + (1 + sign(x'(t)))/2 + (1 + sign(y'(t))) $}}] 
-opacities [1.0] mixings [0.0]}} expr $x(t), y(t)$} thick true}} {plot.axes obj15 
-{super {transpt $0$ visible true addedz 0.0} labels [x y]}}]} alpha false scale 
-100.01271474132783 surfacemode 1.0 drawmode 1.0 transf [0.7219645977612509 0.0 
-0.0 5.775716782090007 0.0 0.7219645977612509 0.0 -2.8878583910450035 0.0 0.0 
-0.7219645977612509 0.0 0.0 0.0 0.0 1.0]}} group null hotspots [] drawmode 0.0}} 
-graph {id obj3} frame {visible true plots [{id obj1}] title $Cubic curves$ 
-labels [$ Curve: x(t), y(t)$]}}} {controls obj16 {constants [] intervals [] 
-objects [] readouts [] functions [x y] variables [a]}} {frame.3d obj17 {canvas 
-{canvas.3d obj29 {tool 1.0 points true graph {graph.3d obj30 {light true graph 
-{plots [{plot.vector obj21 {base $0,0,0$ endstyle 0.0 dir $0,1,0$ color 
-{coloring.group obj31 {colors [{coloring.constant obj32 {color [0.0 0.0 0.0 
-1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick false basestyle 0.0 
-subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} 
-endsize 10.0}} {plot.point obj23 {super {transpt $0$ visible true addedz 0.0} 
-color {coloring.group obj33 {colors [{coloring.constant obj34 {color [0.0 0.0 
-0.0 1.0]}}] opacities [1.0] mixings [0.0]}} label x size 10.0 style 3.0 
-showlabel true dim 3.0 expr $1,0,0$}} {plot.surface obj24 {intrpl true super 
-{super {transpt $0$ visible false addedz 0.0} color {coloring.group obj35 
-{colors [{coloring.constant obj36 {color [0.75 0.75 0.75 1.0]}}] opacities [0.3] 
-mixings [0.0]}} expr $-10*t^2 - surf*10, 27*t^3,1$} vrtnml true}} {plot.curve 
-obj19 {super {super {transpt $0$ visible false addedz 0.0} color {coloring.group 
-obj37 {colors [{coloring.gradient obj38 {colors [{coloring.constant obj39 {color 
-[0.0 0.0 0.0 0.0]}} {coloring.constant obj40 {color [0.5 0.5 0.0 1.0]}} 
-{coloring.constant obj41 {color [0.0 0.5 0.0 1.0]}} {coloring.constant obj42 
-{color [0.5 0.4 0.0 1.0]}} {coloring.constant obj43 {color [0.5 0.0 0.0 1.0]}} 
-{coloring.constant obj44 {color [1.0 1.0 0.0 1.0]}} {coloring.constant obj45 
-{color [0.0 1.0 0.0 1.0]}} {coloring.constant obj46 {color [1.0 0.8 0.0 1.0]}} 
-{coloring.constant obj47 {color [1.0 0.0 0.0 1.0]}}] values [$- 1$ $0.0$ $1.0$ 
-$2.0$ $3.0$ $4.0$ $5.0$ $6.0$ $7.0$] expr 
-$(4 - 2*(1 + sign(x''(t)*y'(t) - y''(t)*x'(t)))) + (1 + sign(x'(t)))/2 + (1 + sign(y'(t))) $}}] 
-opacities [1.0] mixings [0.0]}} expr $x(t),y(t),0$} thick true}} {plot.field 
-obj20 {super {transpt $0$ visible true addedz 0.0} intervals [$d1$ $d2$] plots 
-[{plot.vector obj48 {base $d1*n,d2*n,0$ endstyle 0.0 dir $1,0,0$ color 
-{coloring.group obj49 {colors [{coloring.constant obj50 {color [0.0 0.0 0.0 
-1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick false basestyle 0.0 
-subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} 
-endsize 10.0}} {plot.vector obj51 {base $n*d1,n*d2,0$ endstyle 0.0 dir $0,1,0$ 
-color {coloring.group obj52 {colors [{coloring.constant obj53 {color [0.0 0.0 
-0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick false basestyle 0.0 
-subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} 
-endsize 10.0}} {plot.point obj54 {super {transpt $0$ visible true addedz 0.0} 
-color {coloring.group obj55 {colors [{coloring.constant obj56 {color [0.0 0.0 
-0.0 1.0]}}] opacities [1.0] mixings [0.0]}} label x size 10.0 style 3.0 
-showlabel true dim 3.0 expr $(1,0,0) + (n*d1, n*d2, 0)$}} {plot.curve obj57 
-{super {super {transpt $0$ visible true addedz 0.0} color {coloring.group obj58 
-{colors [{coloring.gradient obj59 {colors [{coloring.constant obj60 {color [0.6 
-0.6 0.0 1.0]}} {coloring.constant obj61 {color [0.4 0.4 0.4 1.0]}} 
-{coloring.constant obj62 {color [0.6 0.45 0.0 1.0]}} {coloring.constant obj63 
-{color [0.6 0.0 0.0 1.0]}} {coloring.constant obj64 {color [0.9 0.9 0.0 1.0]}} 
-{coloring.constant obj65 {color [0.75 0.75 0.75 1.0]}} {coloring.constant obj66 
-{color [1.0 0.7 0.0 1.0]}} {coloring.constant obj67 {color [1.0 0.0 0.0 1.0]}} 
-{coloring.constant obj68 {color [0.0 0.0 0.0 0.0]}}] values [$- 8$ $-7.0$ 
-$-6.0$ $-5.0$ $-4.0$ $-3.0$ $-2.0$ $-1.0$ $0$] expr 
-$8*sign((y2(t,d1,d2) - 2)*(y2(t,d1,d2) + 2)) + (4 - 2*(1 + sign(x''(t)*y2_t(t,d1,d2) - y2_t_t(t,d1,d2)*x'(t)))) + (1 + sign(x'(t)))/2 + (1 + sign(y2_t(t,d1,d2))) $}}] 
-opacities [1.0] mixings [0.0]}} expr $x(t) + n*d1, y2(t,d1,d2) + 2*n*d2, 0$} 
-thick true}} {plot.point obj69 {super {transpt $0$ visible true addedz 0.0} 
-color {coloring.group obj70 {colors [{coloring.constant obj71 {color [0.0 0.0 
-0.0 1.0]}}] opacities [1.0] mixings [0.0]}} label y size 10.0 style 3.0 
-showlabel true dim 3.0 expr $(0,1,0) + (n*d1, n*d2, 0)$}}]}} {plot.vector obj22 
-{base $0,0,0$ endstyle 0.0 dir $1,0,0$ color {coloring.group obj72 {colors 
-[{coloring.constant obj73 {color [0.0 0.0 0.0 1.0]}}] opacities [1.0] mixings 
-[0.0]}} dim 3.0 thick false basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 
-super {transpt $0$ visible true addedz 0.0} endsize 10.0}} {plot.curve obj26 
-{super {super {transpt $0$ visible false addedz 0.0} color {coloring.group obj74 
-{colors [{coloring.constant obj75 {color [0.5 0.5 0.5 1.0]}}] opacities [1.0] 
-mixings [0.0]}} expr $-10*t^2, 27*t^3,1$} thick true}} {plot.surface obj18 
-{intrpl true super {super {transpt $0$ visible true addedz 0.0} color 
-{coloring.group obj76 {colors [{coloring.constant obj77 {color [1.0 1.0 1.0 
-1.0]}}] opacities [1.0] mixings [0.0]}} expr $(planex,planey,-1)$} vrtnml true}} 
-{plot.axes obj27 {super {transpt $0$ visible false addedz 0.0} labels [x y z]}} 
-{plot.vector obj25 {base $0,0,1$ endstyle 1.0 dir $-10,0,0$ color 
-{coloring.group obj78 {colors [{coloring.constant obj79 {color [0.5 0.5 0.5 
-1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 
-1.0 len 1.0 basesize 10.0 super {transpt $0$ visible false addedz 0.0} endsize 
-10.0}} {plot.point obj28 {super {transpt $0$ visible true addedz 0.0} color 
-{coloring.group obj80 {colors [{coloring.constant obj81 {color [0.0 0.0 0.0 
-1.0]}}] opacities [1.0] mixings [0.0]}} label y size 10.0 style 3.0 showlabel 
-true dim 3.0 expr $0,1,0$}}]} alpha true scale 100.01271474132783 surfacemode 
-3.0 drawmode 1.0 transf [0.5864174746159402 4.0690886397572194E-16 0.0 0.0 
--3.2552709118057753E-17 0.5864174746159406 0.0 0.0 -3.2552709118057753E-17 
-2.8483620478300537E-16 0.5864174746159402 0.0 0.0 0.0 0.0 1.0]}} group null 
-hotspots [] drawmode 1.0}} graph {id obj30} frame {visible false plots [{id 
-obj18} {id obj19} {id obj20} {id obj21} {id obj22} {id obj23} {id obj24} {id 
-obj25} {id obj26} {id obj27} {id obj28}] title $3D Graph$ labels 
-[$ Surface: (planex,planey,-1)$ $ Curve: x(t),y(t),0$ $ Field of 5 plots$ 
-$ Vector: 0,1,0  starting at 0,0,0$ $ Vector: 1,0,0  starting at 0,0,0$ 
-$ Point: 1,0,0$ $ Surface: -10*t^2 - surf*10, 27*t^3,1$ 
-$ Vector: -10,0,0  starting at 0,0,1$ $ Curve: -10*t^2, 27*t^3,1$ 
-$ Axes: x, y, z$ $ Point: 0,1,0$]}}}] "></applet>
-</div>
-<div class="centered"><a href="./v2n2p2/IGCP_help_cubiccurvesdemo.html"
-        onclick="return openwindow(this, 'Help')"><span style="font-size: 80%;">Demo help</span></a></div>
-</div>
-<p/><br/>
-<span class="sectiontitlespan">3. The
+</span></div>
+        <div class="textdiv">
+            The color coding introduced in the previous paragraphs makes it easy to see how the critical point behavior changes as we
+            change the value of m in an interactive demonstration.<span style="">&nbsp; </span>The Java applet
+            following the first illustration makes it possible for a teacher and students to investigate this behavior by
+            changing the �slider bar� that gives the value for m.<span style="">&nbsp;&nbsp; </span>
+        </div>
+        <div class="textdiv">
+            In addition to indicating the slope of the tangent line, we can color the points on the graph by a darker color when the
+            slope of the tangent line is negative, so we have a visual record of the places where the slope changes from
+            positive to negative<span style=""> </span>(the local maxima of the curve, colored with a darker
+            color) and where it changes from negative to positive (at the local minima, with lighter color).
+        </div>
+        <div class="textdiv">
+            Note that f��(x) = 6x no matter what m is, so the concavity of the graph changes from convex downward to convex upward as
+            x goes from negative values to positive values in the domain.<span style="">&nbsp; </span>By making
+            the graph thick when the second derivative is positive and thin where it is negative, we can observe the inflections
+            points of the graph, where the second derivative changes sign and the concavity of the graph changes.
+            <div class="centered"><img style="width: 553px; height: 215px;" alt="Figure 1" src="./Interactive Geometry and Critical Points_files/figure1.JPG"></div>
+            <br>
+            <div class="centered">Figure 1: The family of cubic equations</div>
+            <br>
+            <div class="centered">
+                <script>
+                    
+                </script>
+            </div>
+            <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_cubiccurvesdemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
+        </div>
+        <p><br>
+            <span class="sectiontitlespan">3. The
     Family of Quartic Equations</span>
-<p/>
-<div class="textdiv">
-More interesting is the case of a
-quartic, or fourth degree polynomial f(x) = -x<sup>4</sup>
- + cx<sup>3</sup> + ax<sup>2</sup> + mx + b. As in
-the case of the quadratic and the cubic, changing b only shifts the
-y-intercept
-up and down without changing the shape of the curve.
-Also, shifting the domain by setting g(x) =
-f(x+h) = -(x+h)<sup>4</sup> +c(x+h)<sup>3</sup>
- + a(x+h)<sup>2</sup>
- + m(x+h) + b = -x<sup>4</sup>
- + (6h +c)x<sup>3</sup>
- + lower order terms, so
-choosing h = -c/6 we can eliminate the coefficient of x<sup>3</sup>.
-As usual we can shift vertically by choosing
-the constant to be zero, so the graph of any quartic function of this
-type can be
-written, f(x) = -x<sup>4</sup>
-+ ux<sup>2</sup> + vx, for appropriate choices of the parameters u and
-v.
-</div>
-<div class="textdiv">
-</span>Once again, an interactive graphics
-programs makes it possible for students to explore the family of graphs
-of
-quartic functions by choosing values u and v in the &#8220;two-dimensional
-control
-space&#8221;. Sometimes the number of critical
-points is 1, for example when v = 0 and u is negative, and other times
-there
-are 3 critical points, for example when v = 0 and u is positive. What
-happens if v is not zero? When will we
-get 3 critical points and when will we get 1?
-Will we ever get exactly 2 critical points?
-</div>
-<div class="textdiv">
-If v = 0, then we observe that for
-any positive number u, the graph will have three critical points, two
-minima
-and one local maxima. We can show this
-algebraically by computing f&#8217;(x) = -4x<sup>3</sup>
- + 2ux = -2x(2x<sup>2</sup> -u), which will
-equal
-zero for at x = 0 and at two other values of x if u is positive, and
-only at x
-= 0 if u is positive. <o:p></o:p></span>
-</div>
-<div class="textdiv">
-If we choose u = 1 so that f(x) = -x<sup>4</sup>
-+ x<sup>2</sup>
- + vx, then for some values of v near zero, the
-number of
-critical
-points is still 3, but for some values of v, the number of critical
-points
-changes to 1. We can observe that this
-change occurs at the value of v for which the function has a horizontal
-inflection point, where f&#8217;(x) = 0 and f&#8217;&#8217;(x) = 0. Thus
-we must have both f&#8217;(x) = -4x
-<sup>3</sup> + 2x + v =
-0 and f&#8217;&#8217;(x) = -12x<sup>2</sup>
- + 2 =
-0. From the second equation, x is plus
-or minus the square root of 1/6, so v = &plusmn;(4/3)&#8730;(1/6).
-For general u, we obtain the equations f&#8217;(x) = -4x<sup>3</sup>
- + 2ux + v = 0 and f&#8217;&#8217;(x) = -12x<sup>2</sup>
-+ 2u = 0 so |x| = &#8730;u/6 and v = 4x<sup>3</sup>
- style="color: black;"> &#8211;
-2ux = (4u/6)&#8730;u/6 &#8211; 2u&#8730;u/6 = -(4/3)u&#8730;u/6.
-Therefore 27v<sup>2</sup> = 8u<sup>3</sup>. This
-&#8220;semi-cubical parabola&#8221; curve in the &#8220;control space&#8221; of all possible
-choices of
-u and v will separate the (u,v) choices that give functions with 3
-critical points
-from those that give functions with 1 critical point. <o:p></o:p></span>
-</div>
-<div class="textdiv">
-</span>We can use the interactive graphics
-system to construct a collection of function graphs that exhibit the
-different
-configurations of critical points for different choices of u and v.
-<div class="centered"><img style="width: 540px; height: 588px;" alt="Figure 2"
- src="./v2n2p2/9quarticcurves.JPG"></div>
-<br/>
-<div class="centered">Figure 2: The family of quartic equations</div>
-<br/>
-<div class="centered"><applet codebase="./v2n2p2" archive="Demo.jar" code="DemoApplet"
- height="50" width="400"><param name="NAME" value="Quartic curves"> <param
- name="DATA"
- value="filever 100.0 env {interval $t= -1,1,20$ variable $a= -1,1,2$ 0.0 variable 
+        </p>
+        <p>
+        </p>
+        <div class="textdiv">
+            More interesting is the case of a quartic, or fourth degree polynomial f(x) = -x<sup>4</sup> + cx<sup>3</sup>            + ax<sup>2</sup> + mx + b. As in the case of the quadratic and the cubic, changing b only shifts the y-intercept
+            up and down without changing the shape of the curve. Also, shifting the domain by setting g(x) = f(x+h) = -(x+h)<sup>4</sup>            +c(x+h)<sup>3</sup> + a(x+h)<sup>2</sup> + m(x+h) + b = -x<sup>4</sup> + (6h +c)x<sup>3</sup> + lower order terms,
+            so choosing h = -c/6 we can eliminate the coefficient of x<sup>3</sup>. As usual we can shift vertically by choosing
+            the constant to be zero, so the graph of any quartic function of this type can be written, f(x) = -x<sup>4</sup>            + ux<sup>2</sup> + vx, for appropriate choices of the parameters u and v.
+        </div>
+        <div class="textdiv">
+            Once again, an interactive graphics programs makes it possible for students to explore the family of graphs of quartic functions
+            by choosing values u and v in the �two-dimensional control space�. Sometimes the number of critical points is
+            1, for example when v = 0 and u is negative, and other times there are 3 critical points, for example when v
+            = 0 and u is positive. What happens if v is not zero? When will we get 3 critical points and when will we get
+            1? Will we ever get exactly 2 critical points?
+        </div>
+        <div class="textdiv">
+            If v = 0, then we observe that for any positive number u, the graph will have three critical points, two minima and one local
+            maxima. We can show this algebraically by computing f�(x) = -4x<sup>3</sup> + 2ux = -2x(2x<sup>2</sup>            -u), which will equal zero for at x = 0 and at two other values of x if u is positive, and only at x = 0 if u
+            is positive.
+            <o:p></o:p>
+        </div>
+        <div class="textdiv">
+            If we choose u = 1 so that f(x) = -x<sup>4</sup> + x<sup>2</sup> + vx, then for some values of v near zero, the
+            number of critical points is still 3, but for some values of v, the number of critical points changes to 1. We
+            can observe that this change occurs at the value of v for which the function has a horizontal inflection point,
+            where f�(x) = 0 and f��(x) = 0. Thus we must have both f�(x) = -4x
+            <sup>3</sup> + 2x + v = 0 and f��(x) = -12x<sup>2</sup> + 2 = 0. From the second equation, x is plus or minus
+            the square root of 1/6, so v = �(4/3)&#8730;(1/6). For general u, we obtain the equations f�(x) = -4x<sup>3</sup>            + 2ux + v = 0 and f��(x) = -12x<sup>2</sup> + 2u = 0 so |x| = &#8730;u/6 and v = 4x<sup>3</sup> style="color:
+            black;"&gt; � 2ux = (4u/6)&#8730;u/6 � 2u&#8730;u/6 = -(4/3)u&#8730;u/6. Therefore 27v<sup>2</sup> = 8u<sup>3</sup>.
+            This �semi-cubical parabola� curve in the �control space� of all possible choices of u and v will separate the
+            (u,v) choices that give functions with 3 critical points from those that give functions with 1 critical point.
+            <o:p></o:p>
+        </div>
+        <div class="textdiv">
+            We can use the interactive graphics system to construct a collection of function graphs that exhibit the different configurations
+            of critical points for different choices of u and v.
+            <div class="centered"><img style="width: 540px; height: 588px;" alt="Figure 2" src="./Interactive Geometry and Critical Points_files/9quarticcurves.JPG"></div>
+            <br>
+            <div class="centered">Figure 2: The family of quartic equations</div>
+            <br>
+            <div class="centered">
+                <applet codebase="./v2n2p2" archive="Demo.jar" code="DemoApplet" height="50" width="400">
+                    <param name="NAME" value="Quartic curves">
+                    <param name="DATA" value="filever 100.0 env {interval $t= -1,1,20$ variable $a= -1,1,2$ 0.0 variable 
 $b= -1,1,2$ 1.0 function $X(u)=(cos(u), sin(u))$ interval $x= -1,1,20$ interval 
 $u1=0, pi/2,24$ interval $u4= 3*pi/2, 2*pi,24$ interval $u3=pi,3* pi/2,24$ 
 interval $u2=pi/2, pi,24$ value $A=(1.029869054813665 , 0.19997457375022623)$ 
@@ -610,103 +326,68 @@ visible true addedz 0.0} color {coloring.group obj32 {colors [{coloring.gradient
 obj33 {colors [{coloring.constant obj34 {color [0.25 0.25 0.25 1.0]}} 
 {coloring.constant obj35 {color [0.5 0.0 0.0 1.0]}} {coloring.constant obj36 
 {color [0.75 0.75 0.75 1.0]}} {coloring.constant obj37 {color [1.0 0.0 0.0 
-1.0]}}] values [$-3.0$ $-1.0$ $1.0$ $3$] expr $sign(f'(x)) + 2*sign(f''(x))$}}] 
+1.0]}}] values [$-3.0$ $-1.0$ $1.0$ $3$] expr $sign(f&#39;(x)) + 2*sign(f&#39;&#39;(x))$}}] 
 opacities [1.0] mixings [0.0]}} expr $(x,f(x))$} thick true}}]} alpha false 
 scale 100.01271474132783 surfacemode 1.0 drawmode 1.0 transf [0.9075191553171648 
 0.0 0.0 0.0 0.0 0.9075191553171648 0.0 0.0 0.0 0.0 0.9075191553171648 0.0 0.0 
 0.0 0.0 1.0]}} group null hotspots [] drawmode 0.0}} graph {id obj30} frame 
 {visible true plots [{id obj28}] title $Quartic curve$ labels 
-[$ Curve: (x,f(x))$]}}}] "></applet>
-</div>
-<div class="centered"><a href="./v2n2p2/IGCP_help_quarticcurvesdemo.html"
-        onclick="return openwindow(this, 'Help')"><span style="font-size: 80%;">Demo help</span></a></div>
-</div>
-<div class="textdiv">
-Mathematicians familiar with
-catastrophe theory will recognize that these two families of functions,
-the
-cubic curves and the quartic curves, are two of the most important
-basic
-examples in that theory.<span style="">&nbsp; </span>Originally
-arising in the sciences of optics and structural design, catastrophe
-theory has
-significant applications in physics and engineering and in differential
-geometry and other parts of mathematics.<span style="">&nbsp;
-</span>It is noteworthy that interactive computer graphics makes it
-possible to
-introduce this modern subject to students just beginning the study of
-calculus
-and analytic geometry for functions of one variable.<span style="">&nbsp;&nbsp;
-</span>For a good introduction to elementary
-catastrophe theory for functions of one variable,<span style=""> </span>see
-the Catastrophe Teacher website of Lucien
-Dujardin <o:p></o:p><a
- href="http://pagesperso-orange.fr/l.d.v.dujardin/ct/eng_index.html">http://pagesperso-orange.fr/l.d.v.dujardin/ct/eng_index.html</a>.
-<o:p></o:p></span>
-</div>
-<p/><br/>
-<span class="sectiontitlespan">4. Critical Points for Parametric Curves</span>
-<p/>
-<div class="textdiv">
-There are two
-natural ways to
-extend the analysis of functions of a single variable to more general
-situations: either we may consider parametric curves in the plane, or
-we can
-consider graphs of functions of two variables in three-dimensional
-space,
-eventually moving on to study parametric surfaces.<o:p></o:p><span
- style=""></span></span>
-</div>
-<div class="textdiv">
-For a differentiable
-closed curve
-in the plane given in parametric form by (x(t),y(t)) with t going from
-a to b,
-there is a velocity vector (x&#8217;(t),y&#8217;(t)) at each point, and a normal
-vector
-(-y&#8217;(t), x&#8217;(t)) perpendicular to the velocity vector.<span style="">&nbsp;
-</span>The unit vector in the direction of the
-normal vector is called the &#8220;circular image&#8221; at the point.<span style="">&nbsp;
-</span>In contradistinction to the case of a
-function graph where all the circular images were in the upper
-semicircle, in
-the case of a parametric curve, any point on the unit circle can be the
-circular image of a of a point on the curve.<span style="">&nbsp;
-</span>If, as before, we color red the points of the unit circle to the
-left of
-the vertical and if we color the points in the lower semicircle yellow,
-then the
-first quadrant will be white, the second will be red, the third will be
-orange,
-and the fourth will be yellow.<span style="">&nbsp; </span>We can
-then color each point on the parametric curve with the same color as
-its
-circular image.
-</div>
-<div class="textdiv">
-We can
-then read off the critical points of the horizontal coordinate function
-x(t) by
-finding points where the color changes from yellow to white or from red
-to
-orange, or conversely.<span style="">&nbsp; </span>The critical
-points of other coordinate function y(t) on the other hand occur where
-the
-color changes from white to red or from orange to yellow or conversely.<span
- style="">&nbsp; </span>The number of color changes for each of the
-two coordinate functions will be even and the total number will be even.<span
- style="">&nbsp; </span>This is true whether or not the curve
-intersects itself.
-<div class="centered"><img style="width: 625px; height: 327px;" alt="Figure 3"
-    src="./v2n2p2/parametriccurve.JPG"></div>
-<br/>
-<div class="centered">Figure 3: Color-labeled parametric curves in the plane</div>
-<br/>
-<div class="centered"><applet codebase="./v2n2p2" archive="Demo.jar"
- code="DemoApplet" height="50" width="400"><param name="NAME"
- value="Parametric curves in the plane"> <param name="DATA"
- value="filever 100.0 env {function $X(u)=(cos(u), cos(u)*sin(u))$ interval 
+[$ Curve: (x,f(x))$]}}}] ">
+                </applet>
+            </div>
+            <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_quarticcurvesdemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
+        </div>
+        <div class="textdiv">
+            Mathematicians familiar with catastrophe theory will recognize that these two families of functions, the cubic curves and
+            the quartic curves, are two of the most important basic examples in that theory.<span style="">&nbsp; </span>Originally
+            arising in the sciences of optics and structural design, catastrophe theory has significant applications in physics
+            and engineering and in differential geometry and other parts of mathematics.<span style="">&nbsp;
+</span>It is noteworthy that interactive computer graphics makes it possible to introduce this modern subject to students
+            just beginning the study of calculus and analytic geometry for functions of one variable.<span style="">&nbsp;&nbsp;
+</span>For a good introduction to elementary catastrophe theory for functions of one variable,<span style=""> </span>see
+            the Catastrophe Teacher website of Lucien Dujardin
+            <o:p></o:p><a href="http://pagesperso-orange.fr/l.d.v.dujardin/ct/eng_index.html">http://pagesperso-orange.fr/l.d.v.dujardin/ct/eng_index.html</a>.
+            <o:p></o:p>
+        </div>
+        <p><br>
+            <span class="sectiontitlespan">4. Critical Points for Parametric Curves</span>
+        </p>
+        <p>
+        </p>
+        <div class="textdiv">
+            There are two natural ways to extend the analysis of functions of a single variable to more general situations: either we
+            may consider parametric curves in the plane, or we can consider graphs of functions of two variables in three-dimensional
+            space, eventually moving on to study parametric surfaces.
+            <o:p></o:p><span style=""></span>
+        </div>
+        <div class="textdiv">
+            For a differentiable closed curve in the plane given in parametric form by (x(t),y(t)) with t going from a to b, there is
+            a velocity vector (x�(t),y�(t)) at each point, and a normal vector (-y�(t), x�(t)) perpendicular to the velocity
+            vector.<span style="">&nbsp;
+</span>The unit vector in the direction of the normal vector is called the �circular image� at the point.<span style="">&nbsp;
+</span>In contradistinction to the case of a function graph where all the circular images were in the upper semicircle, in
+            the case of a parametric curve, any point on the unit circle can be the circular image of a of a point on the
+            curve.<span style="">&nbsp;
+</span>If, as before, we color red the points of the unit circle to the left of the vertical and if we color the points in
+            the lower semicircle yellow, then the first quadrant will be white, the second will be red, the third will be
+            orange, and the fourth will be yellow.<span style="">&nbsp; </span>We can then color each point on the parametric
+            curve with the same color as its circular image.
+        </div>
+        <div class="textdiv">
+            We can then read off the critical points of the horizontal coordinate function x(t) by finding points where the color changes
+            from yellow to white or from red to orange, or conversely.<span style="">&nbsp; </span>The critical
+            points of other coordinate function y(t) on the other hand occur where the color changes from white to red or
+            from orange to yellow or conversely.<span style="">&nbsp; </span>The number of color changes for each of the
+            two coordinate functions will be even and the total number will be even.<span style="">&nbsp; </span>This is
+            true whether or not the curve intersects itself.
+            <div class="centered"><img style="width: 625px; height: 327px;" alt="Figure 3" src="./Interactive Geometry and Critical Points_files/parametriccurve.JPG"></div>
+            <br>
+            <div class="centered">Figure 3: Color-labeled parametric curves in the plane</div>
+            <br>
+            <div class="centered">
+                <applet codebase="./v2n2p2" archive="Demo.jar" code="DemoApplet" height="50" width="400">
+                    <param name="NAME" value="Parametric curves in the plane">
+                    <param name="DATA" value="filever 100.0 env {function $X(u)=(cos(u), cos(u)*sin(u))$ interval 
 $u=0,2*pi,200$ interval $u2=pi/2, pi,24$ variable $u0= 0,2*pi, 24$ 0.0 interval 
 $u1=0, pi/2,24$ interval $u4= 3*pi/2, 2*pi,24$ interval $u3=pi,3* pi/2,24$ 
 function $Z(u,v)=(X_1(u),X_2(u), v)$} objects [{frame.2d obj0 {canvas {canvas.3d 
@@ -754,86 +435,55 @@ title $Normal map$ labels [$ Curve: (cos(u3),sin(u3))$
 $ Curve: (cos(u2),sin(u2))$ $ Curve: (cos(u4),sin(u4))$ 
 $ Vector: N_1(Z)(u0,0), N_2(Z)(u0,0)  starting at N_1(Z)(u0,0), N_2(Z)(u0,0)$ 
 $ Curve: (cos(u1),sin(u1))$]}}} {controls obj32 {constants [] intervals [] 
-objects [] readouts [] functions [X] variables [$u0$]}}] "></applet>
-</div>
-<div class="centered"><a href="./v2n2p2/IGCP_help_parametricdemo.html"
-        onclick="return openwindow(this, 'Help')"><span style="font-size: 80%;">Demo help</span></a></div>
-</div>
-<p/>
-<div class="textdiv">
-As the
-point (x(t),y(t)) moves along the curve, the corresponding unit normal
-vector
-on the unit circle is either moving counterclockwise or clockwise, and
-we can
-indicate this by making the curve thin in the first case and thick in
-the
-second case.<span style="">&nbsp; </span>The points of the curve
-where the direction changes are the inflection points of the curve.<span
- style="">&nbsp; </span>Students can investigate various curves, and
-observe the number of points on the curve that correspond to any chosen
-point
-on the circle.<span style="">&nbsp; </span>How does the number of
-corresponding points change as we move the position on the circle?<span
- style="">&nbsp; </span>What happens as we pass a point on the circle
-that corresponds to an inflection point on the curve?<span style="">&nbsp;
-</span>The investigation of curves in the plane
-leads to the theory of tangential degree of a curve, an important
-concept in
-the differential geometry of curves in the plane.<span style="">&nbsp;&nbsp;
-</span><o:p></o:p></span>
-</div>
-<p/><br/>
-<span class="sectiontitlespan">5. Families of Parametric Curves</span>
-<p/>
-<div class="textdiv">
-Just as we considered one- and
-two-parameter families of function graphs, we can explore families of
-closed
-parametric plane curves like the cardioid family:
-(-(u+cos(t))cos(t),(u+cos(t))sin(t)).<span style="">&nbsp;
-</span>Students can discover that the shapes of these curves depend on
-u and in
-particular, that the shape changes dramatically near u = 1 and -1.<span
- style="">&nbsp; </span>As we watch an animation of this family as u
-runs from u = .6 to u = 1.4, we can observe that the curve has a loop
-for u
-less than 1, then a cusp at u = 1 and then a pair of inflection points
-and
-finally a convex curve. Students can
-also record what happens near other significant points, when u = -2,
--1, 0, 1,
-and 2. For u between -1 and 1, the
-circular image of the parametric curve covers the unit circle exactly
-twice,
-while for u greater than 1 or less than -1, the unit circles is covered
-once
-algebraically. For u between 1 and 2, or
-between -1 and -2, there are inflection points where the circular image
-doubles
-back on itself, so that some points of the circle are the circular
-image of
-three points, two where the image curve travels in a counterclockwise
-(positive) direction and one where it travels in a clockwise (positive)
-direction, whereas all but two other points on the circle are the
-circular
-image of exactly one point on the curve, where the image curve travels
-in a
-positive directions. We say that
-such a
-curve has &#8220;tangential degree 1&#8221;, a concept of great importance the in
-differential geometry and topology of
-plane curves
-<div class="centered"><img style="width: 900px; height: 403px;" alt="Figure 4"
-    src="./v2n2p2/cardioidfamily.JPG"></div>
-<br/>
- <div class="centered">Figure 4: The cardioid family, color-coded</div>
- <br/>
- <div class="centered">
-     <applet codebase="./v2n2p2" archive="Demo.jar"
- code="DemoApplet" height="50" width="400"><param name="NAME"
- value="The cardioid family"> <param name="DATA"
- value="filever 100.0 env {variable $c= -2,2,20$ 0.6000000000000001 interval 
+objects [] readouts [] functions [X] variables [$u0$]}}] ">
+                </applet>
+            </div>
+            <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_parametricdemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
+        </div>
+        <p>
+        </p>
+        <div class="textdiv">
+            As the point (x(t),y(t)) moves along the curve, the corresponding unit normal vector on the unit circle is either moving
+            counterclockwise or clockwise, and we can indicate this by making the curve thin in the first case and thick
+            in the second case.<span style="">&nbsp; </span>The points of the curve where the direction changes
+            are the inflection points of the curve.<span style="">&nbsp; </span>Students can investigate various curves,
+            and observe the number of points on the curve that correspond to any chosen point on the circle.<span style="">&nbsp; </span>How
+            does the number of corresponding points change as we move the position on the circle?<span style="">&nbsp; </span>What
+            happens as we pass a point on the circle that corresponds to an inflection point on the curve?<span style="">&nbsp;
+</span>The investigation of curves in the plane leads to the theory of tangential degree of a curve, an important concept
+            in the differential geometry of curves in the plane.<span style="">&nbsp;&nbsp;
+</span>
+            <o:p></o:p>
+        </div>
+        <p><br>
+            <span class="sectiontitlespan">5. Families of Parametric Curves</span>
+        </p>
+        <p>
+        </p>
+        <div class="textdiv">
+            Just as we considered one- and two-parameter families of function graphs, we can explore families of closed parametric plane
+            curves like the cardioid family: (-(u+cos(t))cos(t),(u+cos(t))sin(t)).
+            <span style="">&nbsp;
+</span>Students can discover that the shapes of these curves depend on u and in particular, that the shape changes
+            dramatically near u = 1 and -1.<span style="">&nbsp; </span>As we watch an animation of this family as u runs
+            from u = .6 to u = 1.4, we can observe that the curve has a loop for u less than 1, then a cusp at u = 1 and
+            then a pair of inflection points and finally a convex curve. Students can also record what happens near other
+            significant points, when u = -2, -1, 0, 1, and 2. For u between -1 and 1, the circular image of the parametric
+            curve covers the unit circle exactly twice, while for u greater than 1 or less than -1, the unit circles is covered
+            once algebraically. For u between 1 and 2, or between -1 and -2, there are inflection points where the circular
+            image doubles back on itself, so that some points of the circle are the circular image of three points, two where
+            the image curve travels in a counterclockwise (positive) direction and one where it travels in a clockwise (positive)
+            direction, whereas all but two other points on the circle are the circular image of exactly one point on the
+            curve, where the image curve travels in a positive directions. We say that such a curve has �tangential degree
+            1�, a concept of great importance the in differential geometry and topology of plane curves
+            <div class="centered"><img style="width: 900px; height: 403px;" alt="Figure 4" src="./Interactive Geometry and Critical Points_files/cardioidfamily.JPG"></div>
+            <br>
+            <div class="centered">Figure 4: The cardioid family, color-coded</div>
+            <br>
+            <div class="centered">
+                <applet codebase="./v2n2p2" archive="Demo.jar" code="DemoApplet" height="50" width="400">
+                    <param name="NAME" value="The cardioid family">
+                    <param name="DATA" value="filever 100.0 env {variable $c= -2,2,20$ 0.6000000000000001 interval 
 $u4= 3*pi/2, 2*pi,24$ interval $u1=0, pi/2,24$ variable $t0= 0, 2*pi, 24$ 0.0 
 interval $u3=pi,3* pi/2,24$ interval $u2=pi/2, pi,24$ interval $t= 0,2*pi, 240$ 
 function $X(t)=-((c + cos(t))*cos(t), (c + cos(t))*sin(t))$ function 
@@ -882,125 +532,93 @@ obj19}] title $2D Graph$ labels [$ Curve: (cos(u2),sin(u2))$
 $ Vector: N_1(Z)(t0,0), N_2(Z)(t0,0)  starting at N_1(Z)(t0,0), N_2(Z)(t0,0)$ 
 $ Curve: (cos(u3),sin(u3))$ $ Curve: (cos(u1),sin(u1))$ 
 $ Curve: (cos(u4),sin(u4))$]}}} {controls obj32 {constants [] intervals [t] 
-objects [] readouts [] functions [X] variables [$t0$ c]}}] "></applet>
-</div>
-<div class="centered"><a href="./v2n2p2/IGCP_help_cardioiddemo.html"
-        onclick="return openwindow(this, 'Help')"><span style="font-size: 80%;">Demo help</span></a></div>
-</div>
-<p/><br/>
-<span class="sectiontitlespan"> 6. Critical Points and Functions of Two Variables</span>
-<p/>
-<div class="textdiv">
-We can generalize the study graphs
-of functions of one variable in the plane to the study of graphs of
-functions
-of two variables in three-space.<span style="">&nbsp; </span>We
-restrict ourselves to functions defined on simple domains such as a
-rectangle or
-circular disc.<span style="">&nbsp; </span>As in the case of
-functions of one variable, we want to find the range of a function,
-namely the
-smallest rectangular or cylindrical prism (called a &#8220;box&#8221;) over the
-domain that
-will contain all of the function values for points in the domain.<span
- style="">&nbsp; </span>A point of the graph in the top plane of such
-a box will correspond to either an interior point<span style=""> </span>of
-the domain or a point on the boundary
-curve.<span style="">&nbsp; </span>If the function is
-differentiable, then a point of the graph in the top plane
-corresponding to an
-interior point will have the top plane as its horizontal tangent plane,
-and for
-an interior global minimum, the bottom plane of the box will contain
-the
-horizontal tangent plane at the point of the graph.<span style="">&nbsp;
-</span>On the other hand, it might be that the
-highest or lowest point occurs at a point on the boundary curve of the
-domain,
-and in that case the tangent line to the boundary curve will be a
-horizontal
-tangent line lying on the top or bottom face of the containing box.<o:p></o:p></span>
-</div>
-<div class="textdiv">
-</span>In addition to the local maxima of
-functions of two variables, represented by the origin in the function
-f(x,y) =
--x</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> &#8211; y</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> and the minima represented by the origin for
-f(x,y) = x</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> + y</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;">,
+objects [] readouts [] functions [X] variables [$t0$ c]}}] ">
+                </applet>
+            </div>
+            <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_cardioiddemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
+        </div>
+        <p><br>
+            <span class="sectiontitlespan"> 6. Critical Points and Functions of Two Variables</span>
+        </p>
+        <p>
+        </p>
+        <div class="textdiv">
+            We can generalize the study graphs of functions of one variable in the plane to the study of graphs of functions of two variables
+            in three-space.<span style="">&nbsp; </span>We restrict ourselves to functions defined on simple
+            domains such as a rectangle or circular disc.<span style="">&nbsp; </span>As in the case of functions of one
+            variable, we want to find the range of a function, namely the smallest rectangular or cylindrical prism (called
+            a �box�) over the domain that will contain all of the function values for points in the domain.<span style="">&nbsp; </span>A
+            point of the graph in the top plane of such a box will correspond to either an interior point<span style=""> </span>of
+            the domain or a point on the boundary curve.
+            <span style="">&nbsp; </span>If the function is differentiable, then a point of the graph in the top plane corresponding
+            to an interior point will have the top plane as its horizontal tangent plane, and for an interior global minimum,
+            the bottom plane of the box will contain the horizontal tangent plane at the point of the graph.<span style="">&nbsp;
+</span>On the other hand, it might be that the highest or lowest point occurs at a point on the boundary curve of the domain,
+            and in that case the tangent line to the boundary curve will be a horizontal tangent line lying on the top or
+            bottom face of the containing box.
+            <o:p></o:p>
+        </div>
+        <div class="textdiv">
+            In addition to the local maxima of functions of two variables, represented by the origin in the function f(x,y) = -x
+            <span style="color: black;"><sup>2</sup></span><span style="color: black;"> � y</span><span style="color: black;"><sup>2</sup></span>
+            <span
+                style="color: black;"> and the minima represented by the origin for f(x,y) = x</span><span style="color: black;"><sup>2</sup></span>
+                <span
+                    style="color: black;"> + y</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">,
 there are other points where the tangent plane is horizontal, for
 example the
-origin in the saddle-shaped graph of f(x,y) = x</span><span
- style="color: black;"><sup>2</sup></span><span style="color: black;">
-- y</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;">, defined either over a
-square domain or a circular disc domain centered at the origin.<span
- style="">&nbsp; </span>This is a typical "ordinary saddle
-point" for the graph of the function. Finding the critical points of a
-function includes finding all local maxima, local minima, and saddle
-points.<span style="">&nbsp; </span>There are other types of
-critical points such as the origin for f(x,y) = x</span><span
- style="color: black;"><sup>2</sup></span><span style="color: black;">
-&#8211; y</span><span style="color: black;"><sup>3</sup></span><span
- style="color: black;"> or f(x,y) = x</span><span style="color: black;"><sup>3</sup></span><span
- style="color: black;"> &#8211;
-3xy</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;">, but these are &#8220;degenerate&#8221; and can be
+origin in the saddle-shaped graph of f(x,y) = x</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">
+- y</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">, defined either over a
+square domain or a circular disc domain centered at the origin.<span style="">&nbsp; </span>This is a typical "ordinary saddle
+                    point" for the graph of the function. Finding the critical points of a function includes finding all
+                    local maxima, local minima, and saddle points.
+                    <span style="">&nbsp; </span>There are other types of critical points such as the origin for f(x,y) =
+                    x</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">
+� y</span><span style="color: black;"><sup>3</sup></span><span style="color: black;"> or f(x,y) = x</span><span style="color: black;"><sup>3</sup></span>
+                    <span
+                        style="color: black;"> � 3xy
+                        </span><span style="color: black;"><sup>2</sup></span><span style="color: black;">, but these are �degenerate� and can be
 eliminated by deforming the
 function in a way we will make precise in our examples.<span style="">&nbsp;
-</span>An important theorem of Marston Morse states
-that, for almost all functions of two real variables, the only critical
-points
-that occur are local maxima, local minima, or ordinary saddle points.<span
- style="">&nbsp; </span></span>
-</div>
-<div class="textdiv">
-Two particular examples of polynomial
-functions give a good idea of the critical point behavior for functions
-of two
-variables.<span style="">&nbsp; </span>Both are named for
-geographical features: Twin Peaks and <st1:place w:st="on">Crater Lake</st1:place>.
-</span>These surfaces are described in the author&#8217;s
-Scientific American Library volume &#8220;Beyond the Third Dimension&#8221; [B].
-</div>
-<p/><br/>
-<span class="sectiontitlespan"> 7. Twin
+</span>An important theorem of Marston Morse states that, for almost all functions of two real variables, the only critical
+                        points that occur are local maxima, local minima, or ordinary saddle points.<span style="">&nbsp; </span></span>
+        </div>
+        <div class="textdiv">
+            Two particular examples of polynomial functions give a good idea of the critical point behavior for functions of two variables.
+            <span style="">&nbsp; </span>Both are named for geographical features: Twin Peaks and
+            <st1:place w:st="on">Crater Lake</st1:place>. These surfaces are described in the author�s Scientific American Library volume �Beyond
+            the Third Dimension� [B].
+        </div>
+        <p><br>
+            <span class="sectiontitlespan"> 7. Twin
 Peaks the Geometry of Peaks and Passes</span>
-<p/>
-<div class="textdiv">
-<st1:place w:st="on">Twin Peaks</st1:place>
-is the graph of the function f(x,y) = -x</span><span
- style="color: black;"><sup>4</sup></span><span style="color: black;">
-+ 2x</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> &#8211; y</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> over the domain -1.5 &#8804; x &#8804;
-1.5, -1 &lt; y &lt; 1.<span style="">&nbsp; </span>Even without any
-calculus, it is straightforward to show algebraically that f(x,y) &#8804; 1
-and that
-equality occurs at two "peaks" (1,0) and (-1,0).<span style="">&nbsp; </span>Between
-the two peaks there is a saddle point
-at (0,0), and there are no other critical points for the function.<span
- style="">&nbsp; </span>The level set for z = 1 consists of the two
-points (1,0) and (-1,0).<span style="">&nbsp; </span>For 0 &lt; z
-&lt; 1, the level set consists of two closed curves.<span style="">&nbsp;
-</span>The level set for z = 0 is a
-self-intersecting "figure eight" curve, and for z &lt; 0, the level
-set the portion of a single closed curve inside the rectangular domain.<span
- style="">&nbsp; </span>These level set phenomena can be investigated
-with a Java applet:</span></p>
-</div>
-<div class="centered"><img style="width: 591px; height: 537px;" alt="Figure 5"
-    src="./v2n2p2/twinpeaks.JPG"></div>
-<br/>
-<div class="centered">Figure 5: Graph and slices of Twin Peaks</div>
-<br/>
-<div class="centered"><applet codebase="./v2n2p2" archive="Demo.jar"
- code="DemoApplet" height="50" width="400"><param name="NAME"
- value="Graph and slices of Twin Peaks"> <param name="DATA"
- value="filever 100.0 env {value $CHS=(0.0 , 0.0)$ value 
+        </p>
+        <p>
+        </p>
+        <div class="textdiv">
+            <st1:place w:st="on">Twin Peaks</st1:place>
+            is the graph of the function f(x,y) = -x<span style="color: black;"><sup>4</sup></span><span style="color: black;">
++ 2x</span><span style="color: black;"><sup>2</sup></span><span style="color: black;"> � y</span><span style="color: black;"><sup>2</sup></span>
+            <span
+                style="color: black;"> over the domain -1.5 &#8804; x &#8804; 1.5, -1 &lt; y &lt; 1.<span style="">&nbsp; </span>Even without any calculus,
+                it is straightforward to show algebraically that f(x,y) &#8804; 1 and that equality occurs at two "peaks"
+                (1,0) and (-1,0).<span style="">&nbsp; </span>Between the two peaks there is a saddle point at (0,0), and
+                there are no other critical points for the function.<span style="">&nbsp; </span>The level set for z = 1
+                consists of the two points (1,0) and (-1,0).<span style="">&nbsp; </span>For 0 &lt; z &lt; 1, the level set
+                consists of two closed curves.<span style="">&nbsp;
+</span>The level set for z = 0 is a self-intersecting "figure eight" curve, and for z &lt; 0, the level set the portion of
+                a single closed curve inside the rectangular domain.<span style="">&nbsp; </span>These level set phenomena
+                can be investigated with a Java applet:</span>
+                <p></p>
+        </div>
+        <div class="centered"><img style="width: 591px; height: 537px;" alt="Figure 5" src="./Interactive Geometry and Critical Points_files/twinpeaks.JPG"></div>
+        <br>
+        <div class="centered">Figure 5: Graph and slices of Twin Peaks</div>
+        <br>
+        <div class="centered">
+            <applet codebase="./v2n2p2" archive="Demo.jar" code="DemoApplet" height="50" width="400">
+                <param name="NAME" value="Graph and slices of Twin Peaks">
+                <param name="DATA" value="filever 100.0 env {value $CHS=(0.0 , 0.0)$ value 
 $dirHS=(0.9999563309242352 , -0.009345386270319955)$ interval 
 $planey= -10,10,1$ interval $c=-1,1,10$ interval $planez= -10,10,1$ variable 
 $rOn= 0,1,1$ 1.0 variable $m= -2,2,40$ 0.0 interval $y=-1,1,24$ interval 
@@ -1130,133 +748,111 @@ $ Surface: -10,planey,planez$ $ Axes: x, y, z$ $ Point: rS(0,1,0)$
 $ Vector: rS(0,1,0)  starting at 0,0,0$ 
 $ Field of Level Set: Surface: rS(x,y,f(...$ 
 $ Vector: rS(0,0,1)  starting at 0,0,0$ $ Vector: rS(1,0,0)  starting at 0,0,0$ 
-$ Point: rS(1,0,0)$ $ Point: rS(0,0,1)$]}}}] "></applet>
-</div>
-<br/>
-<div class="centered">
-<a href="./v2n2p2/IGCP_help_graphslicestwinpeaksdemo.html"
- onclick="return openwindow(this, 'Help')"><span style="font-size: 80%;">Demo help</span></a></div>
-<p/>
-<div class="textdiv">
-</span>This kind of "level set
-analysis" is central to an interactive graphics approach to graphs of
-functions of one or more variables.<span style="">&nbsp;
-</span>Students can investigate function graphs and report their
-observations
-on worksheets or by online messages.<span style="">&nbsp;
-</span>They can make conjectures about various configurations that
-arise in
-graphs of certain kinds of equations, and then go on to find algebraic
-reasons
-for these observed phenomena.<o:p></o:p></span>
-<div style="text-align: left;"></div>
-</div>
-<div class="textdiv">
-</span>For <st1:place w:st="on">Twin Peaks</st1:place>,
-we can observe that the two local maxima are at the same height, a
-situation
-that can be removed by a slight perturbation.<span style="">&nbsp;
-</span>In geographic terms, we may consider the effect of a slight
-&#8220;earthquake&#8221;,
-a shearing transformation obtained by adding a linear term mx to the
-equation
-for f(x,y) = -x</span><span style="color: black;"><sup>4</sup></span><span
- style="color: black;"> + 2x</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> &#8211; y</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;">.<span style="">&nbsp; </span>In the
-study of functions of one variable, we can add a linear term to the
-function
-f(x) = -x + 2x</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> to get f(x) = -x</span><span
- style="color: black;"><sup>4</sup></span><span style="color: black;">
-+ 2x</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> + mx, and a small non-zero m gives a
+$ Point: rS(1,0,0)$ $ Point: rS(0,0,1)$]}}}] ">
+            </applet>
+        </div>
+        <br>
+        <div class="centered">
+            <a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_graphslicestwinpeaksdemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
+        <p>
+        </p>
+        <div class="textdiv">
+            This kind of "level set analysis" is central to an interactive graphics approach to graphs of functions of one or more variables.
+            <span
+                style="">&nbsp;
+                </span>Students can investigate function graphs and report their observations on worksheets or by online
+                messages.<span style="">&nbsp;
+</span>They can make conjectures about various configurations that arise in graphs of certain kinds of equations, and then
+                go on to find algebraic reasons for these observed phenomena.
+                <o:p></o:p>
+                <div style="text-align: left;"></div>
+        </div>
+        <div class="textdiv">
+            For
+            <st1:place w:st="on">Twin Peaks</st1:place>, we can observe that the two local maxima are at the same height, a situation that can
+            be removed by a slight perturbation.<span style="">&nbsp;
+</span>In geographic terms, we may consider the effect of a slight �earthquake�, a shearing transformation obtained by adding
+            a linear term mx to the equation for f(x,y) = -x<span style="color: black;"><sup>4</sup></span><span style="color: black;"> + 2x</span>
+            <span
+                style="color: black;"><sup>2</sup></span><span style="color: black;"> � y</span><span style="color: black;"><sup>2</sup></span>
+                <span
+                    style="color: black;">.<span style="">&nbsp; </span>In the study of functions of one variable, we can add a linear term to the
+                    function f(x) = -x + 2x</span><span style="color: black;"><sup>2</sup></span><span style="color: black;"> to get f(x) = -x</span>
+                    <span
+                        style="color: black;"><sup>4</sup></span><span style="color: black;">
++ 2x</span><span style="color: black;"><sup>2</sup></span><span style="color: black;"> + mx, and a small non-zero m gives a
 function with two local maxima at different heights. The same thing
 happens for
 <st1:place w:st="on">Twin Peaks</st1:place>. For small m, the graph of
 f(x,y)
-=<span style="">&nbsp; </span>-x</span><span style="color: black;"><sup>4</sup></span><span
- style="color: black;"> + 2x</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> + mx - y</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> has two peaks at
-different heights.<span style="">&nbsp; </span>When the parameter m
-is large enough, for an &#8220;extreme earthquake&#8221;, the number of peaks goes
-from two
-to one and the saddle point disappears. Just as in the case of one
-variable,
-students can identify by observation where that crucial changeover
-occurs then
-find the values of m for which the function has a degenerate critical
-point,
-the analogue of a horizontal inflection point.
-</div>
-<p/><br/>
-<span class="sectiontitlespan">8. Crater Lake and the Geometry of Pits and Passes</span>
-<p/>
-<div class="textdiv">
-</span><st1:place w:st="on">Crater Lake</st1:place>
-exhibits a different kind of unstable situation.<span style="">&nbsp; </span>The
-graph of g(x,y) = -(x</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> + y</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;">)</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> + 2(x</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> +
-y</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;">) is a surface of revolution about the z-axis
-with profile curve &#8211;x</span><span style="color: black;"><sup>4</sup></span><span
- style="color: black;"> +
-2x</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;">.<span style="">&nbsp; </span>The maximum value
-of this function
-is 1, and there are infinitely many global maxima, lying over the
-circle x</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> +
-y</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> = 1 in the domain.<span style="">&nbsp; </span>There
-is one local
-minimum at the origin.<span style="">&nbsp; </span>Once again an
-earthquake shear will perturb this situation to give the graph of
-g(x,y) = -(x</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;">
-+ y</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;">)</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> + 2(x</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;"> + y</span><span style="color: black;"><sup>2</sup></span><span
- style="color: black;">) + mx, which will still have one local minimum,
+=<span style="">&nbsp; </span>-x</span><span style="color: black;"><sup>4</sup></span><span style="color: black;"> + 2x</span>
+                        <span
+                            style="color: black;"><sup>2</sup></span><span style="color: black;"> + mx - y</span><span style="color: black;"><sup>2</sup></span>
+                            <span
+                                style="color: black;"> has two peaks at different heights.<span style="">&nbsp; </span>When the parameter m is large
+                                enough, for an �extreme earthquake�, the number of peaks goes from two to one and the saddle
+                                point disappears. Just as in the case of one variable, students can identify by observation
+                                where that crucial changeover occurs then find the values of m for which the function has
+                                a degenerate critical point, the analogue of a horizontal inflection point.
+                                </span>
+        </div>
+        <p><br>
+            <span class="sectiontitlespan">8. Crater Lake and the Geometry of Pits and Passes</span>
+        </p>
+        <p>
+        </p>
+        <div class="textdiv">
+            <st1:place w:st="on">Crater Lake</st1:place>
+            exhibits a different kind of unstable situation.<span style="">&nbsp; </span>The graph of g(x,y) = -(x<span style="color: black;"><sup>2</sup></span>
+            <span
+                style="color: black;"> + y</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">)</span><span style="color: black;"><sup>2</sup></span>
+                <span
+                    style="color: black;"> + 2(x</span><span style="color: black;"><sup>2</sup></span><span style="color: black;"> +
+y</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">) is a surface of revolution about the z-axis
+with profile curve �x</span><span style="color: black;"><sup>4</sup></span><span style="color: black;"> +
+2x</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">.<span style="">&nbsp; </span>The maximum
+                    value of this function is 1, and there are infinitely many global maxima, lying over the circle x</span>
+                    <span
+                        style="color: black;"><sup>2</sup></span><span style="color: black;"> +
+y</span><span style="color: black;"><sup>2</sup></span><span style="color: black;"> = 1 in the domain.<span style="">&nbsp; </span>There
+                        is one local minimum at the origin.<span style="">&nbsp; </span>Once again an earthquake shear will
+                        perturb this situation to give the graph of g(x,y) = -(x</span><span style="color: black;"><sup>2</sup></span>
+                        <span
+                            style="color: black;">
+                            + y</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">)</span>
+                            <span
+                                style="color: black;"><sup>2</sup></span><span style="color: black;"> + 2(x</span><span style="color: black;"><sup>2</sup></span>
+                                <span
+                                    style="color: black;"> + y</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">) + mx, which will still have one local minimum,
 but the
 circle of maxima will break up into one global maximum and one saddle
 point, at
-least if m is small enough.<span style="">&nbsp; </span>The level
-set at the local minimum will be an isolated point surrounded by a
-single level
-curve.<span style="">&nbsp; </span>The level set at the global
-maximum will be a single point, and the level set at the saddle point
-will be a
-"double loop with a single crossing point".<span style="">&nbsp; </span>Near
-the saddle point, the level set looks
-like a pair of intersecting lines, as in the case of the figure-eight
-curve for
-<st1:place w:st="on">Twin Peaks</st1:place>. Between the level of the
-maximum
-and the saddle, the level set is a single curve. Between the saddle and
-the
-local minimum, the level set consists of two curves, one inside the
-other (as
-opposed to next to each other as in the case of <st1:place w:st="on">Twin
-Peaks</st1:place>).<span style="">&nbsp; </span>Below the local
-minimum, the level set is
-again the part of a single curve lying in the domain.
-<p/>
-</div>
-<div class="centered"><img style="width: 553px; height: 223px;" alt="Figure 6"
-    src="./v2n2p2/figure6.JPG"></div>
-<br/>
-<div class="centered">Figure 6: Graph and slices of Crater Lake</div>
-<br/>
-<div class="centered"><applet codebase="./v2n2p2" archive="Demo.jar"
- code="DemoApplet" height="50" width="400"><param name="NAME"
- value="Graph and slices of Crater Lake"> <param name="DATA"
- value="filever 100.0 env {value $dirHS=(0.9999563309242352 , -0.009345386270319955)$ 
+least if m is small enough.<span style="">&nbsp; </span>The level set at the local minimum will be an isolated point surrounded
+                                    by a single level curve.
+                                    <span style="">&nbsp; </span>The level set at the global maximum will be a single point,
+                                    and the level set at the saddle point will be a "double loop with a single crossing point".
+                                    <span
+                                        style="">&nbsp; </span>Near the saddle point, the level set looks like a pair of intersecting
+                                        lines, as in the case of the figure-eight curve for
+                                        <st1:place w:st="on">Twin Peaks</st1:place>. Between the level of the maximum and the saddle, the level
+                                        set is a single curve. Between the saddle and the local minimum, the level set consists
+                                        of two curves, one inside the other (as opposed to next to each other as in the case
+                                        of
+                                        <st1:place w:st="on">Twin Peaks
+                                        </st1:place>).<span style="">&nbsp; </span>Below the local minimum, the level set
+                                        is again the part of a single curve lying in the domain.
+                                        <p>
+                                        </p>
+                                        </span>
+        </div>
+        <div class="centered"><img style="width: 553px; height: 223px;" alt="Figure 6" src="./Interactive Geometry and Critical Points_files/figure6.JPG"></div>
+        <br>
+        <div class="centered">Figure 6: Graph and slices of Crater Lake</div>
+        <br>
+        <div class="centered">
+            <applet codebase="./v2n2p2" archive="Demo.jar" code="DemoApplet" height="50" width="400">
+                <param name="NAME" value="Graph and slices of Crater Lake">
+                <param name="DATA" value="filever 100.0 env {value $dirHS=(0.9999563309242352 , -0.009345386270319955)$ 
 value $CHS=(0.0 , 0.0)$ interval $c=-1,1,10$ interval $x=-1.25,1.25,24$ variable 
 $rOn= 0,1,1$ 1.0 interval $y=-1.25,1.25,24$ interval $planey= -10,10,1$ interval 
 $lt= -1,1,5$ interval $r= 0,1.5,20$ variable $m= 0,1,10$ 0.0 interval 
@@ -1403,284 +999,219 @@ surfacemode 3.0 drawmode 1.0 transf [0.9999999999999998 6.938893903907228E-16
 null hotspots [] drawmode 0.0}} graph {id obj77} frame {visible true plots [{id 
 obj73} {id obj74} {id obj75}] title $Domain: f(x,y)$ labels 
 [$ Field of Level Set: Surface: (r*cos(th...$ $ Surface: (planey,planez,-1)$ 
-$ Wireframe: (r*cos(theta),r*sin(theta),0)$]}}}] "></applet>
-</div>
-<div class="centered"><a href="./v2n2p2/IGCP_help_graphslicescraterlakedemo.html"
- onclick="return openwindow(this, 'Help')"><span style="font-size: 80%;">Demo help</span></a></div>
-<p/>
-<div class="textdiv">
-</span>This description of the critical
-points configuration assumes that the earthquake has not been too
-severe.<span style="">&nbsp; </span>If the number m becomes large
-enough then we
-obtain a function graph with one global maximum and no other critical
-points.<span style="">&nbsp; </span>The local minimum and the saddle
-point have come together and disappeared.<span style="">&nbsp;
-</span>The water in <st1:place w:st="on">Crater Lake</st1:place> has
-spilled
-out. Students can find this point by observation (and compare the value
-of m
-with m that produces a surface with a degenerate critical point in the
-case of <st1:place w:st="on">Twin Peaks</st1:place>).</span>
-</div>
-<p/><br/>
-<span class="sectiontitlespan">9. The Critical Point Theorem for Graphs of Functions of Two Variables</span></span>
-<p/>
-<div class="textdiv">
-Both of these topographical
-examples suggest ways of designing function graphs with other
-configurations of
-critical points, say with n+1 local maxima and n saddle points in
-between.<span style="">&nbsp;&nbsp; </span>Then we can introduce m
-local minima and m
-ordinary saddles, of the type found in the tilted <st1:place w:st="on">Crater
-Lake</st1:place>.<span style="">&nbsp; </span>This will produce a
-function graph with n+1 maxima, n + m saddles and m minima, so in
-particular
-the number of maxima plus the number of minima is one greater than the
-number
-of saddles, and the total number of critical points will be an odd
-number.</span>
-</div>
-<div class="textdiv">
-</span>We can collect these observations
-in a conjecture:<span style="">&nbsp; </span>For an
-"island" defined over a region in the plane with one boundary curve
-at sea level zero and all other points on the island above sea level,
-there
-will be at least one global maximum.<span style="">&nbsp;
-</span>Furthermore, if all critical points are local maxima, local
-minima, and
-ordinary saddles, then the number of critical points is odd and
-moreover
-#maxima - #saddles + #minima = 1.<span style="">&nbsp; </span>This
-conjecture epitomizes fundamental results in Critical Point Theory, of
-immense
-importance in global geometry and analysis over the last 80 years.<span
- style="">&nbsp; </span>It is also of fundamental importance for the
-geometry of surfaces, leading to a modern proof of the crucial
-Gauss-Bonnet
-Theorem as well as properties of knotted "strings" in contemporary
-molecular
-biology and theoretical physics.</span>
-</div>
-<div class="textdiv">The
-mathematician who popularized critical
-point theory was Marston Morse in a series of articles on the subject
-eighty
-years ago.<span style="">&nbsp; </span>He enjoyed giving popular
-lectures on the topic for students of all levels, and two of his
-previously
-unpublished presentations appeared in the November 2007 issue of The
-American
-Mathematical Monthly [M].<span style="">&nbsp; </span>On a visit to <st1:city
- w:st="on">Providence</st1:city> <st1:state w:st="on">RI</st1:state>
-in the
-1970&#8217;s, he came to the computer graphics laboratory at <st1:place
- w:st="on"><st1:placename w:st="on">Brown</st1:placename> <st1:placetype
- w:st="on">University</st1:placetype></st1:place>
-where my computer scientist colleague Charles Strauss and I were
-developing a
-program for analyzing the geometry of surfaces in three and four
-dimensions.<span style="">&nbsp; </span>Although the graphics
-programs were primitive by today&#8217;s standards, and very slow, Marston
-Morse
-immediately appreciated the potential of such approaches for teaching,
-research, and public exposition of geometric ideas arising in critical
-point
-theory.<span style="">&nbsp; </span>We could not carry out those
-projects forty years ago, but now they are possible using interactive
-geometry
-programs and Java applets.<o:p></o:p></span>
-</div>
-<p/><br/>
-<span class="sectiontitlespan">10. Color-Coding Graphs of Functions and Partial Derivatives</span>
-<p/>
-<div class="textdiv">
-When we analyzed level
-sets of
-functions of two variables, we used a spectrum of colors to indicate
-the
-heights of the slices.<span style="">&nbsp; </span>For the subject
-of partial derivatives, we need only two colors for each variable, four
-in
-all.<span style="">&nbsp; </span>Just as we colored graphs of
-functions f(x) in the plane by red or white depending on the algebraic
-sign of
-f&#8217;(x) or the position of the unit normal vector in the left or right
-side of
-the circular image, we can color the graph of a function f(x,y)
-depending on
-the signs of the partial derivative functions f<sub>x</sub>(x,y) and f</span><span
- style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y).<span
- style="">&nbsp; </span>For a differentiable function there is a
-well-defined tangent plane at each point of the graph and an
-upward-pointing<span style=""> </span>normal perpendicular to that
-plane.<span style="">&nbsp; </span>If f</span><span
- style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y)
-and f</span><span style="color: black;"><sub>y</sub></span><span
- style="color: black;">(x,y) denote the first
+$ Wireframe: (r*cos(theta),r*sin(theta),0)$]}}}] ">
+            </applet>
+        </div>
+        <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_graphslicescraterlakedemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
+        <p>
+        </p>
+        <div class="textdiv">
+            This description of the critical points configuration assumes that the earthquake has not been too severe.
+            <span style="">&nbsp; </span>If the number m becomes large enough then we obtain a function graph with one global
+            maximum and no other critical points.
+            <span style="">&nbsp; </span>The local minimum and the saddle point have come together and disappeared.
+            <span
+                style="">&nbsp;
+                </span>The water in
+                <st1:place w:st="on">Crater Lake</st1:place> has spilled out. Students can find this point by observation (and compare the value
+                of m with m that produces a surface with a degenerate critical point in the case of
+                <st1:place w:st="on">Twin Peaks</st1:place>).
+        </div>
+        <p><br>
+            <span class="sectiontitlespan">9. The Critical Point Theorem for Graphs of Functions of Two Variables</span>
+        </p>
+        <p>
+        </p>
+        <div class="textdiv">
+            Both of these topographical examples suggest ways of designing function graphs with other configurations of critical points,
+            say with n+1 local maxima and n saddle points in between.
+            <span style="">&nbsp;&nbsp; </span>Then we can introduce m local minima and m ordinary saddles, of the type found
+            in the tilted
+            <st1:place w:st="on">Crater Lake
+            </st1:place>.<span style="">&nbsp; </span>This will produce a function graph with n+1 maxima, n + m saddles and
+            m minima, so in particular the number of maxima plus the number of minima is one greater than the number of saddles,
+            and the total number of critical points will be an odd number.
+        </div>
+        <div class="textdiv">
+            We can collect these observations in a conjecture:<span style="">&nbsp; </span>For an "island" defined over a
+            region in the plane with one boundary curve at sea level zero and all other points on the island above sea level,
+            there will be at least one global maximum.<span style="">&nbsp;
+</span>Furthermore, if all critical points are local maxima, local minima, and ordinary saddles, then the number of critical
+            points is odd and moreover #maxima - #saddles + #minima = 1.<span style="">&nbsp; </span>This conjecture epitomizes
+            fundamental results in Critical Point Theory, of immense importance in global geometry and analysis over the
+            last 80 years.<span style="">&nbsp; </span>It is also of fundamental importance for the geometry of surfaces,
+            leading to a modern proof of the crucial Gauss-Bonnet Theorem as well as properties of knotted "strings" in contemporary
+            molecular biology and theoretical physics.
+        </div>
+        <div class="textdiv">The mathematician who popularized critical point theory was Marston Morse in a series of articles on the subject
+            eighty years ago.<span style="">&nbsp; </span>He enjoyed giving popular lectures on the topic for students of
+            all levels, and two of his previously unpublished presentations appeared in the November 2007 issue of The American
+            Mathematical Monthly [M].<span style="">&nbsp; </span>On a visit to
+            <st1:city w:st="on">Providence</st1:city>
+            <st1:state w:st="on">RI</st1:state>
+            in the 1970�s, he came to the computer graphics laboratory at
+            <st1:place w:st="on">
+                <st1:placename w:st="on">Brown</st1:placename>
+                <st1:placetype w:st="on">University</st1:placetype>
+            </st1:place>
+            where my computer scientist colleague Charles Strauss and I were developing a program for analyzing the geometry of surfaces
+            in three and four dimensions.
+            <span style="">&nbsp; </span>Although the graphics programs were primitive by today�s standards, and very slow,
+            Marston Morse immediately appreciated the potential of such approaches for teaching, research, and public exposition
+            of geometric ideas arising in critical point theory.
+            <span style="">&nbsp; </span>We could not carry out those projects forty years ago, but now they are possible
+            using interactive geometry programs and Java applets.
+            <o:p></o:p>
+        </div>
+        <p><br>
+            <span class="sectiontitlespan">10. Color-Coding Graphs of Functions and Partial Derivatives</span>
+        </p>
+        <p>
+        </p>
+        <div class="textdiv">
+            When we analyzed level sets of functions of two variables, we used a spectrum of colors to indicate the heights of the slices.
+            <span
+                style="">&nbsp; </span>For the subject of partial derivatives, we need only two colors for each variable, four in all.
+                <span style="">&nbsp; </span>Just as we colored graphs of functions f(x) in the plane by red or white depending
+                on the algebraic sign of f�(x) or the position of the unit normal vector in the left or right side of the
+                circular image, we can color the graph of a function f(x,y) depending on the signs of the partial derivative
+                functions f<sub>x</sub>(x,y) and f<span style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y).<span style="">&nbsp; </span>For
+                a differentiable function there is a well-defined tangent plane at each point of the graph and an upward-pointing
+                <span style=""> </span>normal perpendicular to that plane.
+                <span style="">&nbsp; </span>If f</span><span style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y)
+and f</span><span style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y) denote the first
 partial derivatives of f with respect to x and y respectively, then
-(-f</span><span style="color: black;"><sub>x</sub></span><span
- style="color: black;">(x,y),-f</span><span style="color: black;"><sub>y</sub></span><span
- style="color: black;">(x,y),1) will be a normal vector.<span style="">&nbsp;
-</span>We can color the surface white if f</span><span
- style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y)
+(-f</span><span style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y),-f</span><span style="color: black;"><sub>y</sub></span>
+                <span
+                    style="color: black;">(x,y),1) will be a normal vector.<span style="">&nbsp;
+</span>We can color the surface white if f</span><span style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y)
 is positive and red if it is negative
-in order to exhibit the points separating those regions, where f</span><span
- style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y)
-=
-0.<span style="">&nbsp; </span>Geometrically speaking, a point has
-f</span><span style="color: black;"><sub>x</sub></span><span
- style="color: black;">(x,y) = 0 if its tangent plane is perpendicular
+in order to exhibit the points separating those regions, where f</span><span style="color: black;"><sub>x</sub></span>
+                    <span
+                        style="color: black;">(x,y) = 0.
+                        <span style="">&nbsp; </span>Geometrically speaking, a point has f
+                        </span><span style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y) = 0 if its tangent plane is perpendicular
 to the y-z-coordinate
-plane.<span style="">&nbsp; </span>Similarly if we color the surface
-white if f</span><span style="color: black;"><sub>y</sub></span><span
- style="color: black;">(x,y) is positive and blue if it is negative, we
-can identify the
-points where f</span><span style="color: black;"><sub>y</sub></span><span
- style="color: black;">(x,y) = 0, and where the tangent plane is
-perpendicular to the
-x-z-plane.<span style="">&nbsp; </span><o:p>&nbsp;</o:p></span>
-</div>
-<div class="textdiv">
-We can
-then use additively to color the surface purple where it is both red
-and blue,
-where f</span><span style="color: black;"><sub>x</sub></span><span
- style="color: black;">(x,y) and f</span><span style="color: black;"><sub>y</sub></span><span
- style="color: black;">(x,y) are both positive.<span style="">&nbsp;
-</span>The surface will be colored red when f</span><span
- style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y)
-is positive and f</span><span style="color: black;"><sub>y</sub></span><span
- style="color: black;">(x,y) is
-negative, and blue when when f</span><span style="color: black;"><sub>x</sub></span><span
- style="color: black;">(x,y) is negative and f</span><span
- style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y)
-is positive.<span style="">&nbsp; </span>If both f</span><span
- style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y)
-and f</span><span style="color: black;"><sub>y</sub></span><span
- style="color: black;">(x,y) are negative, the
-surface is colored white.<span style="">&nbsp; </span>Thus we color
-a point white, red, purple, or blue as the point (-f</span><span
- style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y),-f</span><span
- style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y))
-lies in
-the first, second, third, or fourth quadrant in the plane.<o:p></o:p></span>
-</div>
-<div class="textdiv">
-</span>A point will be a critical point if
-all four colors meet at the point.<span style="">&nbsp; </span>We
-can also express this condition by saying that the point is in the
-intersection
-of the locus f</span><span style="color: black;"><sub>x</sub></span><span
- style="color: black;">(x,y) = 0 and the locus f</span><span
- style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y)
+plane.<span style="">&nbsp; </span>Similarly if we color the surface white if f</span><span style="color: black;"><sub>y</sub></span>
+                        <span
+                            style="color: black;">(x,y) is positive and blue if it is negative, we can identify the points where f</span><span style="color: black;"><sub>y</sub></span>
+                            <span
+                                style="color: black;">(x,y) = 0, and where the tangent plane is perpendicular to the x-z-plane.
+                                <span style="">&nbsp; </span>
+                                <o:p>&nbsp;</o:p>
+                                </span>
+        </div>
+        <div class="textdiv">
+            We can then use additively to color the surface purple where it is both red and blue, where f<span style="color: black;"><sub>x</sub></span>
+            <span
+                style="color: black;">(x,y) and f</span><span style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y) are both positive.<span style="">&nbsp;
+</span>The surface will be colored red when f</span><span style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y)
+is positive and f</span><span style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y) is
+negative, and blue when when f</span><span style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y) is negative and f</span>
+                <span
+                    style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y)
+is positive.<span style="">&nbsp; </span>If both f</span><span style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y)
+and f</span><span style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y) are negative, the
+surface is colored white.<span style="">&nbsp; </span>Thus we color a point white, red, purple, or blue as the point (-f</span>
+                    <span
+                        style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y),-f</span><span style="color: black;"><sub>y</sub></span>
+                        <span
+                            style="color: black;">(x,y)) lies in the first, second, third, or fourth quadrant in the plane.
+                            <o:p></o:p>
+                            </span>
+        </div>
+        <div class="textdiv">
+            A point will be a critical point if all four colors meet at the point.<span style="">&nbsp; </span>We can also
+            express this condition by saying that the point is in the intersection of the locus f<span style="color: black;"><sub>x</sub></span>
+            <span
+                style="color: black;">(x,y) = 0 and the locus f</span><span style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y)
 = 0. Usually those conditions
 are expressed and dealt with only algebraically, but interactive
 computer
 graphics provides a direct visual display of the geometric properties
 of these
-partial derivative functions.<o:p></o:p></span></p>
-<p class="MsoNormal" style="text-align: center;"><v:shape
- id="_x0000_i1031" type="#_x0000_t75"
- style="width: 414.75pt; height: 93pt;"> <v:imagedata
- src="file:///C:%5CDOCUME%7E1%5CMichael%5CLOCALS%7E1%5CTemp%5Cmsohtml1%5C01%5Cclip_image013.wmz"
- o:althref="file:///C:\DOCUME~1\Michael\LOCALS~1\Temp\msohtml1\01\clip_image014.pcz"
- o:title="">
-</v:imagedata><img style="width: 553px; height: 124px;" alt="figure7"
- src="./v2n2p2/figure7.JPG"><br>
-</v:shape></p>
-<p class="MsoNormal" style="text-align: center;" align="center"><span
- style="">&nbsp;</span>Figure 7:<span style="">&nbsp;
+partial derivative functions.<o:p></o:p></span>
+                <p></p>
+                <p class="MsoNormal" style="text-align: center;">
+                    <v:shape id="_x0000_i1031" type="#_x0000_t75" style="width: 414.75pt; height: 93pt;">
+                        <v:imagedata src="file:///C:%5CDOCUME%7E1%5CMichael%5CLOCALS%7E1%5CTemp%5Cmsohtml1%5C01%5Cclip_image013.wmz"
+                            o:althref="file:///C:\DOCUME~1\Michael\LOCALS~1\Temp\msohtml1\01\clip_image014.pcz" o:title="">
+                        </v:imagedata><img style="width: 553px; height: 124px;" alt="figure7" src="./Interactive Geometry and Critical Points_files/figure7.JPG"><br>
+                    </v:shape>
+                </p>
+                <p class="MsoNormal" style="text-align: center;" align="center"><span style="">&nbsp;</span>Figure 7:<span style="">&nbsp;
 </span>Perturbed Twin Peaks, color-coded domains
-</div>
-<div class="textdiv">
-We obtain a bonus from this method
-of coloring because we can tell whether a critical point represents a
-maximum
-or minimum on one hand or a saddle point on the other.<span style="">&nbsp;
-</span>In the first case, the four regions at a
-point are red, purple, blue and white in counterclockwise order, while
-in the
-second case, the cyclic order is red, white, blue, and purple.<span
- style="">&nbsp; </span>The difference between these two orderings is
-connected with the sign of the spherical image mapping defined on the
-surface,
-originally introduced by Gauss.</span>
-</div>
-<div class="textdiv">
-</span>This method of visualizing critical
-point configurations is especially helpful when we are exploring
-one-parameter
-families of functions, for example the perturbations of Twin Peaks.<o:p></o:p></span></p>
-<p class="MsoNormal" style="text-align: justify;"></p>
-<p class="MsoNormal" style="text-align: center;"><v:shape
- id="_x0000_i1032" type="#_x0000_t75"
- style="width: 223.5pt; height: 276pt;">&nbsp; <v:imagedata
- src="file:///C:%5CDOCUME%7E1%5CMichael%5CLOCALS%7E1%5CTemp%5Cmsohtml1%5C01%5Cclip_image016.wmz"
- o:althref="file:///C:\DOCUME~1\Michael\LOCALS~1\Temp\msohtml1\01\clip_image017.pcz"
- o:title="">
-</v:imagedata><img style="width: 298px; height: 368px;" alt="figure8a"
- src="./v2n2p2/figure8a.JPG"><img style="width: 253px; height: 380px;"
- alt="figure8b" src="./v2n2p2/figure8b.JPG"><v:shape id="_x0000_i1033"
- type="#_x0000_t75" style="width: 189.75pt; height: 285pt;"><v:imagedata
- src="file:///C:%5CDOCUME%7E1%5CMichael%5CLOCALS%7E1%5CTemp%5Cmsohtml1%5C01%5Cclip_image019.wmz"
- o:althref="file:///C:\DOCUME~1\Michael\LOCALS~1\Temp\msohtml1\01\clip_image020.pcz"
- o:title=""></v:imagedata></v:shape></v:shape></p>
-<br>
-<p class="MsoNormal" style="text-align: center;" align="center">Figure
-8:<span style="">&nbsp; </span>Color-coded partial derivative graphs
-for
-Twin Peaks
-</p>
-</div>
-<div class="textdiv">
-</span>The picture on the left shows the
-graph of the first partial derivative of f(x,y) with respect to x,
-colored to
-indicate where the value of that function is positive.<span style="">&nbsp;
-</span>The colored region is separated from the
-uncolored region by curves indicating where the f</span><span
- style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y)
-= 0.<span style="">&nbsp; </span>The picture on the right shows the
-corresponding
-graph for the first partial derivative with respect to y.<span style="">&nbsp;
-</span>The colored region indicates where f</span><span
- style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y)
+                </p>
+        </div>
+        <div class="textdiv">
+            We obtain a bonus from this method of coloring because we can tell whether a critical point represents a maximum or minimum
+            on one hand or a saddle point on the other.<span style="">&nbsp;
+</span>In the first case, the four regions at a point are red, purple, blue and white in counterclockwise order, while in
+            the second case, the cyclic order is red, white, blue, and purple.<span style="">&nbsp; </span>The difference
+            between these two orderings is connected with the sign of the spherical image mapping defined on the surface,
+            originally introduced by Gauss.
+        </div>
+        <div class="textdiv">
+            This method of visualizing critical point configurations is especially helpful when we are exploring one-parameter families
+            of functions, for example the perturbations of Twin Peaks.
+            <o:p></o:p>
+            <p></p>
+            <p class="MsoNormal" style="text-align: justify;"></p>
+            <p class="MsoNormal" style="text-align: center;">
+                <v:shape id="_x0000_i1032" type="#_x0000_t75" style="width: 223.5pt; height: 276pt;">&nbsp;
+                    <v:imagedata src="file:///C:%5CDOCUME%7E1%5CMichael%5CLOCALS%7E1%5CTemp%5Cmsohtml1%5C01%5Cclip_image016.wmz"
+                        o:althref="file:///C:\DOCUME~1\Michael\LOCALS~1\Temp\msohtml1\01\clip_image017.pcz" o:title="">
+                    </v:imagedata><img style="width: 298px; height: 368px;" alt="figure8a" src="./Interactive Geometry and Critical Points_files/figure8a.JPG">
+                    <img
+                        style="width: 253px; height: 380px;" alt="figure8b" src="./Interactive Geometry and Critical Points_files/figure8b.JPG">
+                        <v:shape id="_x0000_i1033" type="#_x0000_t75" style="width: 189.75pt; height: 285pt;">
+                            <v:imagedata src="file:///C:%5CDOCUME%7E1%5CMichael%5CLOCALS%7E1%5CTemp%5Cmsohtml1%5C01%5Cclip_image019.wmz"
+                                o:althref="file:///C:\DOCUME~1\Michael\LOCALS~1\Temp\msohtml1\01\clip_image020.pcz" o:title=""></v:imagedata>
+                        </v:shape>
+                </v:shape>
+            </p>
+            <br>
+            <p class="MsoNormal" style="text-align: center;" align="center">Figure 8:
+                <span style="">&nbsp; </span>Color-coded partial derivative graphs for Twin Peaks
+            </p>
+        </div>
+        <div class="textdiv">
+            The picture on the left shows the graph of the first partial derivative of f(x,y) with respect to x, colored to indicate
+            where the value of that function is positive.<span style="">&nbsp;
+</span>The colored region is separated from the uncolored region by curves indicating where the f<span style="color: black;"><sub>x</sub></span>
+            <span
+                style="color: black;">(x,y) = 0.<span style="">&nbsp; </span>The picture on the right shows the corresponding graph for the first partial
+                derivative with respect to y.<span style="">&nbsp;
+</span>The colored region indicates where f</span><span style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y)
 is
-positive, and that region is bounded by the curve where f</span><span
- style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y)
-= 0. <o:p></o:p></span></p>
-<p class="MsoNormal" style="text-align: justify;"><span style=""> </span></p>
-<p class="MsoNormal" style="text-align: center;" align="center"><v:shape
- id="_x0000_i1034" type="#_x0000_t75"
- style="width: 297pt; height: 306pt;"> <v:imagedata
- src="file:///C:%5CDOCUME%7E1%5CMichael%5CLOCALS%7E1%5CTemp%5Cmsohtml1%5C01%5Cclip_image022.wmz"
- o:althref="file:///C:\DOCUME~1\Michael\LOCALS~1\Temp\msohtml1\01\clip_image023.pcz"
- o:title="" croptop="4666f">
-</v:imagedata><img style="width: 396px; height: 408px;" alt="figure9"
- src="./v2n2p2/figure9.JPG"><br>
-</v:shape></p>
-<br>
-<p class="MsoNormal" style="text-align: center;" align="center">Figure
-9:<span style="">&nbsp; </span>Color-coded graph of perturbed Twin
-Peaks
-</p>
-</div>
-<div class="textdiv">
-</span>The graph of the perturbed Twin
-Peaks function colored according to the signs of the two first partial
-derivatives has four different colors near any critical point of the
-function,
-where the curves corresponding to f</span><span style="color: black;"><sub>x</sub></span><span
- style="color: black;">(x,y) = 0 and f</span><span style="color: black;"><sub>y</sub></span><span
- style="color: black;">(x,y) = 0 intersect.</span>
-</div>
-<div style="text-align: center;"><applet codebase="./v2n2p2" archive="Demo.jar"
- code="DemoApplet" height="50" width="400"><param name="NAME"
- value="Twin Peaks function graph"> <param name="DATA"
- value="filever 100.0 env {constant $ly=1$ constant $lx=1$ function $Y(x,y)=(x,y, -6)$ 
+positive, and that region is bounded by the curve where f</span><span style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y)
+= 0. <o:p></o:p></span>
+                <p></p>
+                <p class="MsoNormal" style="text-align: justify;"><span style=""> </span></p>
+                <p class="MsoNormal" style="text-align: center;" align="center">
+                    <v:shape id="_x0000_i1034" type="#_x0000_t75" style="width: 297pt; height: 306pt;">
+                        <v:imagedata src="file:///C:%5CDOCUME%7E1%5CMichael%5CLOCALS%7E1%5CTemp%5Cmsohtml1%5C01%5Cclip_image022.wmz"
+                            o:althref="file:///C:\DOCUME~1\Michael\LOCALS~1\Temp\msohtml1\01\clip_image023.pcz" o:title="" croptop="4666f">
+                        </v:imagedata><img style="width: 396px; height: 408px;" alt="figure9" src="./Interactive Geometry and Critical Points_files/figure9.JPG"><br>
+                    </v:shape>
+                </p>
+                <br>
+                <p class="MsoNormal" style="text-align: center;" align="center">Figure 9:
+                    <span style="">&nbsp; </span>Color-coded graph of perturbed Twin Peaks
+                </p>
+        </div>
+        <div class="textdiv">
+            The graph of the perturbed Twin Peaks function colored according to the signs of the two first partial derivatives has four
+            different colors near any critical point of the function, where the curves corresponding to f
+            <span
+                style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y) = 0 and f</span><span style="color: black;"><sub>y</sub></span>
+                <span
+                    style="color: black;">(x,y) = 0 intersect.</span>
+        </div>
+        <div style="text-align: center;">
+            <applet codebase="./v2n2p2" archive="Demo.jar" code="DemoApplet" height="50" width="400">
+                <param name="NAME" value="Twin Peaks function graph">
+                <param name="DATA" value="filever 100.0 env {constant $ly=1$ constant $lx=1$ function $Y(x,y)=(x,y, -6)$ 
 variable $x0= -1,1,20$ -1.0 function 
 $s(u,v)=(cos(u)*cos(v), sin(u)*cos(v), sin(v))$ function 
 $f(x,y)=-x^2 + y^2 - y^4$ interval $y= -1.5,1.5,24$ variable $rOn= 0, 1, 1$ 1.0 
@@ -1777,89 +1308,79 @@ $ Vector: ly*rS(0,1,0)  starting at 0,0,0$]}}} {controls obj58 {constants []
 intervals [] objects [{plotcheckbox obj59 {values [true true] label blue plots 
 [{id obj19} {id obj18}]}} {plotcheckbox obj60 {values [true true] label red 
 plots [{id obj25} {id obj23}]}}] readouts [] functions [f X] variables [rtheta 
-$x0$ rphi]}}] "></applet>
-</div>
-<br/>
-<div class="centered">
-<a href="./v2n2p2/IGCP_help_twinpeaksfunctiongraphdemo.html"
-    onclick="return openwindow(this, 'Help')"><span style="font-size: 80%;">Demo help</span></a></div>
-<p/><br/>
-<span class="sectiontitlespan">11. Perturbations of the Graph of Crater Lake</span>
-<p/>
-<div class="textdiv">
-</span>We can carry out the same analysis
-for the <st1:place w:st="on">Crater Lake</st1:place> function to show
-the
-graphs of the two first partial derivatives.<span style="">&nbsp;
-</span>In the domain, we have a pair of curves where f</span><span
- style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y)
+$x0$ rphi]}}] ">
+            </applet>
+        </div>
+        <br>
+        <div class="centered">
+            <a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_twinpeaksfunctiongraphdemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
+        <p><br>
+            <span class="sectiontitlespan">11. Perturbations of the Graph of Crater Lake</span>
+        </p>
+        <p>
+        </p>
+        <div class="textdiv">
+            We can carry out the same analysis for the
+            <st1:place w:st="on">Crater Lake</st1:place> function to show the graphs of the two first partial derivatives.<span style="">&nbsp;
+</span>In the domain, we have a pair of curves where f<span style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y)
 = 0 and a pair of
-intersecting curves where f</span><span style="color: black;"><sub>y</sub></span><span
- style="color: black;">(x,y) = 0.<span style="">&nbsp;
-</span>The intersections of these two pairs of curves yield three
-critical
-points, one global maximum, one ordinary saddle, and one local minimum.
-<o:p></o:p></span>
-</div>
-<div class="textdiv">
-</span>Note
-the in the unperturbed <st1:place w:st="on">Crater Lake</st1:place>,
-all of the
-points on the top rim of the graph represent global maxima.<span
- style="">&nbsp; </span>The curve of points where both partial
-derivatives are zero will be purple on one side and white on the other,
-or red
-on one side and blue on the other.<span style="">&nbsp; </span>This
-is a degenerate situation since the curves where f</span><span
- style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y)<span
- style="">&nbsp; </span>= 0 and f</span><span style="color: black;"><sub>y</sub></span><span
- style="color: black;">(x,y) = 0 coincide.<span style="">&nbsp; </span>When
-we introduce a shear by adding mx for
-small x, these two loci are perturbed so that they intersect at a
-finite number
-of points, with all four colors in a neighborhood of each of these
-critical
-points.<o:p></o:p></span></p>
-<p class="MsoNormal" style="text-align: justify;"><span style=""> </span></p>
-<p class="MsoNormal" style="text-align: center;" align="center"><v:shape
- id="_x0000_i1035" type="#_x0000_t75"
- style="width: 400.5pt; height: 126.75pt;"> <v:imagedata
- src="file:///C:%5CDOCUME%7E1%5CMichael%5CLOCALS%7E1%5CTemp%5Cmsohtml1%5C01%5Cclip_image025.wmz"
- o:althref="file:///C:\DOCUME~1\Michael\LOCALS~1\Temp\msohtml1\01\clip_image026.pcz"
- o:title="" cropleft="2066f"></v:imagedata><img
- style="width: 534px; height: 169px;" alt="figure10" src="./v2n2p2/figure10.JPG"><br>
-</v:shape></p>
-<p class="MsoNormal" style="text-align: center;" align="center">Figure
-10:<span style="">&nbsp; </span>Perturbed Crater Lake, color-coded
-domain<o:p>&nbsp;</o:p></p>
-<p class="MsoNormal" style="text-align: center;" align="center"><v:shape
- id="_x0000_i1036" type="#_x0000_t75"
- style="width: 181.5pt; height: 243pt;">&nbsp; <v:imagedata
- src="file:///C:%5CDOCUME%7E1%5CMichael%5CLOCALS%7E1%5CTemp%5Cmsohtml1%5C01%5Cclip_image028.wmz"
- o:althref="file:///C:\DOCUME~1\Michael\LOCALS~1\Temp\msohtml1\01\clip_image029.pcz"
- o:title="">
-</v:imagedata><img style="width: 242px; height: 324px;" alt="figure11a"
- src="./v2n2p2/figure11a.JPG"><img style="width: 202px; height: 324px;"
- alt="figure11b" src="./v2n2p2/figure11b.JPG"><v:shape id="_x0000_i1037"
- type="#_x0000_t75" style="width: 151.5pt; height: 243pt;"><v:imagedata
- src="file:///C:%5CDOCUME%7E1%5CMichael%5CLOCALS%7E1%5CTemp%5Cmsohtml1%5C01%5Cclip_image031.wmz"
- o:althref="file:///C:\DOCUME~1\Michael\LOCALS~1\Temp\msohtml1\01\clip_image032.pcz"
- o:title=""></v:imagedata></v:shape></v:shape><o:p>&nbsp;</o:p></p>
-<p class="MsoNormal" style="text-align: center;" align="center">Figure
-11:<span style="">&nbsp; </span>Color-coded partial derivative graphs
-for
-Crater Lake
-<p/>
-<div class="centered"><img style="width: 289px; height: 432px;" alt="figure12"
-    src="./v2n2p2/figure12.JPG"></div>
-<br/>
-<div class="centered">Figure
-12:<span style="">&nbsp; </span>Color-coded graph of perturbed Crater
-Lake</div>
-<div class="centered"><applet codebase="./v2n2p2" archive="Demo.jar"
- code="DemoApplet" height="50" width="400"><param name="NAME"
- value="Crater Lake function graph"> <param name="DATA"
- value="filever 100.0 env {function $s(u,v)=(cos(u)*cos(v), sin(u)*cos(v), sin(v))$ 
+intersecting curves where f</span><span style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y) = 0.<span style="">&nbsp;
+</span>The intersections of these two pairs of curves yield three critical points, one global maximum, one ordinary saddle,
+            and one local minimum.
+            <o:p></o:p>
+            </span>
+        </div>
+        <div class="textdiv">
+            Note the in the unperturbed
+            <st1:place w:st="on">Crater Lake</st1:place>, all of the points on the top rim of the graph represent global maxima.<span style="">&nbsp; </span>The
+            curve of points where both partial derivatives are zero will be purple on one side and white on the other, or
+            red on one side and blue on the other.<span style="">&nbsp; </span>This is a degenerate situation since the curves
+            where f<span style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y)<span style="">&nbsp; </span>=
+            0 and f</span><span style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y) = 0 coincide.<span style="">&nbsp; </span>When
+            we introduce a shear by adding mx for small x, these two loci are perturbed so that they intersect at a finite
+            number of points, with all four colors in a neighborhood of each of these critical points.
+            <o:p></o:p>
+            </span>
+            <p></p>
+            <p class="MsoNormal" style="text-align: justify;"><span style=""> </span></p>
+            <p class="MsoNormal" style="text-align: center;" align="center">
+                <v:shape id="_x0000_i1035" type="#_x0000_t75" style="width: 400.5pt; height: 126.75pt;">
+                    <v:imagedata src="file:///C:%5CDOCUME%7E1%5CMichael%5CLOCALS%7E1%5CTemp%5Cmsohtml1%5C01%5Cclip_image025.wmz"
+                        o:althref="file:///C:\DOCUME~1\Michael\LOCALS~1\Temp\msohtml1\01\clip_image026.pcz" o:title="" cropleft="2066f"></v:imagedata><img style="width: 534px; height: 169px;" alt="figure10" src="./Interactive Geometry and Critical Points_files/figure10.JPG"><br>
+                </v:shape>
+            </p>
+            <p class="MsoNormal" style="text-align: center;" align="center">Figure 10:
+                <span style="">&nbsp; </span>Perturbed Crater Lake, color-coded domain
+                <o:p>&nbsp;</o:p>
+            </p>
+            <p class="MsoNormal" style="text-align: center;" align="center">
+                <v:shape id="_x0000_i1036" type="#_x0000_t75" style="width: 181.5pt; height: 243pt;">&nbsp;
+                    <v:imagedata src="file:///C:%5CDOCUME%7E1%5CMichael%5CLOCALS%7E1%5CTemp%5Cmsohtml1%5C01%5Cclip_image028.wmz"
+                        o:althref="file:///C:\DOCUME~1\Michael\LOCALS~1\Temp\msohtml1\01\clip_image029.pcz" o:title="">
+                    </v:imagedata><img style="width: 242px; height: 324px;" alt="figure11a" src="./Interactive Geometry and Critical Points_files/figure11a.JPG">
+                    <img
+                        style="width: 202px; height: 324px;" alt="figure11b" src="./Interactive Geometry and Critical Points_files/figure11b.JPG">
+                        <v:shape id="_x0000_i1037" type="#_x0000_t75" style="width: 151.5pt; height: 243pt;">
+                            <v:imagedata src="file:///C:%5CDOCUME%7E1%5CMichael%5CLOCALS%7E1%5CTemp%5Cmsohtml1%5C01%5Cclip_image031.wmz"
+                                o:althref="file:///C:\DOCUME~1\Michael\LOCALS~1\Temp\msohtml1\01\clip_image032.pcz" o:title=""></v:imagedata>
+                        </v:shape>
+                </v:shape>
+                <o:p>&nbsp;</o:p>
+            </p>
+            <p class="MsoNormal" style="text-align: center;" align="center">Figure 11:
+                <span style="">&nbsp; </span>Color-coded partial derivative graphs for Crater Lake
+            </p>
+            <p>
+            </p>
+            <div class="centered"><img style="width: 289px; height: 432px;" alt="figure12" src="./Interactive Geometry and Critical Points_files/figure12.JPG"></div>
+            <br>
+            <div class="centered">Figure 12:
+                <span style="">&nbsp; </span>Color-coded graph of perturbed Crater Lake
+            </div>
+            <div class="centered">
+                <applet codebase="./v2n2p2" archive="Demo.jar" code="DemoApplet" height="50" width="400">
+                    <param name="NAME" value="Crater Lake function graph">
+                    <param name="DATA" value="filever 100.0 env {function $s(u,v)=(cos(u)*cos(v), sin(u)*cos(v), sin(v))$ 
 constant $ly=1$ constant $lx=1$ variable $m= -1,1,20$ 0.0 constant $lz=1$ 
 variable $rOn= 0, 1, 1$ 1.0 interval $r= 0,1.2,10$ function 
 $f(r,theta)=r^2 - r^4$ function $Y(r,theta)=(r*cos(theta),r*sin(theta),-2)$ 
@@ -1995,55 +1516,41 @@ $rS(s(u,v))$} vrtnml true}}]} alpha true scale 100.01271474132783 surfacemode
 0.9999999999999999 -3.8857805861880316E-16 -1.6653345369377343E-16 0.0 0.0 0.0 
 0.0 1.0]}} group {id obj72} hotspots [] drawmode 1.0}} graph {id obj73} frame 
 {visible true plots [{id obj79} {id obj80}] title Sphere labels 
-[$ Axes: x, y, z$ $ Surface: rS(s(u,v))$]}}}] "></applet>
-</div>
-<div class="centered"><a href="./v2n2p2/IGCP_help_craterlakefunctiongraphdemo.html"
-        onclick="return openwindow(this, 'Help')"><span style="font-size: 80%;">Demo help</span></a></div>
-</div>
-<p/>
-<div class="textdiv">
-The
-graph of perturbed Crater Lakes function colored according to the
-signs of the
-two first partial derivatives has four different colors near any
-critical point
-of the function, where the curves corresponding to f<sub>x</sub>(x,y) =
-0 and
-f<sub>y</sub>(x,y) =
-0 intersect.
-</div>
-<p/><br/>
-<span class="sectiontitlespan">12. Parametric Surfaces in Three-Dimensional Space</span>
-<p/>
-<div class="textdiv">
-Just as we can generalize from
-graphs of functions of one variable to closed parametric curves in the
-plane,
-we can generalize from graphs of functions of two variables to
-parametric
-surfaces in space.<span style="">&nbsp; </span>For such surfaces,
-the outer normal vector can point into the upper hemisphere where the
-coloring
-is white, red, purple, and blue, or into the lower hemisphere, for
-which
-directions the color is yellow, overlaid as appropriate with red to
-make
-orange, or blue to make green, or purple to make brown.<span style="">&nbsp;
-</span>The eight quadrants of the unit sphere are
-then color-coded in such a way that a small polygonal region on a
-surface
-receives the color of the octant within which its outward normal vector
-lies.
-</div>
-<div class="centered"><img
-    style="width: 566px; height: 364px;" alt="Figure 13" src="./v2n2p2/figure13.JPG"></div>
-<br/>
-<div class="centered">Figure 13: A torus held vertically</div>
-<br/>
-<div class="centered"><applet codebase="./v2n2p2" archive="Demo.jar"
- code="DemoApplet" height="50" width="400"><param name="NAME"
- value="A torus held vertically"> <param name="DATA"
- value="filever 100.0 env {constant $a=sqrt(2)$ variable $epsilon2= 0,1,10$ 0.0 constant 
+[$ Axes: x, y, z$ $ Surface: rS(s(u,v))$]}}}] ">
+                </applet>
+            </div>
+            <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_craterlakefunctiongraphdemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
+        </div>
+        <p>
+        </p>
+        <div class="textdiv">
+            The graph of perturbed Crater Lakes function colored according to the signs of the two first partial derivatives has four
+            different colors near any critical point of the function, where the curves corresponding to f<sub>x</sub>(x,y)
+            = 0 and f
+            <sub>y</sub>(x,y) = 0 intersect.
+        </div>
+        <p><br>
+            <span class="sectiontitlespan">12. Parametric Surfaces in Three-Dimensional Space</span>
+        </p>
+        <p>
+        </p>
+        <div class="textdiv">
+            Just as we can generalize from graphs of functions of one variable to closed parametric curves in the plane, we can generalize
+            from graphs of functions of two variables to parametric surfaces in space.<span style="">&nbsp; </span>For
+            such surfaces, the outer normal vector can point into the upper hemisphere where the coloring is white, red,
+            purple, and blue, or into the lower hemisphere, for which directions the color is yellow, overlaid as appropriate
+            with red to make orange, or blue to make green, or purple to make brown.<span style="">&nbsp;
+</span>The eight quadrants of the unit sphere are then color-coded in such a way that a small polygonal region on a surface
+            receives the color of the octant within which its outward normal vector lies.
+        </div>
+        <div class="centered"><img style="width: 566px; height: 364px;" alt="Figure 13" src="./Interactive Geometry and Critical Points_files/figure13.JPG"></div>
+        <br>
+        <div class="centered">Figure 13: A torus held vertically</div>
+        <br>
+        <div class="centered">
+            <applet codebase="./v2n2p2" archive="Demo.jar" code="DemoApplet" height="50" width="400">
+                <param name="NAME" value="A torus held vertically">
+                <param name="DATA" value="filever 100.0 env {constant $a=sqrt(2)$ variable $epsilon2= 0,1,10$ 0.0 constant 
 $b= 1$ function $Y(u,v)=(-cos(u)*cos(v),sin(u)*cos(v),sin(v))$ variable 
 $epsilon3= 0,1,10$ 0.0 variable $rOn= 0,1,1$ 1.0 interval $v=-pi,pi,24$ interval 
 $u2= 0,2*pi,24$ interval $v2= -pi/2,pi/2,12$ variable $rtheta= -2*pi, 2*pi, 48$ 
@@ -2176,41 +1683,37 @@ $x(u, v), y(u, v), z(u, v)$}}}]} alpha true scale 100.01271474132783 surfacemode
 0.8359706000171074 0.0 0.8141497603781349 0.18977768791076 0.5487664319613171 
 0.0 0.0 0.0 0.0 1.0]}} group {id obj13} hotspots [] drawmode 1.0}} graph {id 
 obj15} frame {visible false plots [{id obj74}] title 
-$Critical points of x(u, v)$ labels [$ Surface: x(u, v), y(u, v), z(u, v)$]}}}] "></applet>
-</div>
-<br/>
-<div class="centered"><a href="./v2n2p2/IGCP_help_torusdemo.html"
-        onclick="return openwindow(this, 'Help')"><span style="font-size: 80%;">Demo help</span></a></div>
-<p/>
-<div class="textdiv">
-Note
-that for the torus of revolution, the critical points of vertical
-coordinate function have a local maximum at an entire circle, similar
-to the situation at the top rim of the Crater Lake functions
-graph.&nbsp; We can obtain isolated critical points either by rotating
-the torus or by perturbing it by adding a multiple of sin(2u) to get
-two global maxima or a multiple of sin(3u) to get three local
-maxima.&nbsp; Once again the critical points of the coordinate
-functions will occur when four different colors come together on the
-surface, when the color of the surface corresponds to the color of the
-normal vector to the surface on the unit sphere.<br>
-<br>
-</div>
-<div class="centered"><img
- style="width: 565px; height: 354px;" alt="Figure 14" src="./v2n2p2/figure14.JPG">
-</div>
-<br/>
-<div class="centered">Figure 14: Warped torus - torus plus multiple of sin(2u)</div>
-<p class="MsoNormal" style="text-align: center;" align="center"><o:p>&nbsp;</o:p><br>
-<div class="centered"><img
-    style="width: 575px; height: 368px;" alt="figure15" src="./v2n2p2/figure15.JPG"></div>
-<br/>
-<div class="centered">Figure 15: Warped torus - torus plus multiple of sin(3u)</div>
-<br/>
-<div class="centered"><applet codebase="./v2n2p2" archive="Demo.jar"
- code="DemoApplet" height="50" width="400"><param name="NAME"
- value="Warped torus"> <param name="DATA"
- value="filever 100.0 env {constant $b= 1$ variable $epsilon2= 0,1,10$ 0.0 variable 
+$Critical points of x(u, v)$ labels [$ Surface: x(u, v), y(u, v), z(u, v)$]}}}] ">
+            </applet>
+        </div>
+        <br>
+        <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_torusdemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
+        <p>
+        </p>
+        <div class="textdiv">
+            Note that for the torus of revolution, the critical points of vertical coordinate function have a local maximum at an entire
+            circle, similar to the situation at the top rim of the Crater Lake functions graph.&nbsp; We can obtain isolated
+            critical points either by rotating the torus or by perturbing it by adding a multiple of sin(2u) to get two global
+            maxima or a multiple of sin(3u) to get three local maxima.&nbsp; Once again the critical points of the coordinate
+            functions will occur when four different colors come together on the surface, when the color of the surface corresponds
+            to the color of the normal vector to the surface on the unit sphere.<br>
+            <br>
+        </div>
+        <div class="centered"><img style="width: 565px; height: 354px;" alt="Figure 14" src="./Interactive Geometry and Critical Points_files/figure14.JPG">
+        </div>
+        <br>
+        <div class="centered">Figure 14: Warped torus - torus plus multiple of sin(2u)</div>
+        <p class="MsoNormal" style="text-align: center;" align="center">
+            <o:p>&nbsp;</o:p><br>
+        </p>
+        <div class="centered"><img style="width: 575px; height: 368px;" alt="figure15" src="./Interactive Geometry and Critical Points_files/figure15.JPG"></div>
+        <br>
+        <div class="centered">Figure 15: Warped torus - torus plus multiple of sin(3u)</div>
+        <br>
+        <div class="centered">
+            <applet codebase="./v2n2p2" archive="Demo.jar" code="DemoApplet" height="50" width="400">
+                <param name="NAME" value="Warped torus">
+                <param name="DATA" value="filever 100.0 env {constant $b= 1$ variable $epsilon2= 0,1,10$ 0.0 variable 
 $epsilon3= 0,1,10$ 0.2 variable $rOn= 0,1,1$ 1.0 constant $a=sqrt(2)$ function 
 $Y(u,v)=(-cos(u)*cos(v),sin(u)*cos(v),sin(v))$ variable $alpha= 0,pi/2,24$ 1.57 
 interval $v=-pi,pi,24$ variable $rtheta= -2*pi, 2*pi, 48$ 0.0 variable 
@@ -2342,98 +1845,89 @@ $x(u, v), y(u, v), z(u, v)$}}}]} alpha true scale 100.01271474132783 surfacemode
 0.8359706000171074 0.0 0.8141497603781349 0.18977768791076 0.5487664319613171 
 0.0 0.0 0.0 0.0 1.0]}} group {id obj28} hotspots [] drawmode 1.0}} graph {id 
 obj29} frame {visible false plots [{id obj74}] title 
-$Critical points of x(u, v)$ labels [$ Surface: x(u, v), y(u, v), z(u, v)$]}}}] "></applet>
-</div>
-<div class="centered"><a href="./v2n2p2/IGCP_help_warpedtorusdemo.html"
-        onclick="return openwindow(this, 'Help')"><span style="font-size: 80%;">Demo help</span></a></div>
-<p/>
-<div class="textdiv">When a
-neighborhood of a point is colored with red, white, blue and purple, or
-the
-same four colors in the opposite order, the spherical image of the
-point is the
-north pole, the unit vector along the positive z-axis. When the coloration is orange, yellow, green,
-and brown, or these colors in the opposite order, the spherical image
-of the
-point is the south pole. The Hopf degree
-theorem states that the algebraic number of times that the north pole
-is hit is
-the same as the number of times that the south pole it hit, where the
-first
-ordering is counted positively and the second negatively. Each of these numbers is half of the &#8220;Euler
-characteristic of the surface&#8221;, a number that expressed the complexity
-of the
-shape of the surface. This result is
-basic in the topology and geometry of surfaces, and it is fundamental
-to the
-modern theory of extrinsic differential geometry of surfaces. Just as Morse would be pleased to see
-interactive demonstrations of critical points, Gauss would appreciate
-interactive exploration of surfaces in three-space and higher. Such topics will be dealt with in later
-papers on interactive geometry in differential geometry and
-combinatorial
-topology.
-</div>
-<p/><br/>
-<span class="sectiontitlespan">Conclusion</span>
-<p/>
-<div class="textdiv">
-Interactive computer graphics makes
-it possible to investigate phenomena connected with critical points of
-functions in the plane and in three-dimensional space, starting with
-elementary
-calculus and proceeding to theorems in differential geometry and
-topology. These techniques have great
-potential for
-engaging students and general audiences as well as providing fruitful
-areas for
-research, in pedagogy as well as geometry and topology.
-</div>
-<p/><br/>
-<span class="sectiontitlespan">Acknowledgements</span>
-<p/>
-<div class="textdiv">
-Special thanks are due to Michael
-Schwarz, who wrote the Java demonstrations used for the illustrations
-in this
-article. The software for the Java
-applets was created at <st1:place w:st="on"><st1:placename w:st="on">Brown</st1:placename>
-<st1:placetype w:st="on">University</st1:placetype></st1:place> by
-David Eigen
-under the direction of the author.
-</div>
-<p/><br/>
-<span class="sectiontitlespan">References</span>
-<p/>
-<table border="0">
-  <tr>
-    <td width="2%"></td>
-    <td style="vertical-align: top;"><span style="font-size: 20px;">[B1]</span></td>
-    <td width="1em"></td>
-    <td style="padding-bottom: 1ex;">
-        <span style="font-size: 20px;">Banchoff, Thomas &#8220;Beyond the Third Dimension&#8221;
+$Critical points of x(u, v)$ labels [$ Surface: x(u, v), y(u, v), z(u, v)$]}}}] ">
+            </applet>
+        </div>
+        <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_warpedtorusdemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
+        <p>
+        </p>
+        <div class="textdiv">When a neighborhood of a point is colored with red, white, blue and purple, or the same four colors in the opposite
+            order, the spherical image of the point is the north pole, the unit vector along the positive z-axis. When the
+            coloration is orange, yellow, green, and brown, or these colors in the opposite order, the spherical image of
+            the point is the south pole. The Hopf degree theorem states that the algebraic number of times that the north
+            pole is hit is the same as the number of times that the south pole it hit, where the first ordering is counted
+            positively and the second negatively. Each of these numbers is half of the �Euler characteristic of the surface�,
+            a number that expressed the complexity of the shape of the surface. This result is basic in the topology and
+            geometry of surfaces, and it is fundamental to the modern theory of extrinsic differential geometry of surfaces.
+            Just as Morse would be pleased to see interactive demonstrations of critical points, Gauss would appreciate interactive
+            exploration of surfaces in three-space and higher. Such topics will be dealt with in later papers on interactive
+            geometry in differential geometry and combinatorial topology.
+        </div>
+        <p><br>
+            <span class="sectiontitlespan">Conclusion</span>
+        </p>
+        <p>
+        </p>
+        <div class="textdiv">
+            Interactive computer graphics makes it possible to investigate phenomena connected with critical points of functions in the
+            plane and in three-dimensional space, starting with elementary calculus and proceeding to theorems in differential
+            geometry and topology. These techniques have great potential for engaging students and general audiences as well
+            as providing fruitful areas for research, in pedagogy as well as geometry and topology.
+        </div>
+        <p><br>
+            <span class="sectiontitlespan">Acknowledgements</span>
+        </p>
+        <p>
+        </p>
+        <div class="textdiv">
+            Special thanks are due to Michael Schwarz, who wrote the Java demonstrations used for the illustrations in this article.
+            The software for the Java applets was created at
+            <st1:place w:st="on">
+                <st1:placename w:st="on">Brown</st1:placename>
+                <st1:placetype w:st="on">University</st1:placetype>
+            </st1:place> by David Eigen under the direction of the author.
+        </div>
+        <p><br>
+            <span class="sectiontitlespan">References</span>
+        </p>
+        <p>
+            <table border="0">
+                <tbody>
+                    <tr>
+                        <td width="2%"></td>
+                        <td style="vertical-align: top;"><span style="font-size: 20px;">[B1]</span></td>
+                        <td width="1em"></td>
+                        <td style="padding-bottom: 1ex;">
+                            <span style="font-size: 20px;">Banchoff, Thomas �Beyond the Third Dimension�
             (1990) Scientific American Library, Freeman Publishing Co.</span>
-    </td>
-  </tr>
-  <tr>
-    <td width="2%"></td>
-    <td style="vertical-align: top;"><span style="font-size: 20px;">[B2]</span></td>
-    <td width="1em"></td>
-    <td style="padding-bottom: 1ex;">
-        <span style="font-size: 20px;">Banchoff, Thomas, &#8220;Interactive Geometry and
-Multivariable Calculus on the Internet&#8221; CBMS Issues in Mathematical
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="2%"></td>
+                        <td style="vertical-align: top;"><span style="font-size: 20px;">[B2]</span></td>
+                        <td width="1em"></td>
+                        <td style="padding-bottom: 1ex;">
+                            <span style="font-size: 20px;">Banchoff, Thomas, �Interactive Geometry and
+Multivariable Calculus on the Internet� CBMS Issues in Mathematical
 Education, Vol. 14 (2007), p. 17-31.</span>
-    </td>
-  </tr>
-  <tr>
-    <td width="2%"></td>
-    <td style="vertical-align: top;"><span style="font-size: 20px;">[M]</span></td>
-    <td width="1em"></td>
-    <td style="padding-bottom: 1ex;">
-        <span style="font-size: 20px;">Morse, Marston, &#8220;Topology and Equilibria&#8221;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="2%"></td>
+                        <td style="vertical-align: top;"><span style="font-size: 20px;">[M]</span></td>
+                        <td width="1em"></td>
+                        <td style="padding-bottom: 1ex;">
+                            <span style="font-size: 20px;">Morse, Marston, �Topology and Equilibria�
 (November 2007) The American Mathematical Monthly, p. 819-834.</span>
-    </td>
-  </tr>
-</table>
-</div> <!-- end body_div -->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </p>
+    </div>
+    <!-- end body_div -->
+
+
 </body>
+
 </html>
