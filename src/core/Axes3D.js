@@ -170,7 +170,7 @@ Axes3D.prototype.plotExpression = function(expr, type, opts) {
             this.addFigure(figure)
             return figure;
         case 'parametric':           
-            var par = new Parametric3D(this.parent, expr, opts)
+            var par = new Parametric3D(this, expr, opts)
             this.expressions[expr] = par;
             this.addFigure(par);
             return par;

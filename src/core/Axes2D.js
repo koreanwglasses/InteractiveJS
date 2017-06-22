@@ -179,7 +179,7 @@ Axes2D.prototype.plotExpression = function(expr, type, opts) {
             this.addHotspot(hotspot);
             return hotspot;
         case 'parametric':           
-            var par = new Parametric2D(this.parent, expr, opts)
+            var par = new Parametric2D(this, expr, opts)
             this.expressions[expr] = par;
             this.addFigure(par);
             return par;

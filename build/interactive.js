@@ -3192,10 +3192,28 @@ Hotspot2D.prototype.ondrag = function(event) {
     this.plot.refresh(this.expr.string);
 };
 
-function Parametric2D(plot, expr, opts) {
-    this.plot = plot;
+var vert = 'attribute float direction; \nattribute vec3 position;\nattribute vec3 next;\nattribute vec3 previous;\nattribute vec4 color;\nuniform mat4 projectionMatrix;\nuniform mat4 modelMatrix;\nuniform mat4 viewMatrix;\nuniform float aspect;\n\nuniform float thickness;\nuniform int miter;\n\nvarying vec4 vColor;\n\nvoid main() {\n  vColor = color;\n    \n  vec2 aspectVec = vec2(aspect, 1.0);\n  mat4 projViewModel = projectionMatrix * viewMatrix * modelMatrix;\n  vec4 previousProjected = projViewModel * vec4(previous, 1.0);\n  vec4 currentProjected = projViewModel * vec4(position, 1.0);\n  vec4 nextProjected = projViewModel * vec4(next, 1.0);\n\n  \/\/get 2D screen space with W divide and aspect correction\n  vec2 currentScreen = currentProjected.xy \/ currentProjected.w * aspectVec;\n  vec2 previousScreen = previousProjected.xy \/ previousProjected.w * aspectVec;\n  vec2 nextScreen = nextProjected.xy \/ nextProjected.w * aspectVec;\n\n  float len = thickness;\n  float orientation = direction;\n\n  \/\/starting point uses (next - current)\n  vec2 dir = vec2(0.0);\n  if (currentScreen == previousScreen) {\n    dir = normalize(nextScreen - currentScreen);\n  } \n  \/\/ending point uses (current - previous)\n  else if (currentScreen == nextScreen) {\n    dir = normalize(currentScreen - previousScreen);\n  }\n  \/\/somewhere in middle, needs a join\n  else {\n    \/\/get directions from (C - B) and (B - A)\n    vec2 dirA = normalize((currentScreen - previousScreen));\n    if (miter == 1) {\n      vec2 dirB = normalize((nextScreen - currentScreen));\n      \/\/now compute the miter join normal and length\n      vec2 tangent = normalize(dirA + dirB);\n      vec2 perp = vec2(-dirA.y, dirA.x);\n      vec2 miter = vec2(-tangent.y, tangent.x);\n      dir = tangent;\n      len = thickness \/ dot(miter, perp);\n    } else {\n      dir = dirA;\n    }\n  }\n  vec2 normal = vec2(-dir.y, dir.x);\n  normal *= len\/2.0;\n  normal.x \/= aspect;\n\n  vec4 offset = vec4(normal * orientation, 0.0, 0.0);\n  gl_Position = currentProjected + offset;\n  gl_PointSize = 1.0;\n}';
+var frag = '#ifdef GL_ES\nprecision mediump float;\n#endif\n\nvarying vec4 vColor;\n\nvoid main() {\n  gl_FragColor = vec4(vColor);\n}';
 
-    this.expr = new Expression(expr, plot.context);
+function LineMaterialCreator(thickness, vwidth, vheight) {
+    this.getMaterial = function () {
+        return new THREE.RawShaderMaterial({
+            uniforms: {
+                thickness: { value: thickness / vwidth },
+                miter: { value: 0 },
+                aspect: { value: vwidth / vheight }
+            },
+            vertexShader: vert,
+            fragmentShader: frag
+        });
+    };
+}
+
+function Parametric2D(parent, expr, opts) {
+    this.parent = parent;
+    this.plot = parent.parent;
+
+    this.expr = new Expression(expr, this.plot.context);
     this.opts = opts !== undefined? opts: {};
 
     this.validated = false;
@@ -3205,7 +3223,7 @@ function Parametric2D(plot, expr, opts) {
         this.color = new Expression(this.opts.color, this.plot.context);
         this.colorf = this.color.evaluate();
     }
-    if(this.opts.thick === undefined) this.opts.thick = true;
+    if(this.opts.thick === undefined) this.opts.thick = false;
 }
 
 Parametric2D.prototype.getVariables = function() {
@@ -3214,25 +3232,95 @@ Parametric2D.prototype.getVariables = function() {
 };
 
 Parametric2D.prototype.createLine = function(par) {
-    var geom = new THREE.Geometry();
+    var geom = new THREE.BufferGeometry();
     var int = par.intervals[0];
     var tarr = int.array();
+
+    var direction = new Float32Array(tarr.length * 2);
+    var vertices = new Float32Array(tarr.length * 3 * 2);
+    var previous = new Float32Array(tarr.length * 3 * 2);
+    var next = new Float32Array(tarr.length * 3 * 2);
+
+    var colors = new Uint8Array(tarr.length * 4 * 2);
 
     for(var i = 0; i < tarr.length; i++) {
         var t = tarr[i];
 
-        geom.vertices.push(par.func(t).toVector3());
+        direction[i*2] = 1;
+        direction[i*2+1] = -1;
+
+        // geom.vertices.push(par.func(t).toVector3());
+        var v = par.func(t).toVector3();
+        vertices[i*6] = v.x;
+        vertices[i*6+1] = v.y;
+        vertices[i*6+2] = v.z;
+
+        vertices[i*6+3] = v.x;
+        vertices[i*6+4] = v.y;
+        vertices[i*6+5] = v.z;
+
+        if(i > 0) {
+            previous[i*6] = vertices[i*6-6];
+            previous[i*6+1] = vertices[i*6-5];
+            previous[i*6+2] = vertices[i*6-4];
+            previous[i*6+3] = vertices[i*6-3];
+            previous[i*6+4] = vertices[i*6-2];
+            previous[i*6+5] = vertices[i*6-1];
+
+            next[i*6-6] = vertices[i*6];
+            next[i*6-5] = vertices[i*6+1];
+            next[i*6-4] = vertices[i*6+2];
+            next[i*6-3] = vertices[i*6+3];
+            next[i*6-2] = vertices[i*6+4];
+            next[i*6-1] = vertices[i*6+5];
+        }
 
         if(this.color !== undefined) {
             var color = this.colorf(t);
-            geom.colors[i] = new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value);
+            // geom.colors[i] = new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value)
+            colors[i*8] = color.q[0].value * 255;
+            colors[i*8 + 1] = color.q[1].value * 255;
+            colors[i*8 + 2] = color.q[2].value * 255;
+            colors[i*8 + 3] = 255;
+            colors[i*8 + 4] = color.q[0].value * 255;
+            colors[i*8 + 5] = color.q[1].value * 255;
+            colors[i*8 + 6] = color.q[2].value * 255;
+            colors[i*8 + 7] = 255;
+        } else {
+            colors[i*8] = 255;
+            colors[i*8 + 1] = 255;
+            colors[i*8 + 2] = 255;
+            colors[i*8 + 3] = 255;
+            colors[i*8 + 4] = 255;
+            colors[i*8 + 5] = 255;
+            colors[i*8 + 6] = 255;
+            colors[i*8 + 7] = 255;
         }
-    } 
-    if(this.color !== undefined) {
-        return new THREE.Line(geom, new THREE.LineBasicMaterial({color: 0xffffff, vertexColors: THREE.VertexColors}));
-    } else {
-        return new THREE.Line(geom, new THREE.LineBasicMaterial());
     }
+
+    previous[0] = vertices[0];
+    previous[1] = vertices[1];
+    previous[2] = vertices[2];
+    previous[3] = vertices[3];
+    previous[4] = vertices[4];
+    previous[5] = vertices[5];
+    next[tarr.length*6-6] = vertices[tarr.length*6-6];
+    next[tarr.length*6-5] = vertices[tarr.length*6-5];
+    next[tarr.length*6-4] = vertices[tarr.length*6-4];
+    next[tarr.length*6-3] = vertices[tarr.length*6-3];
+    next[tarr.length*6-2] = vertices[tarr.length*6-2];
+    next[tarr.length*6-1] = vertices[tarr.length*6-1];
+
+    geom.addAttribute('direction', new THREE.BufferAttribute(direction, 1));
+    geom.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    geom.addAttribute('previous', new THREE.BufferAttribute(previous, 3));
+    geom.addAttribute('next', new THREE.BufferAttribute(next, 3));
+    geom.addAttribute('color', new THREE.BufferAttribute(colors, 4, true));
+
+    var mat = new LineMaterialCreator(this.opts.thick === true ? 10 : 5, this.parent.frame.width, this.parent.frame.height).getMaterial();
+    var mesh = new THREE.Mesh(geom, mat);
+    mesh.drawMode = THREE.TriangleStripDrawMode;
+    return mesh
 };
 
 Parametric2D.prototype.getSceneObject = function() {
@@ -3421,7 +3509,7 @@ Axes2D.prototype.plotExpression = function(expr, type, opts) {
             this.addHotspot(hotspot);
             return hotspot;
         case 'parametric':           
-            var par = new Parametric2D(this.parent, expr, opts);
+            var par = new Parametric2D(this, expr, opts);
             this.expressions[expr] = par;
             this.addFigure(par);
             return par;
@@ -3563,10 +3651,11 @@ Arrow3D.prototype.invalidate = function() {
     this.validated = false;
 };
 
-function Parametric3D(plot, expr, opts) {
-    this.plot = plot;
+function Parametric3D(parent, expr, opts) {
+    this.parent = parent;
+    this.plot = parent.parent;
 
-    this.expr = new Expression(expr, plot.context);
+    this.expr = new Expression(expr, this.plot.context);
     this.opts = opts !== undefined? opts: {};
 
     this.validated = false;
@@ -3579,6 +3668,7 @@ function Parametric3D(plot, expr, opts) {
     if(this.opts.wireframe === undefined) this.opts.wireframe = false;
     if(this.opts.flat === undefined) this.opts.flat = false;
     if(this.opts.smooth === undefined) this.opts.smooth = true;
+    if(this.opts.thick === undefined) this.opts.thick = false;
 }
 
 Parametric3D.prototype.getVariables = function() {
@@ -3587,25 +3677,95 @@ Parametric3D.prototype.getVariables = function() {
 };
 
 Parametric3D.prototype.createLine = function(par) {
-    var geom = new THREE.Geometry();
+ var geom = new THREE.BufferGeometry();
     var int = par.intervals[0];
     var tarr = int.array();
+
+    var direction = new Float32Array(tarr.length * 2);
+    var vertices = new Float32Array(tarr.length * 3 * 2);
+    var previous = new Float32Array(tarr.length * 3 * 2);
+    var next = new Float32Array(tarr.length * 3 * 2);
+
+    var colors = new Uint8Array(tarr.length * 4 * 2);
 
     for(var i = 0; i < tarr.length; i++) {
         var t = tarr[i];
 
-        geom.vertices.push(par.func(t).toVector3());
+        direction[i*2] = 1;
+        direction[i*2+1] = -1;
+
+        // geom.vertices.push(par.func(t).toVector3());
+        var v = par.func(t).toVector3();
+        vertices[i*6] = v.x;
+        vertices[i*6+1] = v.y;
+        vertices[i*6+2] = v.z;
+
+        vertices[i*6+3] = v.x;
+        vertices[i*6+4] = v.y;
+        vertices[i*6+5] = v.z;
+
+        if(i > 0) {
+            previous[i*6] = vertices[i*6-6];
+            previous[i*6+1] = vertices[i*6-5];
+            previous[i*6+2] = vertices[i*6-4];
+            previous[i*6+3] = vertices[i*6-3];
+            previous[i*6+4] = vertices[i*6-2];
+            previous[i*6+5] = vertices[i*6-1];
+
+            next[i*6-6] = vertices[i*6];
+            next[i*6-5] = vertices[i*6+1];
+            next[i*6-4] = vertices[i*6+2];
+            next[i*6-3] = vertices[i*6+3];
+            next[i*6-2] = vertices[i*6+4];
+            next[i*6-1] = vertices[i*6+5];
+        }
 
         if(this.color !== undefined) {
             var color = this.colorf(t);
-            geom.colors[i] = new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value);
+            // geom.colors[i] = new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value)
+            colors[i*8] = color.q[0].value * 255;
+            colors[i*8 + 1] = color.q[1].value * 255;
+            colors[i*8 + 2] = color.q[2].value * 255;
+            colors[i*8 + 3] = 255;
+            colors[i*8 + 4] = color.q[0].value * 255;
+            colors[i*8 + 5] = color.q[1].value * 255;
+            colors[i*8 + 6] = color.q[2].value * 255;
+            colors[i*8 + 7] = 255;
+        } else {
+            colors[i*8] = 255;
+            colors[i*8 + 1] = 255;
+            colors[i*8 + 2] = 255;
+            colors[i*8 + 3] = 255;
+            colors[i*8 + 4] = 255;
+            colors[i*8 + 5] = 255;
+            colors[i*8 + 6] = 255;
+            colors[i*8 + 7] = 255;
         }
-    } 
-    if(this.color !== undefined) {
-        return new THREE.Line(geom, new THREE.LineBasicMaterial({color: 0xffffff, vertexColors: THREE.VertexColors}));
-    } else {
-        return new THREE.Line(geom, new THREE.LineBasicMaterial());
     }
+
+    previous[0] = vertices[0];
+    previous[1] = vertices[1];
+    previous[2] = vertices[2];
+    previous[3] = vertices[3];
+    previous[4] = vertices[4];
+    previous[5] = vertices[5];
+    next[tarr.length*6-6] = vertices[tarr.length*6-6];
+    next[tarr.length*6-5] = vertices[tarr.length*6-5];
+    next[tarr.length*6-4] = vertices[tarr.length*6-4];
+    next[tarr.length*6-3] = vertices[tarr.length*6-3];
+    next[tarr.length*6-2] = vertices[tarr.length*6-2];
+    next[tarr.length*6-1] = vertices[tarr.length*6-1];
+
+    geom.addAttribute('direction', new THREE.BufferAttribute(direction, 1));
+    geom.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    geom.addAttribute('previous', new THREE.BufferAttribute(previous, 3));
+    geom.addAttribute('next', new THREE.BufferAttribute(next, 3));
+    geom.addAttribute('color', new THREE.BufferAttribute(colors, 4, true));
+
+    var mat = new LineMaterialCreator(this.opts.thick === true ? 30 : 15, this.parent.frame.width, this.parent.frame.height).getMaterial();
+    var mesh = new THREE.Mesh(geom, mat);
+    mesh.drawMode = THREE.TriangleStripDrawMode;
+    return mesh
 };
 
 Parametric3D.prototype.createSurface = function(par) {
@@ -3858,7 +4018,7 @@ Axes3D.prototype.plotExpression = function(expr, type, opts) {
             this.addFigure(figure);
             return figure;
         case 'parametric':           
-            var par = new Parametric3D(this.parent, expr, opts);
+            var par = new Parametric3D(this, expr, opts);
             this.expressions[expr] = par;
             this.addFigure(par);
             return par;
