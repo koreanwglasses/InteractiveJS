@@ -22,6 +22,9 @@ function Axes3D(parent, container, opts) {
      */
     this.parent = parent;
 
+    // avoid null pointer errors
+    if(opts === undefined) opts = {};
+
     /**
      * The frame which will render the axes
      */
