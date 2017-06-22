@@ -1,6 +1,3 @@
-import '../lib/renderers/CanvasRenderer.js';
-import '../lib/renderers/Projector.js';
-
 export { Axes2D } from './core/Axes2D.js';
 export { Axes3D } from './core/Axes3D.js';
 export { Panel } from './core/Panel.js';
