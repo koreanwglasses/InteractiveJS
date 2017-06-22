@@ -387,7 +387,7 @@ does for a local maximum or minimum.
                     var pan3 = plot3.createPanel(document.getElementById('pan3'))
 
                     plot3.execExpression('N(X,u)=norm(perp(derivative(X,u)))*0.5')
-                    plot3.execExpression('c(X,u)=select(quadrant(N(X,u)),(1,1,1),(1,0,0),(1,.5,0),(1,1,0))')
+                    plot3.execExpression('c(X,u)=select(quadrant(N(X,u)),(.6,.6,.6),(1,0,0),(1,.5,0),(1,1,0))')
 
                     plot3.execExpression('u=0')
                     pan3.addSlider('{u,0,6.3,100}', {continuous: true});
@@ -466,7 +466,7 @@ does for a local maximum or minimum.
                     var pan4 = plot4.createPanel(document.getElementById('pan4'))
 
                     plot4.execExpression('N(X,t)=norm(perp(derivative(X,t)))*0.5')
-                    plot4.execExpression('c(X,t)=select(quadrant(N(X,t)),(1,1,1),(1,0,0),(1,.5,0),(1,1,0))')
+                    plot4.execExpression('c(X,t)=select(quadrant(N(X,t)),(.6,.6,.6),(1,0,0),(1,.5,0),(1,1,0))')
 
                     plot4.execExpression('u=0.5')
                     pan4.addSlider('{u,-2,2,100}', {continuous: true});
