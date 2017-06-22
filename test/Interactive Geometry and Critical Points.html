@@ -310,9 +310,9 @@ does for a local maximum or minimum.
                     var plot2 = new Interactive.Plot();
                     var ax2 = plot2.createAxes2D(document.getElementById('ax2'), {zoom: 100});
                     var pan2 = plot2.createPanel(document.getElementById('pan2'))
-                    plot2.execExpression('u=-1')
-                    plot2.execExpression('v=-1')
-                    plot2.execExpression('f(x)=-x^4+u*x^2+v*x')
+                    plot2.execExpression('u=1')
+                    plot2.execExpression('v=1')
+                    plot2.execExpression('f(x)=-(x^4)+u*x^2+v*x')
                     plot2.execExpression('c(t)=interpolate((1,0,0),(1,1,1),signclamp(derivative(f,t),0,1))*signclamp(derivative2(f,t),0.5,1)')
 
                     pan2.addSlider('{u,-2,2,100}', {continuous: true});
