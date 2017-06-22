@@ -39,6 +39,8 @@ function Axes2D(parent, container, opts) {
      */
     this.zoom = opts.zoom !== undefined? opts.zoom : 200;
 
+    this.fixedZoom = opts.fixedZoom !== undefined? opts.fixedZoom : false;
+
     /**
      * Camera which renders the axes. 
      */
@@ -151,9 +153,11 @@ function Axes2D(parent, container, opts) {
 
     // Bind Events: Zooming
     this.frame.touchEventListener.onzoom = function(event) {
-        event.suppressScrolling();
-        _self.zoom *= Math.pow(0.8, event.amount / 100);
-        _self.updateCamera();
+        if(this.fixedZoom === false) {
+            event.suppressScrolling();
+            _self.zoom *= Math.pow(0.8, event.amount / 100);
+            _self.updateCamera();
+        }
     }
 }
 

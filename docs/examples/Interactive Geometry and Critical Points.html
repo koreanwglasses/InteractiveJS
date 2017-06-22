@@ -11,8 +11,8 @@
 </head>
 
 <body id="body" data-gr-c-s-loaded="true">
-        <script src="../../lib/three.min.js"></script>
-        <script src="../../build/interactive.js"></script>
+    <script src="../../lib/three.min.js"></script>
+    <script src="../../build/interactive.js"></script>
     <script>
         function checkVisible(el) {
             var elemTop = el.getBoundingClientRect().top;
@@ -241,7 +241,7 @@ does for a local maximum or minimum.
                 <div id="pan1" style="display:inline-block;"></div>
                 <script>
                     var plot1 = new Interactive.Plot();
-                    var ax1 = plot1.createAxes2D(document.getElementById('ax1'), {zoom: 100});
+                    var ax1 = plot1.createAxes2D(document.getElementById('ax1'), {zoom: 100, fixedZoom:true});
                     var pan1 = plot1.createPanel(document.getElementById('pan1'))
                     plot1.execExpression('m=-1')
                     plot1.execExpression('f(x)=x^3+m*x')
@@ -308,7 +308,7 @@ does for a local maximum or minimum.
                 <div id="pan2" style="display:inline-block;"></div>
                 <script>
                     var plot2 = new Interactive.Plot();
-                    var ax2 = plot2.createAxes2D(document.getElementById('ax2'), {zoom: 100});
+                    var ax2 = plot2.createAxes2D(document.getElementById('ax2'), {zoom: 100, fixedZoom:true});
                     var pan2 = plot2.createPanel(document.getElementById('pan2'))
                     plot2.execExpression('u=1')
                     plot2.execExpression('v=1')
@@ -382,8 +382,8 @@ does for a local maximum or minimum.
                 <div id="pan3" style="display:inline-block;"></div>
                 <script>
                     var plot3 = new Interactive.Plot();
-                    var ax3a = plot3.createAxes2D(document.getElementById('ax3a'), {zoom: 200});
-                    var ax3b = plot3.createAxes2D(document.getElementById('ax3b'), {zoom: 150});
+                    var ax3a = plot3.createAxes2D(document.getElementById('ax3a'), {zoom: 200, fixedZoom:true});
+                    var ax3b = plot3.createAxes2D(document.getElementById('ax3b'), {zoom: 150, fixedZoom:true});
                     var pan3 = plot3.createPanel(document.getElementById('pan3'))
 
                     plot3.execExpression('N(X,u)=norm(perp(derivative(X,u)))*0.5')
@@ -461,8 +461,8 @@ does for a local maximum or minimum.
                 <div id="pan4" style="display:inline-block;"></div>
                 <script>
                     var plot4 = new Interactive.Plot();
-                    var ax4a = plot4.createAxes2D(document.getElementById('ax4a'), {zoom: 200, position: new THREE.Vector3(-.75,0)});
-                    var ax4b = plot4.createAxes2D(document.getElementById('ax4b'), {zoom: 150});
+                    var ax4a = plot4.createAxes2D(document.getElementById('ax4a'), {zoom: 125, position: new THREE.Vector3(-.75,0), fixedZoom:true});
+                    var ax4b = plot4.createAxes2D(document.getElementById('ax4b'), {zoom: 150, fixedZoom:true});
                     var pan4 = plot4.createPanel(document.getElementById('pan4'))
 
                     plot4.execExpression('N(X,t)=norm(perp(derivative(X,t)))*0.5')
@@ -581,7 +581,7 @@ Peaks the Geometry of Peaks and Passes</span>
             <div id="pan5" style="display:inline-block;"></div>
             <script>
                 var plot5 = new Interactive.Plot();
-                var ax5a = plot5.createAxes3D(document.getElementById('ax5a'), {zoom: 200});
+                var ax5a = plot5.createAxes3D(document.getElementById('ax5a'), {zoom: 200, fixedZoom:true});
                 var pan5 = plot5.createPanel(document.getElementById('pan5'))
 
                 plot5.execExpression('m=0');

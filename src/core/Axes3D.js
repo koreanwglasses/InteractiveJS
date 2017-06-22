@@ -30,7 +30,9 @@ function Axes3D(parent, container, opts) {
     /**
      * The point which the camera will orbit around
      */
-     this.corigin = this.frame.scene.position.clone();
+    this.corigin = this.frame.scene.position.clone();
+
+    this.fixedZoom = opts.fixedZoom !== undefined? opts.fixedZoom : false;
 
     /**
      * Camera which renders the axes. 
@@ -129,10 +131,12 @@ function Axes3D(parent, container, opts) {
 
     // Bind Events: Zooming
     this.frame.touchEventListener.onzoom = function(event) {
-        event.suppressScrolling();
-        var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), Math.pow(1.25, event.amount / 100));
-        _self.camera.position.copy(newPos);
-        _self.camera.lookAt(_self.corigin);
+        if(this.fixedZoom === false) {
+            event.suppressScrolling();
+            var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), Math.pow(1.25, event.amount / 100));
+            _self.camera.position.copy(newPos);
+            _self.camera.lookAt(_self.corigin);
+        }
     };
 
     // Setup some 3d scene stuff
