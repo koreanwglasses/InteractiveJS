@@ -2507,6 +2507,14 @@ Vector.prototype.norm = function() {
     return this.div(this.abs());
 };
 
+Vector.prototype.map = function(f) {
+    var result = this.clone();
+    for(var i = 0; i < this.dimensions; i++) {
+        result.q[i] = f(result.q[i]);
+    }
+    return result;
+};
+
 /**
  * Sets this vector's coordinates to the input vector's
  */
@@ -2731,6 +2739,10 @@ MathPlus.abs = function(x) {
 
 MathPlus.ssign = function(x) {
     return MathPlus.sign(x).mul(MathPlus.abs(x).exp(new Number(0.2)));
+};
+
+MathPlus.map= function(v, f) {
+    return v.map(f);
 };
 
 MathPlus.log = function(x) {

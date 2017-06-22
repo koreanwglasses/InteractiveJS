@@ -134,6 +134,10 @@ MathPlus.ssign = function(x) {
     return MathPlus.sign(x).mul(MathPlus.abs(x).exp(new Number(0.2)));
 }
 
+MathPlus.map= function(v, f) {
+    return v.map(f);
+}
+
 MathPlus.log = function(x) {
     return new Number(Math.log(x.value))
 }

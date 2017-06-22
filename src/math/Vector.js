@@ -102,6 +102,14 @@ Vector.prototype.norm = function() {
     return this.div(this.abs());
 }
 
+Vector.prototype.map = function(f) {
+    var result = this.clone();
+    for(var i = 0; i < this.dimensions; i++) {
+        result.q[i] = f(result.q[i])
+    }
+    return result;
+}
+
 /**
  * Sets this vector's coordinates to the input vector's
  */
