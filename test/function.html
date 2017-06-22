@@ -39,10 +39,8 @@
             ax2.addFigure(arr2);
 
             plot.execExpression('a=0');
-            plot.execExpression('b=1');
 
             panel.addSlider('{a,0,2*PI+0.1,100}', {continuous: true});
-            panel.addSlider('{b,0,2*PI+0.1,100}', {continuous: true});
             
             plot.execExpression('cX(f,t)=(ssign(component(normal(f,t),0))/3 + 2/3, ssign(component(normal(f,t),1))/3 + 2/3, ssign(component(normal(f,t),2))/3 + 2/3)')
 
@@ -55,7 +53,6 @@
             plot.execExpression('X4(t)=normal(X1,t)')
 
             ax1.plotExpression('X1(t){t,0,2*PI,100}', 'parametric', {color: 'cX1'});
-            // ax1.plotExpression('X4(t){t,a,b,200}', 'parametric')
             ax1.plotExpression('X4(a)/2', 'arrow', {origin: 'X1(a)'})
 
             ax2.plotExpression('X2(t){t,0,2*PI,50}', 'parametric', {color: 'cX2'})
