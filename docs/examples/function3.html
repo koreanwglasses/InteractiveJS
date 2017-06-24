@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body {
+                background-color: #222222;
+                color: #fff;
+            }
+            #ax5a {
+                width: 400px;
+                height: 400px;
+                margin-right: 20px;
+                display: inline-block;
+                
+            }
+        </style>
+    </head>
+    <body>
+        <div id="ax5a"></div>
+        <div id="pan5"></div>
+        <script src="../../lib/three.min.js"></script>
+        <script src="../../build/interactive.js"></script>
+        <script>
+            var plot5 = new Interactive.Plot();
+            var ax5a = plot5.createAxes3D(document.getElementById('ax5a'), {zoom: 200, fixedZoom:true});
+            var pan5 = plot5.createPanel(document.getElementById('pan5'))
+
+            plot5.execExpression('m=0');
+            pan5.addSlider('{m,-2,2,40}', {continuous: true})
+
+            plot5.execExpression('h=0');
+            pan5.addSlider('{h,-2,2,40}', {continuous: true})
+
+            plot5.execExpression('f(x,y)=-(x^4)+2*x^2-y^2+m*x')
+            ax5a.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1,1,50}', 'parametric');
+
+            ax5a.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1,1,50}|y=1', 'isoline');
+
+            ;(function animate() {
+                requestAnimationFrame(animate);
+                ax5a.render();
+            })();
+        </script>
+    </body>
+</html>

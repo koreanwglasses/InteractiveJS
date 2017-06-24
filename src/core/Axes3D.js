@@ -181,6 +181,8 @@ Axes3D.prototype.plotExpression = function(expr, type, opts) {
             this.expressions[expr] = par;
             this.addFigure(par);
             return par;
+        case 'isoline':
+            var iso = new Isoline3D(this, expr)
         default:
             console.log('Interactive.Axes3D: Invalid plot type');
             return null;
@@ -230,7 +232,7 @@ Axes3D.prototype.refresh = function(expr) {
     for(var i = 0; i < this.objects.length; i++) {
         if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().includes(expr))) {
             this.frame.scene.remove(this.objects[i].getSceneObject());
-            this.objects[i].invalidate();
+            this.objects[i].invalidate(expr);
             this.frame.scene.add(this.objects[i].getSceneObject());
         }
     }

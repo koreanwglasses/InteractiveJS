@@ -240,7 +240,7 @@ Axes2D.prototype.refresh = function(expr) {
     for(var i = 0; i < this.objects.length; i++) {
         if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().includes(expr))) {
             this.frame.scene.remove(this.objects[i].getSceneObject());
-            this.objects[i].invalidate();
+            this.objects[i].invalidate(expr);
             this.frame.scene.add(this.objects[i].getSceneObject());
         }
     }
