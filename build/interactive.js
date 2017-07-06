@@ -231,8 +231,12 @@ function Vector() {
     // Support an arbitrary number of dimensions (Read-only)
     this.dimensions = arguments.length;
 
-    // q is the general term for a coordinate
-    this.q = Array.from(arguments);
+    if(arguments[0] instanceof THREE.Vector3) {
+        this.q = [arguments[0].x, arguments[0].y, arguments[0].z];
+    } else {
+        // q is the general term for a coordinate
+        this.q = Array.from(arguments);
+    }
 
     this.expr = null;
 }
@@ -1987,10 +1991,18 @@ Isoline3D.prototype.createIsoline = function (isoline) {
 
     var objct = new THREE.Group();
 
-    console.log(this.opts.thick);
     var mat = new LineMaterialCreator(this.opts.thick === true ? 40 : 15, this.parent.frame.width, this.parent.frame.height).getMaterial();
     for(var i = 0; i < curves.length; i++) {
-        objct.add(Line(curves[i],undefined,mat));
+        var colors = undefined;
+        if(this.opts.color !== undefined) {
+            colors = [];
+            for(var j = 0; j < curves[i].length; j++) {
+                var v = new Vector(curves[i][j]);
+                var color = this.colorf(v);
+                colors.push(new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value));
+            }
+        }
+        objct.add(Line(curves[i],colors,mat));
     }
     return objct
 };
