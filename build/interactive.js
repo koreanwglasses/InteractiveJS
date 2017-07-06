@@ -541,18 +541,31 @@ MathPlus.spectrum = function(x) {
     var y = x.value % 1;
     if(y < 0) y += 1;
 
-    if(y < 1.0/3) {
-        r = 1-y*3;
-        g = y*3;
+    var r,g,b;
+    if(y < 1/6) {
+        r = 1;
+        g = y*6;
         b = 0;
-    } else if (y < 2.0/3) {
+    } else if (y < 2/6) {
+        r = 2-y*6;
+        g = 1;
+        b = 0;
+    } else if (y < 3/6) {
         r = 0;
-        g = 2-y*3;
-        b = y*3-1;
-    } else {
-        r = y*3-2;
+        g = 1;
+        b = y*6-2;
+    } else if (y < 4/6) {
+        r = 0;
+        g = 4-y*6;
+        b = 1;
+    } else if (y < 5/6) {
+        r = y*6-4;
         g = 0;
-        b = 3-y*3;
+        b = 1;
+    } else {
+        r = 1;
+        g = 0;
+        b = 6-y*6;
     }
 
     return new Vector(new Number(r), new Number(g), new Number(b))

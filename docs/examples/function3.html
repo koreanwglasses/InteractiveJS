@@ -29,12 +29,14 @@
             pan5.addSlider('{m,-2,2,40}', {continuous: true})
 
             plot5.execExpression('h=0');
-            pan5.addSlider('{h,-2,2,40}', {continuous: true})
+            pan5.addSlider('{h,-1.5,1.5,40}', {continuous: true})
+
+            plot5.execExpression('c(x,y)=spectrum(f(x,y)/2)*0.5')
 
             plot5.execExpression('f(x,y)=-(x^4)+2*x^2-y^2+m*x')
-            ax5a.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1,1,50}', 'parametric');
+            ax5a.plotExpression('(x,f(x,y),y){x,-1.5,1.5,20}{y,-1,1,20}', 'parametric', {color:'c', wireframe:true});
 
-            ax5a.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1,1,50}|y=1', 'isoline');
+            ax5a.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1,1,50}|y=h', 'isoline');
 
             ;(function animate() {
                 requestAnimationFrame(animate);
