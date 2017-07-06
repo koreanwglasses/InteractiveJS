@@ -214,6 +214,10 @@ Number.prototype.compareTo = function(n) {
     return null;
 };
 
+Number.prototype.toString = function() {
+    return '' + this.value;
+};
+
 for(var i = 0; i < 10; i++) {
     Number[i] = new Number(i);
 }
@@ -367,6 +371,14 @@ Vector.prototype.eval = function() {
         this.set(this.expr.evaluate());
     }
     return this;
+};
+
+Vector.prototype.toString = function() {
+    var str = '(' + this.q[0];
+    for(var i = 1; i < this.dimensions; i++) {
+        str += ',' + this.q[i];
+    }
+    return str + ')';
 };
 
 function Interval(varstr, start, end, steps) {
@@ -526,14 +538,14 @@ MathPlus.select = function(i) {
 };
 
 MathPlus.spectrum = function(x) {
-    var y = x.value % 3;
-    if(y < 0) y += 3;
+    var y = x.value % 1;
+    if(y < 0) y += 1;
 
-    if(y < 1/3) {
+    if(y < 1.0/3) {
         r = 1-y*3;
         g = y*3;
         b = 0;
-    } else if (y < 2/3) {
+    } else if (y < 2.0/3) {
         r = 0;
         g = 2-y*3;
         b = y*3-1;
@@ -567,19 +579,19 @@ MathPlus.PI = new Number(Math.PI);
 function Expression(string, context) {
     this.type = 'Expression';
 
-    this.string = string;   
-    
+    this.string = string;
+
     this.context = context;
 
-    this.variables = [];    
+    this.variables = [];
     this.function = this.toJSFunction(this.string);
 }
 
-Expression.prototype.getVariables = function() {
+Expression.prototype.getVariables = function () {
     var variables = [];
-    for(var i = 0; i < this.variables.length; i++) {
+    for (var i = 0; i < this.variables.length; i++) {
         var v = this.variables[i];
-        if(this.context.functions[v] !== undefined && variables.includes(v) === false) {
+        if (this.context.functions[v] !== undefined && variables.includes(v) === false) {
             variables = variables.concat(this.context.functions[v].getVariables());
         } else {
             variables.push(v);
@@ -588,140 +600,142 @@ Expression.prototype.getVariables = function() {
     return variables;
 };
 
-Expression.typeOf = function(string) {
+Expression.typeOf = function (string) {
 
-    if(string === '()') return 'null';
+    if (string === '()') return 'null';
+    if (string.includes('|')) return 'isoline';
+    if (string.includes('=')) return 'equation';
 
     var nestingLevel = 0;
     var isVector = false;
-    if(string.charAt(string.length - 1) === '}') {
-        if(string.charAt(0) === '{')
+    if (string.charAt(string.length - 1) === '}') {
+        if (string.charAt(0) === '{')
             return 'interval'
-        else    
+        else
             return 'parametric'
     }
-    if(string.includes('(') === false && string.includes(')') === false) {
-        if(/^[0-9.]+$/.test(string)) {
+    if (string.includes('(') === false && string.includes(')') === false) {
+        if (/^[0-9.]+$/.test(string)) {
             return 'constant'
-        } else if(string.includes('+')||string.includes('-')||string.includes('*')||string.includes('/')||string.includes('^')) {
+        } else if (string.includes('+') || string.includes('-') || string.includes('*') || string.includes('/') || string.includes('^')) {
             return 'expression'
         } else {
             return 'variable'
         }
     }
-    for(var i = 0; i < string.length; i++) {
-        if(string.charAt(i) === '(') {
+    for (var i = 0; i < string.length; i++) {
+        if (string.charAt(i) === '(') {
             nestingLevel++;
         } else if (string.charAt(i) === ')') {
             nestingLevel--;
         } else
-        if(string.charAt(i) === ',' && nestingLevel === 1) {
-            isVector = true;
-        }
-        if(string.charAt(i) === ';' && nestingLevel === 1) {
+            if (string.charAt(i) === ',' && nestingLevel === 1) {
+                isVector = true;
+            }
+        if (string.charAt(i) === ';' && nestingLevel === 1) {
             return 'matrix';
         }
-        if(nestingLevel === 0 && i !== string.length - 1) {
+        if (nestingLevel === 0 && i !== string.length - 1) {
             return 'expression';
         }
     }
-    if(isVector) return 'vector';
+    if (isVector) return 'vector';
     return 'expression';
 };
 
-Expression.separate = function(str) {
+Expression.separate = function (str) {
     // Separate into parts which alternate (expression/operator)
     var parts = [];
     var start = 0;
     var nestingLevel = 0;
     var type = null;
-    for(var i = 0; i < str.length; i++) {
-        if(type === 'interval') {
-            if(str.charAt(i) === '}') {
-                parts.push({str: str.substring(start, i + 1), type: type});
+    for (var i = 0; i < str.length; i++) {
+        if (type === 'interval') {
+            if (str.charAt(i) === '}') {
+                parts.push({ str: str.substring(start, i + 1), type: type });
                 start = i + 1;
                 type = null;
             }
-        } else if(str.charAt(i) === '{') {
+        } else if (str.charAt(i) === '{') {
             type = 'interval';
-        } else if(str.charAt(i) === '(') {
+        } else if (str.charAt(i) === '(') {
             nestingLevel++;
 
-            if(type === null) {
+            if (type === null) {
                 type = 'expression';
             }
-            if(type === 'operator' || type === 'uoperator') {
-                parts.push({str: str.substring(start, i), type: type});
+            if (type === 'operator' || type === 'uoperator') {
+                parts.push({ str: str.substring(start, i), type: type });
                 start = i;
                 type = 'expression';
             } else if (type === 'variable') {
                 type = 'function';
-                parts.push({str: str.substring(start, i), type: type});
+                parts.push({ str: str.substring(start, i), type: type });
                 start = i;
                 type = 'expression';
             }
-        } else if(str.charAt(i) === ')') {
+        } else if (str.charAt(i) === ')') {
             nestingLevel--;
-        } else if(nestingLevel == 0) {         
-            if(str.charAt(i) === '-' && (type === null || type === 'operator')) {
-                if(type === 'operator') {
-                    parts.push({str: str.substring(start, i), type: type});
+        } else if (nestingLevel == 0) {
+            if (str.charAt(i) === '-' && (type === null || type === 'operator')) {
+                if (type === 'operator') {
+                    parts.push({ str: str.substring(start, i), type: type });
                     start = i;
                 }
                 type = 'uoperator';
-            } else if(/[0-9a-zA-Z.]/.test(str.charAt(i)) === false || str.charAt(i) === '^') {
-                parts.push({str: str.substring(start, i), type: type});
+            } else if (/[0-9a-zA-Z.]/.test(str.charAt(i)) === false || str.charAt(i) === '^') {
+                parts.push({ str: str.substring(start, i), type: type });
                 start = i;
                 type = 'operator';
             } else {
-                if(type === null) {
+                if (type === null) {
                     type = 'constant';
                 }
-                if(type === 'operator' || type === 'uoperator') {
-                    parts.push({str: str.substring(start, i), type: type});
+                if (type === 'operator' || type === 'uoperator') {
+                    parts.push({ str: str.substring(start, i), type: type });
                     start = i;
                     type = 'constant';
                 }
-                if(/[0-9.]/.test(str.charAt(i)) === false)
+                if (/[0-9.]/.test(str.charAt(i)) === false)
                     type = 'variable';
             }
         }
     }
-    if(start != str.length) {
-        parts.push({str: str.substring(start, str.length), type:type});
+    if (start != str.length) {
+        parts.push({ str: str.substring(start, str.length), type: type });
     }
 
     // Split the expressions if applicable
-    for(var i = 0; i < parts.length; i++) {
-        if(parts[i].type === 'expression') {
+    for (var i = 0; i < parts.length; i++) {
+        if (parts[i].type === 'expression') {
             parts[i].type = Expression.typeOf(parts[i].str);
-            if(parts[i].type === 'expression') {
-                var newstr = parts[i].str.slice(1,parts[i].str.length-1);
-                var newparts = [{str:'(',type:'('}].concat(Expression.separate(newstr));
-                newparts.push({str:')',type:')'});
-                parts = parts.slice(0,i).concat(newparts).concat(parts.slice(i+1,parts.length));
+            if (parts[i].type === 'expression') {
+                var newstr = parts[i].str.slice(1, parts[i].str.length - 1);
+                var newparts = [{ str: '(', type: '(' }].concat(Expression.separate(newstr));
+                newparts.push({ str: ')', type: ')' });
+                parts = parts.slice(0, i).concat(newparts).concat(parts.slice(i + 1, parts.length));
                 i += newparts.length - 1;
             } else if (i > 0 && parts[i].type === 'vector' && parts[i - 1].type === 'function') {
-                parts.splice(i ,0,{str:'(',type:'('});
-                parts.splice(i+2, 0, {str:')',type:')'});
-            } else if(parts[i].type === 'null') {
-                parts[i].str='';
-                parts.splice(i ,0,{str:'(',type:'('});
-                parts.splice(i+2, 0, {str:')',type:')'});
+                parts.splice(i, 0, { str: '(', type: '(' });
+                parts.splice(i + 2, 0, { str: ')', type: ')' });
+            } else if (parts[i].type === 'null') {
+                parts[i].str = '';
+                parts.splice(i, 0, { str: '(', type: '(' });
+                parts.splice(i + 2, 0, { str: ')', type: ')' });
             }
         }
     }
     return parts;
 };
 
-Expression.toPostfix = function(parts) {
+Expression.toPostfix = function (parts) {
     var post = [];
     var ops = [];
     var funs = [];
-    var precedence = {'+': 0, '-': 0, '*': 1, '/': 1, '^': 2, '(': -1, ')': -1};
-    for(var i = 0; i < parts.length; i++) {
-        if(parts[i].type === 'operator' || parts[i].type === 'uoperator') {
-            while(ops.length > 0 && (ops[ops.length - 1].type === 'uoperator' || precedence[ops[ops.length - 1].str] >= precedence[parts[i].str])) {
+    var precedence = { '+': 0, '-': 0, '*': 1, '/': 1, '^': 2, '(': -1, ')': -1 };
+    for (var i = 0; i < parts.length; i++) {
+        if (parts[i].type === 'operator' || parts[i].type === 'uoperator') {
+            while (ops.length > 0 && (ops[ops.length - 1].type === 'uoperator' || precedence[ops[ops.length - 1].str] >= precedence[parts[i].str])) {
                 post.push(ops.pop());
             }
             ops.push(parts[i]);
@@ -730,10 +744,10 @@ Expression.toPostfix = function(parts) {
         } else if (parts[i].type === '(') {
             ops.push(parts[i]);
         } else if (parts[i].type === ')') {
-            while(ops[ops.length - 1].type !== '(') {
+            while (ops[ops.length - 1].type !== '(') {
                 post.push(ops.pop());
             }
-            if(funs.length > 0) {
+            if (funs.length > 0) {
                 post.push(funs.pop());
             }
             ops.pop();
@@ -741,25 +755,25 @@ Expression.toPostfix = function(parts) {
             post.push(parts[i]);
         }
     }
-    while(ops.length > 0) {
+    while (ops.length > 0) {
         post.push(ops.pop());
     }
     return post;
 };
 
-Expression.splitTuple = function(string) {
-    var str = string.substring(1,string.length - 1);
+Expression.splitTuple = function (string) {
+    var str = string.substring(1, string.length - 1);
     var parts = [];
     var start = 0;
     var nestingLevel = 0;
-    for(var i = 0; i < str.length; i++) {
-        if(str.charAt(i) === '(') {
+    for (var i = 0; i < str.length; i++) {
+        if (str.charAt(i) === '(') {
             nestingLevel++;
-        } else if(str.charAt(i) === ')') {
+        } else if (str.charAt(i) === ')') {
             nestingLevel--;
-        } else if(nestingLevel == 0) {                    
-            if(str.charAt(i) === ',') {
-                parts.push(str.substring(start,i));
+        } else if (nestingLevel == 0) {
+            if (str.charAt(i) === ',') {
+                parts.push(str.substring(start, i));
                 start = i + 1;
             }
         }
@@ -768,176 +782,182 @@ Expression.splitTuple = function(string) {
     return parts;
 };
 
-Expression.splitParametric = function(string) {
+Expression.splitParametric = function (string) {
     return string.split(/(?={)/);
 };
 
-Expression.prototype.toJSExpression = function(string, specials, isparam, variables) {
-    var str = string.replace(/\s+/g,'');
+Expression.prototype.toJSExpression = function (string, specials, isparam, variables) {
+    var str = string.replace(/\s+/g, '');
+
+    var type = Expression.typeOf(str);
 
     // Expression is an equation:
-    if(str.match(/=/g) !== null && str.match(/=/g).length === 1) {
+    if (type === 'equation') {
         var left, right;
         left = string.split('=')[0];
         right = string.split('=')[1];
-        
+
         var leftParts = Expression.separate(left);
 
         // variable assignment
-        if(leftParts.length === 1 && leftParts[0].type === 'variable') {
-            var expr = 'context["'+ left + '"]='+this.toJSExpression(right);
+        if (leftParts.length === 1 && leftParts[0].type === 'variable') {
+            var expr = 'context["' + left + '"]=' + this.toJSExpression(right);
             return expr;
         }
 
         // function definition
-        if(leftParts[0].type === 'function') {
+        if (leftParts[0].type === 'function') {
             if (leftParts[2].type === 'null') {
-                var expr = 'context["'+leftParts[0].str+'"]=function(){ return '+this.toJSExpression(right)+'; }';
-            } else if(leftParts[2].type === 'vector') {
-                var expr = 'context["'+leftParts[0].str+'"]=function' + leftParts[2].str + '{ return '+this.toJSExpression(right, Expression.splitTuple(leftParts[2].str))+'; }';
+                var expr = 'context["' + leftParts[0].str + '"]=function(){ return ' + this.toJSExpression(right) + '; }';
+            } else if (leftParts[2].type === 'vector') {
+                var expr = 'context["' + leftParts[0].str + '"]=function' + leftParts[2].str + '{ return ' + this.toJSExpression(right, Expression.splitTuple(leftParts[2].str)) + '; }';
             } else if (leftParts[2].type === 'variable') {
-                var expr = 'context["'+leftParts[0].str+'"]=function(' + leftParts[2].str + '){ return '+this.toJSExpression(right, leftParts[2].str)+'; }';
+                var expr = 'context["' + leftParts[0].str + '"]=function(' + leftParts[2].str + '){ return ' + this.toJSExpression(right, leftParts[2].str) + '; }';
             }
             this.context.functions[leftParts[0].str] = this;
             return expr;
         }
-    } else {
-        var type = Expression.typeOf(str);
+    } else if (type === 'expression') {
+        var operations = Expression.toPostfix(Expression.separate(str));
 
-        if(type === 'expression') {
-            var operations = Expression.toPostfix(Expression.separate(str));
+        var stack = [];
 
-            var stack = [];
-
-            for(var i = 0; i < operations.length; i++) {
-                switch(operations[i].type) {
-                    case 'null':
-                        stack.push('');
-                        break;
-                    case 'variable':
-                        if(specials !== undefined && specials.includes(operations[i].str)) {
-                            stack.push(operations[i].str);
-                        } else {
-                            stack.push('context["'+operations[i].str+'"]');
-                            if(this.variables.includes(operations[i].str) === false) this.variables.push(operations[i].str);
-                        }
-                        break;
-                    case 'constant':
-                        stack.push('new Interactive.Number('+operations[i].str+')');
-                        break;     
-                    case 'vector':
-                        var param = operations[i+1].type === 'function';
-                        stack.push(this.toJSExpression(operations[i].str, specials, param));
-                        break;                       
-                    case 'function':
-                        var a = stack.pop();
-                        stack.push('context["'+operations[i].str+'"]('+a+')');                        
-                        if(this.variables.includes(operations[i].str) === false) this.variables.push(operations[i].str);
-                        break;
-                    case 'uoperator':
-                        var a = stack.pop();
-                        stack.push(a+'.neg()');
-                        break;
-                    case 'operator':
-                        var b = stack.pop();
-                        var a = stack.pop();
-                        switch(operations[i].str) {
-                            case '+':
-                                stack.push(a+'.add('+b+')');
-                                break;
-                            case '-':
-                                stack.push(a+'.sub('+b+')');
-                                break;
-                            case '*':
-                                stack.push(a+'.mul('+b+')');
-                                break;
-                            case '/':
-                                stack.push(a+'.div('+b+')');
-                                break;
-                            case '^':
-                                stack.push(a+'.exp('+b+')');
-                                break;
-                            default:
-                                console.log('Interactive.Expression: Unknown symbol');                                                       
-                        }
-                        break;
-                    default:
-                        console.log('Interactive.Expression: Unknown symbol');
-                }
+        for (var i = 0; i < operations.length; i++) {
+            switch (operations[i].type) {
+                case 'null':
+                    stack.push('');
+                    break;
+                case 'variable':
+                    if (specials !== undefined && specials.includes(operations[i].str)) {
+                        stack.push(operations[i].str);
+                    } else {
+                        stack.push('context["' + operations[i].str + '"]');
+                        if (this.variables.includes(operations[i].str) === false) this.variables.push(operations[i].str);
+                    }
+                    break;
+                case 'constant':
+                    stack.push('new Interactive.Number(' + operations[i].str + ')');
+                    break;
+                case 'vector':
+                    var param = operations[i + 1].type === 'function';
+                    stack.push(this.toJSExpression(operations[i].str, specials, param));
+                    break;
+                case 'function':
+                    var a = stack.pop();
+                    stack.push('context["' + operations[i].str + '"](' + a + ')');
+                    if (this.variables.includes(operations[i].str) === false) this.variables.push(operations[i].str);
+                    break;
+                case 'uoperator':
+                    var a = stack.pop();
+                    stack.push(a + '.neg()');
+                    break;
+                case 'operator':
+                    var b = stack.pop();
+                    var a = stack.pop();
+                    switch (operations[i].str) {
+                        case '+':
+                            stack.push(a + '.add(' + b + ')');
+                            break;
+                        case '-':
+                            stack.push(a + '.sub(' + b + ')');
+                            break;
+                        case '*':
+                            stack.push(a + '.mul(' + b + ')');
+                            break;
+                        case '/':
+                            stack.push(a + '.div(' + b + ')');
+                            break;
+                        case '^':
+                            stack.push(a + '.exp(' + b + ')');
+                            break;
+                        default:
+                            console.log('Interactive.Expression: Unknown symbol');
+                    }
+                    break;
+                default:
+                    console.log('Interactive.Expression: Unknown symbol');
             }
+        }
 
-            return stack[0];
-        } else if (type === 'vector') {
-            var components = Expression.splitTuple(str);
-            if(isparam) {
-                var expr = '';
-                for(var i = 0; i < components.length; i++) {
-                    expr += this.toJSExpression(components[i], specials) + ',';
-                }
-                expr = expr.slice(0, expr.length - 1);
-                return expr;
-            } else {
-                var expr = 'new Interactive.Vector(';
-                for(var i = 0; i < components.length; i++) {
-                    expr += this.toJSExpression(components[i], specials) + ',';
-                }
-                expr = expr.slice(0, expr.length - 1) + ')';
-                return expr;
+        return stack[0];
+    } else if (type === 'vector') {
+        var components = Expression.splitTuple(str);
+        if (isparam) {
+            var expr = '';
+            for (var i = 0; i < components.length; i++) {
+                expr += this.toJSExpression(components[i], specials) + ',';
             }
-        } else if (type === 'interval') {
-            var params = Expression.splitTuple(str);
-
-            var expr = 'new Interactive.Interval("'+params[0]+'",';
-            for(var i = 1; i < params.length; i++) {
-                expr += this.toJSExpression(params[i], specials) + ',';
-            }
-            expr = expr.slice(0, expr.length - 1) + ')';            
+            expr = expr.slice(0, expr.length - 1);
             return expr;
-        } else if (type === 'variable') {
-            if(specials !== undefined && specials.includes(str)) return str
-            var expr = 'context["'+str+'"]';
-            if(this.variables.includes(str) === false) this.variables.push(str);
-            return expr;
-        } else if (type === 'parametric') {
-            var params = Expression.splitParametric(str);
-            var func = 'function(';
-            var intervals = '';
-
-            if(specials === undefined) specials = [];
-
-            for(var i = 1; i < params.length; i++) {
-                var arg = Expression.splitTuple(params[i])[0];
-                specials.push(arg);
-                func += arg+',';
-
-                intervals += ','+this.toJSExpression(params[i]);
+        } else {
+            var expr = 'new Interactive.Vector(';
+            for (var i = 0; i < components.length; i++) {
+                expr += this.toJSExpression(components[i], specials) + ',';
             }
-
-            func = func.slice(0, func.length - 1)+') { return '+this.toJSExpression(params[0],specials)+'; }';
-
-            var expr = 'new Interactive.Parametric('+func+intervals+')';
-            return expr;
-        } else if (type === 'constant') {
-            var expr = 'new Interactive.Number('+str+')';
+            expr = expr.slice(0, expr.length - 1) + ')';
             return expr;
         }
+    } else if (type === 'interval') {
+        var params = Expression.splitTuple(str);
+
+        var expr = 'new Interactive.Interval("' + params[0] + '",';
+        for (var i = 1; i < params.length; i++) {
+            expr += this.toJSExpression(params[i], specials) + ',';
+        }
+        expr = expr.slice(0, expr.length - 1) + ')';
+        return expr;
+    } else if (type === 'variable') {
+        if (specials !== undefined && specials.includes(str)) return str
+        var expr = 'context["' + str + '"]';
+        if (this.variables.includes(str) === false) this.variables.push(str);
+        return expr;
+    } else if (type === 'parametric') {
+        var params = Expression.splitParametric(str);
+        var func = 'function(';
+        var intervals = '';
+
+        if (specials === undefined) specials = [];
+
+        for (var i = 1; i < params.length; i++) {
+            var arg = Expression.splitTuple(params[i])[0];
+            specials.push(arg);
+            func += arg + ',';
+
+            intervals += ',' + this.toJSExpression(params[i]);
+        }
+
+        func = func.slice(0, func.length - 1) + ') { return ' + this.toJSExpression(params[0], specials) + '; }';
+
+        var expr = 'new Interactive.Parametric(' + func + intervals + ')';
+        return expr;
+    } else if (type === 'constant') {
+        var expr = 'new Interactive.Number(' + str + ')';
+        return expr;
+    } else if (type === 'isoline') {
+        var parts = str.split('|');
+        var parametric = this.toJSExpression(parts[0]);
+        var axis = parts[1].split('=')[0];
+        var level = this.toJSExpression(parts[1].split('=')[1]);
+
+        var expr = 'new Interactive.Isoline(' + parametric + ',"' + axis + '",' + level + ')';
+        return expr;
     }
 };
 
-Expression.prototype.toJSFunction = function(string) {
+Expression.prototype.toJSFunction = function (string) {
     var expr = this.toJSExpression(string);
-    return Function('context', 'return '+expr+';');
+    return Function('context', 'return ' + expr + ';');
 };
 
 /**
  * Variables from given context will override variables from this context 
  */
-Expression.prototype.evaluate = function() {
+Expression.prototype.evaluate = function () {
     return this.function(this.context);
 };
 
-Expression.getDefaultContext = function() {
-    return Object.assign({functions: {}}, MathPlus);
+Expression.getDefaultContext = function () {
+    return Object.assign({ functions: {} }, MathPlus);
 };
 
 /**
@@ -951,46 +971,49 @@ Expression.getDefaultContext = function() {
  * (Derived from THREE.js)
  */
 function Arrow2D(plot, expr, opts) {
-    this.opts = opts !== undefined ? opts : {};
-
     /**
      * (Read-only)
      */
     this.expr = new Expression(expr, plot.context);
 
-    if(this.opts.origin !== undefined) {
-        this.opts.origin = new Expression(this.opts.origin, plot.context);
-    }
+    this.opts = {};
+    this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0,0)', plot.context);
+    this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
+    this.opts.headLength = opts.headLength !== undefined ? opts.headLength : 0.2;
+    this.opts.headWidth = opts.headWidth !== undefined ? opts.headWidth : 0.05;
 
     this.sceneObject = null;
-
     this.validated = false;
 }
 
 Arrow2D.prototype.getVariables = function() {
-    if(this.opts.origin !== undefined) return this.expr.getVariables().concat(this.opts.origin.getVariables());
-    else return this.expr.getVariables()
+    return this.expr.getVariables().concat(this.opts.origin.getVariables());
 };
 
 /**
  * Returns an object that can be added to a THREE.js scene.
  */
 Arrow2D.prototype.getSceneObject = function() {
-    if(this.validated === false) {
-        var vector = this.expr.evaluate();
-        var _vector2 = new THREE.Vector3(vector.q[0].value, vector.q[1].value);
-        var _dir = _vector2.clone().normalize();
-        var _origin = this.opts.origin !== undefined ? this.opts.origin.evaluate().toVector3() : new THREE.Vector3(0,0,0);
-        var _length = _vector2.length();
-        var _hex = this.opts.hex !== undefined ? this.opts.hex : 0xffffff;
-        var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2;
-        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.05;
-
-        this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
-        this.validated = true;
-    }
+    if(this.validated === false) this.update();
     return this.sceneObject;
 };
+
+/**
+ * Updates now
+ */
+Arrow2D.prototype.update = function() {
+    var _vector2 = this.expr.evaluate().toVector3();
+    var _dir = _vector2.clone().normalize();
+    var _length = _vector2.length();
+    var _origin = this.opts.origin.evaluate().toVector3();
+    var _hex = this.opts.hex;
+    var _headLength = this.opts.headLength;
+    var _headWidth = this.opts.headWidth;
+
+    this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
+    this.validated = true;
+};
+
 
 /**
  * Updates on the next call to render
@@ -1395,7 +1418,7 @@ Axes2D.prototype.refresh = function(expr) {
     for(var i = 0; i < this.objects.length; i++) {
         if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().includes(expr))) {
             this.frame.scene.remove(this.objects[i].getSceneObject());
-            this.objects[i].invalidate();
+            this.objects[i].invalidate(expr);
             this.frame.scene.add(this.objects[i].getSceneObject());
         }
     }
@@ -1432,19 +1455,16 @@ Axes2D.prototype.addHotspot = function(hotspot) {
  * (Derived from THREE.js)
  */
 function Arrow3D(plot, expr, opts) {
-    this.opts = opts !== undefined ? opts : {};
-
     /**
      * (Read-only)
      */
     this.expr = new Expression(expr, plot.context);
 
-    if(this.opts.origin !== undefined) {
-        this.opts.origin = new Expression(this.opts.origin, plot.context);
-    }
+    this.opts = {};
+    this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0,0)', plot.context);
+    this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
 
     this.sceneObject = null;
-
     this.validated = false;
 }
 
@@ -1457,20 +1477,24 @@ Arrow3D.prototype.getVariables = function() {
  * Returns an object that can be added to a THREE.js scene.
  */
 Arrow3D.prototype.getSceneObject = function() {
-    if(this.validated === false) {
-        var vector = this.expr.evaluate();
-        var _vector3 = new THREE.Vector3(vector.q[0].value, vector.q[1].value, vector.q[2].value);
-        var _dir = _vector3.clone().normalize();
-        var _origin = this.opts.origin !== undefined ? this.opts.origin.evaluate().toVector3() : new THREE.Vector3(0,0,0);
-        var _length = _vector3.length();
-        var _hex = this.opts.hex !== undefined ? this.opts.hex : 0xffffff;
-        var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2 * _length;
-        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.2 * _headLength;
-
-        this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
-        this.validated = true;
-    }
+    if(this.validated === false) this.update();
     return this.sceneObject;
+};
+
+/**
+ * Updates now
+ */
+Arrow3D.prototype.update = function() {
+    var _vector3 = this.expr.evaluate().toVector3();
+    var _dir = _vector3.clone().normalize();
+    var _origin = this.opts.origin.evaluate().toVector3();
+    var _length = _vector3.length();
+    var _hex = this.opts.hex;
+    var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2 * _length;
+    var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.2 * _headLength;
+
+    this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
+    this.validated = true;
 };
 
 /**
@@ -1655,7 +1679,7 @@ Parametric3D.prototype.createSurface = function(par) {
 
     if(this.opts.wireframe === true || this.opts.flat === true) {
         var mat = new THREE.MeshBasicMaterial(opts);
-        if(this.wireframe) mat.wireframe = true;
+        if(this.opts.wireframe) mat.wireframe = true;
     } else {
         var mat = new THREE.MeshLambertMaterial(opts);
     }
@@ -1677,6 +1701,299 @@ Parametric3D.prototype.getSceneObject = function() {
 };
 
 Parametric3D.prototype.invalidate = function() {
+    this.validated = false;
+};
+
+function Line(vertices, colors, mat) {
+
+    var geom = new THREE.BufferGeometry();
+
+    var direction = new Float32Array(vertices.length * 2);
+    var vertbuff = new Float32Array(vertices.length * 3 * 2);
+    var previous = new Float32Array(vertices.length * 3 * 2);
+    var next = new Float32Array(vertices.length * 3 * 2);
+
+    var colorbuff = new Uint8Array(vertices.length * 4 * 2);
+
+    for(var i = 0; i < vertices.length; i++) {
+        direction[i*2] = 1;
+        direction[i*2+1] = -1;
+
+        var v = vertices[i];
+        vertbuff[i*6] = v.x;
+        vertbuff[i*6+1] = v.y;
+        vertbuff[i*6+2] = v.z;
+
+        vertbuff[i*6+3] = v.x;
+        vertbuff[i*6+4] = v.y;
+        vertbuff[i*6+5] = v.z;
+
+        if(i > 0) {
+            previous[i*6] = vertbuff[i*6-6];
+            previous[i*6+1] = vertbuff[i*6-5];
+            previous[i*6+2] = vertbuff[i*6-4];
+            previous[i*6+3] = vertbuff[i*6-3];
+            previous[i*6+4] = vertbuff[i*6-2];
+            previous[i*6+5] = vertbuff[i*6-1];
+
+            next[i*6-6] = vertbuff[i*6];
+            next[i*6-5] = vertbuff[i*6+1];
+            next[i*6-4] = vertbuff[i*6+2];
+            next[i*6-3] = vertbuff[i*6+3];
+            next[i*6-2] = vertbuff[i*6+4];
+            next[i*6-1] = vertbuff[i*6+5];
+        }
+
+        if(colors !== undefined) {
+            var color = colors[i];
+            colorbuff[i*8] = color.r * 255;
+            colorbuff[i*8 + 1] = color.g * 255;
+            colorbuff[i*8 + 2] = color.b * 255;
+            colorbuff[i*8 + 3] = 255;
+            colorbuff[i*8 + 4] = color.r * 255;
+            colorbuff[i*8 + 5]  =color.g * 255;
+            colorbuff[i*8 + 6] = color.b * 255;
+            colorbuff[i*8 + 7] = 255;
+        } else {
+            colorbuff[i*8] = 255;
+            colorbuff[i*8 + 1] = 255;
+            colorbuff[i*8 + 2] = 255;
+            colorbuff[i*8 + 3] = 255;
+            colorbuff[i*8 + 4] = 255;
+            colorbuff[i*8 + 5] = 255;
+            colorbuff[i*8 + 6] = 255;
+            colorbuff[i*8 + 7] = 255;
+        }
+    }
+
+    previous[0] = vertbuff[0];
+    previous[1] = vertbuff[1];
+    previous[2] = vertbuff[2];
+    previous[3] = vertbuff[3];
+    previous[4] = vertbuff[4];
+    previous[5] = vertbuff[5];
+    next[vertices.length*6-6] = vertbuff[vertices.length*6-6];
+    next[vertices.length*6-5] = vertbuff[vertices.length*6-5];
+    next[vertices.length*6-4] = vertbuff[vertices.length*6-4];
+    next[vertices.length*6-3] = vertbuff[vertices.length*6-3];
+    next[vertices.length*6-2] = vertbuff[vertices.length*6-2];
+    next[vertices.length*6-1] = vertbuff[vertices.length*6-1];
+
+    geom.addAttribute('direction', new THREE.BufferAttribute(direction, 1));
+    geom.addAttribute('position', new THREE.BufferAttribute(vertbuff, 3));
+    geom.addAttribute('previous', new THREE.BufferAttribute(previous, 3));
+    geom.addAttribute('next', new THREE.BufferAttribute(next, 3));
+    geom.addAttribute('color', new THREE.BufferAttribute(colorbuff, 4, true));
+
+    var mesh = new THREE.Mesh(geom, mat);
+    mesh.drawMode = THREE.TriangleStripDrawMode;
+    return mesh
+}
+
+function Isoline3D(parent, expr, opts) {
+    this.parent = parent;
+    this.plot = parent.parent;
+
+    this.expr = new Expression(expr, this.plot.context);
+    this.isoline = this.expr.evaluate();
+
+    this.opts = opts !== undefined ? opts : {};
+
+    this.slfd = [];
+
+    this.sfldValidated = false;
+    this.isoValidated = false;
+
+    this.validated = false;
+    this.sceneObject = null;
+
+    if (this.opts.color !== undefined) {
+        this.color = new Expression(this.opts.color, this.plot.context);
+        this.colorf = this.color.evaluate();
+    }
+    // if(this.opts.axis === undefined) this.opts.axis = 'y';
+}
+
+Isoline3D.prototype.getVariables = function () {
+    if (this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
+    else return this.expr.getVariables();
+};
+
+Isoline3D.prototype.createScalarField = function (par) {
+    var uint = par.intervals[0];
+    var vint = par.intervals[1];
+
+    var uarr = uint.array();
+    var varr = vint.array();
+
+    var func = par.func;
+    var sfld = [];
+    for (var i = 0; i < uarr.length; i++) {
+        var u = uarr[i];
+        sfld.push([]);
+        for (var j = 0; j < varr.length; j++) {
+            var v = varr[j];
+
+            var vert = func(u, v);
+
+            sfld[sfld.length - 1].push(vert);
+        }
+    }
+    this.sfld = sfld;
+};
+
+Isoline3D.prototype.createIsoline = function (isoline) {
+    var par = isoline.parametric;
+
+    var uint = par.intervals[0];
+    var vint = par.intervals[1];
+
+    var uarr = uint.array();
+    var varr = vint.array();
+
+    var lvl = isoline.level;
+
+    if (this.sfldValidated === false) this.createScalarField(par);
+
+    var edges = [];
+
+    var lerp = function (a, b, az, z, bz) {
+        var alpha = z.sub(az).div(bz.sub(az));
+        var result = a.mul(Number[1].sub(alpha)).add(b.mul(alpha));
+        result.q[1] = z;
+        // console.log(a,b,az,z,bz,result)
+        return result.toVector3();
+    };
+
+    for (var i = 0; i < uarr.length - 1; i++) {
+        for (var j = 0; j < varr.length - 1; j++) {
+            var a = this.sfld[i][j + 1];
+            var b = this.sfld[i + 1][j + 1];
+            var c = this.sfld[i + 1][j];
+            var d = this.sfld[i][j];
+
+            var cse = (d.q[1].compareTo(lvl) > 0);
+            cse = cse * 2 + (c.q[1].compareTo(lvl) > 0);
+            cse = cse * 2 + (b.q[1].compareTo(lvl) > 0);
+            cse = cse * 2 + (a.q[1].compareTo(lvl) > 0);
+
+            switch (cse) {
+                case 0:
+                case 15:
+                    break;
+                case 1:
+                case 14:
+                    var v1 = lerp(a, d, a.q[1], lvl, d.q[1]);
+                    var v2 = lerp(a, b, a.q[1], lvl, b.q[1]);
+                    edges.push([v1, v2]);
+                    break;
+                case 2:
+                case 13:
+                    var v1 = lerp(a, b, a.q[1], lvl, b.q[1]);
+                    var v2 = lerp(b, c, b.q[1], lvl, c.q[1]);
+                    edges.push([v1, v2]);
+                    break;
+                case 3:
+                case 12:
+                    var v1 = lerp(a, d, a.q[1], lvl, d.q[1]);
+                    var v2 = lerp(b, c, b.q[1], lvl, c.q[1]);
+                    edges.push([v1, v2]);
+                    break;
+                case 4:
+                case 11:
+                    var v1 = lerp(b, c, b.q[1], lvl, c.q[1]);
+                    var v2 = lerp(c, d, c.q[1], lvl, d.q[1]);
+                    edges.push([v1, v2]);
+                    break;
+                case 5:
+                case 10:
+                    if ((cse === 10) ^ (a.q[i].add(b.q[i]).add(c.q[i]).add(d.q[i]).compareTo(lvl.mul(4)) > 0)) {
+                        var v1 = lerp(a, d, a.q[1], lvl, d.q[1]);
+                        var v2 = lerp(c, d, c.q[1], lvl, d.q[1]);
+                        var v3 = lerp(a, b, a.q[1], lvl, b.q[1]);
+                        var v4 = lerp(b, c, b.q[1], lvl, c.q[1]);
+                        edges.push([v1, v2]);
+                        edges.push([v3, v4]);
+                    } else {
+                        var v1 = lerp(a, b, a.q[1], lvl, b.q[1]);
+                        var v2 = lerp(a, d, a.q[1], lvl, d.q[1]);
+                        var v3 = lerp(b, c, b.q[1], lvl, c.q[1]);
+                        var v4 = lerp(c, d, c.q[1], lvl, d.q[1]);
+                        edges.push([v1, v2]);
+                        edges.push([v3, v4]);
+                    }
+                    break;
+                case 6:
+                case 9:
+                    var v1 = lerp(a, b, a.q[1], lvl, b.q[1]);
+                    var v2 = lerp(c, d, c.q[1], lvl, d.q[1]);
+                    edges.push([v1, v2]);
+                    break;
+                case 7:
+                case 8:
+                    var v1 = lerp(a, d, a.q[1], lvl, d.q[1]);
+                    var v2 = lerp(c, d, c.q[1], lvl, d.q[1]);
+                    edges.push([v1, v2]);
+                    break;
+            }
+        }
+    }
+
+    // merge vertices
+
+    var equiv = function(a,b) {
+        return a.distanceTo(b) < 0.000005;
+    };
+
+    var curves = [];
+    while(edges.length > 0) {
+        var e = edges.pop();
+        (function() {
+            for(var i = 0; i < edges.length; i++) {
+                var edge = edges[i];
+                if (equiv(edge[0], e[0])) {
+                    e.reverse();
+                    edges[i] = e.concat(edge.slice(1));
+                    return;
+                } else if (equiv(edge[0], e[e.length - 1])) {
+                    edges[i] = e.concat(edge.slice(1));
+                    return;
+                } else if (equiv(edge[edge.length - 1], e[0])) {
+                    edges[i] = edge.concat(e.slice(1));
+                    return;
+                } else if (equiv(edge[edge.length - 1], e[e.length - 1])) {
+                    e.reverse();
+                    edges[i] = edge.concat(e.slice(1));
+                    return;
+                }
+            }
+            curves.push(e);
+            return;
+        })();
+    }
+
+    var objct = new THREE.Group();
+
+    var mat = new LineMaterialCreator(this.opts.thick === true ? 30 : 15, this.parent.frame.width, this.parent.frame.height).getMaterial();
+    for(var i = 0; i < curves.length; i++) {
+        objct.add(Line(curves[i],undefined,mat));
+    }
+    return objct
+};
+
+Isoline3D.prototype.getSceneObject = function () {
+    if (this.validated === false) {
+        this.isoline = this.expr.evaluate();
+        this.sceneObject = this.createIsoline(this.isoline);
+        this.validated = true;
+    }
+    return this.sceneObject;
+};
+
+Isoline3D.prototype.invalidate = function (expr) {
+    // if (this.isoline.parametric.getVariables.includes(expr)) this.sfldValidated = false;
+    // if (this.isoline.level.getVariables.includes(expr)) 
+    this.isoValidated = false;
     this.validated = false;
 };
 
@@ -1858,6 +2175,11 @@ Axes3D.prototype.plotExpression = function(expr, type, opts) {
             this.expressions[expr] = par;
             this.addFigure(par);
             return par;
+        case 'isoline':
+            var iso = new Isoline3D(this, expr);
+            this.expressions[expr] = iso;
+            this.addFigure(iso);
+            return iso;
         default:
             console.log('Interactive.Axes3D: Invalid plot type');
             return null;
@@ -1907,7 +2229,7 @@ Axes3D.prototype.refresh = function(expr) {
     for(var i = 0; i < this.objects.length; i++) {
         if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().includes(expr))) {
             this.frame.scene.remove(this.objects[i].getSceneObject());
-            this.objects[i].invalidate();
+            this.objects[i].invalidate(expr);
             this.frame.scene.add(this.objects[i].getSceneObject());
         }
     }
@@ -1961,24 +2283,6 @@ function Plot() {
     this.panels = [];
 
     /**
-     * Create a 3D axis in the context of this plot
-     */
-    this.createAxes3D = function(container, opts) {
-        var ax = new Axes3D(this, container, opts);
-        this.axes.push(ax);
-        return ax;
-    };
-
-    /**
-     * Create a 2D axis in the context of this plot
-     */
-    this.createAxes2D = function(container, opts) {
-        var ax = new Axes2D(this, container, opts);
-        this.axes.push(ax);
-        return ax;
-    };
-
-    /**
      * The variables the expressions will reference
      */
     this.context = Expression.getDefaultContext();
@@ -2006,11 +2310,35 @@ Plot.prototype.linkCameras = function(from) {
     }
 };
 
+/**
+ * Create a 3D axis in the context of this plot
+ */
+Plot.prototype.createAxes3D = function(container, opts) {
+    var ax = new Axes3D(this, container, opts);
+    this.axes.push(ax);
+    return ax;
+};
+
+/**
+ * Create a 2D axis in the context of this plot
+ */
+Plot.prototype.createAxes2D = function(container, opts) {
+    var ax = new Axes2D(this, container, opts);
+    this.axes.push(ax);
+    return ax;
+};
+
 Plot.prototype.createPanel = function(container, opts) {
     var panel = new Panel(this, container, opts);
     this.panels.push(panel);
     return panel;
 };
+
+function Isoline(parametric, axis, level) {
+    this.parametric = parametric;
+    this.axis = axis; 
+    this.level = level;
+}
 
 function Parametric(func, intervals) {
     this.func = func;
@@ -2049,18 +2377,15 @@ function BasisVectors2D(plot, opts) {
     this.xArrow = new Arrow2D(plot, this.xBasis, _xOpts);   
     this.yArrow = new Arrow2D(plot, this.yBasis, _yOpts);
 
-    this.sceneObject = null;
+    this.sceneObject = new THREE.Group();
+    this.sceneObject.add(this.xArrow.getSceneObject());
+    this.sceneObject.add(this.yArrow.getSceneObject());
 }
 
 /**
  * Returns an object that can be added to a THREE.js scene.
  */
 BasisVectors2D.prototype.getSceneObject = function() {
-    if(this.sceneObject === null) {
-        this.sceneObject = new THREE.Group();
-        this.sceneObject.add(this.xArrow.getSceneObject());
-        this.sceneObject.add(this.yArrow.getSceneObject());
-    }
     return this.sceneObject;
 };
 
@@ -2098,19 +2423,16 @@ function BasisVectors3D(plot, opts) {
     this.yArrow = new Arrow3D(plot, this.yBasis, _yOpts);
     this.zArrow = new Arrow3D(plot, this.zBasis, _zOpts);
 
-    this.sceneObject = null;
+    this.sceneObject = new THREE.Group();
+    this.sceneObject.add(this.xArrow.getSceneObject());
+    this.sceneObject.add(this.yArrow.getSceneObject());
+    this.sceneObject.add(this.zArrow.getSceneObject());
 }
 
 /**
  * Returns an object that can be added to a THREE.js scene.
  */
 BasisVectors3D.prototype.getSceneObject = function() {
-    if(this.sceneObject === null) {
-        this.sceneObject = new THREE.Group();
-        this.sceneObject.add(this.xArrow.getSceneObject());
-        this.sceneObject.add(this.yArrow.getSceneObject());
-        this.sceneObject.add(this.zArrow.getSceneObject());
-    }
     return this.sceneObject;
 };
 
@@ -2121,6 +2443,7 @@ exports.Plot = Plot;
 exports.TouchEventListener = TouchEventListener;
 exports.Expression = Expression;
 exports.Interval = Interval;
+exports.Isoline = Isoline;
 exports.MathPlus = MathPlus;
 exports.Number = Number;
 exports.Parametric = Parametric;
