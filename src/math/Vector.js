@@ -9,8 +9,12 @@ function Vector() {
     // Support an arbitrary number of dimensions (Read-only)
     this.dimensions = arguments.length;
 
-    // q is the general term for a coordinate
-    this.q = Array.from(arguments);
+    if(arguments[0] instanceof THREE.Vector3) {
+        this.q = [arguments[0].x, arguments[0].y, arguments[0].z]
+    } else {
+        // q is the general term for a coordinate
+        this.q = Array.from(arguments);
+    }
 
     this.expr = null;
 }
