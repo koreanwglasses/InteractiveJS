@@ -187,7 +187,8 @@ Isoline3D.prototype.createIsoline = function (isoline) {
 
     var objct = new THREE.Group();
 
-    var mat = new LineMaterialCreator(this.opts.thick === true ? 30 : 15, this.parent.frame.width, this.parent.frame.height).getMaterial();
+    console.log(this.opts.thick);
+    var mat = new LineMaterialCreator(this.opts.thick === true ? 40 : 15, this.parent.frame.width, this.parent.frame.height).getMaterial();
     for(var i = 0; i < curves.length; i++) {
         objct.add(Line(curves[i],undefined,mat))
     }
