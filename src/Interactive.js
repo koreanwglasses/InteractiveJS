@@ -7,6 +7,7 @@ export { TouchEventListener } from './environment/TouchEventListener.js';
 
 export { Expression } from './math/expressions/Expression.js';
 export { Interval } from './math/Interval.js';
+export { Isoline } from './math/Isoline.js';
 export { MathPlus } from './math/MathPlus.js';
 export { Number } from './math/Number.js';
 export { Parametric } from './math/Parametric.js';
@@ -17,6 +18,7 @@ export { Arrow3D } from './plottable/Arrow3D.js';
 export { BasisVectors2D } from './plottable/BasisVectors2D.js';
 export { BasisVectors3D } from './plottable/BasisVectors3D.js';
 export { Hotspot2D } from './plottable/Hotspot2D.js';
+import { Isoline3D } from './plottable/Isoline3D.js';
 export { Parametric2D } from './plottable/Parametric2D.js';
 export { Parametric3D } from './plottable/Parametric3D.js';
 
