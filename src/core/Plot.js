@@ -12,24 +12,6 @@ function Plot() {
     this.panels = [];
 
     /**
-     * Create a 3D axis in the context of this plot
-     */
-    this.createAxes3D = function(container, opts) {
-        var ax = new Axes3D(this, container, opts);
-        this.axes.push(ax)
-        return ax;
-    };
-
-    /**
-     * Create a 2D axis in the context of this plot
-     */
-    this.createAxes2D = function(container, opts) {
-        var ax = new Axes2D(this, container, opts);
-        this.axes.push(ax)
-        return ax;
-    };
-
-    /**
      * The variables the expressions will reference
      */
     this.context = Expression.getDefaultContext();
@@ -56,6 +38,24 @@ Plot.prototype.linkCameras = function(from) {
         arguments[i].camera = from.camera;
     }
 }
+
+/**
+ * Create a 3D axis in the context of this plot
+ */
+Plot.prototype.createAxes3D = function(container, opts) {
+    var ax = new Axes3D(this, container, opts);
+    this.axes.push(ax)
+    return ax;
+};
+
+/**
+ * Create a 2D axis in the context of this plot
+ */
+Plot.prototype.createAxes2D = function(container, opts) {
+    var ax = new Axes2D(this, container, opts);
+    this.axes.push(ax)
+    return ax;
+};
 
 Plot.prototype.createPanel = function(container, opts) {
     var panel = new Panel(this, container, opts);
