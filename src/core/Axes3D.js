@@ -36,7 +36,7 @@ function Axes3D(parent, container, opts) {
      */
     this.corigin = this.frame.scene.position.clone();
 
-    this.fixedZoom = opts.fixedZoom !== undefined? opts.fixedZoom : false;
+    this.fixedZoom = opts.fixedZoom !== undefined ? opts.fixedZoom : false;
 
     /**
      * Camera which renders the axes. 
@@ -135,7 +135,7 @@ function Axes3D(parent, container, opts) {
 
     // Bind Events: Zooming
     this.frame.touchEventListener.onzoom = function(event) {
-        if(this.fixedZoom === false) {
+        if(_self.fixedZoom === false) {
             event.suppressScrolling();
             var newPos = _self.corigin.clone().addScaledVector(_self.camera.position.clone().sub(_self.corigin), Math.pow(1.25, event.amount / 100));
             _self.camera.position.copy(newPos);
