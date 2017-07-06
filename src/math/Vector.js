@@ -151,4 +151,12 @@ Vector.prototype.eval = function() {
     return this;
 }
 
+Vector.prototype.toString = function() {
+    var str = '(' + this.q[0];
+    for(var i = 1; i < this.dimensions; i++) {
+        str += ',' + this.q[i];
+    }
+    return str + ')';
+}
+
 export {Vector};
