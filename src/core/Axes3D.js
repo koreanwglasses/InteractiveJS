@@ -2,6 +2,7 @@ import { Frame } from '../render/Frame.js';
 import { Expression } from '../math/expressions/Expression.js';
 import { Arrow3D } from '../plottable/Arrow3D.js';
 import { Parametric3D } from '../plottable/Parametric3D.js';
+import { Isoline3D } from '../plottable/Isoline3D.js';
 
 /**
  * Renders plots (not to be confused with the Figure class)
@@ -183,6 +184,9 @@ Axes3D.prototype.plotExpression = function(expr, type, opts) {
             return par;
         case 'isoline':
             var iso = new Isoline3D(this, expr)
+            this.expressions[expr] = iso;
+            this.addFigure(iso);
+            return iso;
         default:
             console.log('Interactive.Axes3D: Invalid plot type');
             return null;

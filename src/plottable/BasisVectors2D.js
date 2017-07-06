@@ -34,18 +34,15 @@ function BasisVectors2D(plot, opts) {
     this.xArrow = new Arrow2D(plot, this.xBasis, _xOpts);   
     this.yArrow = new Arrow2D(plot, this.yBasis, _yOpts);
 
-    this.sceneObject = null;
+    this.sceneObject = new THREE.Group();
+    this.sceneObject.add(this.xArrow.getSceneObject());
+    this.sceneObject.add(this.yArrow.getSceneObject());
 }
 
 /**
  * Returns an object that can be added to a THREE.js scene.
  */
 BasisVectors2D.prototype.getSceneObject = function() {
-    if(this.sceneObject === null) {
-        this.sceneObject = new THREE.Group();
-        this.sceneObject.add(this.xArrow.getSceneObject());
-        this.sceneObject.add(this.yArrow.getSceneObject());
-    }
     return this.sceneObject;
 }
 

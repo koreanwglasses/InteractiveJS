@@ -11,19 +11,16 @@ import { Expression } from '../math/expressions/Expression.js';
  * (Derived from THREE.js)
  */
 function Arrow3D(plot, expr, opts) {
-    this.opts = opts !== undefined ? opts : {};
-
     /**
      * (Read-only)
      */
     this.expr = new Expression(expr, plot.context);
 
-    if(this.opts.origin !== undefined) {
-        this.opts.origin = new Expression(this.opts.origin, plot.context);
-    }
+    this.opts = {}
+    this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0,0)', plot.context);
+    this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
 
     this.sceneObject = null;
-
     this.validated = false;
 }
 
@@ -36,20 +33,24 @@ Arrow3D.prototype.getVariables = function() {
  * Returns an object that can be added to a THREE.js scene.
  */
 Arrow3D.prototype.getSceneObject = function() {
-    if(this.validated === false) {
-        var vector = this.expr.evaluate();
-        var _vector3 = new THREE.Vector3(vector.q[0].value, vector.q[1].value, vector.q[2].value);
-        var _dir = _vector3.clone().normalize();
-        var _origin = this.opts.origin !== undefined ? this.opts.origin.evaluate().toVector3() : new THREE.Vector3(0,0,0);
-        var _length = _vector3.length();
-        var _hex = this.opts.hex !== undefined ? this.opts.hex : 0xffffff;
-        var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2 * _length;
-        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.2 * _headLength;
-
-        this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
-        this.validated = true;
-    }
+    if(this.validated === false) this.update();
     return this.sceneObject;
+}
+
+/**
+ * Updates now
+ */
+Arrow3D.prototype.update = function() {
+    var _vector3 = this.expr.evaluate().toVector3();
+    var _dir = _vector3.clone().normalize();
+    var _origin = this.opts.origin.evaluate().toVector3();
+    var _length = _vector3.length();
+    var _hex = this.opts.hex;
+    var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2 * _length;
+    var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.2 * _headLength;
+
+    this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
+    this.validated = true;
 }
 
 /**

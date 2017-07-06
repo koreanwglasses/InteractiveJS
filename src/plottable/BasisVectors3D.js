@@ -36,19 +36,16 @@ function BasisVectors3D(plot, opts) {
     this.yArrow = new Arrow3D(plot, this.yBasis, _yOpts);
     this.zArrow = new Arrow3D(plot, this.zBasis, _zOpts);
 
-    this.sceneObject = null;
+    this.sceneObject = new THREE.Group();
+    this.sceneObject.add(this.xArrow.getSceneObject());
+    this.sceneObject.add(this.yArrow.getSceneObject());
+    this.sceneObject.add(this.zArrow.getSceneObject());
 }
 
 /**
  * Returns an object that can be added to a THREE.js scene.
  */
 BasisVectors3D.prototype.getSceneObject = function() {
-    if(this.sceneObject === null) {
-        this.sceneObject = new THREE.Group();
-        this.sceneObject.add(this.xArrow.getSceneObject());
-        this.sceneObject.add(this.yArrow.getSceneObject());
-        this.sceneObject.add(this.zArrow.getSceneObject());
-    }
     return this.sceneObject;
 }
 

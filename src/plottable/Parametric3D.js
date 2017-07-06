@@ -178,7 +178,7 @@ Parametric3D.prototype.createSurface = function(par) {
 
     if(this.opts.wireframe === true || this.opts.flat === true) {
         var mat = new THREE.MeshBasicMaterial(opts);
-        if(this.wireframe) mat.wireframe = true;
+        if(this.opts.wireframe) mat.wireframe = true;
     } else {
         var mat = new THREE.MeshLambertMaterial(opts);
     }
