@@ -37,6 +37,10 @@ Number.prototype.compareTo = function(n) {
     return null;
 }
 
+Number.prototype.toString = function() {
+    return '' + this.value;
+}
+
 for(var i = 0; i < 10; i++) {
     Number[i] = new Number(i);
 }
