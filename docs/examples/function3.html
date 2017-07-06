@@ -32,7 +32,7 @@
             pan5.addSlider('{h,-1.5,1.5,50}', {continuous: true})
 
             plot5.execExpression('c1()=(0.6,0.6,0.6)')
-            plot5.execExpression('c2(v)=spectrum(h/3)')
+            plot5.execExpression('c2(v)=spectrum(h/2+.5)')
 
             plot5.execExpression('f(x,y)=-(x^4)+2*x^2-y^2+m*x')
             ax5a.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1,1,50}', 'parametric', {color:'c1'});
