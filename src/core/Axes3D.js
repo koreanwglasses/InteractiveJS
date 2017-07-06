@@ -183,7 +183,7 @@ Axes3D.prototype.plotExpression = function(expr, type, opts) {
             this.addFigure(par);
             return par;
         case 'isoline':
-            var iso = new Isoline3D(this, expr)
+            var iso = new Isoline3D(this, expr, opts)
             this.expressions[expr] = iso;
             this.addFigure(iso);
             return iso;
