@@ -82,6 +82,11 @@ Axes.prototype.plotExpression = function(expr, type, opts) {
  * @param {*} object Must be plottable
  */
 Axes.prototype.addFigure = function(object) {
+    if(object.isPlottableInstance !== true) {
+        console.log('Interactive.' + this._proto_.constructor.name + ': Object is not a Plottable')
+        return;
+    }
+
     this.objects.push(object);
 }
 
