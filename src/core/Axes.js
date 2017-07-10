@@ -83,7 +83,6 @@ Axes.prototype.plotExpression = function(expr, type, opts) {
  */
 Axes.prototype.addFigure = function(object) {
     this.objects.push(object);
-    // this.frame.scene.add(object.getSceneObject());
 }
 
 /**

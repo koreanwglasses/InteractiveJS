@@ -977,6 +977,56 @@ Expression.getDefaultContext = function () {
     return Object.assign({ functions: {} }, MathPlus);
 };
 
+function Plottable(plot, expr, opts) {
+    /**
+     * (Read-only)
+     */
+    this.isPlottableInstance = true;
+
+    this.plot = plot;
+    
+    if(expr) {
+        this.expr = new Expression(expr, plot.context);
+    }
+    
+    this.sceneObject = null;
+    this.validated = false;
+}
+
+Plottable.prototype.getVariables = function() {
+    if(!this.expr) {
+        return []
+    }
+    return this.expr.getVariables();
+};
+
+/**
+ * Returns an object that can be added to a THREE.js scene.
+ */
+Plottable.prototype.getSceneObject = function() {
+    if(this.validated === false) {
+        this.sceneObject = this.createSceneObject();
+        this.validated = true;
+    }
+    return this.sceneObject;
+};
+
+/**
+ * Creates the sceneObject
+ */
+Plottable.prototype.createSceneObject = function() {
+    console.log('Interactive.' + this._proto_.constructor.name + ': Method not implemented');
+    return null;
+};
+
+
+/**
+ * Updates on the next call to render
+ */
+Plottable.prototype.invalidate = function() {
+    this.validated = false;
+};
+
 /**
  * Object that represents an arrow in 2d space.
  * @param {*} vector The vector which this object is based on
@@ -988,37 +1038,23 @@ Expression.getDefaultContext = function () {
  * (Derived from THREE.js)
  */
 function Arrow2D(plot, expr, opts) {
-    /**
-     * (Read-only)
-     */
-    this.expr = new Expression(expr, plot.context);
+    Plottable.call(this, plot, expr, opts);
 
     this.opts = {};
     this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0,0)', plot.context);
     this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
     this.opts.headLength = opts.headLength !== undefined ? opts.headLength : 0.2;
     this.opts.headWidth = opts.headWidth !== undefined ? opts.headWidth : 0.05;
-
-    this.sceneObject = null;
-    this.validated = false;
 }
+
+Arrow2D.prototype = Object.create(Plottable.prototype);
+Arrow2D.prototype.constructor = Arrow2D;
 
 Arrow2D.prototype.getVariables = function() {
     return this.expr.getVariables().concat(this.opts.origin.getVariables());
 };
 
-/**
- * Returns an object that can be added to a THREE.js scene.
- */
-Arrow2D.prototype.getSceneObject = function() {
-    if(this.validated === false) this.update();
-    return this.sceneObject;
-};
-
-/**
- * Updates now
- */
-Arrow2D.prototype.update = function() {
+Arrow2D.prototype.createSceneObject = function() {
     var _vector2 = this.expr.evaluate().toVector3();
     var _dir = _vector2.clone().normalize();
     var _length = _vector2.length();
@@ -1027,16 +1063,7 @@ Arrow2D.prototype.update = function() {
     var _headLength = this.opts.headLength;
     var _headWidth = this.opts.headWidth;
 
-    this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
-    this.validated = true;
-};
-
-
-/**
- * Updates on the next call to render
- */
-Arrow2D.prototype.invalidate = function() {
-    this.validated = false;
+    return new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
 };
 
 function Hotspot2D(plot, expr) {
@@ -1075,14 +1102,10 @@ function LineMaterialCreator(thickness, vwidth, vheight) {
 }
 
 function Parametric2D(parent, expr, opts) {
+    Plottable.call(this, parent.parent, expr, opts);
+
     this.parent = parent;
-    this.plot = parent.parent;
-
-    this.expr = new Expression(expr, this.plot.context);
     this.opts = opts !== undefined? opts: {};
-
-    this.validated = false;
-    this.sceneObject = null;
 
     if(this.opts.color !== undefined) {
         this.color = new Expression(this.opts.color, this.plot.context);
@@ -1090,6 +1113,9 @@ function Parametric2D(parent, expr, opts) {
     }
     if(this.opts.thick === undefined) this.opts.thick = false;
 }
+
+Parametric2D.prototype = Object.create(Plottable.prototype);
+Parametric2D.prototype.constructor = Parametric2D;
 
 Parametric2D.prototype.getVariables = function() {
     if(this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
@@ -1188,17 +1214,9 @@ Parametric2D.prototype.createLine = function(par) {
     return mesh
 };
 
-Parametric2D.prototype.getSceneObject = function() {
-    if(this.validated === false) {
-        var par = this.expr.evaluate();
-        this.sceneObject = this.createLine(par);
-        this.validated = true;
-    }
-    return this.sceneObject;
-};
-
-Parametric2D.prototype.invalidate = function() {
-    this.validated = false;
+Parametric2D.prototype.createSceneObject = function() {
+    var par = this.expr.evaluate();
+    return this.createLine(par);
 };
 
 /**
@@ -1278,7 +1296,6 @@ Axes.prototype.plotExpression = function(expr, type, opts) {
  */
 Axes.prototype.addFigure = function(object) {
     this.objects.push(object);
-    // this.frame.scene.add(object.getSceneObject());
 };
 
 /**
@@ -1513,36 +1530,22 @@ Axes2D.prototype.addHotspot = function(hotspot) {
  * (Derived from THREE.js)
  */
 function Arrow3D(plot, expr, opts) {
-    /**
-     * (Read-only)
-     */
-    this.expr = new Expression(expr, plot.context);
-
+    Plottable.call(this, plot, expr, opts);
+    
     this.opts = {};
     this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0,0)', plot.context);
     this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
-
-    this.sceneObject = null;
-    this.validated = false;
 }
+
+Arrow3D.prototype = Object.create(Plottable.prototype);
+Arrow3D.prototype.constructor = Arrow3D;
 
 Arrow3D.prototype.getVariables = function() {    
     if(this.opts.origin !== undefined) return this.expr.getVariables().concat(this.opts.origin.getVariables());
     else return this.expr.getVariables()
 };
 
-/**
- * Returns an object that can be added to a THREE.js scene.
- */
-Arrow3D.prototype.getSceneObject = function() {
-    if(this.validated === false) this.update();
-    return this.sceneObject;
-};
-
-/**
- * Updates now
- */
-Arrow3D.prototype.update = function() {
+Arrow3D.prototype.createSceneObject = function() {
     var _vector3 = this.expr.evaluate().toVector3();
     var _dir = _vector3.clone().normalize();
     var _origin = this.opts.origin.evaluate().toVector3();
@@ -1551,26 +1554,14 @@ Arrow3D.prototype.update = function() {
     var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2 * _length;
     var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.2 * _headLength;
 
-    this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
-    this.validated = true;
-};
-
-/**
- * Updates on the next call to render
- */
-Arrow3D.prototype.invalidate = function() {
-    this.validated = false;
+    return new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
 };
 
 function Parametric3D(parent, expr, opts) {
+    Plottable.call(this, parent.parent, expr, opts);
+
     this.parent = parent;
-    this.plot = parent.parent;
-
-    this.expr = new Expression(expr, this.plot.context);
     this.opts = opts !== undefined? opts: {};
-
-    this.validated = false;
-    this.sceneObject = null;
 
     if(this.opts.color !== undefined) {
         this.color = new Expression(this.opts.color, this.plot.context);
@@ -1581,6 +1572,9 @@ function Parametric3D(parent, expr, opts) {
     if(this.opts.smooth === undefined) this.opts.smooth = true;
     if(this.opts.thick === undefined) this.opts.thick = false;
 }
+
+Parametric3D.prototype = Object.create(Plottable.prototype);
+Parametric3D.prototype.constructor = Parametric3D;
 
 Parametric3D.prototype.getVariables = function() {
     if(this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
@@ -1745,21 +1739,13 @@ Parametric3D.prototype.createSurface = function(par) {
     return new THREE.Mesh( geom, mat );
 };
 
-Parametric3D.prototype.getSceneObject = function() {
-    if(this.validated === false) {
-        var par = this.expr.evaluate();
-        if(par.intervals.length === 1) {
-            this.sceneObject = this.createLine(par);
-        } else {
-            this.sceneObject = this.createSurface(par);
-        }
-        this.validated = true;
+Parametric3D.prototype.createSceneObject = function() {
+    var par = this.expr.evaluate();
+    if(par.intervals.length === 1) {
+        return this.createLine(par);
+    } else {
+        return this.createSurface(par);
     }
-    return this.sceneObject;
-};
-
-Parametric3D.prototype.invalidate = function() {
-    this.validated = false;
 };
 
 function Line(vertices, colors, mat) {
@@ -1849,10 +1835,9 @@ function Line(vertices, colors, mat) {
 }
 
 function Isoline3D(parent, expr, opts) {
-    this.parent = parent;
-    this.plot = parent.parent;
+    Plottable.call(this, parent.parent, expr, opts);
 
-    this.expr = new Expression(expr, this.plot.context);
+    this.parent = parent;
     this.isoline = this.expr.evaluate();
 
     this.opts = opts !== undefined ? opts : {};
@@ -1861,16 +1846,16 @@ function Isoline3D(parent, expr, opts) {
 
     this.sfldValidated = false;
     this.isoValidated = false;
-
-    this.validated = false;
-    this.sceneObject = null;
-
+    
     if (this.opts.color !== undefined) {
         this.color = new Expression(this.opts.color, this.plot.context);
         this.colorf = this.color.evaluate();
     }
     // if(this.opts.axis === undefined) this.opts.axis = 'y';
 }
+
+Isoline3D.prototype = Object.create(Plottable.prototype);
+Isoline3D.prototype.constructor = Isoline3D;
 
 Isoline3D.prototype.getVariables = function () {
     if (this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
@@ -2048,13 +2033,9 @@ Isoline3D.prototype.createIsoline = function (isoline) {
     return objct
 };
 
-Isoline3D.prototype.getSceneObject = function () {
-    if (this.validated === false) {
-        this.isoline = this.expr.evaluate();
-        this.sceneObject = this.createIsoline(this.isoline);
-        this.validated = true;
-    }
-    return this.sceneObject;
+Isoline3D.prototype.createSceneObject = function() {
+    this.isoline = this.expr.evaluate();
+    return this.createIsoline(this.isoline);
 };
 
 Isoline3D.prototype.invalidate = function (expr) {
@@ -2353,6 +2334,8 @@ function Parametric(func, intervals) {
  * (Derived from THREE.js)
  */
 function BasisVectors2D(plot, opts) {
+    Plottable.call(this, plot, null, opts);
+
     var _opts = opts !== undefined ? opts : {};
 
     this.xBasis = '(1,0)';
@@ -2374,17 +2357,16 @@ function BasisVectors2D(plot, opts) {
 
     this.xArrow = new Arrow2D(plot, this.xBasis, _xOpts);   
     this.yArrow = new Arrow2D(plot, this.yBasis, _yOpts);
-
-    this.sceneObject = new THREE.Group();
-    this.sceneObject.add(this.xArrow.getSceneObject());
-    this.sceneObject.add(this.yArrow.getSceneObject());
 }
 
-/**
- * Returns an object that can be added to a THREE.js scene.
- */
-BasisVectors2D.prototype.getSceneObject = function() {
-    return this.sceneObject;
+BasisVectors2D.prototype = Object.create(Plottable.prototype);
+BasisVectors2D.prototype.constructor = BasisVectors2D;
+
+BasisVectors2D.prototype.createSceneObject = function() {
+    var sceneObject = new THREE.Group();
+    sceneObject.add(this.xArrow.getSceneObject());
+    sceneObject.add(this.yArrow.getSceneObject());
+    return sceneObject;
 };
 
 /**
@@ -2397,6 +2379,8 @@ BasisVectors2D.prototype.getSceneObject = function() {
  * (Derived from THREE.js)
  */
 function BasisVectors3D(plot, opts) {
+    Plottable.call(this, plot, null, opts);
+
     var _opts = opts !== undefined ? opts : {};
 
     this.xBasis = '(1,0,0)';
@@ -2420,18 +2404,17 @@ function BasisVectors3D(plot, opts) {
     this.xArrow = new Arrow3D(plot, this.xBasis, _xOpts);   
     this.yArrow = new Arrow3D(plot, this.yBasis, _yOpts);
     this.zArrow = new Arrow3D(plot, this.zBasis, _zOpts);
-
-    this.sceneObject = new THREE.Group();
-    this.sceneObject.add(this.xArrow.getSceneObject());
-    this.sceneObject.add(this.yArrow.getSceneObject());
-    this.sceneObject.add(this.zArrow.getSceneObject());
 }
 
-/**
- * Returns an object that can be added to a THREE.js scene.
- */
-BasisVectors3D.prototype.getSceneObject = function() {
-    return this.sceneObject;
+BasisVectors3D.prototype = Object.create(Plottable.prototype);
+BasisVectors3D.prototype.constructor = BasisVectors3D;
+
+BasisVectors3D.prototype.createSceneObject = function() {
+    var sceneObject = new THREE.Group();
+    sceneObject.add(this.xArrow.getSceneObject());
+    sceneObject.add(this.yArrow.getSceneObject());
+    sceneObject.add(this.zArrow.getSceneObject());
+    return sceneObject;
 };
 
 exports.Axes2D = Axes2D;
