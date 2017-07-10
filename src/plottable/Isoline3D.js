@@ -3,12 +3,12 @@ import { Number } from '../math/Number.js';
 import { LineMaterialCreator } from '../render/LineMaterial.js';
 import { Line } from '../render/Line.js';
 import { Vector } from '../math/Vector.js';
+import { Plottable } from './Plottable.js';
 
 function Isoline3D(parent, expr, opts) {
-    this.parent = parent;
-    this.plot = parent.parent;
+    Plottable.call(this, parent.parent, expr, opts);
 
-    this.expr = new Expression(expr, this.plot.context);
+    this.parent = parent;
     this.isoline = this.expr.evaluate();
 
     this.opts = opts !== undefined ? opts : {}
@@ -17,16 +17,16 @@ function Isoline3D(parent, expr, opts) {
 
     this.sfldValidated = false;
     this.isoValidated = false;
-
-    this.validated = false;
-    this.sceneObject = null;
-
+    
     if (this.opts.color !== undefined) {
         this.color = new Expression(this.opts.color, this.plot.context);
         this.colorf = this.color.evaluate();
     }
     // if(this.opts.axis === undefined) this.opts.axis = 'y';
 }
+
+Isoline3D.prototype = Object.create(Plottable.prototype);
+Isoline3D.prototype.constructor = Isoline3D;
 
 Isoline3D.prototype.getVariables = function () {
     if (this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
@@ -204,13 +204,9 @@ Isoline3D.prototype.createIsoline = function (isoline) {
     return objct
 }
 
-Isoline3D.prototype.getSceneObject = function () {
-    if (this.validated === false) {
-        this.isoline = this.expr.evaluate();
-        this.sceneObject = this.createIsoline(this.isoline);
-        this.validated = true;
-    }
-    return this.sceneObject;
+Isoline3D.prototype.createSceneObject = function() {
+    this.isoline = this.expr.evaluate();
+    return this.createIsoline(this.isoline);
 }
 
 Isoline3D.prototype.invalidate = function (expr) {

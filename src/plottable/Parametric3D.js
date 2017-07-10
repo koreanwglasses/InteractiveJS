@@ -2,16 +2,13 @@ import { Vector } from '../math/Vector.js';
 import { Expression } from '../math/expressions/Expression.js';
 import { Interval } from '../math/Interval.js';
 import { LineMaterialCreator } from '../render/LineMaterial.js';
+import { Plottable } from './Plottable.js';
 
 function Parametric3D(parent, expr, opts) {
+    Plottable.call(this, parent.parent, expr, opts);
+
     this.parent = parent;
-    this.plot = parent.parent;
-
-    this.expr = new Expression(expr, this.plot.context);
     this.opts = opts !== undefined? opts: {}
-
-    this.validated = false;
-    this.sceneObject = null;
 
     if(this.opts.color !== undefined) {
         this.color = new Expression(this.opts.color, this.plot.context);
@@ -22,6 +19,9 @@ function Parametric3D(parent, expr, opts) {
     if(this.opts.smooth === undefined) this.opts.smooth = true;
     if(this.opts.thick === undefined) this.opts.thick = false;
 }
+
+Parametric3D.prototype = Object.create(Plottable.prototype);
+Parametric3D.prototype.constructor = Parametric3D;
 
 Parametric3D.prototype.getVariables = function() {
     if(this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
@@ -186,21 +186,13 @@ Parametric3D.prototype.createSurface = function(par) {
     return new THREE.Mesh( geom, mat );
 }
 
-Parametric3D.prototype.getSceneObject = function() {
-    if(this.validated === false) {
-        var par = this.expr.evaluate();
-        if(par.intervals.length === 1) {
-            this.sceneObject = this.createLine(par);
-        } else {
-            this.sceneObject = this.createSurface(par);
-        }
-        this.validated = true;
+Parametric3D.prototype.createSceneObject = function() {
+    var par = this.expr.evaluate();
+    if(par.intervals.length === 1) {
+        return this.createLine(par);
+    } else {
+        return this.createSurface(par);
     }
-    return this.sceneObject;
-}
-
-Parametric3D.prototype.invalidate = function() {
-    this.validated = false;
 }
 
 export { Parametric3D }

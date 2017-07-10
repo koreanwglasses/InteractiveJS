@@ -2,16 +2,13 @@ import { Vector } from '../math/Vector.js';
 import { Expression } from '../math/expressions/Expression.js';
 import { Interval } from '../math/Interval.js';
 import { LineMaterialCreator } from '../render/LineMaterial.js';
+import { Plottable } from './Plottable.js';
 
 function Parametric2D(parent, expr, opts) {
+    Plottable.call(this, parent.parent, expr, opts);
+
     this.parent = parent;
-    this.plot = parent.parent;
-
-    this.expr = new Expression(expr, this.plot.context);
     this.opts = opts !== undefined? opts: {}
-
-    this.validated = false;
-    this.sceneObject = null;
 
     if(this.opts.color !== undefined) {
         this.color = new Expression(this.opts.color, this.plot.context);
@@ -19,6 +16,9 @@ function Parametric2D(parent, expr, opts) {
     }
     if(this.opts.thick === undefined) this.opts.thick = false;
 }
+
+Parametric2D.prototype = Object.create(Plottable.prototype);
+Parametric2D.prototype.constructor = Parametric2D;
 
 Parametric2D.prototype.getVariables = function() {
     if(this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
@@ -117,17 +117,9 @@ Parametric2D.prototype.createLine = function(par) {
     return mesh
 }
 
-Parametric2D.prototype.getSceneObject = function() {
-    if(this.validated === false) {
-        var par = this.expr.evaluate();
-        this.sceneObject = this.createLine(par);
-        this.validated = true;
-    }
-    return this.sceneObject;
-}
-
-Parametric2D.prototype.invalidate = function() {
-    this.validated = false;
-}
+Parametric2D.prototype.createSceneObject = function() {
+    var par = this.expr.evaluate();
+    return this.createLine(par);
+} 
 
 export { Parametric2D }

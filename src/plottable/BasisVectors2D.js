@@ -1,6 +1,7 @@
 import { Vector } from '../math/Vector.js';
 import { Expression } from '../math/expressions/Expression.js'
 import { Arrow2D } from './Arrow2D.js';
+import { Plottable } from './Plottable.js';
 
 /**
  * Object that represents basis axes in 2d space.
@@ -12,6 +13,8 @@ import { Arrow2D } from './Arrow2D.js';
  * (Derived from THREE.js)
  */
 function BasisVectors2D(plot, opts) {
+    Plottable.call(this, plot, null, opts);
+
     var _opts = opts !== undefined ? opts : {};
 
     this.xBasis = '(1,0)'
@@ -33,17 +36,16 @@ function BasisVectors2D(plot, opts) {
 
     this.xArrow = new Arrow2D(plot, this.xBasis, _xOpts);   
     this.yArrow = new Arrow2D(plot, this.yBasis, _yOpts);
-
-    this.sceneObject = new THREE.Group();
-    this.sceneObject.add(this.xArrow.getSceneObject());
-    this.sceneObject.add(this.yArrow.getSceneObject());
 }
 
-/**
- * Returns an object that can be added to a THREE.js scene.
- */
-BasisVectors2D.prototype.getSceneObject = function() {
-    return this.sceneObject;
+BasisVectors2D.prototype = Object.create(Plottable.prototype);
+BasisVectors2D.prototype.constructor = BasisVectors2D;
+
+BasisVectors2D.prototype.createSceneObject = function() {
+    var sceneObject = new THREE.Group();
+    sceneObject.add(this.xArrow.getSceneObject());
+    sceneObject.add(this.yArrow.getSceneObject());
+    return sceneObject;
 }
 
 export { BasisVectors2D };

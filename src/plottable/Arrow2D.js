@@ -1,4 +1,5 @@
 import { Expression } from '../math/expressions/Expression.js';
+import { Plottable } from './Plottable.js';
 
 /**
  * Object that represents an arrow in 2d space.
@@ -11,37 +12,23 @@ import { Expression } from '../math/expressions/Expression.js';
  * (Derived from THREE.js)
  */
 function Arrow2D(plot, expr, opts) {
-    /**
-     * (Read-only)
-     */
-    this.expr = new Expression(expr, plot.context);
+    Plottable.call(this, plot, expr, opts)
 
     this.opts = {}
     this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0,0)', plot.context);
     this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
     this.opts.headLength = opts.headLength !== undefined ? opts.headLength : 0.2;
     this.opts.headWidth = opts.headWidth !== undefined ? opts.headWidth : 0.05;
-
-    this.sceneObject = null;
-    this.validated = false;
 }
+
+Arrow2D.prototype = Object.create(Plottable.prototype);
+Arrow2D.prototype.constructor = Arrow2D;
 
 Arrow2D.prototype.getVariables = function() {
     return this.expr.getVariables().concat(this.opts.origin.getVariables());
 }
 
-/**
- * Returns an object that can be added to a THREE.js scene.
- */
-Arrow2D.prototype.getSceneObject = function() {
-    if(this.validated === false) this.update();
-    return this.sceneObject;
-}
-
-/**
- * Updates now
- */
-Arrow2D.prototype.update = function() {
+Arrow2D.prototype.createSceneObject = function() {
     var _vector2 = this.expr.evaluate().toVector3();
     var _dir = _vector2.clone().normalize();
     var _length = _vector2.length();
@@ -50,16 +37,7 @@ Arrow2D.prototype.update = function() {
     var _headLength = this.opts.headLength;
     var _headWidth = this.opts.headWidth;
 
-    this.sceneObject = new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
-    this.validated = true;
-}
-
-
-/**
- * Updates on the next call to render
- */
-Arrow2D.prototype.invalidate = function() {
-    this.validated = false;
+    return new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
 }
 
 export { Arrow2D };

@@ -1,6 +1,7 @@
 import { Expression } from '../math/expressions/Expression.js';
 import { Vector } from '../math/Vector.js';
 import { Arrow3D } from './Arrow3D.js';
+import { Plottable } from './Plottable.js';
 
 /**
  * Object that represents basis axes in 3d space.
@@ -12,6 +13,8 @@ import { Arrow3D } from './Arrow3D.js';
  * (Derived from THREE.js)
  */
 function BasisVectors3D(plot, opts) {
+    Plottable.call(this, plot, null, opts);
+
     var _opts = opts !== undefined ? opts : {};
 
     this.xBasis = '(1,0,0)'
@@ -35,18 +38,18 @@ function BasisVectors3D(plot, opts) {
     this.xArrow = new Arrow3D(plot, this.xBasis, _xOpts);   
     this.yArrow = new Arrow3D(plot, this.yBasis, _yOpts);
     this.zArrow = new Arrow3D(plot, this.zBasis, _zOpts);
-
-    this.sceneObject = new THREE.Group();
-    this.sceneObject.add(this.xArrow.getSceneObject());
-    this.sceneObject.add(this.yArrow.getSceneObject());
-    this.sceneObject.add(this.zArrow.getSceneObject());
 }
 
-/**
- * Returns an object that can be added to a THREE.js scene.
- */
-BasisVectors3D.prototype.getSceneObject = function() {
-    return this.sceneObject;
+BasisVectors3D.prototype = Object.create(Plottable.prototype);
+BasisVectors3D.prototype.constructor = BasisVectors3D;
+
+BasisVectors3D.prototype.createSceneObject = function() {
+    var sceneObject = new THREE.Group();
+    sceneObject.add(this.xArrow.getSceneObject());
+    sceneObject.add(this.yArrow.getSceneObject());
+    sceneObject.add(this.zArrow.getSceneObject());
+    return sceneObject;
 }
+    
 
 export { BasisVectors3D };
