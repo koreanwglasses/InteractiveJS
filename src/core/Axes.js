@@ -41,6 +41,9 @@ function Axes(parent, container, opts) {
      */
     this.objects = []
 
+    // Keeps a roll of sceneobjects to faciliate removal
+    this.sceneObjects = []
+
     /**
      * Expressions to plot
      */
@@ -51,6 +54,18 @@ function Axes(parent, container, opts) {
  * Render the axes
  */
 Axes.prototype.render = function() {
+    for(var i = 0; i < this.objects.length; i++ ) {
+        var object = this.objects[i]
+        if(object.validated === false) {
+            var sceneObject = object.getSceneObject();
+            if(this.sceneObjects[i] !== undefined) {
+                this.frame.scene.remove(this.sceneObjects[i])
+            }
+            this.frame.scene.add(sceneObject);
+            this.sceneObjects[i] = sceneObject;
+        }
+    }
+
     this.frame.render(this.camera);
 }
 
@@ -68,7 +83,7 @@ Axes.prototype.plotExpression = function(expr, type, opts) {
  */
 Axes.prototype.addFigure = function(object) {
     this.objects.push(object);
-    this.frame.scene.add(object.getSceneObject());
+    // this.frame.scene.add(object.getSceneObject());
 }
 
 /**
@@ -81,7 +96,8 @@ Axes.prototype.removeFigure = function(object) {
         return null;
     }
     this.objects.splice(index, 1);
-    this.frame.scene.remove(object.getSceneObject());
+    this.frame.scene.remove(sceneObjects[index]);
+    this.sceneObjects.splice(index, 1);
 }
 
 /**
@@ -93,9 +109,7 @@ Axes.prototype.redrawFigure = function(object) {
         console.log('Interactive.' + this._proto_.constructor.name + ': Figure not in axes')
         return null;
     }
-    this.frame.scene.remove(object.getSceneObject());
     object.invalidate();
-    this.frame.scene.add(object.getSceneObject());
 }
 
 Axes.prototype.redrawExpression = function(expr) {
@@ -108,9 +122,7 @@ Axes.prototype.redrawExpression = function(expr) {
 Axes.prototype.refresh = function(expr) {
     for(var i = 0; i < this.objects.length; i++) {
         if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().includes(expr))) {
-            this.frame.scene.remove(this.objects[i].getSceneObject());
             this.objects[i].invalidate(expr);
-            this.frame.scene.add(this.objects[i].getSceneObject());
         }
     }
 }
