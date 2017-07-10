@@ -1,5 +1,5 @@
-import { Vector } from './Vector.js';
-import { Number } from './Number.js';
+import { Vector } from '../Vector.js';
+import { Number } from '../Number.js';
 
 var MathPlus = {}
 
