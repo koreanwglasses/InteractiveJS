@@ -14,7 +14,7 @@ function Isoline3D(parent, expr, opts) {
 
     this.opts = opts !== undefined ? opts : {}
 
-    this.slfd = [];
+    this.sfld = [];
 
     this.sfldValidated = false;
 
@@ -23,6 +23,7 @@ function Isoline3D(parent, expr, opts) {
         this.colorf = this.color.evaluate();
     }
     // if(this.opts.axis === undefined) this.opts.axis = 'y';
+    this.lineWidth = this.opts.thick === true ? 40 : 15;
 }
 
 Isoline3D.prototype = Object.create(Plottable.prototype);
@@ -56,6 +57,13 @@ Isoline3D.prototype.createScalarField = function (par) {
     this.sfld = sfld;
 }
 
+Isoline3D.prototype.lerp = function (a, b, az, z, bz) {
+        var alpha = z.sub(az).div(bz.sub(az));
+        var result = a.mul(Number[1].sub(alpha)).add(b.mul(alpha))
+        result.q[1] = z;
+        return result.toVector3();
+}
+
 Isoline3D.prototype.createIsoline = function (isoline) {
     var par = isoline.parametric
 
@@ -70,14 +78,6 @@ Isoline3D.prototype.createIsoline = function (isoline) {
     if (this.sfldValidated === false) this.createScalarField(par);
 
     var edges = []
-
-    var lerp = function (a, b, az, z, bz) {
-        var alpha = z.sub(az).div(bz.sub(az));
-        var result = a.mul(Number[1].sub(alpha)).add(b.mul(alpha))
-        result.q[1] = z;
-        // console.log(a,b,az,z,bz,result)
-        return result.toVector3();
-    }
 
     for (var i = 0; i < uarr.length - 1; i++) {
         for (var j = 0; j < varr.length - 1; j++) {
@@ -97,56 +97,56 @@ Isoline3D.prototype.createIsoline = function (isoline) {
                     break;
                 case 1:
                 case 14:
-                    var v1 = lerp(a, d, a.q[1], lvl, d.q[1]);
-                    var v2 = lerp(a, b, a.q[1], lvl, b.q[1]);
+                    var v1 = this.lerp(a, d, a.q[1], lvl, d.q[1]);
+                    var v2 = this.lerp(a, b, a.q[1], lvl, b.q[1]);
                     edges.push([v1, v2]);
                     break;
                 case 2:
                 case 13:
-                    var v1 = lerp(a, b, a.q[1], lvl, b.q[1]);
-                    var v2 = lerp(b, c, b.q[1], lvl, c.q[1]);
+                    var v1 = this.lerp(a, b, a.q[1], lvl, b.q[1]);
+                    var v2 = this.lerp(b, c, b.q[1], lvl, c.q[1]);
                     edges.push([v1, v2]);
                     break;
                 case 3:
                 case 12:
-                    var v1 = lerp(a, d, a.q[1], lvl, d.q[1]);
-                    var v2 = lerp(b, c, b.q[1], lvl, c.q[1]);
+                    var v1 = this.lerp(a, d, a.q[1], lvl, d.q[1]);
+                    var v2 = this.lerp(b, c, b.q[1], lvl, c.q[1]);
                     edges.push([v1, v2]);
                     break;
                 case 4:
                 case 11:
-                    var v1 = lerp(b, c, b.q[1], lvl, c.q[1]);
-                    var v2 = lerp(c, d, c.q[1], lvl, d.q[1]);
+                    var v1 = this.lerp(b, c, b.q[1], lvl, c.q[1]);
+                    var v2 = this.lerp(c, d, c.q[1], lvl, d.q[1]);
                     edges.push([v1, v2]);
                     break;
                 case 5:
                 case 10:
                     if ((cse === 10) ^ (a.q[i].add(b.q[i]).add(c.q[i]).add(d.q[i]).compareTo(lvl.mul(4)) > 0)) {
-                        var v1 = lerp(a, d, a.q[1], lvl, d.q[1]);
-                        var v2 = lerp(c, d, c.q[1], lvl, d.q[1]);
-                        var v3 = lerp(a, b, a.q[1], lvl, b.q[1]);
-                        var v4 = lerp(b, c, b.q[1], lvl, c.q[1]);
+                        var v1 = this.lerp(a, d, a.q[1], lvl, d.q[1]);
+                        var v2 = this.lerp(c, d, c.q[1], lvl, d.q[1]);
+                        var v3 = this.lerp(a, b, a.q[1], lvl, b.q[1]);
+                        var v4 = this.lerp(b, c, b.q[1], lvl, c.q[1]);
                         edges.push([v1, v2]);
                         edges.push([v3, v4]);
                     } else {
-                        var v1 = lerp(a, b, a.q[1], lvl, b.q[1]);
-                        var v2 = lerp(a, d, a.q[1], lvl, d.q[1]);
-                        var v3 = lerp(b, c, b.q[1], lvl, c.q[1]);
-                        var v4 = lerp(c, d, c.q[1], lvl, d.q[1]);
+                        var v1 = this.lerp(a, b, a.q[1], lvl, b.q[1]);
+                        var v2 = this.lerp(a, d, a.q[1], lvl, d.q[1]);
+                        var v3 = this.lerp(b, c, b.q[1], lvl, c.q[1]);
+                        var v4 = this.lerp(c, d, c.q[1], lvl, d.q[1]);
                         edges.push([v1, v2]);
                         edges.push([v3, v4]);
                     }
                     break;
                 case 6:
                 case 9:
-                    var v1 = lerp(a, b, a.q[1], lvl, b.q[1]);
-                    var v2 = lerp(c, d, c.q[1], lvl, d.q[1]);
+                    var v1 = this.lerp(a, b, a.q[1], lvl, b.q[1]);
+                    var v2 = this.lerp(c, d, c.q[1], lvl, d.q[1]);
                     edges.push([v1, v2]);
                     break;
                 case 7:
                 case 8:
-                    var v1 = lerp(a, d, a.q[1], lvl, d.q[1]);
-                    var v2 = lerp(c, d, c.q[1], lvl, d.q[1]);
+                    var v1 = this.lerp(a, d, a.q[1], lvl, d.q[1]);
+                    var v2 = this.lerp(c, d, c.q[1], lvl, d.q[1]);
                     edges.push([v1, v2]);
                     break;
             }
@@ -188,7 +188,7 @@ Isoline3D.prototype.createIsoline = function (isoline) {
 
     var objct = new THREE.Group();
 
-    var mat = new LineMaterialCreator(this.opts.thick === true ? 40 : 15, this.parent.frame.width, this.parent.frame.height).getMaterial();
+    var mat = new LineMaterialCreator(this.lineWidth, this.parent.frame.width, this.parent.frame.height).getMaterial();
     for(var i = 0; i < curves.length; i++) {
         var colors = undefined
         if(this.opts.color !== undefined) {
