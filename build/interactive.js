@@ -2422,15 +2422,16 @@ BasisVectors3D.prototype.createSceneObject = function() {
     return sceneObject;
 };
 
+exports.Axes = Axes;
 exports.Axes2D = Axes2D;
 exports.Axes3D = Axes3D;
 exports.Panel = Panel;
 exports.Plot = Plot;
 exports.TouchEventListener = TouchEventListener;
 exports.Expression = Expression;
+exports.MathPlus = MathPlus;
 exports.Interval = Interval;
 exports.Isoline = Isoline;
-exports.MathPlus = MathPlus;
 exports.Number = Number;
 exports.Parametric = Parametric;
 exports.Vector = Vector;
@@ -2441,6 +2442,7 @@ exports.BasisVectors3D = BasisVectors3D;
 exports.Hotspot2D = Hotspot2D;
 exports.Parametric2D = Parametric2D;
 exports.Parametric3D = Parametric3D;
+exports.Plottable = Plottable;
 exports.Frame = Frame;
 
 Object.defineProperty(exports, '__esModule', { value: true });
