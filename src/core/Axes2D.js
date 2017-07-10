@@ -1,3 +1,4 @@
+import { Axes } from '../core/Axes.js'
 import { Frame } from '../render/Frame.js';
 import { Arrow2D } from '../plottable/Arrow2D.js';
 import { Hotspot2D } from '../plottable/Hotspot2D.js';
@@ -16,30 +17,17 @@ import { Expression } from '../math/expressions/Expression.js';
  */
 
 function Axes2D(parent, container, opts) {
-    /**
-     * The type of this object. (Read-only)
-     */
-    this.type = 'Axes2D';
+    Axes.call(this, parent, container, opts);
 
     /**
-     * The plot that generated this figure. (Read-only)
+     * Used internally for optimization (Read-only)
      */
-    this.parent = parent;
-
-    /**
-     * The frame which will render the axes
-     */
-    this.frame = new Frame(container, opts);
-
-    // avoid null pointer errors
-    if(opts === undefined) opts = {};
+    this.isAxes2DInstance = true;
 
     /**
      * The zoom level of the camera. Denotes how many pixels should be one unit
      */
     this.zoom = opts.zoom !== undefined? opts.zoom : 200;
-
-    this.fixedZoom = opts.fixedZoom !== undefined? opts.fixedZoom : false;
 
     /**
      * Camera which renders the axes. 
@@ -63,16 +51,6 @@ function Axes2D(parent, container, opts) {
 
     // For closures
     var _self = this;
-
-    /**
-     * Objects to plot
-     */
-    this.objects = []
-
-    /**
-     * Expressions to plot
-     */
-    this.expressions = {}
 
     if(opts.showAxes !== false) {
         var arr = new Interactive.BasisVectors2D(this.parent)
@@ -161,12 +139,8 @@ function Axes2D(parent, container, opts) {
     }
 }
 
-/**
- * Render the axes
- */
-Axes2D.prototype.render = function() {
-    this.frame.render(this.camera);
-}
+Axes2D.prototype = Object.create(Axes.prototype);
+Axes2D.prototype.constructor = Axes2D;
 
 /**
  * Plot an expression
@@ -190,59 +164,6 @@ Axes2D.prototype.plotExpression = function(expr, type, opts) {
         default:
             console.log('Interactive.Axes2D: Invalid plot type');
             return null;
-    }
-}
-
-/**
- * Add an object to plot
- * @param {*} object Must be plottable
- */
-Axes2D.prototype.addFigure = function(object) {
-    this.objects.push(object);
-    this.frame.scene.add(object.getSceneObject());
-}
-
-/**
- * Remove a plotted object
- */
-Axes2D.prototype.removeFigure = function(object) {
-    var index = this.objects.indexOf(object);
-    if (index === -1) {
-        console.log('Interactive.Axes2D: Figure not in axes')
-        return null;
-    }
-    this.objects.splice(index, 1);
-    this.frame.scene.remove(object.getSceneObject());
-}
-
-/**
- * Force the object to update
- */
-Axes2D.prototype.redrawFigure = function(object) {
-    var index = this.objects.indexOf(object);
-    if (index === -1) {
-        console.log('Interactive.Axes2D: Figure not in axes')
-        return null;
-    }
-    this.frame.scene.remove(object.getSceneObject());
-    object.invalidate();
-    this.frame.scene.add(object.getSceneObject());
-}
-
-Axes2D.prototype.redrawExpression = function(expr) {
-    this.redrawFigure(this.expressions[expr]);
-}
-
-/**
- * Redraw all objects
- */
-Axes2D.prototype.refresh = function(expr) {
-    for(var i = 0; i < this.objects.length; i++) {
-        if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().includes(expr))) {
-            this.frame.scene.remove(this.objects[i].getSceneObject());
-            this.objects[i].invalidate(expr);
-            this.frame.scene.add(this.objects[i].getSceneObject());
-        }
     }
 }
 

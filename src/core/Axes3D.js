@@ -1,3 +1,4 @@
+import { Axes } from '../core/Axes.js'
 import { Frame } from '../render/Frame.js';
 import { Expression } from '../math/expressions/Expression.js';
 import { Arrow3D } from '../plottable/Arrow3D.js';
@@ -13,30 +14,17 @@ import { Isoline3D } from '../plottable/Isoline3D.js';
  */
 
 function Axes3D(parent, container, opts) {
-    /**
-     * The type of this object. (Read-only)
-     */
-    this.type = 'Axes3D';
+    Axes.call(this, parent, container, opts);
 
     /**
-     * The plot that generated this figure. (Read-only)
+     * Used internally for optimization (Read-only)
      */
-    this.parent = parent;
-
-    // avoid null pointer errors
-    if(opts === undefined) opts = {};
-
-    /**
-     * The frame which will render the axes
-     */
-    this.frame = new Frame(container, opts);
+    this.isAxes3DInstance = true;
 
     /**
      * The point which the camera will orbit around
      */
     this.corigin = this.frame.scene.position.clone();
-
-    this.fixedZoom = opts.fixedZoom !== undefined ? opts.fixedZoom : false;
 
     /**
      * Camera which renders the axes. 
@@ -48,16 +36,6 @@ function Axes3D(parent, container, opts) {
     this.camera.position.y = 3;
     this.camera.position.z = 2;
     this.camera.lookAt(this.corigin);
-
-    /**
-     * Objects to plot
-     */
-    this.objects = []
-
-    /**
-     * Expressions to plot
-     */
-    this.expressions = {}
 
     // Bind events
     var _self = this;
@@ -156,6 +134,9 @@ function Axes3D(parent, container, opts) {
     this.frame.scene.add(directionalLight2);
 }
 
+Axes3D.prototype = Object.create(Axes.prototype);
+Axes3D.prototype.constructor = Axes3D;
+
 /**
  * Render the axes
  */
@@ -164,7 +145,7 @@ Axes3D.prototype.render = function() {
     this.camLight.position.copy(this.camera.position);
     this.frame.scene.add(this.camLight);
 
-    this.frame.render( this.camera );
+    Axes.prototype.render.call(this);
 }
 
 /**
@@ -190,55 +171,6 @@ Axes3D.prototype.plotExpression = function(expr, type, opts) {
         default:
             console.log('Interactive.Axes3D: Invalid plot type');
             return null;
-    }
-}
-
-/**
- * Add an object to plot
- * @param {*} object Must be plottable
- */
-Axes3D.prototype.addFigure = function(object) {
-    this.objects.push(object);
-    this.frame.scene.add(object.getSceneObject());
-}
-
-/**
- * Remove a plotted object
- */
-Axes3D.prototype.removeFigure = function(object) {
-    var index = this.objects.indexOf(object);
-    if(index === -1) {
-        console.log('Interactive.Axes3D: Figure not in axes')
-        return null;
-    }
-    this.objects.splice(index, 1);
-    this.frame.scene.remove(object.getSceneObject());
-}
-
-/**
- * Force the object to update
- */
-Axes3D.prototype.redrawFigure = function(object) {
-    var index = this.objects.indexOf(object);
-    if(index === -1) {
-        console.log('Interactive.Axes3D: Figure not in axes')
-        return null;
-    }
-    this.frame.scene.remove(object.getSceneObject());
-    object.invalidate();
-    this.frame.scene.add(object.getSceneObject());    
-}
-
-/**
- * Redraw all objects
- */
-Axes3D.prototype.refresh = function(expr) {
-    for(var i = 0; i < this.objects.length; i++) {
-        if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().includes(expr))) {
-            this.frame.scene.remove(this.objects[i].getSceneObject());
-            this.objects[i].invalidate(expr);
-            this.frame.scene.add(this.objects[i].getSceneObject());
-        }
     }
 }
 
