@@ -1,6 +1,6 @@
 import { Vector } from '../Vector.js';
 import { Interval } from '../Interval.js';
-import { MathPlus } from '../MathPlus.js';
+import { MathPlus } from '../expressions/MathPlus.js';
 
 function Expression(string, context) {
     this.type = 'Expression';

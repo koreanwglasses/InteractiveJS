@@ -8,7 +8,7 @@ export { TouchEventListener } from './environment/TouchEventListener.js';
 export { Expression } from './math/expressions/Expression.js';
 export { Interval } from './math/Interval.js';
 export { Isoline } from './math/Isoline.js';
-export { MathPlus } from './math/MathPlus.js';
+export { MathPlus } from './math/expressions/MathPlus.js';
 export { Number } from './math/Number.js';
 export { Parametric } from './math/Parametric.js';
 export { Vector } from './math/Vector.js';
