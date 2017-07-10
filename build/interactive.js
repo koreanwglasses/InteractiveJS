@@ -956,7 +956,7 @@ Expression.prototype.toJSExpression = function (string, specials, isparam, varia
         var axis = parts[1].split('=')[0];
         var level = this.toJSExpression(parts[1].split('=')[1]);
 
-        var expr = 'new Interactive.Isoline(' + parametric + ',"' + axis + '",' + level + ')';
+        var expr = 'new Interactive.Isoline(' + parametric + ',"' + parts[0] + '","' + axis + '",' + level + ')';
         return expr;
     }
 };
@@ -1844,14 +1844,14 @@ function Isoline3D(parent, expr, opts) {
 
     this.parent = parent;
     this.isoline = this.expr.evaluate();
+    this.parExpr = new Expression(this.isoline.parametricExpr, this.plot.context);
 
     this.opts = opts !== undefined ? opts : {};
 
     this.slfd = [];
 
     this.sfldValidated = false;
-    this.isoValidated = false;
-    
+
     if (this.opts.color !== undefined) {
         this.color = new Expression(this.opts.color, this.plot.context);
         this.colorf = this.color.evaluate();
@@ -2044,9 +2044,7 @@ Isoline3D.prototype.createSceneObject = function() {
 };
 
 Isoline3D.prototype.invalidate = function (expr) {
-    // if (this.isoline.parametric.getVariables.includes(expr)) this.sfldValidated = false;
-    // if (this.isoline.level.getVariables.includes(expr)) 
-    this.isoValidated = false;
+    if (this.parExpr.getVariables().includes(expr)) this.sfldValidated = false;
     this.validated = false;
 };
 
@@ -2318,8 +2316,9 @@ Plot.prototype.createPanel = function(container, opts) {
     return panel;
 };
 
-function Isoline(parametric, axis, level) {
+function Isoline(parametric, parametricExpr, axis, level) {
     this.parametric = parametric;
+    this.parametricExpr = parametricExpr;
     this.axis = axis; 
     this.level = level;
 }

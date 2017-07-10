@@ -365,7 +365,7 @@ Expression.prototype.toJSExpression = function (string, specials, isparam, varia
         var axis = parts[1].split('=')[0];
         var level = this.toJSExpression(parts[1].split('=')[1]);
 
-        var expr = 'new Interactive.Isoline(' + parametric + ',"' + axis + '",' + level + ')';
+        var expr = 'new Interactive.Isoline(' + parametric + ',"' + parts[0] + '","' + axis + '",' + level + ')';
         return expr;
     }
 }

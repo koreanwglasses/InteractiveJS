@@ -10,14 +10,14 @@ function Isoline3D(parent, expr, opts) {
 
     this.parent = parent;
     this.isoline = this.expr.evaluate();
+    this.parExpr = new Expression(this.isoline.parametricExpr, this.plot.context);
 
     this.opts = opts !== undefined ? opts : {}
 
     this.slfd = [];
 
     this.sfldValidated = false;
-    this.isoValidated = false;
-    
+
     if (this.opts.color !== undefined) {
         this.color = new Expression(this.opts.color, this.plot.context);
         this.colorf = this.color.evaluate();
@@ -210,9 +210,7 @@ Isoline3D.prototype.createSceneObject = function() {
 }
 
 Isoline3D.prototype.invalidate = function (expr) {
-    // if (this.isoline.parametric.getVariables.includes(expr)) this.sfldValidated = false;
-    // if (this.isoline.level.getVariables.includes(expr)) 
-    this.isoValidated = false;
+    if (this.parExpr.getVariables().includes(expr)) this.sfldValidated = false;
     this.validated = false;
 }
 
