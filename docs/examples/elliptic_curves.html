@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body {
+                background-color: #222222;
+                color: #fff;
+            }
+            .ax {
+                width: 400px;
+                height: 400px;
+                margin-right: 20px;
+                display: inline-block;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="ax5a" class="ax"></div>
+        <div id="ax5b" class="ax"></div>
+        <div id="ax5c" class="ax"></div>
+        <div id="pan5"></div>
+        <script src="../../lib/three.min.js"></script>
+        <script src="../../build/interactive.js"></script>
+        <script>
+            var plot5 = new Interactive.Plot();
+            var ax5a = plot5.createAxes3D(document.getElementById('ax5a'), {zoom: 200, fixedZoom:true});
+            var ax5b = plot5.createAxes3D(document.getElementById('ax5b'), {zoom: 200, fixedZoom:true});
+            var ax5c = plot5.createAxes2D(document.getElementById('ax5c'), {zoom: 200, fixedZoom:true});
+            var pan5 = plot5.createPanel(document.getElementById('pan5'))
+
+            plot5.execExpression('a=0');
+            pan5.addSlider('{a,-2,2,40}', {continuous: true})
+
+            plot5.execExpression('b=0');
+            pan5.addSlider('{b,-1.5,1.5,50}', {continuous: true})
+
+            plot5.execExpression('c1()=(0.6,0.6,0.6)')
+            plot5.execExpression('c2(v)=spectrum(b/2+.5)')
+
+            plot5.execExpression('f(x,y)=y^2-x^3-a*x')
+
+            ax5a.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1.5,1.5,50}', 'parametric', {color:'c1'});
+            ax5a.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1.5,1.5,50}|y=b', 'isoline', {color:'c2', thick: true});
+
+            ax5b.plotExpression('(x,f(x,y),y){x,-1.5,1.5,15}{y,-1.5,1.5,15}', 'parametric', {color:'c1', wireframe: true});
+            ax5b.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1.5,1.5,50}|y=b', 'isoline', {color:'c2', thick: true});
+
+            ax5c.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1.5,1.5,50}|y=b', 'isoline', {color:'c2'});
+
+            ;(function animate() {
+                requestAnimationFrame(animate);
+                ax5a.render();
+                ax5b.render();
+                ax5c.render();
+            })();
+        </script>
+    </body>
+</html>
