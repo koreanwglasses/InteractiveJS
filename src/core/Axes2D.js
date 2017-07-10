@@ -3,6 +3,7 @@ import { Frame } from '../render/Frame.js';
 import { Arrow2D } from '../plottable/Arrow2D.js';
 import { Hotspot2D } from '../plottable/Hotspot2D.js';
 import { Parametric2D } from '../plottable/Parametric2D.js';
+import { Isoline2D } from '../plottable/Isoline2D.js';
 import { Vector } from '../math/Vector.js';
 import { Number } from '../math/Number.js';
 import { Expression } from '../math/expressions/Expression.js';
@@ -161,6 +162,11 @@ Axes2D.prototype.plotExpression = function(expr, type, opts) {
             this.expressions[expr] = par;
             this.addFigure(par);
             return par;
+        case 'isoline':           
+            var iso = new Isoline2D(this, expr, opts)
+            this.expressions[expr] = iso;
+            this.addFigure(iso);
+            return iso;
         default:
             console.log('Interactive.Axes2D: Invalid plot type');
             return null;
