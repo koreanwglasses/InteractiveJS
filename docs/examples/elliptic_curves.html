@@ -28,6 +28,8 @@
             var ax5c = plot5.createAxes2D(document.getElementById('ax5c'), {zoom: 200, fixedZoom:true});
             var pan5 = plot5.createPanel(document.getElementById('pan5'))
 
+            plot5.linkCameras(ax5a, ax5b)
+
             plot5.execExpression('a=0');
             pan5.addSlider('{a,-2,2,40}', {continuous: true})
 
