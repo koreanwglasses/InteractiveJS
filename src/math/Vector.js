@@ -77,6 +77,10 @@ Vector.prototype.mul = function(v) {
     return result;
 }
 
+Vector.prototype.preMul = function(v) {
+    return this.mul(v);
+}
+
 Vector.prototype.div = function(v) {
     var result = this.clone();
     for(var i = 0; i < this.dimensions; i++) {

@@ -1,5 +1,6 @@
 function Number(value) {
     this.value = value;
+    this.isNumberInstance = true;
 } 
 
 Number.prototype.add = function(n) {
@@ -11,10 +12,16 @@ Number.prototype.sub = function(n) {
 }
 
 Number.prototype.mul = function(n) {
+    if(n.isNumberInstance !== true) {
+        return n.preMul(this);
+    }
     return new Number(this.value * n.value);
 }
 
 Number.prototype.div = function(n) {
+    if(n.isNumberInstance !== true) {
+        return n.preMul(this);
+    }
     return new Number(this.value / n.value);
 }
 

@@ -177,6 +177,7 @@ Frame.prototype.render = function(camera) {
 
 function Number(value) {
     this.value = value;
+    this.isNumberInstance = true;
 } 
 
 Number.prototype.add = function(n) {
@@ -188,10 +189,16 @@ Number.prototype.sub = function(n) {
 };
 
 Number.prototype.mul = function(n) {
+    if(n.isNumberInstance !== true) {
+        return n.preMul(this);
+    }
     return new Number(this.value * n.value);
 };
 
 Number.prototype.div = function(n) {
+    if(n.isNumberInstance !== true) {
+        return n.preMul(this);
+    }
     return new Number(this.value / n.value);
 };
 
@@ -297,6 +304,10 @@ Vector.prototype.mul = function(v) {
         result.q[i] = result.q[i].mul(v);
     }
     return result;
+};
+
+Vector.prototype.preMul = function(v) {
+    return this.mul(v);
 };
 
 Vector.prototype.div = function(v) {
