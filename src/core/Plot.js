@@ -63,4 +63,9 @@ Plot.prototype.createPanel = function(container, opts) {
     return panel;
 }
 
+Plot.prototype.resetContext = function() {
+    this.context = Expression.getDefaultContext();
+    this.expressions = {};
+}
+
 export { Plot };

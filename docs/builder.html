@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<head>
+    <style>
+        body {
+                background-color: #222222;
+                color: #fff;
+        }
+
+        .axes {
+            width: 400px;
+            height: 400px;
+            margin: 0;
+            margin-right: 20px;
+            margin-bottom: 20px;
+            display: inline-block;
+            background: black;
+        }
+    </style>
+</head>
+<body>
+    <input type="button" id="newExpr" value="Add new expression">
+    <div id="expressions">
+    </div>
+    <input type="button" id="redraw" value="Redraw">
+
+    <input type="button" id="newAxes2" value="Add 2D Axes">
+    <div id="axes">
+    </div>
+    <div id="controls">
+    </div>
+    
+    <script src="../lib/three.min.js"></script>
+    <script src="../build/interactive.js"></script>
+    <script>
+        var plot = new Interactive.Plot();
+        var axes = []
+        var axesDiv = document.getElementById('axes');
+
+        var expr = []
+        var exprDiv = document.getElementById('expressions');
+
+        var createAxes2D = function() {
+            var axesWrapper = document.createElement('div');
+            var axesContainer = document.createElement('div');
+            axesContainer.classList.add('axes');
+
+            var label = document.createElement('div');
+            label.classList.add('label');
+            label.innerHTML = 'Axes ' + (axes.length + 1);
+
+            var controls = document.createElement('div');
+            var btnRemove = document.createElement('input');
+            btnRemove.setAttribute('type','button');
+            btnRemove.setAttribute('value','Remove');
+
+            // var index = axes.length + 1;
+            // btnRemove.addEventListener('click', function(e) {
+            //     removeAxes(index);
+            // })
+
+            // controls.appendChild(btnRemove)
+
+            axesWrapper.appendChild(label);
+            axesWrapper.appendChild(axesContainer);
+            axesWrapper.appendChild(controls);
+
+            axesDiv.appendChild(axesWrapper)
+
+            var ax = plot.createAxes2D(axesContainer, {antialias: true});
+            var arr = new Interactive.BasisVectors2D(plot)
+            ax.addFigure(arr)
+
+            axes.push(ax)
+        }
+
+        var createExpression = function() {
+            var exprWrapper = document.createElement('div')
+            var exprInput = document.createElement('input');
+
+            expr.push(exprInput);
+
+            exprWrapper.appendChild(exprInput);
+            exprDiv.appendChild(exprWrapper);
+        }
+
+        // var removeAxes = function(index) {
+
+        // }
+
+        var update = function() {
+            plot.resetContext();
+            expr.forEach(function(e) {
+                console.log(e.value)
+                plot.execExpression(e.value);
+            })
+        }
+
+        document.getElementById('newAxes2').addEventListener('click', function(e) {
+            createAxes2D();
+        })
+
+        document.getElementById('newExpr').addEventListener('click', function(e) {
+            createExpression();
+        })
+
+        document.getElementById('redraw').addEventListener('click', function(e) {
+            update();
+        })
+
+        ;(function animate() {
+            requestAnimationFrame(animate);
+            axes.forEach(function(ax) {
+                ax.render();
+            })
+        })();
+    </script>
+</body>
