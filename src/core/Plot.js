@@ -68,4 +68,19 @@ Plot.prototype.resetContext = function() {
     this.expressions = {};
 }
 
+Plot.prototype.render = function() {
+    function checkVisible(el) {
+        var elemTop = el.getBoundingClientRect().top;
+        var elemBottom = el.getBoundingClientRect().bottom;
+
+        var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+        return isVisible;
+    }
+    this.axes.forEach(function(ax) {
+        if(checkVisible(ax.frame.container)) {
+            ax.render();
+        }
+    })
+}
+
 export { Plot };
