@@ -19,7 +19,7 @@ function Frame(container, opts) {
     }
 
     // Avoid null pointer errors later on
-    if(opts === undefined) opts = {};
+    this.opts = opts === undefined ? {} : opts;
 
     /**
      * DOM Element which contains the frame
@@ -41,22 +41,38 @@ function Frame(container, opts) {
      */
     this.height = container.clientHeight;
 
-    if(opts.antialias === undefined) opts.antialias = true;
+    if(this.opts.antialias === undefined) this.opts.antialias = true;
 
-    /**
-     * Renderer from Three.js. (Private)
-     */
-    this.renderer = new THREE.WebGLRenderer(opts);
-
-    // Initialize renderer within container
-    this.renderer.setSize(this.width, this.height);
-    container.innerHTML = '';
-    container.appendChild(this.renderer.domElement);
+    this.isSleeping = true;
 
     /**
      * Scene from Three.js where all the elements lie.
      */    
     this.scene = new THREE.Scene();
+}
+
+Frame.prototype.sleep = function() {
+    if(this.isSleeping === false) {
+        this.renderer.forceContextLoss();
+        this.renderer.context = null;
+        this.renderer.domElement = null;        
+        this.renderer = null;
+
+        this.isSleeping = true;
+    }
+}
+
+Frame.prototype.wake = function() {
+    if(this.isSleeping === true) {
+        this.renderer = new THREE.WebGLRenderer(this.opts);
+
+        // Initialize renderer within container
+        this.renderer.setSize(this.width, this.height);
+        this.container.innerHTML = '';
+        this.container.appendChild(this.renderer.domElement);
+        
+        this.isSleeping = false;
+    }
 }
 
 /**

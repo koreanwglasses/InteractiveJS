@@ -45,10 +45,20 @@ function Axes(parent, container, opts) {
     this.expressions = {}
 }
 
+Axes.prototype.sleep = function() {
+    this.frame.sleep();
+}
+
+Axes.prototype.wake = function() {
+    this.frame.wake();
+}
+
 /**
  * Render all plots contained in this axes
  */
 Axes.prototype.render = function() {
+    if(this.frame.isSleeping) return;
+
     for(var i = 0; i < this.objects.length; i++ ) {
         var object = this.objects[i]
         if(object.validated === false) {
