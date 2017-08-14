@@ -1,7 +1,8 @@
 import { Expression } from '../math/expressions/Expression.js';
 
 function Hotspot2D(plot, expr) {
-    this.type = 'Hotspot2D'
+    this.isHotspot2DInstance = true;
+    
     this.plot = plot;
     this.expr = new Expression(expr, plot.context);
     this.position = this.expr.evaluate().clone();
