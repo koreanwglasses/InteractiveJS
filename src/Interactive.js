@@ -1,6 +1,7 @@
 export { Axes } from './core/Axes.js';
 export { Axes2D } from './core/Axes2D.js';
 export { Axes3D } from './core/Axes3D.js';
+export { Frame } from './core/Frame.js';
 export { Panel } from './core/Panel.js';
 export { Plot } from './core/Plot.js';
 
@@ -19,9 +20,8 @@ export { Arrow3D } from './plottable/Arrow3D.js';
 export { BasisVectors2D } from './plottable/BasisVectors2D.js';
 export { BasisVectors3D } from './plottable/BasisVectors3D.js';
 export { Hotspot2D } from './plottable/Hotspot2D.js';
-import { Isoline3D } from './plottable/Isoline3D.js';
+export { Isoline2D } from './plottable/Isoline2D.js';
+export { Isoline3D } from './plottable/Isoline3D.js';
 export { Parametric2D } from './plottable/Parametric2D.js';
 export { Parametric3D } from './plottable/Parametric3D.js';
 export { Plottable } from './plottable/Plottable.js';
-
-export { Frame } from './render/Frame.js';
