@@ -22,10 +22,13 @@ function Axes3D(parent, container, opts) {
      */
     this.camera = new THREE.PerspectiveCamera( 50, this.frame.width / this.frame.height, .01, 50);
 
+    if(opts === undefined) opts = {};
+    if(opts.zoom === undefined) opts.zoom = 1;
+
     // Initialize camera position
-    this.camera.position.x = 4;
-    this.camera.position.y = 3;
-    this.camera.position.z = 2;
+    this.camera.position.x = 4 / opts.zoom;
+    this.camera.position.y = 3 / opts.zoom;
+    this.camera.position.z = 2 / opts.zoom;
     this.camera.lookAt(this.corigin);
 
     // Bind events
