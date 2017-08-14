@@ -128,7 +128,7 @@ function Frame(container, opts) {
     }
 
     // Avoid null pointer errors later on
-    if(opts === undefined) opts = {};
+    this.opts = opts === undefined ? {} : opts;
 
     /**
      * DOM Element which contains the frame
@@ -150,23 +150,39 @@ function Frame(container, opts) {
      */
     this.height = container.clientHeight;
 
-    if(opts.antialias === undefined) opts.antialias = true;
+    if(this.opts.antialias === undefined) this.opts.antialias = true;
 
-    /**
-     * Renderer from Three.js. (Private)
-     */
-    this.renderer = new THREE.WebGLRenderer(opts);
-
-    // Initialize renderer within container
-    this.renderer.setSize(this.width, this.height);
-    container.innerHTML = '';
-    container.appendChild(this.renderer.domElement);
+    this.isSleeping = true;
 
     /**
      * Scene from Three.js where all the elements lie.
      */    
     this.scene = new THREE.Scene();
 }
+
+Frame.prototype.sleep = function() {
+    if(this.isSleeping === false) {
+        this.renderer.forceContextLoss();
+        this.renderer.context = null;
+        this.renderer.domElement = null;        
+        this.renderer = null;
+
+        this.isSleeping = true;
+    }
+};
+
+Frame.prototype.wake = function() {
+    if(this.isSleeping === true) {
+        this.renderer = new THREE.WebGLRenderer(this.opts);
+
+        // Initialize renderer within container
+        this.renderer.setSize(this.width, this.height);
+        this.container.innerHTML = '';
+        this.container.appendChild(this.renderer.domElement);
+        
+        this.isSleeping = false;
+    }
+};
 
 /**
  * Render the frame
@@ -559,29 +575,28 @@ MathPlus.quadrant = function(x) {
 };
 
 MathPlus.octant = function(x) {
-    // if(x.q[0].value === 0 && x.q[1].value === 0) return Number[0];
-    if(x.q[0].value >= 0 && x.q[1].value >= 0 && x.q[2].value >= 0) {
+    if(x.q[0].value >= 0 && x.q[1].value >= 0 && x.q[2].value >= 0) { // +++
         return Number[1];
     }
-    if(x.q[0].value <= 0 && x.q[1].value >= 0 && x.q[2].value >= 0) {
+    if(x.q[0].value <= 0 && x.q[1].value >= 0 && x.q[2].value >= 0) { // -++
         return Number[2];
     }
-    if(x.q[0].value <= 0 && x.q[1].value <= 0 && x.q[2].value >= 0) {
+    if(x.q[0].value <= 0 && x.q[1].value <= 0 && x.q[2].value >= 0) { // --+
         return Number[3];
     }
-    if(x.q[0].value >= 0 && x.q[1].value <= 0 && x.q[2].value >= 0) {
+    if(x.q[0].value >= 0 && x.q[1].value <= 0 && x.q[2].value >= 0) { // +-+
         return Number[4];
     }
-    if(x.q[0].value >= 0 && x.q[1].value >= 0 && x.q[2].value <= 0) {
+    if(x.q[0].value >= 0 && x.q[1].value >= 0 && x.q[2].value <= 0) { // ++-
         return Number[5];
     }
-    if(x.q[0].value <= 0 && x.q[1].value >= 0 && x.q[2].value <= 0) {
+    if(x.q[0].value <= 0 && x.q[1].value >= 0 && x.q[2].value <= 0) { // -+-
         return Number[6];
     }
-    if(x.q[0].value <= 0 && x.q[1].value <= 0 && x.q[2].value <= 0) {
+    if(x.q[0].value <= 0 && x.q[1].value <= 0 && x.q[2].value <= 0) { // ---
         return Number[7];
     }
-    if(x.q[0].value >= 0 && x.q[1].value <= 0 && x.q[2].value <= 0) {
+    if(x.q[0].value >= 0 && x.q[1].value <= 0 && x.q[2].value <= 0) { // +--
         return Number[8];
     }
 };
@@ -2254,13 +2269,15 @@ Plot.prototype.render = function() {
         var elemTop = el.getBoundingClientRect().top;
         var elemBottom = el.getBoundingClientRect().bottom;
 
-        var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+        var isVisible = (elemBottom >= 0) && (elemTop <= window.innerHeight);
         return isVisible;
     }
+
     this.axes.forEach(function(ax) {
         if(checkVisible(ax.frame.container)) {
+            if(ax.frame.isSleeping) ax.wake();
             ax.render();
-        }
+        } else if(!ax.frame.isSleeping) ax.sleep();
     });
 };
 
@@ -2306,10 +2323,20 @@ function Axes(parent, container, opts) {
     this.expressions = {};
 }
 
+Axes.prototype.sleep = function() {
+    this.frame.sleep();
+};
+
+Axes.prototype.wake = function() {
+    this.frame.wake();
+};
+
 /**
  * Render all plots contained in this axes
  */
 Axes.prototype.render = function() {
+    if(this.frame.isSleeping) return;
+
     for(var i = 0; i < this.objects.length; i++ ) {
         var object = this.objects[i];
         if(object.validated === false) {
