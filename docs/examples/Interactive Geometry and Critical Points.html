@@ -7,7 +7,17 @@
 
     <title>Interactive Geometry and Critical Points</title>
     <link rel="stylesheet" type="text/css" href="./Interactive Geometry and Critical Points_files/eJMT_Papers.css" media="screen">
-
+    <style>
+        .ax {
+            background: repeating-linear-gradient(
+            45deg,
+            #606dbc,
+            #606dbc 10px,
+            #465298 10px,
+            #465298 20px
+            );
+        }
+    </style>
 </head>
 
 <body id="body" data-gr-c-s-loaded="true">
@@ -237,7 +247,7 @@ does for a local maximum or minimum.
             <div class="centered">Figure 1: The family of cubic equations</div>
             <br>
             <div id="fig1" class="centered">
-                <div id="ax1" style="width:250px;height:250px;display:inline-block;"></div>
+                <div id="ax1" style="width:250px;height:250px;display:inline-block;" class="ax"></div>
                 <div id="pan1" style="display:inline-block;"></div>
                 <script>
                     var plot1 = new Interactive.Plot();
@@ -302,7 +312,7 @@ does for a local maximum or minimum.
             <div class="centered">Figure 2: The family of quartic equations</div>
             <br>
             <div id="fig2" class="centered">
-                <div id="ax2" style="width:250px;height:250px;display:inline-block;"></div>
+                <div id="ax2" style="width:250px;height:250px;display:inline-block;" class="ax"></div>
                 <div id="pan2" style="display:inline-block;"></div>
                 <script>
                     var plot2 = new Interactive.Plot();
@@ -373,8 +383,8 @@ does for a local maximum or minimum.
             <div class="centered">Figure 3: Color-labeled parametric curves in the plane</div>
             <br>
             <div id="fig3" class="centered">
-                <div id="ax3a" style="width:300px;height:250px;display:inline-block;"></div>
-                <div id="ax3b" style="width:250px;height:250px;display:inline-block;"></div>
+                <div id="ax3a" style="width:300px;height:250px;display:inline-block;" class="ax"></div>
+                <div id="ax3b" style="width:250px;height:250px;display:inline-block;" class="ax"></div>
                 <div id="pan3" style="display:inline-block;"></div>
                 <script>
                     var plot3 = new Interactive.Plot();
@@ -449,8 +459,8 @@ does for a local maximum or minimum.
             <div class="centered">Figure 4: The cardioid family, color-coded</div>
             <br>
             <div id="fig4" class="centered">
-                <div id="ax4a" style="width:250px;height:250px;display:inline-block;"></div>
-                <div id="ax4b" style="width:250px;height:250px;display:inline-block;"></div>
+                <div id="ax4a" style="width:250px;height:250px;display:inline-block;" class="ax"></div>
+                <div id="ax4b" style="width:250px;height:250px;display:inline-block;" class="ax"></div>
                 <div id="pan4" style="display:inline-block;"></div>
                 <script>
                     var plot4 = new Interactive.Plot();
@@ -566,9 +576,9 @@ Peaks the Geometry of Peaks and Passes</span>
         <div class="centered">Figure 5: Graph and slices of Twin Peaks</div>
         <br>
         <div id="fig5" class="centered">
-            <div id="ax5a" style="width:300px;height:300px;display:inline-block;"></div>
-            <div id="ax5b" style="width:300px;height:300px;display:inline-block;"></div>
-            <div id="ax5c" style="width:300px;height:300px;display:inline-block;"></div>
+            <div id="ax5a" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
+            <div id="ax5b" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
+            <div id="ax5c" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
             <div id="pan5" style="display:inline-block;"></div>
             <p><em>Tip: Use the scroll wheel to zoom in/out</em></p>
             <script>
@@ -706,8 +716,8 @@ least if m is small enough.<span style="">&nbsp; </span>The level set at the loc
         <div class="centered">Figure 6: Graph and slices of Crater Lake</div>
         <br>
         <div id="fig6" class="centered">
-            <div id="ax6a" style="width:300px;height:300px;display:inline-block;"></div>
-            <div id="ax6b" style="width:300px;height:300px;display:inline-block;"></div>
+            <div id="ax6a" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
+            <div id="ax6b" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
             <div id="pan6" style="display:inline-block;"></div>
             <p><em>Tip: Use the scroll wheel to zoom in/out</em></p>
             <script>
@@ -952,7 +962,7 @@ positive, and that region is bounded by the curve where f</span><span style="col
                     style="color: black;">(x,y) = 0 intersect.</span>
         </div>
         <div id="fig9" class="centered">
-            <div id="ax9a" style="width:300px;height:300px;display:inline-block;"></div>
+            <div id="ax9a" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
             <div id="pan9" style="display:inline-block;"></div>
             <p><em>Tip: Use the scroll wheel to zoom in/out</em></p>
             <script>
@@ -1044,7 +1054,7 @@ intersecting curves where f</span><span style="color: black;"><sub>y</sub></span
                 <span style="">&nbsp; </span>Color-coded graph of perturbed Crater Lake
             </div>
             <div id="fig12" class="centered">
-                <div id="ax12a" style="width:300px;height:300px;display:inline-block;"></div>
+                <div id="ax12a" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
                 <div id="pan12" style="display:inline-block;"></div>
                 <p><em>Tip: Use the scroll wheel to zoom in/out</em></p>
                 <script>
@@ -1096,8 +1106,8 @@ intersecting curves where f</span><span style="color: black;"><sub>y</sub></span
         <div class="centered">Figure 13: A torus held vertically</div>
         <br>
         <div id="fig13" class="centered">
-            <div id="ax13a" style="width:300px;height:300px;display:inline-block;"></div>
-            <div id="ax13b" style="width:300px;height:300px;display:inline-block;"></div>
+            <div id="ax13a" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
+            <div id="ax13b" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
             <p><em>Tip: Use the scroll wheel to zoom in/out</em></p>
             <script>
                 var plot13 = new Interactive.Plot();
@@ -1146,8 +1156,8 @@ intersecting curves where f</span><span style="color: black;"><sub>y</sub></span
         <div class="centered">Figure 15: Warped torus - torus plus multiple of sin(3u)</div>
         <br>
         <div id="fig14" class="centered">
-            <div id="ax14a" style="width:300px;height:300px;display:inline-block;"></div>
-            <div id="ax14b" style="width:300px;height:300px;display:inline-block;"></div>
+            <div id="ax14a" style="width:300px;height:300px;display:inline-block;" class="ax" class="ax"></div>
+            <div id="ax14b" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
             <p><em>Tip: Use the scroll wheel to zoom in/out</em></p>
             <script>
                 var plot14 = new Interactive.Plot();
