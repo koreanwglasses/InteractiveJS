@@ -29,7 +29,7 @@ function Frame(container, opts) {
     /**
      * Event Listener for touch and mouse events
      */
-    this.touchEventListener = new TouchEventListener(this.container);
+    this.touchEventListener = new TouchEventListener(this.container, opts);
 
     /**
      * Width of the viewport derived from the width of the container. (Read-only)
