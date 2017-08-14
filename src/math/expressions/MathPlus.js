@@ -101,6 +101,33 @@ MathPlus.quadrant = function(x) {
     }
 }
 
+MathPlus.octant = function(x) {
+    if(x.q[0].value >= 0 && x.q[1].value >= 0 && x.q[2].value >= 0) { // +++
+        return Number[1];
+    }
+    if(x.q[0].value <= 0 && x.q[1].value >= 0 && x.q[2].value >= 0) { // -++
+        return Number[2];
+    }
+    if(x.q[0].value <= 0 && x.q[1].value <= 0 && x.q[2].value >= 0) { // --+
+        return Number[3];
+    }
+    if(x.q[0].value >= 0 && x.q[1].value <= 0 && x.q[2].value >= 0) { // +-+
+        return Number[4];
+    }
+    if(x.q[0].value >= 0 && x.q[1].value >= 0 && x.q[2].value <= 0) { // ++-
+        return Number[5];
+    }
+    if(x.q[0].value <= 0 && x.q[1].value >= 0 && x.q[2].value <= 0) { // -+-
+        return Number[6];
+    }
+    if(x.q[0].value <= 0 && x.q[1].value <= 0 && x.q[2].value <= 0) { // ---
+        return Number[7];
+    }
+    if(x.q[0].value >= 0 && x.q[1].value <= 0 && x.q[2].value <= 0) { // +--
+        return Number[8];
+    }
+}
+
 MathPlus.select = function(i) {
     return arguments[i.value];
 }
