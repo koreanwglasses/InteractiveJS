@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            .ax {
+                width: 400px;
+                height: 400px;
+                margin-right: 20px;
+                display: inline-block;
+                
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Fig 1.1</h2>
+        <div id="ax1.1" class="ax" style="width:500px;height:200px;"></div>
+        <div id="ax2" class="ax"></div>
+        <script src="../../lib/three.min.js"></script>
+        <script src="../../build/interactive.js"></script>
+        <script>
+            plots = {}
+            plots['1.1'] = new Interactive.Plot();
+
+            ax1 = plots['1.1'].createAxes3D(document.getElementById('ax1.1'), {antialias: true});
+
+            plots['1.1'].execExpression('X1(u,v)=((2 + cos(v))*cos(u), sin(v) + 0.2*sin(3*u), (2 + cos(v))*sin(u))')
+
+            ax1.plotExpression('X1(u,v){u,0,2*PI,200}{v,0,2*PI,100}', 'parametric', { color: 'cX1'});
+            ax2.plotExpression('X2(u,v){u,0,2*PI,50}{v,0,PI,25}', 'parametric', { color: 'cX2'});
+
+            ;(function animate() {
+                requestAnimationFrame(animate);
+                for(var key in plots) {
+                    plots[key].render();
+                }
+            })();
+        </script>
+    </body>
+</html>
