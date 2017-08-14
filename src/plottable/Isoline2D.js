@@ -13,8 +13,10 @@ Isoline2D.prototype.constructor = Isoline2D
 Isoline2D.prototype.lerp = function(a, b, az, z, bz) {
     var alpha = z.sub(az).div(bz.sub(az));
     var result = a.mul(Number[1].sub(alpha)).add(b.mul(alpha))
+    var temp = result.q[1];
     result.q[1] = result.q[2];
-    result.q[2] = Number[0];
+    // result.q[2] = Number[0];
+    result.q[2] = temp;
     return result.toVector3();
 }
 
