@@ -234,12 +234,14 @@ for(var i = 0; i < 10; i++) {
  */
 function Vector() {
     this.type = 'Vector';
+    this.isVectorInstance = true;
 
     // Support an arbitrary number of dimensions (Read-only)
     this.dimensions = arguments.length;
 
     if(arguments[0] instanceof THREE.Vector3) {
-        this.q = [arguments[0].x, arguments[0].y, arguments[0].z];
+        this.dimensions = 3;
+        this.q = [new Number(arguments[0].x), new Number(arguments[0].y), new Number(arguments[0].z)];
     } else {
         // q is the general term for a coordinate
         this.q = Array.from(arguments);
@@ -299,11 +301,19 @@ Vector.prototype.crs = function(v) {
 };
 
 Vector.prototype.mul = function(v) {
-    var result = this.clone();
-    for(var i = 0; i < this.dimensions; i++) {
-        result.q[i] = result.q[i].mul(v);
+    if(v.isNumberInstance === true) {
+        var result = this.clone();
+        for(var i = 0; i < this.dimensions; i++) {
+            result.q[i] = result.q[i].mul(v);
+        }
+        return result;
+    } else if (v.isVectorInstance === true) {
+        var result = this.clone();
+        for(var i = 0; i < this.dimensions; i++) {
+            result.q[i] = result.q[i].mul(v.q[i]);
+        }
+        return result;
     }
-    return result;
 };
 
 Vector.prototype.preMul = function(v) {
@@ -545,6 +555,34 @@ MathPlus.quadrant = function(x) {
     }
     if(x.q[0].value >= 0 && x.q[1].value <= 0) {
         return Number[4];
+    }
+};
+
+MathPlus.octant = function(x) {
+    // if(x.q[0].value === 0 && x.q[1].value === 0) return Number[0];
+    if(x.q[0].value >= 0 && x.q[1].value >= 0 && x.q[2].value >= 0) {
+        return Number[1];
+    }
+    if(x.q[0].value <= 0 && x.q[1].value >= 0 && x.q[2].value >= 0) {
+        return Number[2];
+    }
+    if(x.q[0].value <= 0 && x.q[1].value <= 0 && x.q[2].value >= 0) {
+        return Number[3];
+    }
+    if(x.q[0].value >= 0 && x.q[1].value <= 0 && x.q[2].value >= 0) {
+        return Number[4];
+    }
+    if(x.q[0].value >= 0 && x.q[1].value >= 0 && x.q[2].value <= 0) {
+        return Number[5];
+    }
+    if(x.q[0].value <= 0 && x.q[1].value >= 0 && x.q[2].value <= 0) {
+        return Number[6];
+    }
+    if(x.q[0].value <= 0 && x.q[1].value <= 0 && x.q[2].value <= 0) {
+        return Number[7];
+    }
+    if(x.q[0].value >= 0 && x.q[1].value <= 0 && x.q[2].value <= 0) {
+        return Number[8];
     }
 };
 
@@ -1039,60 +1077,41 @@ Plottable.prototype.invalidate = function() {
 };
 
 /**
- * Object that represents an arrow in 2d space.
+ * Object that represents an arrow in 3d space.
  * @param {*} vector The vector which this object is based on
  * @param {*} opts Options to customize the appearance of the arrow. Includes:
- * origin -- Point at which the arrow starts. Default is (0, 0)
+ * origin -- Point at which the arrow starts. Default is (0, 0, 0)
  * hex -- hexadecimal value to define color. Default is 0xffff00.
- * headLength -- The length of the head of the arrow. Default is 0.2.
- * headWidth -- The length of the width of the arrow. Default is 0.05.
+ * headLength -- The length of the head of the arrow. Default is 0.2 * length.
+ * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
  * (Derived from THREE.js)
  */
-function Arrow2D(plot, expr, opts) {
+function Arrow3D(plot, expr, opts) {
     Plottable.call(this, plot, expr, opts);
-
+    
     this.opts = {};
     this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0,0)', plot.context);
     this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
-    this.opts.headLength = opts.headLength !== undefined ? opts.headLength : 0.2;
-    this.opts.headWidth = opts.headWidth !== undefined ? opts.headWidth : 0.05;
 }
 
-Arrow2D.prototype = Object.create(Plottable.prototype);
-Arrow2D.prototype.constructor = Arrow2D;
+Arrow3D.prototype = Object.create(Plottable.prototype);
+Arrow3D.prototype.constructor = Arrow3D;
 
-Arrow2D.prototype.getVariables = function() {
-    return this.expr.getVariables().concat(this.opts.origin.getVariables());
+Arrow3D.prototype.getVariables = function() {    
+    if(this.opts.origin !== undefined) return this.expr.getVariables().concat(this.opts.origin.getVariables());
+    else return this.expr.getVariables()
 };
 
-Arrow2D.prototype.createSceneObject = function() {
-    var _vector2 = this.expr.evaluate().toVector3();
-    var _dir = _vector2.clone().normalize();
-    var _length = _vector2.length();
+Arrow3D.prototype.createSceneObject = function() {
+    var _vector3 = this.expr.evaluate().toVector3();
+    var _dir = _vector3.clone().normalize();
     var _origin = this.opts.origin.evaluate().toVector3();
+    var _length = _vector3.length();
     var _hex = this.opts.hex;
-    var _headLength = this.opts.headLength;
-    var _headWidth = this.opts.headWidth;
+    var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2 * _length;
+    var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.2 * _headLength;
 
     return new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
-};
-
-function Hotspot2D(plot, expr) {
-    this.type = 'Hotspot2D';
-    this.plot = plot;
-    this.expr = new Expression(expr, plot.context);
-    this.position = this.expr.evaluate().clone();
-    this.size = 10;
-}
-
-Hotspot2D.prototype.ondrag = function(event) {
-    this.position.q[0] = event.worldX;
-    this.position.q[1] = event.worldY;
-
-    this.plot.context[this.expr.string].q[0] = event.worldX;
-    this.plot.context[this.expr.string].q[1] = event.worldY;
-
-    this.plot.refresh(this.expr.string);
 };
 
 var vert = 'attribute float direction; \nattribute vec3 position;\nattribute vec3 next;\nattribute vec3 previous;\nattribute vec4 color;\nuniform mat4 projectionMatrix;\nuniform mat4 modelMatrix;\nuniform mat4 viewMatrix;\nuniform float aspect;\n\nuniform float thickness;\nuniform int miter;\n\nvarying vec4 vColor;\n\nvoid main() {\n  vColor = color;\n    \n  vec2 aspectVec = vec2(aspect, 1.0);\n  mat4 projViewModel = projectionMatrix * viewMatrix * modelMatrix;\n  vec4 previousProjected = projViewModel * vec4(previous, 1.0);\n  vec4 currentProjected = projViewModel * vec4(position, 1.0);\n  vec4 nextProjected = projViewModel * vec4(next, 1.0);\n\n  \/\/get 2D screen space with W divide and aspect correction\n  vec2 currentScreen = currentProjected.xy \/ currentProjected.w * aspectVec;\n  vec2 previousScreen = previousProjected.xy \/ previousProjected.w * aspectVec;\n  vec2 nextScreen = nextProjected.xy \/ nextProjected.w * aspectVec;\n\n  float len = thickness;\n  float orientation = direction;\n\n  \/\/starting point uses (next - current)\n  vec2 dir = vec2(0.0);\n  if (currentScreen == previousScreen) {\n    dir = normalize(nextScreen - currentScreen);\n  } \n  \/\/ending point uses (current - previous)\n  else if (currentScreen == nextScreen) {\n    dir = normalize(currentScreen - previousScreen);\n  }\n  \/\/somewhere in middle, needs a join\n  else {\n    \/\/get directions from (C - B) and (B - A)\n    vec2 dirA = normalize((currentScreen - previousScreen));\n    if (miter == 1) {\n      vec2 dirB = normalize((nextScreen - currentScreen));\n      \/\/now compute the miter join normal and length\n      vec2 tangent = normalize(dirA + dirB);\n      vec2 perp = vec2(-dirA.y, dirA.x);\n      vec2 miter = vec2(-tangent.y, tangent.x);\n      dir = tangent;\n      len = thickness \/ dot(miter, perp);\n    } else {\n      dir = dirA;\n    }\n  }\n  vec2 normal = vec2(-dir.y, dir.x);\n  normal *= len\/2.0;\n  normal.x \/= aspect;\n\n  vec4 offset = vec4(normal * orientation, 0.0, 0.0);\n  gl_Position = currentProjected + offset;\n  gl_PointSize = 1.0;\n}';
@@ -1112,7 +1131,7 @@ function LineMaterialCreator(thickness, vwidth, vheight) {
     };
 }
 
-function Parametric2D(parent, expr, opts) {
+function Parametric3D(parent, expr, opts) {
     Plottable.call(this, parent.parent, expr, opts);
 
     this.parent = parent;
@@ -1122,19 +1141,22 @@ function Parametric2D(parent, expr, opts) {
         this.color = new Expression(this.opts.color, this.plot.context);
         this.colorf = this.color.evaluate();
     }
+    if(this.opts.wireframe === undefined) this.opts.wireframe = false;
+    if(this.opts.flat === undefined) this.opts.flat = false;
+    if(this.opts.smooth === undefined) this.opts.smooth = true;
     if(this.opts.thick === undefined) this.opts.thick = false;
 }
 
-Parametric2D.prototype = Object.create(Plottable.prototype);
-Parametric2D.prototype.constructor = Parametric2D;
+Parametric3D.prototype = Object.create(Plottable.prototype);
+Parametric3D.prototype.constructor = Parametric3D;
 
-Parametric2D.prototype.getVariables = function() {
+Parametric3D.prototype.getVariables = function() {
     if(this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
     else return this.expr.getVariables();
 };
 
-Parametric2D.prototype.createLine = function(par) {
-    var geom = new THREE.BufferGeometry();
+Parametric3D.prototype.createLine = function(par) {
+ var geom = new THREE.BufferGeometry();
     var int = par.intervals[0];
     var tarr = int.array();
 
@@ -1219,139 +1241,84 @@ Parametric2D.prototype.createLine = function(par) {
     geom.addAttribute('next', new THREE.BufferAttribute(next, 3));
     geom.addAttribute('color', new THREE.BufferAttribute(colors, 4, true));
 
-    var mat = new LineMaterialCreator(this.opts.thick === true ? 10 : 5, this.parent.frame.width, this.parent.frame.height).getMaterial();
+    var mat = new LineMaterialCreator(this.opts.thick === true ? 30 : 15, this.parent.frame.width, this.parent.frame.height).getMaterial();
     var mesh = new THREE.Mesh(geom, mat);
     mesh.drawMode = THREE.TriangleStripDrawMode;
     return mesh
 };
 
-Parametric2D.prototype.createSceneObject = function() {
-    var par = this.expr.evaluate();
-    return this.createLine(par);
-};
+Parametric3D.prototype.createSurface = function(par) {
+    var geom = new THREE.Geometry();
+    var uint = par.intervals[0];
+    var vint = par.intervals[1];
+    var uarr = uint.array();
+    var varr = vint.array();
+    var colors = [];
 
-/**
- * Renders plots in 2D (not to be confused with the Figure class)
- * TODO: Add functionality to link cameras between figures
- * TODO: Add better control of the viewport
- * @param {*} parent 
- * @param {*} container 
- * @param {*} opts 
- */
+    for(var i = 0; i < uarr.length; i++) {
+        var u = uarr[i];
+        for(var j = 0; j < varr.length; j++) {
+            var v = varr[j];
 
-function Axes(parent, container, opts) {
-    /**
-     * Used internally for optimization (Read-only)
-     */
-    this.isAxesInstance = true;
+            var vert = par.func(u,v).toVector3();
+            geom.vertices.push(vert);
 
-    /**
-     * The plot that generated this figure. (Read-only)
-     */
-    this.parent = parent;
-
-    /**
-     * The frame which will render the axes
-     */
-    this.frame = new Frame(container, opts);
-
-    // avoid null pointer errors
-    if(opts === undefined) opts = {};
-
-    this.fixedZoom = opts.fixedZoom !== undefined? opts.fixedZoom : false;
-
-    /**
-     * Objects to plot
-     */
-    this.objects = [];
-
-    // Keeps a roll of sceneobjects to faciliate removal
-    this.sceneObjects = [];
-
-    /**
-     * Expressions to plot
-     */
-    this.expressions = {};
-}
-
-/**
- * Render the axes
- */
-Axes.prototype.render = function() {
-    for(var i = 0; i < this.objects.length; i++ ) {
-        var object = this.objects[i];
-        if(object.validated === false) {
-            var sceneObject = object.getSceneObject();
-            if(this.sceneObjects[i] !== undefined) {
-                this.frame.scene.remove(this.sceneObjects[i]);
+            if(this.color !== undefined) {
+                var color = this.colorf(u,v);
+                colors.push(new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value));
             }
-            this.frame.scene.add(sceneObject);
-            this.sceneObjects[i] = sceneObject;
+
+            if(i > 0 && j > 0) {
+                var v1 = i * varr.length + j;
+                var v2 = i * varr.length + j - 1;
+                var v3 = (i - 1) * varr.length + j;
+                var v4 = (i - 1) * varr.length + j - 1;
+
+                var f1 = new THREE.Face3(v1, v2, v4);
+                var f2 = new THREE.Face3(v1, v4, v3);
+
+                if(this.color !== undefined) {
+                    f1.vertexColors[0] = colors[v1];
+                    f1.vertexColors[1] = colors[v2];
+                    f1.vertexColors[2] = colors[v4];
+
+                    f2.vertexColors[0] = colors[v1];
+                    f2.vertexColors[1] = colors[v4];
+                    f2.vertexColors[2] = colors[v3];
+                }
+
+                geom.faces.push(f1);                
+                geom.faces.push(f2);
+            }
         }
     }
+    geom.mergeVertices();
+    geom.computeVertexNormals();
 
-    this.frame.render(this.camera);
-};
-
-/**
- * Plot an expression
- */
-Axes.prototype.plotExpression = function(expr, type, opts) {
-    console.log('Interactive.' + this._proto_.constructor.name + ': Method not implemented');
-    return null;
-};
-
-/**
- * Add an object to plot
- * @param {*} object Must be plottable
- */
-Axes.prototype.addFigure = function(object) {
-    if(object.isPlottableInstance !== true) {
-        console.log('Interactive.' + this._proto_.constructor.name + ': Object is not a Plottable');
-        return;
+    var opts = {};
+    if(this.color !== undefined) {
+        opts['vertexColors'] = THREE.VertexColors;
+    }
+    if(this.opts.smooth === false) {
+        opts['shading'] = THREE.FlatShading;
     }
 
-    this.objects.push(object);
-};
-
-/**
- * Remove a plotted object
- */
-Axes.prototype.removeFigure = function(object) {
-    var index = this.objects.indexOf(object);
-    if (index === -1) {
-        console.log('Interactive.' + this._proto_.constructor.name + ': Figure not in axes');
-        return null;
+    if(this.opts.wireframe === true || this.opts.flat === true) {
+        var mat = new THREE.MeshBasicMaterial(opts);
+        if(this.opts.wireframe) mat.wireframe = true;
+    } else {
+        var mat = new THREE.MeshLambertMaterial(opts);
     }
-    this.objects.splice(index, 1);
-    this.frame.scene.remove(sceneObjects[index]);
-    this.sceneObjects.splice(index, 1);
+    mat.side = THREE.DoubleSide;
+    return new THREE.Mesh( geom, mat );
 };
 
-/**
- * Force the object to update
- */
-Axes.prototype.redrawFigure = function(object) {
-    var index = this.objects.indexOf(object);
-    if (index === -1) {
-        console.log('Interactive.' + this._proto_.constructor.name + ': Figure not in axes');
-        return null;
-    }
-    object.invalidate();
-};
-
-Axes.prototype.redrawExpression = function(expr) {
-    this.redrawFigure(this.expressions[expr]);
-};
-
-/**
- * Redraw all objects
- */
-Axes.prototype.refresh = function(expr) {
-    for(var i = 0; i < this.objects.length; i++) {
-        if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().includes(expr))) {
-            this.objects[i].invalidate(expr);
-        }
+Parametric3D.prototype.createSceneObject = function() {
+    var par = this.expr.evaluate();
+    if(par.intervals.length === 1) {
+        return this.createLine(par);
+    } else {
+        return this.createSurface(par);
     }
 };
 
@@ -1650,445 +1617,6 @@ Isoline3D.prototype.invalidate = function (expr) {
     this.validated = false;
 };
 
-function Isoline2D(parent, expr, opts) {
-    Isoline3D.call(this, parent, expr, opts);
-    
-    this.lineWidth = this.opts.thick === true ? 10 : 5;
-}
-
-Isoline2D.prototype = Object.create(Isoline3D.prototype);
-Isoline2D.prototype.constructor = Isoline2D;
-
-Isoline2D.prototype.lerp = function(a, b, az, z, bz) {
-    var alpha = z.sub(az).div(bz.sub(az));
-    var result = a.mul(Number[1].sub(alpha)).add(b.mul(alpha));
-    result.q[1] = result.q[2];
-    result.q[2] = Number[0];
-    return result.toVector3();
-};
-
-/**
- * Renders plots in 2D (not to be confused with the Figure class)
- * TODO: Add functionality to link cameras between figures
- * TODO: Add better control of the viewport
- * @param {*} parent 
- * @param {*} container 
- * @param {*} opts 
- */
-
-function Axes2D(parent, container, opts) {
-    Axes.call(this, parent, container, opts);
-
-    /**
-     * Used internally for optimization (Read-only)
-     */
-    this.isAxes2DInstance = true;
-
-    /**
-     * The zoom level of the camera. Denotes how many pixels should be one unit
-     */
-    this.zoom = opts.zoom !== undefined? opts.zoom : 200;
-
-    /**
-     * Camera which renders the axes. 
-     */
-    this.camera = new THREE.OrthographicCamera(-this.frame.width / this.zoom, this.frame.width / this.zoom, this.frame.height / this.zoom, -this.frame.height / this.zoom, .01, 50);
-
-    // Initialize camera position
-    this.camera.position.z = 10;
-    this.camera.lookAt(this.frame.scene.position);
-
-    if(opts.position !== undefined) {
-        this.camera.position.add(opts.position);
-    }
-
-    // Some test code
-    // var mesh = new THREE.Mesh( 
-    //     new THREE.BoxGeometry( 1, 1, 1, 1, 1, 1 ), 
-    //     new THREE.MeshBasicMaterial( { color : 0xff0000, wireframe: true } 
-    // ));
-    // this.frame.scene.add( mesh );
-
-    // For closures
-    var _self = this;
-
-    if(opts.showAxes !== false) {
-        var arr = new Interactive.BasisVectors2D(this.parent);
-        this.addFigure(arr);
-    }
-
-    /**
-     * Hotspots are draggable points
-     */
-    this.hotspots = [];
-
-    // Projects from world to client coords
-    var project = function(vector) {
-        var vector2 = new THREE.Vector2(vector.q[0].value, vector.q[1].value);
-        var projected = vector2.clone().sub(_self.camera.position).multiplyScalar(_self.zoom / 2).add(new THREE.Vector2(_self.frame.width / 2, _self.frame.height / 2));
-        projected.y = _self.frame.height - projected.y;
-        return projected;
-    };
-
-    var intersectsHotspot = function(clientX, clientY) {
-        var hotspot = null;
-        var leastDistance = 1000; // Arbitrarily large number
-
-        var containerBounds = _self.frame.container.getBoundingClientRect();
-        var clientCoords = new THREE.Vector2(clientX - containerBounds.left, clientY - containerBounds.top);
-
-        for (var i = 0; i < _self.hotspots.length; i++) {
-            var dist2 = project(_self.hotspots[i].position).distanceToSquared(clientCoords);
-            if (dist2 <= _self.hotspots[i].size * _self.hotspots[i].size && dist2 < leastDistance * leastDistance) {
-                hotspot = _self.hotspots[i];
-            }
-        }
-        return hotspot;
-    };
-
-    // Bind events: Panning
-    var _cameraOriginX = 0;
-    var _cameraOriginY = 0;
-
-    var _hotspot = null;
-    var _hotspotpos = null;
-
-    this.frame.container.addEventListener('mousedown', function(event) {
-        if (event.button === 0) {
-            _hotspot = intersectsHotspot(event.clientX, event.clientY);
-            if (_hotspot) {
-                _hotspotpos = _hotspot.position.clone();
-            }
-        }
-        if (event.button === 2) {
-            _cameraOriginX = _self.camera.position.x;
-            _cameraOriginY = _self.camera.position.y;
-        }
-    });
-
-    this.frame.touchEventListener.onpan = function(event) {
-        if (event.leftButtonDown) {
-            if (_hotspot !== null) {
-                var containerBounds = _self.frame.container.getBoundingClientRect();
-                var e = {
-                    worldX: _hotspotpos.q[0].add(new Number(2 * (event.screenX - event.screenStartX) / _self.zoom)),
-                    worldY: _hotspotpos.q[1].add(new Number(-2 * (event.screenY - event.screenStartY) / _self.zoom))
-                };
-                _hotspot.ondrag(e);
-            }
-        }
-        if (event.rightButtonDown) {
-            // Prevent default if mouse moved significantly
-            if ((event.screenX - event.screenStartX) * (event.screenX - event.screenStartX) + (event.screenY - event.screenStartY) * (event.screenY - event.screenStartY) > 25) {
-                event.suppressContextMenu();
-            }
-
-            // Pan camera
-            _self.camera.position.x = -2 * (event.screenX - event.screenStartX) / _self.zoom + _cameraOriginX;
-            _self.camera.position.y = 2 * (event.screenY - event.screenStartY) / _self.zoom + _cameraOriginY;
-        }
-    };
-
-    // Bind Events: Zooming
-    this.frame.touchEventListener.onzoom = function(event) {
-        if(this.fixedZoom === false) {
-            event.suppressScrolling();
-            _self.zoom *= Math.pow(0.8, event.amount / 100);
-            _self.updateCamera();
-        }
-    };
-}
-
-Axes2D.prototype = Object.create(Axes.prototype);
-Axes2D.prototype.constructor = Axes2D;
-
-/**
- * Plot an expression
- */
-Axes2D.prototype.plotExpression = function(expr, type, opts) {
-    switch(type) {
-        case 'arrow':            
-            var figure = new Arrow2D(this.parent, expr, opts);
-            this.expressions[expr] = figure;
-            this.addFigure(figure);
-            return figure;
-        case 'hotspot':
-            var hotspot = new Hotspot2D(this.parent, expr);
-            this.addHotspot(hotspot);
-            return hotspot;
-        case 'parametric':           
-            var par = new Parametric2D(this, expr, opts);
-            this.expressions[expr] = par;
-            this.addFigure(par);
-            return par;
-        case 'isoline':           
-            var iso = new Isoline2D(this, expr, opts);
-            this.expressions[expr] = iso;
-            this.addFigure(iso);
-            return iso;
-        default:
-            console.log('Interactive.Axes2D: Invalid plot type');
-            return null;
-    }
-};
-
-/**
- * Apply changes to camera
- */
-Axes2D.prototype.updateCamera = function() {
-    this.camera.left = -this.frame.width / this.zoom;
-    this.camera.right = this.frame.width / this.zoom;
-    this.camera.top = this.frame.height / this.zoom;
-    this.camera.bottom = -this.frame.height / this.zoom;
-    this.camera.updateProjectionMatrix();
-};
-
-Axes2D.prototype.addHotspot = function(hotspot) {
-    if (hotspot.type !== 'Hotspot2D') {
-        console.log('Interactive.Axes2D: Parameter is not a Hotspot2D.');
-        return null;
-    }
-
-    this.hotspots.push(hotspot);
-};
-
-/**
- * Object that represents an arrow in 3d space.
- * @param {*} vector The vector which this object is based on
- * @param {*} opts Options to customize the appearance of the arrow. Includes:
- * origin -- Point at which the arrow starts. Default is (0, 0, 0)
- * hex -- hexadecimal value to define color. Default is 0xffff00.
- * headLength -- The length of the head of the arrow. Default is 0.2 * length.
- * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
- * (Derived from THREE.js)
- */
-function Arrow3D(plot, expr, opts) {
-    Plottable.call(this, plot, expr, opts);
-    
-    this.opts = {};
-    this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0,0)', plot.context);
-    this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
-}
-
-Arrow3D.prototype = Object.create(Plottable.prototype);
-Arrow3D.prototype.constructor = Arrow3D;
-
-Arrow3D.prototype.getVariables = function() {    
-    if(this.opts.origin !== undefined) return this.expr.getVariables().concat(this.opts.origin.getVariables());
-    else return this.expr.getVariables()
-};
-
-Arrow3D.prototype.createSceneObject = function() {
-    var _vector3 = this.expr.evaluate().toVector3();
-    var _dir = _vector3.clone().normalize();
-    var _origin = this.opts.origin.evaluate().toVector3();
-    var _length = _vector3.length();
-    var _hex = this.opts.hex;
-    var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2 * _length;
-    var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.2 * _headLength;
-
-    return new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
-};
-
-function Parametric3D(parent, expr, opts) {
-    Plottable.call(this, parent.parent, expr, opts);
-
-    this.parent = parent;
-    this.opts = opts !== undefined? opts: {};
-
-    if(this.opts.color !== undefined) {
-        this.color = new Expression(this.opts.color, this.plot.context);
-        this.colorf = this.color.evaluate();
-    }
-    if(this.opts.wireframe === undefined) this.opts.wireframe = false;
-    if(this.opts.flat === undefined) this.opts.flat = false;
-    if(this.opts.smooth === undefined) this.opts.smooth = true;
-    if(this.opts.thick === undefined) this.opts.thick = false;
-}
-
-Parametric3D.prototype = Object.create(Plottable.prototype);
-Parametric3D.prototype.constructor = Parametric3D;
-
-Parametric3D.prototype.getVariables = function() {
-    if(this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
-    else return this.expr.getVariables();
-};
-
-Parametric3D.prototype.createLine = function(par) {
- var geom = new THREE.BufferGeometry();
-    var int = par.intervals[0];
-    var tarr = int.array();
-
-    var direction = new Float32Array(tarr.length * 2);
-    var vertices = new Float32Array(tarr.length * 3 * 2);
-    var previous = new Float32Array(tarr.length * 3 * 2);
-    var next = new Float32Array(tarr.length * 3 * 2);
-
-    var colors = new Uint8Array(tarr.length * 4 * 2);
-
-    for(var i = 0; i < tarr.length; i++) {
-        var t = tarr[i];
-
-        direction[i*2] = 1;
-        direction[i*2+1] = -1;
-
-        // geom.vertices.push(par.func(t).toVector3());
-        var v = par.func(t).toVector3();
-        vertices[i*6] = v.x;
-        vertices[i*6+1] = v.y;
-        vertices[i*6+2] = v.z;
-
-        vertices[i*6+3] = v.x;
-        vertices[i*6+4] = v.y;
-        vertices[i*6+5] = v.z;
-
-        if(i > 0) {
-            previous[i*6] = vertices[i*6-6];
-            previous[i*6+1] = vertices[i*6-5];
-            previous[i*6+2] = vertices[i*6-4];
-            previous[i*6+3] = vertices[i*6-3];
-            previous[i*6+4] = vertices[i*6-2];
-            previous[i*6+5] = vertices[i*6-1];
-
-            next[i*6-6] = vertices[i*6];
-            next[i*6-5] = vertices[i*6+1];
-            next[i*6-4] = vertices[i*6+2];
-            next[i*6-3] = vertices[i*6+3];
-            next[i*6-2] = vertices[i*6+4];
-            next[i*6-1] = vertices[i*6+5];
-        }
-
-        if(this.color !== undefined) {
-            var color = this.colorf(t);
-            // geom.colors[i] = new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value)
-            colors[i*8] = color.q[0].value * 255;
-            colors[i*8 + 1] = color.q[1].value * 255;
-            colors[i*8 + 2] = color.q[2].value * 255;
-            colors[i*8 + 3] = 255;
-            colors[i*8 + 4] = color.q[0].value * 255;
-            colors[i*8 + 5] = color.q[1].value * 255;
-            colors[i*8 + 6] = color.q[2].value * 255;
-            colors[i*8 + 7] = 255;
-        } else {
-            colors[i*8] = 255;
-            colors[i*8 + 1] = 255;
-            colors[i*8 + 2] = 255;
-            colors[i*8 + 3] = 255;
-            colors[i*8 + 4] = 255;
-            colors[i*8 + 5] = 255;
-            colors[i*8 + 6] = 255;
-            colors[i*8 + 7] = 255;
-        }
-    }
-
-    previous[0] = vertices[0];
-    previous[1] = vertices[1];
-    previous[2] = vertices[2];
-    previous[3] = vertices[3];
-    previous[4] = vertices[4];
-    previous[5] = vertices[5];
-    next[tarr.length*6-6] = vertices[tarr.length*6-6];
-    next[tarr.length*6-5] = vertices[tarr.length*6-5];
-    next[tarr.length*6-4] = vertices[tarr.length*6-4];
-    next[tarr.length*6-3] = vertices[tarr.length*6-3];
-    next[tarr.length*6-2] = vertices[tarr.length*6-2];
-    next[tarr.length*6-1] = vertices[tarr.length*6-1];
-
-    geom.addAttribute('direction', new THREE.BufferAttribute(direction, 1));
-    geom.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
-    geom.addAttribute('previous', new THREE.BufferAttribute(previous, 3));
-    geom.addAttribute('next', new THREE.BufferAttribute(next, 3));
-    geom.addAttribute('color', new THREE.BufferAttribute(colors, 4, true));
-
-    var mat = new LineMaterialCreator(this.opts.thick === true ? 30 : 15, this.parent.frame.width, this.parent.frame.height).getMaterial();
-    var mesh = new THREE.Mesh(geom, mat);
-    mesh.drawMode = THREE.TriangleStripDrawMode;
-    return mesh
-};
-
-Parametric3D.prototype.createSurface = function(par) {
-    var geom = new THREE.Geometry();
-    var uint = par.intervals[0];
-    var vint = par.intervals[1];
-    var uarr = uint.array();
-    var varr = vint.array();
-    var colors = [];
-
-    for(var i = 0; i < uarr.length; i++) {
-        var u = uarr[i];
-        for(var j = 0; j < varr.length; j++) {
-            var v = varr[j];
-
-            var vert = par.func(u,v).toVector3();
-            geom.vertices.push(vert);
-
-            if(this.color !== undefined) {
-                var color = this.colorf(u,v);
-                colors.push(new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value));
-            }
-
-            if(i > 0 && j > 0) {
-                var v1 = i * varr.length + j;
-                var v2 = i * varr.length + j - 1;
-                var v3 = (i - 1) * varr.length + j;
-                var v4 = (i - 1) * varr.length + j - 1;
-
-                var f1 = new THREE.Face3(v1, v2, v4);
-                var f2 = new THREE.Face3(v1, v4, v3);
-
-                if(this.color !== undefined) {
-                    f1.vertexColors[0] = colors[v1];
-                    f1.vertexColors[1] = colors[v2];
-                    f1.vertexColors[2] = colors[v4];
-
-                    f2.vertexColors[0] = colors[v1];
-                    f2.vertexColors[1] = colors[v4];
-                    f2.vertexColors[2] = colors[v3];
-                }
-
-                geom.faces.push(f1);                
-                geom.faces.push(f2);
-            }
-        }
-    }
-    geom.mergeVertices();
-    geom.computeVertexNormals();
-
-    var opts = {};
-    if(this.color !== undefined) {
-        opts['vertexColors'] = THREE.VertexColors;
-    }
-    if(this.opts.smooth === false) {
-        opts['shading'] = THREE.FlatShading;
-    }
-
-    if(this.opts.wireframe === true || this.opts.flat === true) {
-        var mat = new THREE.MeshBasicMaterial(opts);
-        if(this.opts.wireframe) mat.wireframe = true;
-    } else {
-        var mat = new THREE.MeshLambertMaterial(opts);
-    }
-    mat.side = THREE.DoubleSide;
-    return new THREE.Mesh( geom, mat );
-};
-
-Parametric3D.prototype.createSceneObject = function() {
-    var par = this.expr.evaluate();
-    if(par.intervals.length === 1) {
-        return this.createLine(par);
-    } else {
-        return this.createSurface(par);
-    }
-};
-
-/**
- * Renders plots (not to be confused with the Figure class)
- * TODO: Add functionality to link cameras between figures
- * @param {*} parent 
- * @param {*} container 
- * @param {*} opts 
- */
-
 function Axes3D(parent, container, opts) {
     Axes.call(this, parent, container, opts);
 
@@ -2250,6 +1778,373 @@ Axes3D.prototype.plotExpression = function(expr, type, opts) {
     }
 };
 
+/**
+ * Object that represents an arrow in 2d space.
+ * @param {*} vector The vector which this object is based on
+ * @param {*} opts Options to customize the appearance of the arrow. Includes:
+ * origin -- Point at which the arrow starts. Default is (0, 0)
+ * hex -- hexadecimal value to define color. Default is 0xffff00.
+ * headLength -- The length of the head of the arrow. Default is 0.2.
+ * headWidth -- The length of the width of the arrow. Default is 0.05.
+ * (Derived from THREE.js)
+ */
+function Arrow2D(plot, expr, opts) {
+    Plottable.call(this, plot, expr, opts);
+
+    this.opts = {};
+    this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0,0)', plot.context);
+    this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
+    this.opts.headLength = opts.headLength !== undefined ? opts.headLength : 0.2;
+    this.opts.headWidth = opts.headWidth !== undefined ? opts.headWidth : 0.05;
+}
+
+Arrow2D.prototype = Object.create(Plottable.prototype);
+Arrow2D.prototype.constructor = Arrow2D;
+
+Arrow2D.prototype.getVariables = function() {
+    return this.expr.getVariables().concat(this.opts.origin.getVariables());
+};
+
+Arrow2D.prototype.createSceneObject = function() {
+    var _vector2 = this.expr.evaluate().toVector3();
+    var _dir = _vector2.clone().normalize();
+    var _length = _vector2.length();
+    var _origin = this.opts.origin.evaluate().toVector3();
+    var _hex = this.opts.hex;
+    var _headLength = this.opts.headLength;
+    var _headWidth = this.opts.headWidth;
+
+    return new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
+};
+
+function Hotspot2D(plot, expr) {
+    this.isHotspot2DInstance = true;
+    
+    this.plot = plot;
+    this.expr = new Expression(expr, plot.context);
+    this.position = this.expr.evaluate().clone();
+    this.size = 10;
+}
+
+Hotspot2D.prototype.ondrag = function(event) {
+    this.position.q[0] = event.worldX;
+    this.position.q[1] = event.worldY;
+
+    this.plot.context[this.expr.string].q[0] = event.worldX;
+    this.plot.context[this.expr.string].q[1] = event.worldY;
+
+    this.plot.refresh(this.expr.string);
+};
+
+function Parametric2D(parent, expr, opts) {
+    Plottable.call(this, parent.parent, expr, opts);
+
+    this.parent = parent;
+    this.opts = opts !== undefined? opts: {};
+
+    if(this.opts.color !== undefined) {
+        this.color = new Expression(this.opts.color, this.plot.context);
+        this.colorf = this.color.evaluate();
+    }
+    if(this.opts.thick === undefined) this.opts.thick = false;
+}
+
+Parametric2D.prototype = Object.create(Plottable.prototype);
+Parametric2D.prototype.constructor = Parametric2D;
+
+Parametric2D.prototype.getVariables = function() {
+    if(this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
+    else return this.expr.getVariables();
+};
+
+Parametric2D.prototype.createLine = function(par) {
+    var geom = new THREE.BufferGeometry();
+    var int = par.intervals[0];
+    var tarr = int.array();
+
+    var direction = new Float32Array(tarr.length * 2);
+    var vertices = new Float32Array(tarr.length * 3 * 2);
+    var previous = new Float32Array(tarr.length * 3 * 2);
+    var next = new Float32Array(tarr.length * 3 * 2);
+
+    var colors = new Uint8Array(tarr.length * 4 * 2);
+
+    for(var i = 0; i < tarr.length; i++) {
+        var t = tarr[i];
+
+        direction[i*2] = 1;
+        direction[i*2+1] = -1;
+
+        // geom.vertices.push(par.func(t).toVector3());
+        var v = par.func(t).toVector3();
+        vertices[i*6] = v.x;
+        vertices[i*6+1] = v.y;
+        vertices[i*6+2] = v.z;
+
+        vertices[i*6+3] = v.x;
+        vertices[i*6+4] = v.y;
+        vertices[i*6+5] = v.z;
+
+        if(i > 0) {
+            previous[i*6] = vertices[i*6-6];
+            previous[i*6+1] = vertices[i*6-5];
+            previous[i*6+2] = vertices[i*6-4];
+            previous[i*6+3] = vertices[i*6-3];
+            previous[i*6+4] = vertices[i*6-2];
+            previous[i*6+5] = vertices[i*6-1];
+
+            next[i*6-6] = vertices[i*6];
+            next[i*6-5] = vertices[i*6+1];
+            next[i*6-4] = vertices[i*6+2];
+            next[i*6-3] = vertices[i*6+3];
+            next[i*6-2] = vertices[i*6+4];
+            next[i*6-1] = vertices[i*6+5];
+        }
+
+        if(this.color !== undefined) {
+            var color = this.colorf(t);
+            // geom.colors[i] = new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value)
+            colors[i*8] = color.q[0].value * 255;
+            colors[i*8 + 1] = color.q[1].value * 255;
+            colors[i*8 + 2] = color.q[2].value * 255;
+            colors[i*8 + 3] = 255;
+            colors[i*8 + 4] = color.q[0].value * 255;
+            colors[i*8 + 5] = color.q[1].value * 255;
+            colors[i*8 + 6] = color.q[2].value * 255;
+            colors[i*8 + 7] = 255;
+        } else {
+            colors[i*8] = 255;
+            colors[i*8 + 1] = 255;
+            colors[i*8 + 2] = 255;
+            colors[i*8 + 3] = 255;
+            colors[i*8 + 4] = 255;
+            colors[i*8 + 5] = 255;
+            colors[i*8 + 6] = 255;
+            colors[i*8 + 7] = 255;
+        }
+    }
+
+    previous[0] = vertices[0];
+    previous[1] = vertices[1];
+    previous[2] = vertices[2];
+    previous[3] = vertices[3];
+    previous[4] = vertices[4];
+    previous[5] = vertices[5];
+    next[tarr.length*6-6] = vertices[tarr.length*6-6];
+    next[tarr.length*6-5] = vertices[tarr.length*6-5];
+    next[tarr.length*6-4] = vertices[tarr.length*6-4];
+    next[tarr.length*6-3] = vertices[tarr.length*6-3];
+    next[tarr.length*6-2] = vertices[tarr.length*6-2];
+    next[tarr.length*6-1] = vertices[tarr.length*6-1];
+
+    geom.addAttribute('direction', new THREE.BufferAttribute(direction, 1));
+    geom.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    geom.addAttribute('previous', new THREE.BufferAttribute(previous, 3));
+    geom.addAttribute('next', new THREE.BufferAttribute(next, 3));
+    geom.addAttribute('color', new THREE.BufferAttribute(colors, 4, true));
+
+    var mat = new LineMaterialCreator(this.opts.thick === true ? 10 : 5, this.parent.frame.width, this.parent.frame.height).getMaterial();
+    var mesh = new THREE.Mesh(geom, mat);
+    mesh.drawMode = THREE.TriangleStripDrawMode;
+    return mesh
+};
+
+Parametric2D.prototype.createSceneObject = function() {
+    var par = this.expr.evaluate();
+    return this.createLine(par);
+};
+
+function Isoline2D(parent, expr, opts) {
+    Isoline3D.call(this, parent, expr, opts);
+    
+    this.lineWidth = this.opts.thick === true ? 10 : 5;
+}
+
+Isoline2D.prototype = Object.create(Isoline3D.prototype);
+Isoline2D.prototype.constructor = Isoline2D;
+
+Isoline2D.prototype.lerp = function(a, b, az, z, bz) {
+    var alpha = z.sub(az).div(bz.sub(az));
+    var result = a.mul(Number[1].sub(alpha)).add(b.mul(alpha));
+    var temp = result.q[1];
+    result.q[1] = result.q[2];
+    // result.q[2] = Number[0];
+    result.q[2] = temp;
+    return result.toVector3();
+};
+
+function Axes2D(parent, container, opts) {
+    Axes.call(this, parent, container, opts);
+
+    /**
+     * Used internally for optimization (Read-only)
+     */
+    this.isAxes2DInstance = true;
+
+    if(opts === undefined) opts = {};
+
+    /**
+     * The zoom level of the camera. Denotes how many pixels should be one unit
+     */
+    this.zoom = opts.zoom !== undefined? opts.zoom : 200;
+
+    /**
+     * Camera which renders the axes. 
+     */
+    this.camera = new THREE.OrthographicCamera(-this.frame.width / this.zoom, this.frame.width / this.zoom, this.frame.height / this.zoom, -this.frame.height / this.zoom, .01, 50);
+
+    // Initialize camera position
+    this.camera.position.z = 10;
+    this.camera.lookAt(this.frame.scene.position);
+
+    if(opts.position !== undefined) {
+        this.camera.position.add(opts.position);
+    }
+
+    // For closures
+    var _self = this;
+
+    if(opts.showAxes !== false) {
+        var arr = new Interactive.BasisVectors2D(this.parent);
+        this.addFigure(arr);
+    }
+
+    /**
+     * Hotspots are draggable points
+     */
+    this.hotspots = [];
+
+    // Projects from world to client coords
+    var project = function(vector) {
+        var vector2 = new THREE.Vector2(vector.q[0].value, vector.q[1].value);
+        var projected = vector2.clone().sub(_self.camera.position).multiplyScalar(_self.zoom / 2).add(new THREE.Vector2(_self.frame.width / 2, _self.frame.height / 2));
+        projected.y = _self.frame.height - projected.y;
+        return projected;
+    };
+
+    var intersectsHotspot = function(clientX, clientY) {
+        var hotspot = null;
+        var leastDistance = 1000; // Arbitrarily large number
+
+        var containerBounds = _self.frame.container.getBoundingClientRect();
+        var clientCoords = new THREE.Vector2(clientX - containerBounds.left, clientY - containerBounds.top);
+
+        for (var i = 0; i < _self.hotspots.length; i++) {
+            var dist2 = project(_self.hotspots[i].position).distanceToSquared(clientCoords);
+            if (dist2 <= _self.hotspots[i].size * _self.hotspots[i].size && dist2 < leastDistance * leastDistance) {
+                hotspot = _self.hotspots[i];
+            }
+        }
+        return hotspot;
+    };
+
+    // Bind events: Panning
+    var _cameraOriginX = 0;
+    var _cameraOriginY = 0;
+
+    var _hotspot = null;
+    var _hotspotpos = null;
+
+    this.frame.container.addEventListener('mousedown', function(event) {
+        if (event.button === 0) {
+            _hotspot = intersectsHotspot(event.clientX, event.clientY);
+            if (_hotspot) {
+                _hotspotpos = _hotspot.position.clone();
+            }
+        }
+        if (event.button === 2) {
+            _cameraOriginX = _self.camera.position.x;
+            _cameraOriginY = _self.camera.position.y;
+        }
+    });
+
+    this.frame.touchEventListener.onpan = function(event) {
+        if (event.leftButtonDown) {
+            if (_hotspot !== null) {
+                var containerBounds = _self.frame.container.getBoundingClientRect();
+                var e = {
+                    worldX: _hotspotpos.q[0].add(new Number(2 * (event.screenX - event.screenStartX) / _self.zoom)),
+                    worldY: _hotspotpos.q[1].add(new Number(-2 * (event.screenY - event.screenStartY) / _self.zoom))
+                };
+                _hotspot.ondrag(e);
+            }
+        }
+        if (event.rightButtonDown) {
+            // Prevent default if mouse moved significantly
+            if ((event.screenX - event.screenStartX) * (event.screenX - event.screenStartX) + (event.screenY - event.screenStartY) * (event.screenY - event.screenStartY) > 25) {
+                event.suppressContextMenu();
+            }
+
+            // Pan camera
+            _self.camera.position.x = -2 * (event.screenX - event.screenStartX) / _self.zoom + _cameraOriginX;
+            _self.camera.position.y = 2 * (event.screenY - event.screenStartY) / _self.zoom + _cameraOriginY;
+        }
+    };
+
+    // Bind Events: Zooming
+    this.frame.touchEventListener.onzoom = function(event) {
+        if(this.fixedZoom === false) {
+            event.suppressScrolling();
+            _self.zoom *= Math.pow(0.8, event.amount / 100);
+            _self.updateCamera();
+        }
+    };
+}
+
+Axes2D.prototype = Object.create(Axes.prototype);
+Axes2D.prototype.constructor = Axes2D;
+
+Axes2D.prototype.plotExpression = function(expr, type, opts) {
+    switch(type) {
+        case 'arrow':            
+            var figure = new Arrow2D(this.parent, expr, opts);
+            this.expressions[expr] = figure;
+            this.addFigure(figure);
+            return figure;
+        case 'hotspot':
+            var hotspot = new Hotspot2D(this.parent, expr);
+            this.addHotspot(hotspot);
+            return hotspot;
+        case 'parametric':           
+            var par = new Parametric2D(this, expr, opts);
+            this.expressions[expr] = par;
+            this.addFigure(par);
+            return par;
+        case 'isoline':           
+            var iso = new Isoline2D(this, expr, opts);
+            this.expressions[expr] = iso;
+            this.addFigure(iso);
+            return iso;
+        default:
+            console.log('Interactive.Axes2D: Invalid plot type');
+            return null;
+    }
+};
+
+/**
+ * Apply changes to camera
+ */
+Axes2D.prototype.updateCamera = function() {
+    this.camera.left = -this.frame.width / this.zoom;
+    this.camera.right = this.frame.width / this.zoom;
+    this.camera.top = this.frame.height / this.zoom;
+    this.camera.bottom = -this.frame.height / this.zoom;
+    this.camera.updateProjectionMatrix();
+};
+ 
+/**
+ * Special function to add a hotspot
+ * @param {Hotspot2D} hotspot Hotspot to add
+ */
+Axes2D.prototype.addHotspot = function(hotspot) {
+    if (hotspot.isHotspot2DInstance !== true) {
+        console.log('Interactive.Axes2D: Parameter is not a Hotspot2D.');
+        return null;
+    }
+
+    this.hotspots.push(hotspot);
+};
+
 function Panel (parent, container) {
     this.parent = parent;
 
@@ -2369,6 +2264,139 @@ Plot.prototype.render = function() {
     });
 };
 
+/**
+ * The base for rendering plots
+ * @param {Plot} parent 
+ * @param {Element} container 
+ * @param {*} opts 
+ */
+
+function Axes(parent, container, opts) {
+    /**
+     * Used internally for optimization (Read-only)
+     */
+    this.isAxesInstance = true;
+
+    /**
+     * The plot that generated this figure. (Read-only)
+     */
+    this.parent = parent;
+
+    /**
+     * The frame which will render the axes
+     */
+    this.frame = new Frame(container, opts);
+
+    // avoid null pointer errors
+    if(opts === undefined) opts = {};
+
+    this.fixedZoom = opts.fixedZoom !== undefined? opts.fixedZoom : false;
+
+    /**
+     * Objects to plot
+     */
+    this.objects = [];
+
+    // Keeps a roll of sceneobjects to faciliate removal
+    this.sceneObjects = [];
+
+    /**
+     * Expressions to plot
+     */
+    this.expressions = {};
+}
+
+/**
+ * Render all plots contained in this axes
+ */
+Axes.prototype.render = function() {
+    for(var i = 0; i < this.objects.length; i++ ) {
+        var object = this.objects[i];
+        if(object.validated === false) {
+            var sceneObject = object.getSceneObject();
+            if(this.sceneObjects[i] !== undefined) {
+                this.frame.scene.remove(this.sceneObjects[i]);
+            }
+            this.frame.scene.add(sceneObject);
+            this.sceneObjects[i] = sceneObject;
+        }
+    }
+
+    this.frame.render(this.camera);
+};
+
+/**
+ * Plot an expression
+ * @param {Expression} expr Expression to plot
+ * @param {String} type Type of plot
+ * @param {*} opts Options
+ */
+Axes.prototype.plotExpression = function(expr, type, opts) {
+    console.log('Interactive.' + this._proto_.constructor.name + ': Method not implemented');
+    return null;
+};
+
+/**
+ * Add an object to plot
+ * @param {Plottable} object Object to plot
+ */
+Axes.prototype.addFigure = function(object) {
+    if(object.isPlottableInstance !== true) {
+        console.log('Interactive.' + this._proto_.constructor.name + ': Object is not a Plottable');
+        return;
+    }
+
+    this.objects.push(object);
+};
+
+/**
+ * Remove a plotted object
+ * @param {Plottable} object Object to remove
+ */
+Axes.prototype.removeFigure = function(object) {
+    var index = this.objects.indexOf(object);
+    if (index === -1) {
+        console.log('Interactive.' + this._proto_.constructor.name + ': Figure not in axes');
+        return null;
+    }
+    this.objects.splice(index, 1);
+    this.frame.scene.remove(sceneObjects[index]);
+    this.sceneObjects.splice(index, 1);
+};
+
+/**
+ * Force the object to update
+ * @param {Plottable} object Object to redraw
+ */
+Axes.prototype.redrawFigure = function(object) {
+    var index = this.objects.indexOf(object);
+    if (index === -1) {
+        console.log('Interactive.' + this._proto_.constructor.name + ': Figure not in axes');
+        return null;
+    }
+    object.invalidate();
+};
+
+/**
+ * Redraw an existing expression
+ * @param {Expression} expr Expression to redraw
+ */
+Axes.prototype.redrawExpression = function(expr) {
+    this.redrawFigure(this.expressions[expr]);
+};
+
+/**
+ * Redraw all objects
+ * @param {Expression} expr Optional: only redraw expressions which contain the variables in given expression
+ */
+Axes.prototype.refresh = function(expr) {
+    for(var i = 0; i < this.objects.length; i++) {
+        if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().includes(expr))) {
+            this.objects[i].invalidate(expr);
+        }
+    }
+};
+
 function Isoline(parametric, parametricExpr, axis, level) {
     this.parametric = parametric;
     this.parametricExpr = parametricExpr;
@@ -2477,6 +2505,7 @@ BasisVectors3D.prototype.createSceneObject = function() {
 exports.Axes = Axes;
 exports.Axes2D = Axes2D;
 exports.Axes3D = Axes3D;
+exports.Frame = Frame;
 exports.Panel = Panel;
 exports.Plot = Plot;
 exports.TouchEventListener = TouchEventListener;
@@ -2492,10 +2521,11 @@ exports.Arrow3D = Arrow3D;
 exports.BasisVectors2D = BasisVectors2D;
 exports.BasisVectors3D = BasisVectors3D;
 exports.Hotspot2D = Hotspot2D;
+exports.Isoline2D = Isoline2D;
+exports.Isoline3D = Isoline3D;
 exports.Parametric2D = Parametric2D;
 exports.Parametric3D = Parametric3D;
 exports.Plottable = Plottable;
-exports.Frame = Frame;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
