@@ -73,13 +73,15 @@ Plot.prototype.render = function() {
         var elemTop = el.getBoundingClientRect().top;
         var elemBottom = el.getBoundingClientRect().bottom;
 
-        var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+        var isVisible = (elemBottom >= 0) && (elemTop <= window.innerHeight);
         return isVisible;
     }
+
     this.axes.forEach(function(ax) {
         if(checkVisible(ax.frame.container)) {
+            if(ax.frame.isSleeping) ax.wake();
             ax.render();
-        }
+        } else if(!ax.frame.isSleeping) ax.sleep();
     })
 }
 
