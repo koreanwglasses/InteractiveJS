@@ -566,14 +566,14 @@ Peaks the Geometry of Peaks and Passes</span>
         <div class="centered">Figure 5: Graph and slices of Twin Peaks</div>
         <br>
         <div id="fig5" class="centered">
-            <div id="ax5a" style="width:300px;height:250px;display:inline-block;"></div>
-            <div id="ax5b" style="width:300px;height:250px;display:inline-block;"></div>
-            <div id="ax5c" style="width:300px;height:250px;display:inline-block;"></div>
+            <div id="ax5a" style="width:300px;height:300px;display:inline-block;"></div>
+            <div id="ax5b" style="width:300px;height:300px;display:inline-block;"></div>
+            <div id="ax5c" style="width:300px;height:300px;display:inline-block;"></div>
             <div id="pan5" style="display:inline-block;"></div>
             <p><em>Tip: Use the scroll wheel to zoom in/out</em></p>
             <script>
                 var plot5 = new Interactive.Plot();
-                var ax5a = plot5.createAxes3D(document.getElementById('ax5a'));
+                var ax5a = plot5.createAxes3D(document.getElementById('ax5a'), {zoom: 1.3});
                 var ax5b = plot5.createAxes2D(document.getElementById('ax5b'));
                 var ax5c = plot5.createAxes3D(document.getElementById('ax5c'));
                 var pan5 = plot5.createPanel(document.getElementById('pan5'))
@@ -712,7 +712,7 @@ least if m is small enough.<span style="">&nbsp; </span>The level set at the loc
             <p><em>Tip: Use the scroll wheel to zoom in/out</em></p>
             <script>
                 var plot6 = new Interactive.Plot();
-                var ax6a = plot6.createAxes3D(document.getElementById('ax6a'));
+                var ax6a = plot6.createAxes3D(document.getElementById('ax6a'), {zoom: 1.1});
                 var ax6b = plot6.createAxes3D(document.getElementById('ax6b'));
                 var pan6 = plot6.createPanel(document.getElementById('pan6'))
 
@@ -952,12 +952,12 @@ positive, and that region is bounded by the curve where f</span><span style="col
                     style="color: black;">(x,y) = 0 intersect.</span>
         </div>
         <div id="fig9" class="centered">
-            <div id="ax9a" style="width:300px;height:250px;display:inline-block;"></div>
+            <div id="ax9a" style="width:300px;height:300px;display:inline-block;"></div>
             <div id="pan9" style="display:inline-block;"></div>
             <p><em>Tip: Use the scroll wheel to zoom in/out</em></p>
             <script>
                 var plot9 = new Interactive.Plot();
-                var ax9a = plot9.createAxes3D(document.getElementById('ax9a'));
+                var ax9a = plot9.createAxes3D(document.getElementById('ax9a'), {zoom: 1.3});
                 var pan9 = plot9.createPanel(document.getElementById('pan9'));
 
                 plot9.execExpression('m=0');
@@ -1043,29 +1043,27 @@ intersecting curves where f</span><span style="color: black;"><sub>y</sub></span
             <div class="centered">Figure 12:
                 <span style="">&nbsp; </span>Color-coded graph of perturbed Crater Lake
             </div>
-            <div id="fig10" class="centered">
-                <div id="ax10a" style="width:300px;height:300px;display:inline-block;"></div>
-                <div id="pan10" style="display:inline-block;"></div>
+            <div id="fig12" class="centered">
+                <div id="ax12a" style="width:300px;height:300px;display:inline-block;"></div>
+                <div id="pan12" style="display:inline-block;"></div>
                 <p><em>Tip: Use the scroll wheel to zoom in/out</em></p>
                 <script>
-                    var plot10 = new Interactive.Plot();
-                    var ax10a = plot10.createAxes3D(document.getElementById('ax10a'));
-                    var pan10 = plot10.createPanel(document.getElementById('pan10'));
+                    var plot12 = new Interactive.Plot();
+                    var ax12a = plot12.createAxes3D(document.getElementById('ax12a'), {zoom: 1.1});
+                    var pan12 = plot12.createPanel(document.getElementById('pan12'));
 
-                    plot10.execExpression('m=0');
-                    pan10.addSlider('{m,-2,2,40}', {continuous: true})
+                    plot12.execExpression('m=0');
+                    pan12.addSlider('{m,-2,2,40}', {continuous: true})
 
-                    plot10.execExpression('c1()=(0.10,0.10,0.10)')
+                    plot12.execExpression('f(r,t)=-(r^4)+2*r^2+m*(r*cos(t))')
+                    plot12.execExpression('X(r,t)=(r*cos(t),f(r,t),r*sin(t))')
+                    plot12.execExpression('c(r,t)=select(octant(normal(X,r,t)),(0,0,0),(0,0,1),(0.7,0,0.7),(0,0,1),(1,0,0),(1,0,1),(1,0,0),(1,1,1))')
 
-                    plot10.execExpression('f(r,t)=-(r^4)+2*r^2+m*(r*cos(t))')
-                    plot10.execExpression('X(r,t)=(r*cos(t),f(r,t),r*sin(t))')
-                    plot10.execExpression('c(r,t)=select(octant(normal(X,r,t)),(0,0,0),(0,0,1),(0.7,0,0.7),(0,0,1),(1,0,0),(1,0,1),(1,0,0),(1,1,1))')
-
-                    ax10a.plotExpression('X(r,t){r,0,1.5,50}{t,0,2*PI,50}', 'parametric', {color:'c'});
+                    ax12a.plotExpression('X(r,t){r,0,1.5,50}{t,0,2*PI,50}', 'parametric', {color:'c'});
 
                     ;(function animate() {
                         requestAnimationFrame(animate);
-                        plot10.render();
+                        plot12.render();
                     })();
                 </script>
             </div>
@@ -1103,7 +1101,7 @@ intersecting curves where f</span><span style="color: black;"><sub>y</sub></span
             <p><em>Tip: Use the scroll wheel to zoom in/out</em></p>
             <script>
                 var plot13 = new Interactive.Plot();
-                var ax13a = plot13.createAxes3D(document.getElementById('ax13a'));
+                var ax13a = plot13.createAxes3D(document.getElementById('ax13a'), {zoom: 0.7});
                 var ax13b = plot13.createAxes3D(document.getElementById('ax13b'));
 
                 plot13.linkCameras(ax13a, ax13b)
@@ -1153,7 +1151,7 @@ intersecting curves where f</span><span style="color: black;"><sub>y</sub></span
             <p><em>Tip: Use the scroll wheel to zoom in/out</em></p>
             <script>
                 var plot14 = new Interactive.Plot();
-                var ax14a = plot14.createAxes3D(document.getElementById('ax14a'));
+                var ax14a = plot14.createAxes3D(document.getElementById('ax14a'), {zoom: 0.7});
                 var ax14b = plot14.createAxes3D(document.getElementById('ax14b'));
 
                 plot14.linkCameras(ax14a, ax14b)
