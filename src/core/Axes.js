@@ -1,17 +1,12 @@
-import { Frame } from '../render/Frame.js';
-import { Arrow2D } from '../plottable/Arrow2D.js';
-import { Hotspot2D } from '../plottable/Hotspot2D.js';
-import { Parametric2D } from '../plottable/Parametric2D.js';
-import { Vector } from '../math/Vector.js';
-import { Number } from '../math/Number.js';
+import { Frame } from './Frame.js';
+import { Plot } from './Plot.js';
 import { Expression } from '../math/expressions/Expression.js';
+import { Plottable } from '../plottable/Plottable.js';
 
 /**
- * Renders plots in 2D (not to be confused with the Figure class)
- * TODO: Add functionality to link cameras between figures
- * TODO: Add better control of the viewport
- * @param {*} parent 
- * @param {*} container 
+ * The base for rendering plots
+ * @param {Plot} parent 
+ * @param {Element} container 
  * @param {*} opts 
  */
 
@@ -51,7 +46,7 @@ function Axes(parent, container, opts) {
 }
 
 /**
- * Render the axes
+ * Render all plots contained in this axes
  */
 Axes.prototype.render = function() {
     for(var i = 0; i < this.objects.length; i++ ) {
@@ -71,6 +66,9 @@ Axes.prototype.render = function() {
 
 /**
  * Plot an expression
+ * @param {Expression} expr Expression to plot
+ * @param {String} type Type of plot
+ * @param {*} opts Options
  */
 Axes.prototype.plotExpression = function(expr, type, opts) {
     console.log('Interactive.' + this._proto_.constructor.name + ': Method not implemented')
@@ -79,7 +77,7 @@ Axes.prototype.plotExpression = function(expr, type, opts) {
 
 /**
  * Add an object to plot
- * @param {*} object Must be plottable
+ * @param {Plottable} object Object to plot
  */
 Axes.prototype.addFigure = function(object) {
     if(object.isPlottableInstance !== true) {
@@ -92,6 +90,7 @@ Axes.prototype.addFigure = function(object) {
 
 /**
  * Remove a plotted object
+ * @param {Plottable} object Object to remove
  */
 Axes.prototype.removeFigure = function(object) {
     var index = this.objects.indexOf(object);
@@ -106,6 +105,7 @@ Axes.prototype.removeFigure = function(object) {
 
 /**
  * Force the object to update
+ * @param {Plottable} object Object to redraw
  */
 Axes.prototype.redrawFigure = function(object) {
     var index = this.objects.indexOf(object);
@@ -116,12 +116,17 @@ Axes.prototype.redrawFigure = function(object) {
     object.invalidate();
 }
 
+/**
+ * Redraw an existing expression
+ * @param {Expression} expr Expression to redraw
+ */
 Axes.prototype.redrawExpression = function(expr) {
     this.redrawFigure(this.expressions[expr]);
 }
 
 /**
  * Redraw all objects
+ * @param {Expression} expr Optional: only redraw expressions which contain the variables in given expression
  */
 Axes.prototype.refresh = function(expr) {
     for(var i = 0; i < this.objects.length; i++) {

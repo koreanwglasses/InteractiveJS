@@ -1,17 +1,8 @@
 import { Axes } from '../core/Axes.js'
-import { Frame } from '../render/Frame.js';
 import { Expression } from '../math/expressions/Expression.js';
 import { Arrow3D } from '../plottable/Arrow3D.js';
 import { Parametric3D } from '../plottable/Parametric3D.js';
 import { Isoline3D } from '../plottable/Isoline3D.js';
-
-/**
- * Renders plots (not to be confused with the Figure class)
- * TODO: Add functionality to link cameras between figures
- * @param {*} parent 
- * @param {*} container 
- * @param {*} opts 
- */
 
 function Axes3D(parent, container, opts) {
     Axes.call(this, parent, container, opts);

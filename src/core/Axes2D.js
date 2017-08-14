@@ -1,5 +1,4 @@
 import { Axes } from '../core/Axes.js'
-import { Frame } from '../render/Frame.js';
 import { Arrow2D } from '../plottable/Arrow2D.js';
 import { Hotspot2D } from '../plottable/Hotspot2D.js';
 import { Parametric2D } from '../plottable/Parametric2D.js';
@@ -8,15 +7,6 @@ import { Vector } from '../math/Vector.js';
 import { Number } from '../math/Number.js';
 import { Expression } from '../math/expressions/Expression.js';
 
-/**
- * Renders plots in 2D (not to be confused with the Figure class)
- * TODO: Add functionality to link cameras between figures
- * TODO: Add better control of the viewport
- * @param {*} parent 
- * @param {*} container 
- * @param {*} opts 
- */
-
 function Axes2D(parent, container, opts) {
     Axes.call(this, parent, container, opts);
 
@@ -24,6 +14,8 @@ function Axes2D(parent, container, opts) {
      * Used internally for optimization (Read-only)
      */
     this.isAxes2DInstance = true;
+
+    if(opts === undefined) opts = {};
 
     /**
      * The zoom level of the camera. Denotes how many pixels should be one unit
@@ -42,13 +34,6 @@ function Axes2D(parent, container, opts) {
     if(opts.position !== undefined) {
         this.camera.position.add(opts.position);
     }
-
-    // Some test code
-    // var mesh = new THREE.Mesh( 
-    //     new THREE.BoxGeometry( 1, 1, 1, 1, 1, 1 ), 
-    //     new THREE.MeshBasicMaterial( { color : 0xff0000, wireframe: true } 
-    // ));
-    // this.frame.scene.add( mesh );
 
     // For closures
     var _self = this;
@@ -143,9 +128,6 @@ function Axes2D(parent, container, opts) {
 Axes2D.prototype = Object.create(Axes.prototype);
 Axes2D.prototype.constructor = Axes2D;
 
-/**
- * Plot an expression
- */
 Axes2D.prototype.plotExpression = function(expr, type, opts) {
     switch(type) {
         case 'arrow':            
@@ -183,9 +165,13 @@ Axes2D.prototype.updateCamera = function() {
     this.camera.bottom = -this.frame.height / this.zoom
     this.camera.updateProjectionMatrix();
 }
-
+ 
+/**
+ * Special function to add a hotspot
+ * @param {Hotspot2D} hotspot Hotspot to add
+ */
 Axes2D.prototype.addHotspot = function(hotspot) {
-    if (hotspot.type !== 'Hotspot2D') {
+    if (hotspot.isHotspot2DInstance !== true) {
         console.log('Interactive.Axes2D: Parameter is not a Hotspot2D.');
         return null;
     }
