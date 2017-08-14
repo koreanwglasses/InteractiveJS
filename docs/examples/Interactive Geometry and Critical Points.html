@@ -358,16 +358,15 @@ does for a local maximum or minimum.
             vector.
             <span style="">&nbsp;
 </span>The unit vector in the direction of the normal vector is called the �circular image� at the point.
-            <span
-                style="">&nbsp;
-                </span>In contradistinction to the case of a function graph where all the circular images were in the upper
-                semicircle, in the case of a parametric curve, any point on the unit circle can be the circular image of
-                a of a point on the curve.
-                <span style="">&nbsp;
+            <span style="">&nbsp;
+                </span>In contradistinction to the case of a function graph where all the circular images were
+            in the upper semicircle, in the case of a parametric curve, any point on the unit circle can be the circular
+            image of a of a point on the curve.
+            <span style="">&nbsp;
 </span>If, as before, we color red the points of the unit circle to the left of the vertical and if we color
-                the points in the lower semicircle yellow, then the first quadrant will be white, the second will be red,
-                the third will be orange, and the fourth will be yellow.<span style="">&nbsp; </span>We can then color each
-                point on the parametric curve with the same color as its circular image.
+            the points in the lower semicircle yellow, then the first quadrant will be white, the second will be red, the
+            third will be orange, and the fourth will be yellow.<span style="">&nbsp; </span>We can then color each point
+            on the parametric curve with the same color as its circular image.
         </div>
         <div class="textdiv">
             We can then read off the critical points of the horizontal coordinate function x(t) by finding points where the color changes
@@ -386,33 +385,33 @@ does for a local maximum or minimum.
             <div id="ax3b" style="width:250px;height:250px;display:inline-block;" class="ax"></div>
             <div id="pan3" style="display:inline-block;"></div>
             <script>
-                    var plot3 = new Interactive.Plot();
-                    var ax3a = plot3.createAxes2D(document.getElementById('ax3a'), { zoom: 200, fixedZoom: true });
-                    var ax3b = plot3.createAxes2D(document.getElementById('ax3b'), { zoom: 150, fixedZoom: true });
-                    var pan3 = plot3.createPanel(document.getElementById('pan3'))
+                        var plot3 = new Interactive.Plot();
+                        var ax3a = plot3.createAxes2D(document.getElementById('ax3a'), { zoom: 200, fixedZoom: true });
+                        var ax3b = plot3.createAxes2D(document.getElementById('ax3b'), { zoom: 150, fixedZoom: true });
+                        var pan3 = plot3.createPanel(document.getElementById('pan3'))
 
-                    plot3.execExpression('N(X,u)=norm(perp(derivative(X,u)))*0.5')
-                    plot3.execExpression('c(X,u)=select(quadrant(N(X,u)),(.6,.6,.6),(1,0,0),(1,.5,0),(1,1,0))')
+                        plot3.execExpression('N(X,u)=norm(perp(derivative(X,u)))*0.5')
+                        plot3.execExpression('c(X,u)=select(quadrant(N(X,u)),(.6,.6,.6),(1,0,0),(1,.5,0),(1,1,0))')
 
-                    plot3.execExpression('u=0')
-                    pan3.addSlider('{u,0,6.3,100}', { continuous: true });
+                        plot3.execExpression('u=0')
+                        pan3.addSlider('{u,0,6.3,100}', { continuous: true });
 
-                    plot3.execExpression('X1(u)=(cos(u),cos(u)*sin(u))')
-                    plot3.execExpression('c1(u)=c(X1,u)')
+                        plot3.execExpression('X1(u)=(cos(u),cos(u)*sin(u))')
+                        plot3.execExpression('c1(u)=c(X1,u)')
 
-                    ax3a.plotExpression('X1(u){u,0,2*PI,100}', 'parametric', { color: 'c1' })
-                    ax3a.plotExpression('N(X1,u)', 'arrow', { origin: 'X1(u)' })
+                        ax3a.plotExpression('X1(u){u,0,2*PI,100}', 'parametric', { color: 'c1' })
+                        ax3a.plotExpression('N(X1,u)', 'arrow', { origin: 'X1(u)' })
 
-                    plot3.execExpression('X2(u)=(cos(u),sin(u))')
-                    plot3.execExpression('c2(u)=c(X2,u)')
+                        plot3.execExpression('X2(u)=(cos(u),sin(u))')
+                        plot3.execExpression('c2(u)=c(X2,u)')
 
-                    ax3b.plotExpression('X2(u){u,0,2*PI,100}', 'parametric', { color: 'c2' })
-                    ax3b.plotExpression('N(X1,u)', 'arrow', { origin: 'N(X1,u)*2' })
+                        ax3b.plotExpression('X2(u){u,0,2*PI,100}', 'parametric', { color: 'c2' })
+                        ax3b.plotExpression('N(X1,u)', 'arrow', { origin: 'N(X1,u)*2' })
 
-                        ; (function animate() {
-                            requestAnimationFrame(animate);
-                            plot3.render();
-                        })();
+                            ; (function animate() {
+                                requestAnimationFrame(animate);
+                                plot3.render();
+                            })();
             </script>
         </div>
         <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_parametricdemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
@@ -463,36 +462,36 @@ does for a local maximum or minimum.
             <div id="ax4b" style="width:250px;height:250px;display:inline-block;" class="ax"></div>
             <div id="pan4" style="display:inline-block;"></div>
             <script>
-                    var plot4 = new Interactive.Plot();
-                    var ax4a = plot4.createAxes2D(document.getElementById('ax4a'), { zoom: 125, position: new THREE.Vector3(-.75, 0), fixedZoom: true });
-                    var ax4b = plot4.createAxes2D(document.getElementById('ax4b'), { zoom: 150, fixedZoom: true });
-                    var pan4 = plot4.createPanel(document.getElementById('pan4'))
+                        var plot4 = new Interactive.Plot();
+                        var ax4a = plot4.createAxes2D(document.getElementById('ax4a'), { zoom: 125, position: new THREE.Vector3(-.75, 0), fixedZoom: true });
+                        var ax4b = plot4.createAxes2D(document.getElementById('ax4b'), { zoom: 150, fixedZoom: true });
+                        var pan4 = plot4.createPanel(document.getElementById('pan4'))
 
-                    plot4.execExpression('N(X,t)=norm(perp(derivative(X,t)))*0.5')
-                    plot4.execExpression('c(X,t)=select(quadrant(N(X,t)),(.6,.6,.6),(1,0,0),(1,.5,0),(1,1,0))')
+                        plot4.execExpression('N(X,t)=norm(perp(derivative(X,t)))*0.5')
+                        plot4.execExpression('c(X,t)=select(quadrant(N(X,t)),(.6,.6,.6),(1,0,0),(1,.5,0),(1,1,0))')
 
-                    plot4.execExpression('u=0.5')
-                    pan4.addSlider('{u,-2,2,100}', { continuous: true });
+                        plot4.execExpression('u=0.5')
+                        pan4.addSlider('{u,-2,2,100}', { continuous: true });
 
-                    plot4.execExpression('t=5.5')
-                    pan4.addSlider('{t,2,9,100}', { continuous: true });
+                        plot4.execExpression('t=5.5')
+                        pan4.addSlider('{t,2,9,100}', { continuous: true });
 
-                    plot4.execExpression('X1(t)=(-(u+cos(t))*cos(t),-(u+cos(t))*sin(t))')
-                    plot4.execExpression('c1(t)=c(X1,t)')
+                        plot4.execExpression('X1(t)=(-(u+cos(t))*cos(t),-(u+cos(t))*sin(t))')
+                        plot4.execExpression('c1(t)=c(X1,t)')
 
-                    ax4a.plotExpression('X1(t){t,0,2*PI,100}', 'parametric', { color: 'c1' })
-                    ax4a.plotExpression('N(X1,t)', 'arrow', { origin: 'X1(t)' })
+                        ax4a.plotExpression('X1(t){t,0,2*PI,100}', 'parametric', { color: 'c1' })
+                        ax4a.plotExpression('N(X1,t)', 'arrow', { origin: 'X1(t)' })
 
-                    plot4.execExpression('X2(t)=(cos(t),sin(t))')
-                    plot4.execExpression('c2(t)=c(X2,t)')
+                        plot4.execExpression('X2(t)=(cos(t),sin(t))')
+                        plot4.execExpression('c2(t)=c(X2,t)')
 
-                    ax4b.plotExpression('X2(t){t,0,2*PI,100}', 'parametric', { color: 'c2' })
-                    ax4b.plotExpression('N(X1,t)', 'arrow', { origin: 'N(X1,t)*2' })
+                        ax4b.plotExpression('X2(t){t,0,2*PI,100}', 'parametric', { color: 'c2' })
+                        ax4b.plotExpression('N(X1,t)', 'arrow', { origin: 'N(X1,t)*2' })
 
-                        ; (function animate() {
-                            requestAnimationFrame(animate);
-                            plot4.render();
-                        })();
+                            ; (function animate() {
+                                requestAnimationFrame(animate);
+                                plot4.render();
+                            })();
             </script>
         </div>
         <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_cardioiddemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
@@ -578,39 +577,39 @@ Peaks the Geometry of Peaks and Passes</span>
             <div id="pan5" style="display:inline-block;"></div>
 
             <script>
-                    var plot5 = new Interactive.Plot();
-                    var ax5a = plot5.createAxes3D(document.getElementById('ax5a'), { zoom: 1.3 });
-                    var ax5b = plot5.createAxes2D(document.getElementById('ax5b'));
-                    var ax5c = plot5.createAxes3D(document.getElementById('ax5c'));
-                    var pan5 = plot5.createPanel(document.getElementById('pan5'))
+                        var plot5 = new Interactive.Plot();
+                        var ax5a = plot5.createAxes3D(document.getElementById('ax5a'), { zoom: 1.3 });
+                        var ax5b = plot5.createAxes2D(document.getElementById('ax5b'));
+                        var ax5c = plot5.createAxes3D(document.getElementById('ax5c'));
+                        var pan5 = plot5.createPanel(document.getElementById('pan5'))
 
-                    plot5.linkCameras(ax5a, ax5c);
+                        plot5.linkCameras(ax5a, ax5c);
 
-                    plot5.execExpression('m=0');
-                    pan5.addSlider('{m,-2,2,40}', { continuous: true })
+                        plot5.execExpression('m=0');
+                        pan5.addSlider('{m,-2,2,40}', { continuous: true })
 
-                    plot5.execExpression('h=0');
-                    pan5.addSlider('{h,-1.5,1.5,50}', { continuous: true })
+                        plot5.execExpression('h=0');
+                        pan5.addSlider('{h,-1.5,1.5,50}', { continuous: true })
 
-                    plot5.execExpression('c1()=(0.6,0.6,0.6)')
-                    plot5.execExpression('c2(v)=spectrum(component(v,2)/2+.5)')
-                    plot5.execExpression('c3(v)=spectrum(component(v,1)/2+.5)')
+                        plot5.execExpression('c1()=(0.6,0.6,0.6)')
+                        plot5.execExpression('c2(v)=spectrum(component(v,2)/2+.5)')
+                        plot5.execExpression('c3(v)=spectrum(component(v,1)/2+.5)')
 
-                    plot5.execExpression('f(x,y)=-(x^4)+2*x^2-y^2+m*x')
-                    ax5a.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1,1,50}', 'parametric', { color: 'c1' });
+                        plot5.execExpression('f(x,y)=-(x^4)+2*x^2-y^2+m*x')
+                        ax5a.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1,1,50}', 'parametric', { color: 'c1' });
 
-                    for (var i = -1.4; i < 1.5; i += 0.2) {
-                        ax5a.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1,1,50}|y=' + i.toFixed(2), 'isoline', { color: 'c3', thick: true });
-                        ax5b.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1,1,50}|y=' + i.toFixed(2), 'isoline', { color: 'c2' });
-                    }
+                        for (var i = -1.4; i < 1.5; i += 0.2) {
+                            ax5a.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1,1,50}|y=' + i.toFixed(2), 'isoline', { color: 'c3', thick: true });
+                            ax5b.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1,1,50}|y=' + i.toFixed(2), 'isoline', { color: 'c2' });
+                        }
 
-                    ax5c.plotExpression('(x,f(x,y),y){x,-1.5,1.5,20}{y,-1,1,20}', 'parametric', { color: 'c1', wireframe: true });
-                    ax5c.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1,1,50}|y=h', 'isoline', { color: 'c3', thick: false });
+                        ax5c.plotExpression('(x,f(x,y),y){x,-1.5,1.5,20}{y,-1,1,20}', 'parametric', { color: 'c1', wireframe: true });
+                        ax5c.plotExpression('(x,f(x,y),y){x,-1.5,1.5,50}{y,-1,1,50}|y=h', 'isoline', { color: 'c3', thick: false });
 
-                    ; (function animate() {
-                        requestAnimationFrame(animate);
-                        plot5.render();
-                    })();
+                        ; (function animate() {
+                            requestAnimationFrame(animate);
+                            plot5.render();
+                        })();
             </script>
         </div>
         <br>
@@ -662,39 +661,38 @@ f(x,y)
             <st1:place w:st="on">Crater Lake</st1:place>
             exhibits a different kind of unstable situation.<span style="">&nbsp; </span>The graph of g(x,y) = -(x<span style="color: black;"><sup>2</sup></span>
             <span style="color: black;"> + y</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">)</span>
-            <span
-                style="color: black;"><sup>2</sup></span>
-                <span style="color: black;"> + 2(x</span><span style="color: black;"><sup>2</sup></span><span style="color: black;"> +
+            <span style="color: black;"><sup>2</sup></span>
+            <span style="color: black;"> + 2(x</span><span style="color: black;"><sup>2</sup></span><span style="color: black;"> +
 y</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">) is a surface of revolution about the z-axis
 with profile curve �x</span><span style="color: black;"><sup>4</sup></span><span style="color: black;"> +
 2x</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">.<span style="">&nbsp; </span>The maximum
-                value of this function is 1, and there are infinitely many global maxima, lying over the circle x</span>
-                <span style="color: black;"><sup>2</sup></span><span style="color: black;"> +
+            value of this function is 1, and there are infinitely many global maxima, lying over the circle x</span>
+            <span style="color: black;"><sup>2</sup></span><span style="color: black;"> +
 y</span><span style="color: black;"><sup>2</sup></span><span style="color: black;"> = 1 in the domain.<span style="">&nbsp; </span>There
-                is one local minimum at the origin.<span style="">&nbsp; </span>Once again an earthquake shear will perturb
-                this situation to give the graph of g(x,y) = -(x</span><span style="color: black;"><sup>2</sup></span>
-                <span style="color: black;">
+            is one local minimum at the origin.<span style="">&nbsp; </span>Once again an earthquake shear will perturb this
+            situation to give the graph of g(x,y) = -(x</span><span style="color: black;"><sup>2</sup></span>
+            <span style="color: black;">
                             + y</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">)</span>
-                <span style="color: black;"><sup>2</sup></span><span style="color: black;"> + 2(x</span><span style="color: black;"><sup>2</sup></span>
-                <span style="color: black;"> + y</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">) + mx, which will still have one local minimum,
+            <span style="color: black;"><sup>2</sup></span><span style="color: black;"> + 2(x</span><span style="color: black;"><sup>2</sup></span>
+            <span style="color: black;"> + y</span><span style="color: black;"><sup>2</sup></span><span style="color: black;">) + mx, which will still have one local minimum,
 but the
 circle of maxima will break up into one global maximum and one saddle
 point, at
 least if m is small enough.<span style="">&nbsp; </span>The level set at the local minimum will be an isolated point surrounded
-                by a single level curve.
-                <span style="">&nbsp; </span>The level set at the global maximum will be a single point, and the level set
-                at the saddle point will be a "double loop with a single crossing point".
-                <span style="">&nbsp; </span>Near the saddle point, the level set looks like a pair of intersecting lines,
-                as in the case of the figure-eight curve for
-                <st1:place w:st="on">Twin Peaks</st1:place>. Between the level of the maximum and the saddle, the level set is a single curve.
-                Between the saddle and the local minimum, the level set consists of two curves, one inside the other (as
-                opposed to next to each other as in the case of
-                <st1:place w:st="on">Twin Peaks
-                </st1:place>).<span style="">&nbsp; </span>Below the local minimum, the level set is again the part of a
-                single curve lying in the domain.
-                <p>
-                </p>
-                </span>
+            by a single level curve.
+            <span style="">&nbsp; </span>The level set at the global maximum will be a single point, and the level set at
+            the saddle point will be a "double loop with a single crossing point".
+            <span style="">&nbsp; </span>Near the saddle point, the level set looks like a pair of intersecting lines, as
+            in the case of the figure-eight curve for
+            <st1:place w:st="on">Twin Peaks</st1:place>. Between the level of the maximum and the saddle, the level set is a single curve. Between
+            the saddle and the local minimum, the level set consists of two curves, one inside the other (as opposed to next
+            to each other as in the case of
+            <st1:place w:st="on">Twin Peaks
+            </st1:place>).<span style="">&nbsp; </span>Below the local minimum, the level set is again the part of a single
+            curve lying in the domain.
+            <p>
+            </p>
+            </span>
         </div>
         <div class="centered"><img style="width: 553px; height: 223px;" alt="Figure 6" src="./Interactive Geometry and Critical Points_files/figure6.JPG"></div>
         <br>
@@ -706,38 +704,38 @@ least if m is small enough.<span style="">&nbsp; </span>The level set at the loc
             <div id="pan6" style="display:inline-block;"></div>
 
             <script>
-                var plot6 = new Interactive.Plot();
-                var ax6a = plot6.createAxes3D(document.getElementById('ax6a'), { zoom: 1.1 });
-                var ax6b = plot6.createAxes3D(document.getElementById('ax6b'));
-                var pan6 = plot6.createPanel(document.getElementById('pan6'))
+                    var plot6 = new Interactive.Plot();
+                    var ax6a = plot6.createAxes3D(document.getElementById('ax6a'), { zoom: 1.1 });
+                    var ax6b = plot6.createAxes3D(document.getElementById('ax6b'));
+                    var pan6 = plot6.createPanel(document.getElementById('pan6'))
 
-                plot6.linkCameras(ax6a, ax6b)
+                    plot6.linkCameras(ax6a, ax6b)
 
-                plot6.execExpression('m=0');
-                pan6.addSlider('{m,-2,2,40}', { continuous: true })
+                    plot6.execExpression('m=0');
+                    pan6.addSlider('{m,-2,2,40}', { continuous: true })
 
-                plot6.execExpression('h=0');
-                pan6.addSlider('{h,-1.5,1.5,50}', { continuous: true })
+                    plot6.execExpression('h=0');
+                    pan6.addSlider('{h,-1.5,1.5,50}', { continuous: true })
 
-                plot6.execExpression('c1()=(0.6,0.6,0.6)')
-                plot6.execExpression('c3(v)=spectrum(component(v,1)/2+.5)')
+                    plot6.execExpression('c1()=(0.6,0.6,0.6)')
+                    plot6.execExpression('c3(v)=spectrum(component(v,1)/2+.5)')
 
-                plot6.execExpression('f(r,t)=-(r^4)+2*r^2+m*(r*cos(t))')
-                plot6.execExpression('X(r,t)=(r*cos(t),f(r,t),r*sin(t))')
+                    plot6.execExpression('f(r,t)=-(r^4)+2*r^2+m*(r*cos(t))')
+                    plot6.execExpression('X(r,t)=(r*cos(t),f(r,t),r*sin(t))')
 
-                ax6a.plotExpression('X(r,t){r,0,1.5,50}{t,0,2*PI,50}', 'parametric', { color: 'c1' });
+                    ax6a.plotExpression('X(r,t){r,0,1.5,50}{t,0,2*PI,50}', 'parametric', { color: 'c1' });
 
-                for (var i = -1.4; i < 1.6; i += 0.2) {
-                    ax6a.plotExpression('X(r,t){r,0,1.5,50}{t,0,2*PI,50}|y=' + i.toFixed(2), 'isoline', { color: 'c3', thick: true });
-                }
+                    for (var i = -1.4; i < 1.6; i += 0.2) {
+                        ax6a.plotExpression('X(r,t){r,0,1.5,50}{t,0,2*PI,50}|y=' + i.toFixed(2), 'isoline', { color: 'c3', thick: true });
+                    }
 
-                ax6b.plotExpression('X(r,t){r,0,1.5,20}{t,0,2*PI,20}', 'parametric', { color: 'c1', wireframe: true });
-                ax6b.plotExpression('X(r,t){r,0,1.5,50}{t,0,2*PI,50}|y=h', 'isoline', { color: 'c3', thick: false });
+                    ax6b.plotExpression('X(r,t){r,0,1.5,20}{t,0,2*PI,20}', 'parametric', { color: 'c1', wireframe: true });
+                    ax6b.plotExpression('X(r,t){r,0,1.5,50}{t,0,2*PI,50}|y=h', 'isoline', { color: 'c3', thick: false });
 
-                ; (function animate() {
-                    requestAnimationFrame(animate);
-                    plot6.render();
-                })();
+                    ; (function animate() {
+                        requestAnimationFrame(animate);
+                        plot6.render();
+                    })();
             </script>
         </div>
         <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_graphslicescraterlakedemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
@@ -812,7 +810,8 @@ least if m is small enough.<span style="">&nbsp; </span>The level set at the loc
             <span style="">&nbsp; </span>Just as we colored graphs of functions f(x) in the plane by red or white depending
             on the algebraic sign of f�(x) or the position of the unit normal vector in the left or right side of the circular
             image, we can color the graph of a function f(x,y) depending on the signs of the partial derivative functions
-            f<sub>x</sub>(x,y) and f<span style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y).<span style="">&nbsp; </span>For
+            f
+            <sub>x</sub>(x,y) and f<span style="color: black;"><sub>y</sub></span><span style="color: black;">(x,y).<span style="">&nbsp; </span>For
             a differentiable function there is a well-defined tangent plane at each point of the graph and an upward-pointing
             <span style=""> </span>normal perpendicular to that plane.
             <span style="">&nbsp; </span>If f</span><span style="color: black;"><sub>x</sub></span><span style="color: black;">(x,y)
@@ -829,12 +828,11 @@ in order to exhibit the points separating those regions, where f</span><span sty
 to the y-z-coordinate
 plane.<span style="">&nbsp; </span>Similarly if we color the surface white if f</span><span style="color: black;"><sub>y</sub></span>
             <span style="color: black;">(x,y) is positive and blue if it is negative, we can identify the points where f</span>
-            <span
-                style="color: black;"><sub>y</sub></span>
-                <span style="color: black;">(x,y) = 0, and where the tangent plane is perpendicular to the x-z-plane.
+            <span style="color: black;"><sub>y</sub></span>
+            <span style="color: black;">(x,y) = 0, and where the tangent plane is perpendicular to the x-z-plane.
                                 <span style="">&nbsp; </span>
-                <o:p>&nbsp;</o:p>
-                </span>
+            <o:p>&nbsp;</o:p>
+            </span>
         </div>
         <div class="textdiv">
             We can then use additively to color the surface purple where it is both red and blue, where f<span style="color: black;"><sub>x</sub></span>
@@ -855,22 +853,21 @@ surface is colored white.<span style="">&nbsp; </span>Thus we color a point whit
             A point will be a critical point if all four colors meet at the point.<span style="">&nbsp; </span>We can also
             express this condition by saying that the point is in the intersection of the locus f<span style="color: black;"><sub>x</sub></span>
             <span style="color: black;">(x,y) = 0 and the locus f</span><span style="color: black;"><sub>y</sub></span>
-            <span
-                style="color: black;">(x,y) = 0. Usually those conditions are expressed and dealt with only algebraically, but interactive computer
+            <span style="color: black;">(x,y) = 0. Usually those conditions are expressed and dealt with only algebraically, but interactive computer
                 graphics provides a direct visual display of the geometric properties of these partial derivative functions.
                 <o:p></o:p>
                 </span>
-                <p></p>
-                <p class="MsoNormal" style="text-align: center;">
-                    <v:shape id="_x0000_i1031" type="#_x0000_t75" style="width: 414.75pt; height: 93pt;">
-                        <v:imagedata src="file:///C:%5CDOCUME%7E1%5CMichael%5CLOCALS%7E1%5CTemp%5Cmsohtml1%5C01%5Cclip_image013.wmz" o:althref="file:///C:\DOCUME~1\Michael\LOCALS~1\Temp\msohtml1\01\clip_image014.pcz"
-                            o:title="">
-                        </v:imagedata><img style="width: 553px; height: 124px;" alt="figure7" src="./Interactive Geometry and Critical Points_files/figure7.JPG"><br>
-                    </v:shape>
-                </p>
-                <p class="MsoNormal" style="text-align: center;" align="center"><span style="">&nbsp;</span>Figure 7:<span style="">&nbsp;
+            <p></p>
+            <p class="MsoNormal" style="text-align: center;">
+                <v:shape id="_x0000_i1031" type="#_x0000_t75" style="width: 414.75pt; height: 93pt;">
+                    <v:imagedata src="file:///C:%5CDOCUME%7E1%5CMichael%5CLOCALS%7E1%5CTemp%5Cmsohtml1%5C01%5Cclip_image013.wmz" o:althref="file:///C:\DOCUME~1\Michael\LOCALS~1\Temp\msohtml1\01\clip_image014.pcz"
+                        o:title="">
+                    </v:imagedata><img style="width: 553px; height: 124px;" alt="figure7" src="./Interactive Geometry and Critical Points_files/figure7.JPG"><br>
+                </v:shape>
+            </p>
+            <p class="MsoNormal" style="text-align: center;" align="center"><span style="">&nbsp;</span>Figure 7:<span style="">&nbsp;
 </span>Perturbed Twin Peaks, color-coded domains
-                </p>
+            </p>
         </div>
         <div class="textdiv">
             We obtain a bonus from this method of coloring because we can tell whether a critical point represents a maximum or minimum
@@ -1024,32 +1021,33 @@ intersecting curves where f</span><span style="color: black;"><sub>y</sub></span
             <div class="centered">Figure 12:
                 <span style="">&nbsp; </span>Color-coded graph of perturbed Crater Lake
             </div>
-            <div id="fig12" class="centered">
-                <div id="ax12a" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
-                <div id="pan12" style="display:inline-block;"></div>
-
-                <script>
-                    var plot12 = new Interactive.Plot();
-                    var ax12a = plot12.createAxes3D(document.getElementById('ax12a'), { zoom: 1.1 });
-                    var pan12 = plot12.createPanel(document.getElementById('pan12'));
-
-                    plot12.execExpression('m=0');
-                    pan12.addSlider('{m,-2,2,40}', { continuous: true })
-
-                    plot12.execExpression('f(r,t)=-(r^4)+2*r^2+m*(r*cos(t))')
-                    plot12.execExpression('X(r,t)=(r*cos(t),f(r,t),r*sin(t))')
-                    plot12.execExpression('c(r,t)=select(octant(normal(X,r,t)),(0,0,0),(0,0,1),(0.7,0,0.7),(0,0,1),(1,0,0),(1,0,1),(1,0,0),(1,1,1))')
-
-                    ax12a.plotExpression('X(r,t){r,0,1.5,50}{t,0,2*PI,50}', 'parametric', { color: 'c' });
-
-                    ; (function animate() {
-                        requestAnimationFrame(animate);
-                        plot12.render();
-                    })();
-                </script>
-            </div>
-            <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_craterlakefunctiongraphdemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
         </div>
+        <div id="fig12" class="centered">
+            <div id="ax12a" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
+            <div id="pan12" style="display:inline-block;"></div>
+
+            <script>
+                var plot12 = new Interactive.Plot();
+                var ax12a = plot12.createAxes3D(document.getElementById('ax12a'), { zoom: 1.1 });
+                var pan12 = plot12.createPanel(document.getElementById('pan12'));
+
+                plot12.execExpression('m=0');
+                pan12.addSlider('{m,-2,2,40}', { continuous: true })
+
+                plot12.execExpression('f(r,t)=-(r^4)+2*r^2+m*(r*cos(t))')
+                plot12.execExpression('X(r,t)=(r*cos(t),f(r,t),r*sin(t))')
+                plot12.execExpression('c(r,t)=select(octant(normal(X,r,t)),(0,0,0),(0,0,1),(0.7,0,0.7),(0,0,1),(1,0,0),(1,0,1),(1,0,0),(1,1,1))')
+
+                ax12a.plotExpression('X(r,t){r,0,1.5,50}{t,0,2*PI,50}', 'parametric', { color: 'c' });
+
+                ; (function animate() {
+                    requestAnimationFrame(animate);
+                    plot12.render();
+                })();
+            </script>
+        </div>
+        <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_craterlakefunctiongraphdemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
+
         <p>
         </p>
         <div class="textdiv">
@@ -1131,25 +1129,25 @@ intersecting curves where f</span><span style="color: black;"><sub>y</sub></span
             <div id="ax14b" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
 
             <script>
-                var plot14 = new Interactive.Plot();
-                var ax14a = plot14.createAxes3D(document.getElementById('ax14a'), { zoom: 0.7 });
-                var ax14b = plot14.createAxes3D(document.getElementById('ax14b'));
+                    var plot14 = new Interactive.Plot();
+                    var ax14a = plot14.createAxes3D(document.getElementById('ax14a'), { zoom: 0.7 });
+                    var ax14b = plot14.createAxes3D(document.getElementById('ax14b'));
 
-                plot14.linkCameras(ax14a, ax14b)
+                    plot14.linkCameras(ax14a, ax14b)
 
-                plot14.execExpression('X1(u,v)=((2 + cos(v))*cos(u), sin(v) + 0.2*sin(3*u), (2 + cos(v))*sin(u))')
-                plot14.execExpression('X2(u,v)=(2*cos(u)*sin(v),2*sin(u)*sin(v),2*cos(v))')
-                plot14.execExpression('c(n)=select(octant(n),(1,1,1),(0,0,1),(0,1,0),(1,1,0),(1,0,0),(0.7,0,0.7),(0.5,0.25,0.1),(1,0.5,0))')
-                plot14.execExpression('cX1(u,v)=c(-normal(X1,u,v))')
-                plot14.execExpression('cX2(u,v)=c(-normal(X2,u,v))')
+                    plot14.execExpression('X1(u,v)=((2 + cos(v))*cos(u), sin(v) + 0.2*sin(3*u), (2 + cos(v))*sin(u))')
+                    plot14.execExpression('X2(u,v)=(2*cos(u)*sin(v),2*sin(u)*sin(v),2*cos(v))')
+                    plot14.execExpression('c(n)=select(octant(n),(1,1,1),(0,0,1),(0,1,0),(1,1,0),(1,0,0),(0.7,0,0.7),(0.5,0.25,0.1),(1,0.5,0))')
+                    plot14.execExpression('cX1(u,v)=c(-normal(X1,u,v))')
+                    plot14.execExpression('cX2(u,v)=c(-normal(X2,u,v))')
 
-                ax14a.plotExpression('X1(u,v){u,0,2*PI,200}{v,0,2*PI,100}', 'parametric', { color: 'cX1' });
-                ax14b.plotExpression('X2(u,v){u,0,2*PI,50}{v,0,PI,25}', 'parametric', { color: 'cX2' });
+                    ax14a.plotExpression('X1(u,v){u,0,2*PI,200}{v,0,2*PI,100}', 'parametric', { color: 'cX1' });
+                    ax14b.plotExpression('X2(u,v){u,0,2*PI,50}{v,0,PI,25}', 'parametric', { color: 'cX2' });
 
-                ; (function animate() {
-                    requestAnimationFrame(animate);
-                    plot14.render();
-                })();
+                    ; (function animate() {
+                        requestAnimationFrame(animate);
+                        plot14.render();
+                    })();
             </script>
         </div>
         <div class="centered"><a href="https://php.radford.edu/~ejmt/v2n2p2/IGCP_help_warpedtorusdemo.html" onclick="return openwindow(this, &#39;Help&#39;)"><span style="font-size: 80%;">Demo help</span></a></div>
