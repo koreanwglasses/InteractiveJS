@@ -2,7 +2,7 @@
  * Creates several bindings and useful functions for mouse and touch interactions
  * @param {*} container 
  */
-function TouchEventListener(container) {
+function TouchEventListener(container, opts) {
     var _container = container;
 
     var _mouseInContainer = false;
@@ -18,6 +18,9 @@ function TouchEventListener(container) {
     var _clientStartY = 0;
 
     var _self = this;
+
+    if(opts === undefined) opts = {};
+    if(opts.passive === undefined) opts.passive = true;
 
     _container.addEventListener('mouseenter', function() {
         _mouseInContainer = true;
@@ -84,15 +87,36 @@ function TouchEventListener(container) {
         }
     });
 
-    _container.addEventListener('wheel', function(event) {
-        var e = {
-            amount: event.deltaY,
-            suppressScrolling: function() {
-                event.preventDefault();
-            }
-        };
-        _self.onzoom(e);
-    });
+    if(opts.passive === false) {
+        _container.addEventListener('wheel', function(event) {
+            var e = {
+                amount: event.deltaY,
+                suppressScrolling: function() {
+                    event.preventDefault();
+                }
+            };
+            _self.onzoom(e);
+        });
+    }
+
+    // var _onpan = function(event) {
+    //     if (event.rightButtonDown) {
+    //         // Prevent default if mouse moved significantly
+    //         if ((event.screenX - event.screenStartX) * (event.screenX - event.screenStartX) + (event.screenY - event.screenStartY) * (event.screenY - event.screenStartY) > 25) {
+    //             event.suppressContextMenu();
+    //         }
+
+    //         // zoom
+    //         var e = {
+    //             amount: event.screenY - event.screenStartY,
+    //             suppressScrolling: function() {
+    //                 return;
+    //             }
+    //         };
+    //         _self.onzoom(e);
+    //     }
+    //     _self.onpan(event);
+    // }
 
     this.onpan = function() {
         return false;
