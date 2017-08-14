@@ -5,12 +5,14 @@ import { Number } from './Number.js';
  */
 function Vector() {
     this.type = 'Vector';
+    this.isVectorInstance = true;
 
     // Support an arbitrary number of dimensions (Read-only)
     this.dimensions = arguments.length;
 
     if(arguments[0] instanceof THREE.Vector3) {
-        this.q = [arguments[0].x, arguments[0].y, arguments[0].z]
+        this.dimensions = 3;
+        this.q = [new Number(arguments[0].x), new Number(arguments[0].y), new Number(arguments[0].z)]
     } else {
         // q is the general term for a coordinate
         this.q = Array.from(arguments);
@@ -70,11 +72,19 @@ Vector.prototype.crs = function(v) {
 }
 
 Vector.prototype.mul = function(v) {
-    var result = this.clone();
-    for(var i = 0; i < this.dimensions; i++) {
-        result.q[i] = result.q[i].mul(v);
+    if(v.isNumberInstance === true) {
+        var result = this.clone();
+        for(var i = 0; i < this.dimensions; i++) {
+            result.q[i] = result.q[i].mul(v);
+        }
+        return result;
+    } else if (v.isVectorInstance === true) {
+        var result = this.clone();
+        for(var i = 0; i < this.dimensions; i++) {
+            result.q[i] = result.q[i].mul(v.q[i]);
+        }
+        return result;
     }
-    return result;
 }
 
 Vector.prototype.preMul = function(v) {
