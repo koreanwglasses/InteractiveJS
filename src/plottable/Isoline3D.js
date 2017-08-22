@@ -210,7 +210,7 @@ Isoline3D.prototype.createSceneObject = function() {
 }
 
 Isoline3D.prototype.invalidate = function (expr) {
-    if (this.parExpr.getVariables().includes(expr)) this.sfldValidated = false;
+    if (this.parExpr.getVariables().indexOf(expr) !== -1) this.sfldValidated = false;
     this.validated = false;
 }
 

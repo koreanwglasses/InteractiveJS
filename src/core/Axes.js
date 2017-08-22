@@ -140,7 +140,7 @@ Axes.prototype.redrawExpression = function(expr) {
  */
 Axes.prototype.refresh = function(expr) {
     for(var i = 0; i < this.objects.length; i++) {
-        if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().includes(expr))) {
+        if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().indexOf(expr) !== -1)) {
             this.objects[i].invalidate(expr);
         }
     }

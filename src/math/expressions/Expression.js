@@ -17,7 +17,7 @@ Expression.prototype.getVariables = function () {
     var variables = []
     for (var i = 0; i < this.variables.length; i++) {
         var v = this.variables[i];
-        if (this.context.functions[v] !== undefined && variables.includes(v) === false) {
+        if (this.context.functions[v] !== undefined && variables.indexOf(v) !== -1 === false) {
             variables = variables.concat(this.context.functions[v].getVariables());
         } else {
             variables.push(v)
@@ -29,8 +29,8 @@ Expression.prototype.getVariables = function () {
 Expression.typeOf = function (string) {
 
     if (string === '()') return 'null';
-    if (string.includes('|')) return 'isoline';
-    if (string.includes('=')) return 'equation';
+    if (string.indexOf('|') !== -1) return 'isoline';
+    if (string.indexOf('=') !== -1) return 'equation';
 
     var nestingLevel = 0;
     var isVector = false;
@@ -40,10 +40,10 @@ Expression.typeOf = function (string) {
         else
             return 'parametric'
     }
-    if (string.includes('(') === false && string.includes(')') === false) {
+    if (string.indexOf('(') !== -1 === false && string.indexOf(') !== -1') === false) {
         if (/^[0-9.]+$/.test(string)) {
             return 'constant'
-        } else if (string.includes('+') || string.includes('-') || string.includes('*') || string.includes('/') || string.includes('^')) {
+        } else if (string.indexOf('+') !== -1 || string.indexOf('-') !== -1 || string.indexOf('*') !== -1 || string.indexOf('/') !== -1 || string.indexOf('^') !== -1) {
             return 'expression'
         } else {
             return 'variable'
@@ -254,11 +254,11 @@ Expression.prototype.toJSExpression = function (string, specials, isparam, varia
                     stack.push('');
                     break;
                 case 'variable':
-                    if (specials !== undefined && specials.includes(operations[i].str)) {
+                    if (specials !== undefined && specials.indexOf(operations[i].str) !== -1) {
                         stack.push(operations[i].str);
                     } else {
                         stack.push('context["' + operations[i].str + '"]')
-                        if (this.variables.includes(operations[i].str) === false) this.variables.push(operations[i].str);
+                        if (this.variables.indexOf(operations[i].str) !== -1 === false) this.variables.push(operations[i].str);
                     }
                     break;
                 case 'constant':
@@ -271,7 +271,7 @@ Expression.prototype.toJSExpression = function (string, specials, isparam, varia
                 case 'function':
                     var a = stack.pop()
                     stack.push('context["' + operations[i].str + '"](' + a + ')');
-                    if (this.variables.includes(operations[i].str) === false) this.variables.push(operations[i].str);
+                    if (this.variables.indexOf(operations[i].str) !== -1 === false) this.variables.push(operations[i].str);
                     break;
                 case 'uoperator':
                     var a = stack.pop()
@@ -333,9 +333,9 @@ Expression.prototype.toJSExpression = function (string, specials, isparam, varia
         expr = expr.slice(0, expr.length - 1) + ')'
         return expr;
     } else if (type === 'variable') {
-        if (specials !== undefined && specials.includes(str)) return str
+        if (specials !== undefined && specials.indexOf(str) !== -1) return str
         var expr = 'context["' + str + '"]'
-        if (this.variables.includes(str) === false) this.variables.push(str);
+        if (this.variables.indexOf(str) !== -1 === false) this.variables.push(str);
         return expr;
     } else if (type === 'parametric') {
         var params = Expression.splitParametric(str);
