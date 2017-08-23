@@ -1,0 +1,821 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- saved from url=(0049)http://www.math.brown.edu/~banchoff/LinAlg3D.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>Linear Algebra</title>
+  <script type="text/javascript">
+<!--
+function openwindow(lnk, nme)
+{
+if (! window.focus)return true;
+var href;
+if (typeof(lnk) == 'string')
+href=lnk;
+else
+href=lnk.href;
+window.open(href, nme, 'width=300,height=300,scrollbars=yes');
+return false;
+}
+//-->
+  </script>
+<style id="dark-reader-style" type="text/css">@media screen {
+
+/* Leading rule */
+html {
+  -webkit-filter: invert(100%) hue-rotate(180deg) contrast(80%) grayscale(10%) sepia(10%) !important;
+}
+
+/* Contrary rule */
+img, iframe, video, *:not(object):not(body)>embed, object,
+svg image,
+*[style*="background:url"]:empty, *[style*="background-image:url"]:empty,
+*[style*="background: url"]:empty, *[style*="background-image: url"]:empty,
+twitterwidget {
+  -webkit-filter: invert(100%) hue-rotate(180deg) !important;
+}
+
+/* Text contrast */
+html {
+  text-shadow: 0 0 0 !important;
+}
+
+/* Full screen */
+*:-webkit-full-screen, *:-webkit-full-screen * {
+  -webkit-filter: none !important;
+}
+
+/* Page background */
+html {
+  background: rgb(26,26,25) !important;
+}
+
+}</style></head>
+<body>
+<font style="color: rgb(0, 0, 0);" color="#ff4000">VECTOR ADDITION IN
+THREE-DIMENSIONAL SPACE
+<br>
+</font>
+<p style="color: rgb(0, 0, 0);"><br>
+Vectors in three-space are given by arrows based at the origin.&nbsp;
+We
+denote by the single letter A the vector from the origin O = (0,0,0) to
+the point (a<sub>1</sub>,a<sub>2</sub>,a<sub>3</sub>).
+<br>
+</p>
+<p style="color: rgb(0, 0, 0);"><br>
+To add two vectors A = (a<sub>1</sub>,a<sub>2</sub>,a<sub>3</sub>) and
+C = (c<sub>1</sub>,c<sub>2</sub>,c<sub>3</sub>), we add their
+coordinates, so A + C = (a<sub>1</sub>,a<sub>2</sub>,a<sub>3</sub>) + (c<sub>1</sub>,c<sub>2</sub>,c<sub>3</sub>)
+= (a<sub>1</sub>+c<sub>1</sub>,a<sub>2</sub>+c<sub>2</sub>,a<sub>3</sub>+c<sub>3</sub>).
+<br>
+</p>
+<p style="color: rgb(0, 0, 0);"><br>
+Note that the vector from O to A is the same as the difference of
+the vectors A+C and C so the line containing O and A is parallel to the
+line containing A and A+C.&nbsp; Similarly the line containing O and
+C is
+parallel to the line containing C and A+C so these two lines are also
+parallel.&nbsp; It follows that the quadrilateral from O to A to A+C to
+C and
+back to O has opposite sides parallel so it is a parallelogram.&nbsp;
+The
+point A+C is therefore the intersection of the line through A parallel
+to the line along C and the line through C parallel to the line along
+A.&nbsp; The definition of vector addition is often called "the
+parallelogram
+law".&nbsp; <font color="#ff4000"><span style="color: rgb(0, 0, 0);">Note
+that if A and C are
+themselves parallel, lying along a line through the origin, then A+C
+also lies on this line.</span></font>
+</p>
+<font color="#ff4000"><br style="color: rgb(0, 0, 0);">
+<span style="color: rgb(0, 0, 0);">In three-dimensional space, if we
+take three vectors A, B, and C then
+any two of them determine a parallelogram and all three will determine
+"a parallelepiped" in three-space.&nbsp;
+The sum of the three vectors A, B, and C is the position vector to the
+vertex of the parallelepiped farthest from the origin.&nbsp; Is does
+not make any difference in which order the three vectors are added, for
+example (A+B)+C = A+(B+C) = (B+C)+A (by the commutative law) =
+B+(C+A).&nbsp; This statement is called "the Associative Law of Vector
+Addition".</span><br style="color: rgb(0, 0, 0);">
+<span style="color: rgb(0, 0, 0);"><br>
+<br>
+</span><img style="width: 219px; height: 201px;" alt="figure1" src="./Linear Algebra 3D_files/lafigure2-1.png"><br>
+<br>
+&nbsp;</font>
+<applet archive="Demo.jar" code="DemoApplet" height="50" width="400"><param name="NAME" value="Addition of Vectors in Three-Dimensional Space"> <param name="DATA" value="filever 100.0 env {value 
+$AHS=(0.2602658328738012 , 0.6882566939133219 , 0.2217440824133474)$ value 
+$BHS=(0.6301558118830256 , -0.43963518711928845 , 0.3296698079181056)$ value 
+$CHS=(0.8554534954413807 , 0.4004927544186301 , -0.5534524712643899)$ constant 
+$A=AHS$ constant $B=BHS$ constant $C=CHS$} objects [{controls obj0 {constants [] 
+intervals [] objects [] readouts [{readout obj1 $B$} {readout obj2 $A$} {readout 
+obj3 $C$}] functions [] variables []}} {frame.3d obj4 {canvas {canvas.3d obj21 
+{tool 100.0 points true graph {graph.3d obj22 {light true graph {plots 
+[{plot.polyhedron obj19 {faces [[0.0 1.0 2.0 3.0 0.0]] super {transpt $0$ 
+visible true addedz 0.0} colors [{coloring.constant obj23 {color [1.0 1.0 1.0 
+1.0]}}] vertices [$C$ $A+C$ $A+B+C$ $B+C$] title Polyhedron}} {plot.polyhedron 
+obj13 {faces [[0.0 1.0 2.0 3.0 0.0]] super {transpt $0$ visible true addedz 
+-3.0} colors [{coloring.constant obj24 {color [0.5 0.5 0.5 0.5]}}] vertices 
+[$0,0,0$ $A$ $A+B$ $B$] title Polyhedron}} {plot.polyhedron obj6 {faces [[0.0 
+1.0 2.0 3.0 0.0]] super {transpt $0$ visible true addedz 0.0} colors 
+[{coloring.constant obj25 {color [0.5 0.5 0.5 0.5]}}] vertices [$0,0,0$ $B$ 
+$B+C$ $C$] title Polyhedron}} {plot.point obj8 {super {transpt $0$ visible false 
+addedz 0.0} color {coloring.constant obj26 {color [1.0 1.0 1.0 1.0]}} label $$ 
+size 10.0 style 0.0 showlabel false dim 3.0 expr $CHS$}} {plot.polyhedron obj7 
+{faces [[0.0 1.0 2.0 3.0 0.0]] super {transpt $0$ visible true addedz 0.0} 
+colors [{coloring.constant obj27 {color [0.5 0.5 0.5 0.5]}}] vertices [$A$ 
+$A+C$ $A+B+C$ $A+B$] title Polyhedron}} {plot.point obj18 {super {transpt $0$ 
+visible false addedz 0.0} color {coloring.constant obj28 {color [1.0 1.0 1.0 
+1.0]}} label $$ size 10.0 style 0.0 showlabel false dim 3.0 expr $AHS$}} 
+{plot.vector obj20 {base $0,0,0$ endstyle 5.0 dir $B$ color {coloring.group 
+obj29 {colors [{coloring.constant obj30 {color [0.0 0.0 1.0 1.0]}}] opacities 
+[1.0] mixings [0.0]}} dim 3.0 thick false basestyle 0.0 subdivs 1.0 len 1.0 
+basesize 10.0 super {transpt $0$ visible true addedz 0.0} endsize 10.0}} 
+{plot.vector obj5 {base $0,0,0$ endstyle 5.0 dir $A$ color {coloring.group obj31 
+{colors [{coloring.constant obj32 {color [1.0 0.0 0.0 1.0]}}] opacities [1.0] 
+mixings [0.0]}} dim 3.0 thick false basestyle 0.0 subdivs 1.0 len 1.0 basesize 
+10.0 super {transpt $0$ visible true addedz 0.0} endsize 10.0}} {plot.axes obj33 
+{super {transpt $0$ visible true addedz 0.0} labels [x y z]}} {plot.vector obj14 
+{base $0,0,0$ endstyle 5.0 dir $B+C$ color {coloring.group obj34 {colors 
+[{coloring.constant obj35 {color [0.0 1.0 0.0 1.0]}}] opacities [1.0] mixings 
+[0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super 
+{transpt $0$ visible true addedz 0.0} endsize 10.0}} {plot.vector obj11 {base 
+$0,0,0$ endstyle 5.0 dir $A+B+C$ color {coloring.group obj36 {colors 
+[{coloring.constant obj37 {color [0.25 0.25 0.25 1.0]}}] opacities [1.0] mixings 
+[0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super 
+{transpt $0$ visible true addedz 0.0} endsize 10.0}} {plot.polyhedron obj16 
+{faces [[0.0 1.0 2.0 3.0 0.0]] super {transpt $0$ visible true addedz 0.0} 
+colors [{coloring.constant obj38 {color [0.5 0.5 0.5 0.5]}}] vertices [$0,0,0$ 
+$A$ $A+C$ $C$] title Polyhedron}} {plot.polyhedron obj15 {faces [[0.0 1.0 2.0 
+3.0 0.0]] super {transpt $0$ visible true addedz 0.0} colors [{coloring.constant 
+obj39 {color [0.5 0.5 0.5 0.5]}}] vertices [$B$ $B+C$ $A+B+C$ $A+B$] title 
+Polyhedron}} {plot.point obj12 {super {transpt $0$ visible false addedz 0.0} 
+color {coloring.constant obj40 {color [1.0 1.0 1.0 1.0]}} label $$ size 10.0 
+style 0.0 showlabel false dim 3.0 expr $BHS$}} {plot.vector obj17 {base $0,0,0$ 
+endstyle 5.0 dir $A+B$ color {coloring.group obj41 {colors [{coloring.constant 
+obj42 {color [1.0 0.0 1.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick 
+true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible 
+true addedz 0.0} endsize 10.0}} {plot.vector obj9 {base $0,0,0$ endstyle 5.0 dir 
+$C$ color {coloring.group obj43 {colors [{coloring.constant obj44 {color [1.0 
+1.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick false basestyle 
+0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 
+0.0} endsize 10.0}} {plot.vector obj10 {base $0,0,0$ endstyle 5.0 dir $A+C$ 
+color {coloring.group obj45 {colors [{coloring.constant obj46 {color [1.0 0.8 
+0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true basestyle 0.0 
+subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} 
+endsize 10.0}}]} alpha true scale 100.01271474132783 surfacemode 2.0 drawmode 
+1.0 transf [0.9853607531271896 -0.07279765055716281 -0.15415799774895098 
+-63.21905338367638 0.0021464925911298814 0.9094727744231567 -0.4157579405767128 
+-47.438545766200974 0.1704687031867249 0.4093406584452511 0.8963150375718567 
+-32.877586055850465 0.0 0.0 0.0 1.0]}} group null hotspots [{hotspot obj47 
+{origin $0, 0, 0$ entry CHS constraint $Point$ cmode 0.0 cobjs []}} {hotspot 
+obj48 {origin $0, 0, 0$ entry AHS constraint $Point_1,Point_2,0$ cmode 0.0 cobjs 
+[]}} {hotspot obj49 {origin $0, 0, 0$ entry BHS constraint $Point_1,Point_2,0$ 
+cmode 0.0 cobjs []}}] drawmode 1.0}} graph {id obj22} frame {visible true plots 
+[{id obj5} {id obj6} {id obj7} {id obj8} {id obj9} {id obj10} {id obj11} {id 
+obj12} {id obj13} {id obj14} {id obj15} {id obj16} {id obj17} {id obj18} {id 
+obj19} {id obj20}] title $3D Graph$ labels [$ Vector: A  starting at 0,0,0$ 
+$ Polyhedron$ $ Polyhedron$ $ Point: CHS$ $ Vector: C  starting at 0,0,0$ 
+$ Vector: A+C  starting at 0,0,0$ $ Vector: A+B+C  starting at 0,0,0$ 
+$ Point: BHS$ $ Polyhedron$ $ Vector: B+C  starting at 0,0,0$ $ Polyhedron$ 
+$ Polyhedron$ $ Vector: A+B  starting at 0,0,0$ $ Point: AHS$ $ Polyhedron$ 
+$ Vector: B  starting at 0,0,0$]}}}] "></applet><big><a href="http://www.math.brown.edu/~banchoff/la2d1.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
+<br>
+<br>
+<p style="color: rgb(0, 0, 0);">SCALAR MULTIPLICATION IN THREE-SPACE</p>
+<p style="color: rgb(0, 0, 0);"><br>
+Multiplication of a vector A by the real number r is defined by rA = r(a<sub>1</sub>,a<sub>2</sub>,a<sub>3</sub>)
+= (ra<sub>1</sub>,ra<sub>2</sub>,ra<sub>3</sub>). <br>
+</p>
+<p style="color: rgb(0, 0, 0);"><br>
+Geometrically rA represents a stretching
+of A by a scale factor r if r &gt; 1 and a shrinking by a scale factor
+r is 0 &lt; r &lt; 1.&nbsp; We speak of the number r as a "scalar" and
+rA as
+a "scalar multiple of A". Note that 1A = 1(a<sub>1</sub>,a<sub>2</sub>,a<sub>3</sub>)
+(1a<sub>1</sub>,1a<sub>2</sub>,1a<sub>3</sub>)= (a<sub>1</sub>,a<sub>2</sub>,a<sub>3</sub>)
+and 0A = O((a<sub>1</sub>,a<sub>2</sub>,a<sub>3</sub>) = (0(a<sub>1</sub>,0a<sub>2</sub>,0a<sub>3</sub>)
+= (0,0,0) = O.&nbsp; Multiplying A by -1 produces a vector -1A = -1(a<sub>1</sub>,a<sub>2</sub>,a<sub>3</sub>)
+= (-1a<sub>1</sub>,-1a<sub>2</sub>,-1a<sub>3</sub>) = (-a<sub>1</sub>,-a<sub>2</sub>,-a<sub>3</sub>),
+and when we add this vector to A, we get A + (-1)A = (a<sub>1</sub>,a<sub>2</sub>,a<sub>3</sub>)
++ (-a<sub>1</sub>,-a<sub>2</sub>,-a<sub>3</sub>)
+= (0,0,0) = O.&nbsp; Thus (-1)A is the "additive inverse of A" denoted
+-A.
+Similarly if 0 &lt; r, then (-r)A = -(rA), the additive inverse of rA. <br>
+</p>
+<p style="color: rgb(0, 0, 0);"><br>
+It follows that the collection of all vectors tA where t is a real
+number is "the line along A through the origin". <br>
+</p>
+<p style="color: rgb(0, 0, 0);"><img style="width: 214px; height: 199px;" alt="figure2" src="./Linear Algebra 3D_files/lafigure2-2.png"><br>
+<applet archive="Demo.jar" code="DemoApplet" height="50" width="400"><param name="NAME" value="Scalar Multiplication in Three-Space"> <param name="DATA" value="filever 100.0 env {variable $r= -2,2,20$ -0.7999999999999998 value 
+$A=(0.5 , 1.0 , 1.5)$} objects [{controls obj0 {constants [] intervals [] 
+objects [] readouts [{readout obj1 $r*A$} {readout obj2 $A$}] functions [] 
+variables [r]}} {frame.3d obj3 {canvas {canvas.3d obj6 {tool 100.0 points true 
+graph {graph.3d obj7 {light true graph {plots [{plot.vector obj4 {base $0,0,0$ 
+endstyle 5.0 dir $A$ color {coloring.group obj8 {colors [{coloring.constant obj9 
+{color [1.0 0.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true 
+basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true 
+addedz 0.0} endsize 10.0}} {plot.axes obj10 {super {transpt $0$ visible true 
+addedz 0.0} labels [x y z]}} {plot.vector obj5 {base $0,0,0$ endstyle 5.0 dir 
+$r*A$ color {coloring.constant obj11 {color [1.0 1.0 1.0 1.0]}} dim 3.0 thick 
+true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible 
+true addedz 0.0} endsize 10.0}}]} alpha true scale 100.01271474132783 
+surfacemode 2.0 drawmode 1.0 transf [-0.2272020946930871 0.9738476308781951 0.0 
+0.0 -0.5261721205277139 -0.12275781566074641 0.8414709848078965 0.0 
+0.8194645250079118 0.19118397037180895 0.5403023058681398 0.0 0.0 0.0 0.0 1.0]}} 
+group null hotspots [{hotspot obj12 {origin $0, 0, 0$ entry A constraint 
+$Point$ cmode 0.0 cobjs []}}] drawmode 1.0}} graph {id obj7} frame {visible true 
+plots [{id obj4} {id obj5}] title $3D Graph$ labels 
+[$ Vector: A  starting at 0,0,0$ $ Vector: r*A  starting at 0,0,0$]}}}] "></applet><big><a href="http://www.math.brown.edu/~banchoff/la2d2.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
+<br>
+</p>
+<p style="color: rgb(0, 0, 0);">VECTOR EQUATIONS FOR LINES IN
+THREE-SPACE
+<br>
+</p>
+<p style="color: rgb(0, 0, 0);"><br>
+The line through C parallel to the line along A is the collection of
+points C + tA for all real t. <br>
+</p>
+<p><font color="#ff4000"><br style="color: rgb(0, 0, 0);">
+<span style="color: rgb(0, 0, 0);">Similarly the line through A
+parallel to the line along C is the
+collection A + sC for real scalars s.&nbsp; If A and C are not
+themselves
+parallel, then the point A+C is the intersection of the line through A
+parallel to the line along C and the line through C parallel to the
+line along A, obtained when t and s are both equal to 1.</span></font></p>
+<p><font color="#ff4000"><span style="color: rgb(0, 0, 0);"><img style="width: 270px; height: 207px;" alt="figure3" src="./Linear Algebra 3D_files/lafigure2-3.png"><br>
+</span></font></p>
+<applet archive="Demo.jar" code="DemoApplet" height="50" width="400"><param name="NAME" value="Lines in Three-Space (with hotspots)">
+<param name="DATA" value="filever 100.0 env {interval $t=-1,1,20$ variable $t0=-1,1,20$ -1.0 value 
+$A=(0.5 , 1.0 , 1.5)$ value $C=(0.5 , 1.5 , 0.5)$ interval $t1=-1,t0,20$ 
+function $X(t)=A + t*C$} objects [{frame.3d obj0 {canvas {canvas.3d obj9 {tool 
+100.0 points true graph {graph.3d obj10 {light true graph {plots [{plot.point 
+obj4 {super {transpt $0$ visible true addedz 0.0} color {coloring.group obj11 
+{colors [{coloring.constant obj12 {color [1.0 0.0 0.0 1.0]}}] opacities [1.0] 
+mixings [0.0]}} label A size 10.0 style 2.0 showlabel true dim 3.0 expr $A$}} 
+{plot.curve obj6 {super {super {transpt $0$ visible true addedz 0.0} color 
+{coloring.constant obj13 {color [0.0 1.0 0.0 1.0]}} expr $X(t1)$} thick true}} 
+{plot.point obj7 {super {transpt $0$ visible true addedz 0.0} color 
+{coloring.constant obj14 {color [1.0 1.0 1.0 1.0]}} label C size 10.0 style 2.0 
+showlabel true dim 3.0 expr $C$}} {plot.vector obj5 {base $0,0,0$ endstyle 5.0 
+dir $X(t0)$ color {coloring.group obj15 {colors [{coloring.constant obj16 {color 
+[0.0 1.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true 
+basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible false 
+addedz 0.0} endsize 10.0}} {plot.vector obj8 {base $0,0,0$ endstyle 5.0 dir $A$ 
+color {coloring.group obj17 {colors [{coloring.constant obj18 {color [1.0 0.0 
+0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick false basestyle 0.0 
+subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} 
+endsize 10.0}} {plot.curve obj3 {super {super {transpt $0$ visible true addedz 
+0.0} color {coloring.constant obj19 {color [0.0 1.0 0.0 1.0]}} expr $X(t)$} 
+thick true}} {plot.vector obj1 {base $0,0,0$ endstyle 5.0 dir $C$ color 
+{coloring.constant obj20 {color [1.0 1.0 1.0 1.0]}} dim 3.0 thick false 
+basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true 
+addedz 0.0} endsize 10.0}} {plot.point obj2 {super {transpt $0$ visible true 
+addedz 0.0} color {coloring.constant obj21 {color [1.0 1.0 1.0 1.0]}} label 
+$X(t0)$ size 10.0 style 2.0 showlabel true dim 3.0 expr $X(t0)$}} {plot.axes 
+obj22 {super {transpt $0$ visible true addedz 0.0} labels [x y z]}}]} alpha true 
+scale 100.01271474132783 surfacemode 2.0 drawmode 1.0 transf 
+[-0.2272020946930871 0.9738476308781951 0.0 0.0 -0.5261721205277139 
+-0.12275781566074641 0.8414709848078965 0.0 0.8194645250079118 
+0.19118397037180895 0.5403023058681398 0.0 0.0 0.0 0.0 1.0]}} group null 
+hotspots [{hotspot obj23 {origin $0, 0, 0$ entry A constraint $Point$ cmode 0.0 
+cobjs []}} {hotspot obj24 {origin $0, 0, 0$ entry C constraint $Point$ cmode 0.0 
+cobjs []}}] drawmode 1.0}} graph {id obj10} frame {visible true plots [{id obj1} 
+{id obj2} {id obj3} {id obj4} {id obj5} {id obj6} {id obj7} {id obj8}] title 
+$Straight line$ labels [$ Vector: C  starting at 0,0,0$ $ Point: X(t0)$ 
+$ Curve: X(t)$ $ Point: A$ $ Vector: X(t0)  starting at 0,0,0$ $ Curve: X(t1)$ 
+$ Point: C$ $ Vector: A  starting at 0,0,0$]}}} {controls obj25 {constants [] 
+intervals [] objects [{plotcheckbox obj26 {values [true] label 
+$Show position vector X(t0)$ plots [{id obj5}]}} {plotcheckbox obj27 {values 
+[true] label $Show entire curve$ plots [{id obj3}]}}] readouts [] functions [X] 
+variables [$t0$]}}] "></applet><big><a href="http://www.math.brown.edu/~banchoff/la2d3.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big><br>
+<applet archive="Demo.jar" code="DemoApplet" height="50" width="400"><param name="NAME" value="Lines in Three-Space (type-in)">
+<param name="DATA" value="filever 100.0 env {constant $C=(0.5,1.5,0.5)$ constant $A= (0.5,1,1.5)$ interval 
+$t=-1,1,20$ variable $t0=-1,1,20$ -1.0 function $X(t)=A + t*C$ interval 
+$t1=-1,t0,20$} objects [{controls obj0 {constants [A C] intervals [] objects 
+[{plotcheckbox obj1 {values [true] label $Show position vector X(t0)$ plots [{id 
+obj2}]}} {plotcheckbox obj3 {values [true] label $Show entire curve$ plots [{id 
+obj4}]}}] readouts [] functions [X] variables [$t0$]}} {frame.3d obj5 {canvas 
+{canvas.3d obj12 {tool 100.0 points true graph {graph.3d obj13 {light true graph 
+{plots [{plot.curve obj11 {super {super {transpt $0$ visible true addedz 0.0} 
+color {coloring.constant obj14 {color [0.0 1.0 0.0 1.0]}} expr $X(t1)$} thick 
+true}} {plot.point obj7 {super {transpt $0$ visible true addedz 0.0} color 
+{coloring.constant obj15 {color [1.0 1.0 1.0 1.0]}} label $X(t0)$ size 10.0 
+style 2.0 showlabel true dim 3.0 expr $X(t0)$}} {plot.vector obj8 {base $0,0,0$ 
+endstyle 5.0 dir $A$ color {coloring.group obj16 {colors [{coloring.constant 
+obj17 {color [1.0 0.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick 
+false basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible 
+true addedz 0.0} endsize 10.0}} {plot.curve obj4 {super {super {transpt $0$ 
+visible true addedz 0.0} color {coloring.constant obj18 {color [0.0 1.0 0.0 
+1.0]}} expr $X(t)$} thick true}} {plot.vector obj6 {base $0,0,0$ endstyle 5.0 
+dir $C$ color {coloring.constant obj19 {color [1.0 1.0 1.0 1.0]}} dim 3.0 thick 
+false basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible 
+true addedz 0.0} endsize 10.0}} {plot.axes obj20 {super {transpt $0$ visible 
+true addedz 0.0} labels [x y z]}} {plot.point obj10 {super {transpt $0$ visible 
+true addedz 0.0} color {coloring.constant obj21 {color [1.0 1.0 1.0 1.0]}} label 
+C size 10.0 style 2.0 showlabel true dim 3.0 expr $C$}} {plot.point obj9 {super 
+{transpt $0$ visible true addedz 0.0} color {coloring.group obj22 {colors 
+[{coloring.constant obj23 {color [1.0 0.0 0.0 1.0]}}] opacities [1.0] mixings 
+[0.0]}} label A size 10.0 style 2.0 showlabel true dim 3.0 expr $A$}} 
+{plot.vector obj2 {base $0,0,0$ endstyle 5.0 dir $X(t0)$ color {coloring.group 
+obj24 {colors [{coloring.constant obj25 {color [0.0 1.0 0.0 1.0]}}] opacities 
+[1.0] mixings [0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 
+basesize 10.0 super {transpt $0$ visible false addedz 0.0} endsize 10.0}}]} 
+alpha true scale 100.01271474132783 surfacemode 2.0 drawmode 1.0 transf 
+[-0.2272020946930871 0.9738476308781951 0.0 0.0 -0.5261721205277139 
+-0.12275781566074641 0.8414709848078965 0.0 0.8194645250079118 
+0.19118397037180895 0.5403023058681398 0.0 0.0 0.0 0.0 1.0]}} group null 
+hotspots [] drawmode 1.0}} graph {id obj13} frame {visible true plots [{id obj6} 
+{id obj7} {id obj8} {id obj2} {id obj9} {id obj4} {id obj10} {id obj11}] title 
+$Straight line$ labels [$ Vector: C  starting at 0,0,0$ $ Point: X(t0)$ 
+$ Vector: A  starting at 0,0,0$ $ Vector: X(t0)  starting at 0,0,0$ $ Point: A$ 
+$ Curve: X(t)$ $ Point: C$ $ Curve: X(t1)$]}}}] "></applet><big><a href="http://www.math.brown.edu/~banchoff/la2d4.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big><br>
+<p><font color="#ff4000"><span style="color: rgb(0, 0, 0);">VECTOR
+EQUATIONS FOR PLANES IN THREE-SPACE<br>
+<br>
+The plane through the origin determined by a pair of vectors B and C is
+the collection of all vectors of the form sB + tC where s and t are
+real scalars.<br>
+<br>
+The plane through A parallel to the plane through the origin determined
+by vectors B and C is the collection of all vectors of the form A + sB
++ tC for all real scalars s and t.<br>
+</span> </font></p>
+<img style="width: 261px; height: 206px;" alt="figure4" src="./Linear Algebra 3D_files/lafigure2-4.png"><br>
+<br>
+<applet archive="Demo.jar" code="DemoApplet" height="50" width="400"><param name="NAME" value="Planes in Three-Space (with hotspots)">
+<param name="DATA" value="filever 100.0 env {interval $u= 0,1,1$ interval $v= 0,1,1$ value 
+$C=(0.49993643437550256 , 1.159852527751312 , 3.0612277706755E-17)$ value 
+$B=(1.4781796965873408 , 0.46582581773227244 , 0.02087423455843765)$ value 
+$A=(0.9798754113762184 , 1.159852527751312 , 1.1298563416887781)$} objects 
+[{controls obj0 {constants [] intervals [] objects [] readouts [{readout obj1 
+$C$} {readout obj2 $B$} {readout obj3 $A$}] functions [] variables []}} 
+{frame.3d obj4 {canvas {canvas.3d obj15 {tool 100.0 points true graph {graph.3d 
+obj16 {light true graph {plots [{plot.point obj9 {super {transpt $0$ visible 
+true addedz 0.0} color {coloring.group obj17 {colors [{coloring.constant obj18 
+{color [1.0 0.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} label A size 10.0 
+style 2.0 showlabel true dim 3.0 expr $A$}} {plot.vector obj8 {base $0,0,0$ 
+endstyle 5.0 dir $A$ color {coloring.group obj19 {colors [{coloring.constant 
+obj20 {color [1.0 0.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick 
+true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible 
+true addedz 0.0} endsize 10.0}} {plot.vector obj14 {base $A$ endstyle 5.0 dir 
+$B$ color {coloring.group obj21 {colors [{coloring.constant obj22 {color [0.0 
+1.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true basestyle 0.0 
+subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} 
+endsize 10.0}} {plot.point obj5 {super {transpt $0$ visible true addedz 0.0} 
+color {coloring.group obj23 {colors [{coloring.constant obj24 {color [1.0 1.0 
+0.0 1.0]}}] opacities [1.0] mixings [0.0]}} label c size 10.0 style 2.0 
+showlabel true dim 3.0 expr $C$}} {plot.surface obj12 {intrpl true super {super 
+{transpt $0$ visible true addedz 0.0} color {coloring.group obj25 {colors 
+[{coloring.constant obj26 {color [0.75 0.75 0.75 1.0]}}] opacities [1.0] mixings 
+[0.0]}} expr $u*B + v*C$} vrtnml true}} {plot.axes obj27 {super {transpt $0$ 
+visible true addedz 0.0} labels [x y z]}} {plot.vector obj11 {base $0,0,0$ 
+endstyle 5.0 dir $B$ color {coloring.group obj28 {colors [{coloring.constant 
+obj29 {color [0.0 1.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick 
+true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible 
+true addedz 0.0} endsize 10.0}} {plot.vector obj7 {base $A$ endstyle 5.0 dir 
+$C$ color {coloring.group obj30 {colors [{coloring.constant obj31 {color [1.0 
+1.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true basestyle 0.0 
+subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} 
+endsize 10.0}} {plot.surface obj10 {intrpl true super {super {transpt $0$ 
+visible true addedz 0.0} color {coloring.group obj32 {colors [{coloring.constant 
+obj33 {color [0.75 0.75 0.75 1.0]}}] opacities [1.0] mixings [0.0]}} expr 
+$u*B + v*C + A$} vrtnml true}} {plot.point obj6 {super {transpt $0$ visible true 
+addedz 0.0} color {coloring.group obj34 {colors [{coloring.constant obj35 {color 
+[0.0 1.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} label B size 10.0 style 2.0 
+showlabel true dim 3.0 expr $B$}} {plot.vector obj13 {base $0,0,0$ endstyle 5.0 
+dir $C$ color {coloring.group obj36 {colors [{coloring.constant obj37 {color 
+[1.0 1.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true 
+basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true 
+addedz 0.0} endsize 10.0}}]} alpha true scale 100.01271474132783 surfacemode 3.0 
+drawmode 1.0 transf [-0.32650879863880794 0.9451890132581975 
+0.003119876189205278 0.0 -0.30649633931726566 -0.1089982406052271 
+0.9456105845061582 0.0 0.8941207963114134 0.3077939452961323 0.3252858571202922 
+0.0 0.0 0.0 0.0 1.0]}} group null hotspots [{hotspot obj38 {origin $0, 0, 0$ 
+entry A constraint $Point$ cmode 0.0 cobjs []}} {hotspot obj39 {origin 
+$0, 0, 0$ entry C constraint $Point$ cmode 0.0 cobjs []}} {hotspot obj40 {origin 
+$0, 0, 0$ entry B constraint $Point$ cmode 0.0 cobjs []}}] drawmode 1.0}} graph 
+{id obj16} frame {visible true plots [{id obj5} {id obj6} {id obj7} {id obj8} 
+{id obj9} {id obj10} {id obj11} {id obj12} {id obj13} {id obj14}] title 
+$3D Graph$ labels [$ Point: C$ $ Point: B$ $ Vector: C  starting at A$ 
+$ Vector: A  starting at 0,0,0$ $ Point: A$ $ Surface: u*B + v*C + A$ 
+$ Vector: B  starting at 0,0,0$ $ Surface: u*B + v*C$ 
+$ Vector: C  starting at 0,0,0$ $ Vector: B  starting at A$]}}}] "></applet><big><a href="http://www.math.brown.edu/~banchoff/la2d5.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
+<br>
+<applet archive="Demo.jar" code="DemoApplet" height="50" width="400"><param name="NAME" value="Planes in Three-Space (type-in)"> <param name="DATA" value="filever 100.0 env {constant 
+$A=(0.9798754113762184 , 1.159852527751312 , 1.1298563416887781)$ constant 
+$C=(0.49993643437550256 , 1.159852527751312 , 3.0612277706755E-17)$ interval 
+$u= 0,1,1$ constant 
+$B=(1.4781796965873408 , 0.46582581773227244 , 0.02087423455843765)$ interval 
+$v= 0,1,1$ constant $a=A$ constant $c=C$ constant $b=B$} objects [{frame.3d obj0 
+{canvas {canvas.3d obj11 {tool 100.0 points true graph {graph.3d obj12 {light 
+true graph {plots [{plot.axes obj13 {super {transpt $0$ visible true addedz 0.0} 
+labels [x y z]}} {plot.point obj4 {super {transpt $0$ visible true addedz 0.0} 
+color {coloring.group obj14 {colors [{coloring.constant obj15 {color [1.0 0.0 
+0.0 1.0]}}] opacities [1.0] mixings [0.0]}} label A size 10.0 style 2.0 
+showlabel true dim 3.0 expr $a$}} {plot.surface obj2 {intrpl true super {super 
+{transpt $0$ visible true addedz 0.0} color {coloring.group obj16 {colors 
+[{coloring.constant obj17 {color [0.75 0.75 0.75 1.0]}}] opacities [1.0] mixings 
+[0.0]}} expr $u*b + v*c$} vrtnml true}} {plot.point obj9 {super {transpt $0$ 
+visible true addedz 0.0} color {coloring.group obj18 {colors [{coloring.constant 
+obj19 {color [1.0 1.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} label c size 
+10.0 style 2.0 showlabel true dim 3.0 expr $c$}} {plot.vector obj1 {base 
+$0,0,0$ endstyle 5.0 dir $b$ color {coloring.group obj20 {colors 
+[{coloring.constant obj21 {color [0.0 1.0 0.0 1.0]}}] opacities [1.0] mixings 
+[0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super 
+{transpt $0$ visible true addedz 0.0} endsize 10.0}} {plot.vector obj5 {base 
+$0,0,0$ endstyle 5.0 dir $a$ color {coloring.group obj22 {colors 
+[{coloring.constant obj23 {color [1.0 0.0 0.0 1.0]}}] opacities [1.0] mixings 
+[0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super 
+{transpt $0$ visible true addedz 0.0} endsize 10.0}} {plot.vector obj7 {base 
+$0,0,0$ endstyle 5.0 dir $c$ color {coloring.group obj24 {colors 
+[{coloring.constant obj25 {color [1.0 1.0 0.0 1.0]}}] opacities [1.0] mixings 
+[0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super 
+{transpt $0$ visible true addedz 0.0} endsize 10.0}} {plot.point obj8 {super 
+{transpt $0$ visible true addedz 0.0} color {coloring.group obj26 {colors 
+[{coloring.constant obj27 {color [0.0 1.0 0.0 1.0]}}] opacities [1.0] mixings 
+[0.0]}} label B size 10.0 style 2.0 showlabel true dim 3.0 expr $b$}} 
+{plot.vector obj10 {base $a$ endstyle 5.0 dir $c$ color {coloring.group obj28 
+{colors [{coloring.constant obj29 {color [1.0 1.0 0.0 1.0]}}] opacities [1.0] 
+mixings [0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 basesize 
+10.0 super {transpt $0$ visible true addedz 0.0} endsize 10.0}} {plot.vector 
+obj6 {base $a$ endstyle 5.0 dir $b$ color {coloring.group obj30 {colors 
+[{coloring.constant obj31 {color [0.0 1.0 0.0 1.0]}}] opacities [1.0] mixings 
+[0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super 
+{transpt $0$ visible true addedz 0.0} endsize 10.0}} {plot.surface obj3 {intrpl 
+true super {super {transpt $0$ visible true addedz 0.0} color {coloring.group 
+obj32 {colors [{coloring.constant obj33 {color [0.75 0.75 0.75 1.0]}}] opacities 
+[1.0] mixings [0.0]}} expr $u*b+ v*c + a$} vrtnml true}}]} alpha true scale 
+100.01271474132783 surfacemode 3.0 drawmode 1.0 transf [-0.32650879863880794 
+0.9451890132581975 0.003119876189205278 0.0 -0.30649633931726566 
+-0.1089982406052271 0.9456105845061582 0.0 0.8941207963114134 0.3077939452961323 
+0.3252858571202922 0.0 0.0 0.0 0.0 1.0]}} group null hotspots [] drawmode 1.0}} 
+graph {id obj12} frame {visible true plots [{id obj1} {id obj2} {id obj3} {id 
+obj4} {id obj5} {id obj6} {id obj7} {id obj8} {id obj9} {id obj10}] title 
+$3D Graph$ labels [$ Vector: b  starting at 0,0,0$ $ Surface: u*b + v*c$ 
+$ Surface: u*b+ v*c + a$ $ Point: a$ $ Vector: a  starting at 0,0,0$ 
+$ Vector: b  starting at a$ $ Vector: c  starting at 0,0,0$ $ Point: b$ 
+$ Point: c$ $ Vector: c  starting at a$]}}} {controls obj34 {constants [A C B] 
+intervals [] objects [] readouts [] functions [] variables []}}] "></applet><big><a href="http://www.math.brown.edu/~banchoff/la2d6.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
+<br>
+<br>
+LENGTH, ANGLE, AND DOT PRODUCT IN THREE-SPACE<br>
+<br>
+By the Pythagorean theorem, the "length" of the vector from O = (0,0,0)
+to<br>
+A = (a<sub>1</sub>,a<sub>2</sub>,a<sub>3</sub>) is sqrt(a<sub>1</sub><sup>2</sup>
++ a<sub>2</sub><sup>2</sup> + a<sub>3</sub><sup>2</sup>),
+denoted |A|.<br>
+<br>
+Note that |A| &gt;= 0 for all A, and |A| = 0 if and only if A = O.<br>
+<br>
+Furthermore |cA| = |c||A| where |c| denotes the absolute value of the
+scalar c.<br>
+<br>
+Also the distance from A to C is given by the length of the vector C-A,
+and |C-A| &lt; |C| + |A|.&nbsp; This is called the "triangle
+inequality".<br>
+<br>
+Each of these three properties can be proved by using coordinate.<br>
+<br>
+Condition for Perpendicularity:&nbsp; By the Pythagorean Theorem, the
+vectors A and C are the legs of a right triangle if |A|<sup>2</sup> +
+|C|<sup>2</sup>
+= |C-A|<sup>2</sup>, which<br>
+in coordinates becomes <br>
+<br>
+a<sub>1</sub><sup>2</sup> + a<sub>2</sub><sup>2</sup>
++ a<sub>3</sub><sup>2</sup>
++ c<sub>1</sub><sup>2</sup> + c<sub>2</sub><sup>2</sup> +
+c<sub>3</sub><sup>2</sup> <br>
+= (c<sub>1</sub>-a<sub>1</sub>)<sup>2</sup> + (c<sub>2</sub>-a<sub>2</sub>)<sup>2</sup>
++ (c<sub>3</sub>-a<sub>3</sub>)<sup>2</sup>
+<br>
+= c<sub>1</sub><sup>2</sup> - 2a<sub>1</sub>c<sub>1</sub> +
+a<sub>1</sub><sup>2</sup> + c<sub>2</sub><sup>2</sup> - 2a<sub>2</sub>c<sub>2</sub>
++ a<sub>2</sub><sup>2</sup> +
+c<sub>3</sub><sup>2</sup> - 2a<sub>3</sub>c<sub>3</sub> + a<sub>3</sub><sup>2</sup>.&nbsp;
+<br>
+<br>
+This
+condition is then equivalent to<br>
+&nbsp;<br>
+a<sub>1</sub>c<sub>1</sub> + a<sub>2</sub>c<sub>2</sub>
++ a<sub>3</sub>c<sub>3</sub> = 0.<br>
+&nbsp; <br>
+We define the "dot product" or "inner product" of the vectors
+<br>
+<br>
+A = (a<sub>1</sub>,a<sub>2</sub>,a<sub>3</sub>) and C = (c<sub>1</sub>,c<sub>2</sub>,c<sub>3</sub>)
+to be <br>
+a<sub>1</sub>c<sub>1</sub> + a<sub>2</sub>c<sub>2</sub> + a<sub>3</sub>c<sub>3</sub>
+= A*C.<br>
+<br>
+<img style="width: 150px; height: 179px;" alt="figure5" src="./Linear Algebra 3D_files/lafigure2-5.png"><br>
+<br>
+<applet archive="Demo.jar" code="DemoApplet" height="50" width="400"><param name="NAME" value="Dot Product"> <param name="DATA" value="filever 100.0 env {interval $tarc=0,1,20$ interval $x=-1,1,20$ interval 
+$y=-1,1,20$ interval $t=-PI,PI,20$ interval $p=-PI,PI,20$ value 
+$A=(-0.01594436950450025 , 0.8985970829476769 , 0.7056422593991928)$ value 
+$C=(0.7345179717551811 , -0.15443565264027398 , 0.21711024731096473)$} objects 
+[{frame.3d obj0 {canvas {canvas.3d obj5 {tool 100.0 points true graph {graph.3d 
+obj6 {light true graph {plots [{plot.curve obj3 {super {super {transpt $0$ 
+visible true addedz 0.0} color {coloring.group obj7 {colors [{coloring.gradient 
+obj8 {colors [{coloring.constant obj9 {color [0.0 0.0 0.0 0.0]}} 
+{coloring.constant obj10 {color [1.0 1.0 1.0 1.0]}}] values [$- 1$ $1.0$] expr 
+$sign(dot(A,C)^2-.0001)$}}] opacities [1.0] mixings [0.0]}} expr 
+$0.2*(A + tarc*(C - A))/((A_1+tarc*(C_1-A_1))^2 + (A_2+tarc*(C_2-A_2))^2 + (A_3+tarc*(C_3-A_3))^2)^0.5$} 
+thick true}} {plot.polygon obj2 {super {transpt $0$ visible true addedz 0.0} 
+subdivs 1.0 color {coloring.group obj11 {colors [{coloring.gradient obj12 
+{colors [{coloring.constant obj13 {color [1.0 1.0 1.0 1.0]}} {coloring.constant 
+obj14 {color [0.0 0.0 0.0 0.0]}}] values [$- 1$ $1.0$] expr 
+$sign(dot(A,C)^2-.0001)$}}] opacities [1.0] mixings [0.0]}} vertices 
+[$A/length(A)*.2$ $A/length(A)*.2+C/length(C)*.2$ $C/length(C)*.2$] dim 3.0 
+title Polygon thick true}} {plot.vector obj4 {base $0,0,0$ endstyle 5.0 dir $A$ 
+color {coloring.group obj15 {colors [{coloring.constant obj16 {color [1.0 0.0 
+0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true basestyle 0.0 
+subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} 
+endsize 10.0}} {plot.vector obj1 {base $0,0,0$ endstyle 5.0 dir $C$ color 
+{coloring.group obj17 {colors [{coloring.constant obj18 {color [0.0 0.0 1.0 
+1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 
+1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} endsize 
+10.0}} {plot.axes obj19 {super {transpt $0$ visible true addedz 0.0} labels [x y 
+z]}}]} alpha true scale 100.01271474132783 surfacemode 2.0 drawmode 1.0 transf 
+[0.8261811782584251 0.563395703896521 -0.003153017992471861 0.0 
+-0.198889204501032 0.2968843126585389 0.9339715141428084 0.0 0.5271316202092831 
+-0.7710025847740116 0.3573335546059537 0.0 0.0 0.0 0.0 1.0]}} group null 
+hotspots [{hotspot obj20 {origin $0, 0, 0$ entry A constraint $Point$ cmode 0.0 
+cobjs []}} {hotspot obj21 {origin $0, 0, 0$ entry C constraint $Point$ cmode 0.0 
+cobjs []}}] drawmode 1.0}} graph {id obj6} frame {visible true plots [{id obj1} 
+{id obj2} {id obj3} {id obj4}] title $3D Graph$ labels 
+[$ Vector: C  starting at 0,0,0$ $ Polygon$ 
+$ Curve: 0.2*(A + tarc*(C - A))/((A_1+tarc*(C_1-A_1))^2 + (A_2+tarc*(C_2-A_2))^2 + (A_3+tarc*(C_3-A_3))^2)^0.5$ 
+$ Vector: A  starting at 0,0,0$]}}} {controls obj22 {constants [] intervals [] 
+objects [] readouts [{readout obj23 $C$} {readout obj24 $A$} {readout obj25 
+$dot(A,C)$}] functions [] variables []}}] "></applet>
+<big><a href="http://www.math.brown.edu/~banchoff/la2d7.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
+<br>
+<br>
+Note that <br>
+A*(C+E) = A*C + A*E and (tA)*C = t(A*C).&nbsp; <br>
+Also A*C = C*A
+for any two vectors A and C, and A*A = |A|<sup>2</sup>, which equals
+zero if and
+only if A =
+O.&nbsp; Note also that the dot product of any vector with the zero
+vector is 0, so
+we say that O is perpendicular to all vectors.&nbsp; Note that <br>
+(C-A)*(C-A) =
+C*(C-A) + (-A)*(C-A) = C*C - C*A - A*C + A*A = C*C - 2A*C + A*A.<br>
+<br>
+Exercise:&nbsp; Find the value of t such that the vector A + tC is
+perpendicular to C, where C is a non-zero vector.<br>
+<br>
+If A and C are non-zero vectors that make an angle θ at the
+origin, then <br>
+(|A|sin(θ))<sup>2</sup> = |C-A|<sup>2</sup> -
+(|C|-|A|cos(θ))<sup>2</sup> = |C-A|<sup>2</sup> -
+|C|<sup>2</sup> + 2|A||C|cos(θ) - (|A|cos(θ))<sup>2</sup>, <br>
+from which it
+follows that<br>
+2|A||C|cos(θ) = |A|<sup>2</sup> + |C|<sup>2</sup> - |C-A|<sup>2</sup>
+= A*A + C*C - (C-A)*(C-A)
+= 2A*C,<br>
+by the above calculation.&nbsp; Therefore <br>
+A*C = |A||C|cos(θ), and
+cos(θ) = A*C/(|A||C|).<br>
+<br>
+<img style="width: 192px; height: 227px;" alt="figure7" src="./Linear Algebra 3D_files/lafigure2-7.png">&nbsp;&nbsp;&nbsp;&nbsp; <img style="width: 188px; height: 159px;" alt="figure8" src="./Linear Algebra 3D_files/lafigure2-8.png"><br>
+<br>
+<applet archive="Demo.jar" code="DemoApplet" height="50" width="400"><param name="NAME" value="Law of Cosines"> <param name="DATA" value="filever 100.0 env {interval $y=-1,1,20$ interval $tarc=0,1,20$ interval 
+$x=-1,1,20$ interval $p=-PI,PI,20$ interval $t=-PI,PI,20$ value 
+$A=(-0.049516120625684196 , 1.3745252994862194 , -0.42456212950905997)$ value 
+$C=(1.3054556565947897 , 0.5817829363708182 , -0.46530543844031813)$ function 
+$f(X)=(dot(X,unit(C)),-dot(X,cross(unit(cross(A,C)),unit(C))),dot(X, unit(cross(A, C))))$} 
+objects [{controls obj0 {constants [] intervals [] objects [] readouts [{readout 
+obj1 $dot(A,C)$} {readout obj2 $C$} {readout obj3 $A$}] functions [] variables 
+[]}} {frame.3d obj4 {canvas {canvas.3d obj12 {tool 100.0 points true graph 
+{graph.3d obj13 {light true graph {plots [{plot.polyhedron obj8 {faces [[0.0 1.0 
+2.0]] super {transpt $0$ visible true addedz 0.0} colors [{coloring.constant 
+obj14 {color [0.75 0.75 0.75 1.0]}}] vertices [$0,0,0$ $A$ $C$] title 
+Polyhedron}} {plot.vector obj7 {base $0,0,0$ endstyle 0.0 dir 
+$((A * C)/(C * C))*C$ color {coloring.constant obj15 {color [1.0 1.0 1.0 1.0]}} 
+dim 3.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super 
+{transpt $0$ visible true addedz 0.0} endsize 10.0}} {plot.vector obj11 {base 
+$((A * C)/(C * C))*C$ endstyle 0.0 dir $A - ((A * C)/(C * C))*C$ color 
+{coloring.group obj16 {colors [{coloring.constant obj17 {color [0.0 1.0 0.0 
+1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 
+1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} endsize 
+10.0}} {plot.axes obj18 {super {transpt $0$ visible true addedz 0.0} labels [x y 
+z]}} {plot.vector obj6 {base $0,0,0$ endstyle 5.0 dir $C$ color {coloring.group 
+obj19 {colors [{coloring.constant obj20 {color [0.0 0.0 1.0 1.0]}}] opacities 
+[1.0] mixings [0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 
+basesize 10.0 super {transpt $0$ visible true addedz 0.0} endsize 10.0}} 
+{plot.polygon obj10 {super {transpt $0$ visible true addedz 0.0} subdivs 1.0 
+color {coloring.group obj21 {colors [{coloring.gradient obj22 {colors 
+[{coloring.constant obj23 {color [1.0 1.0 1.0 1.0]}} {coloring.constant obj24 
+{color [0.0 0.0 0.0 0.0]}}] values [$- 1$ $1.0$] expr 
+$sign(dot(A,C)^2-.0001)$}}] opacities [1.0] mixings [0.0]}} vertices 
+[$(A/length(A)*.2)$ $(A/length(A)*.2+C/length(C)*.2)$ $(C/length(C)*.2)$] dim 
+3.0 title Polygon thick true}} {plot.curve obj5 {super {super {transpt $0$ 
+visible true addedz 0.0} color {coloring.group obj25 {colors [{coloring.gradient 
+obj26 {colors [{coloring.constant obj27 {color [0.0 0.0 0.0 0.0]}} 
+{coloring.constant obj28 {color [1.0 1.0 1.0 1.0]}}] values [$- 1$ $1.0$] expr 
+$sign(dot(A,C)^2-.0001)$}}] opacities [1.0] mixings [0.0]}} expr 
+$0.2*(A + tarc*(C - A))/((A_1+tarc*(C_1-A_1))^2 + (A_2+tarc*(C_2-A_2))^2 + (A_3+tarc*(C_3-A_3))^2)^0.5$} 
+thick true}} {plot.vector obj9 {base $0,0,0$ endstyle 5.0 dir $A$ color 
+{coloring.group obj29 {colors [{coloring.constant obj30 {color [1.0 0.0 0.0 
+1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 
+1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} endsize 
+10.0}}]} alpha true scale 100.01271474132783 surfacemode 2.0 drawmode 1.0 transf 
+[-0.2272020946930871 0.9738476308781951 0.0 0.0 -0.5261721205277139 
+-0.1227578156607464 0.8414709848078966 0.0 0.8194645250079118 
+0.19118397037180898 0.5403023058681399 0.0 0.0 0.0 0.0 1.0]}} group null 
+hotspots [{hotspot obj31 {origin $0, 0, 0$ entry C constraint $Point$ cmode 0.0 
+cobjs []}} {hotspot obj32 {origin $0, 0, 0$ entry A constraint $Point$ cmode 0.0 
+cobjs []}}] drawmode 1.0}} graph {id obj13} frame {visible true plots [{id obj5} 
+{id obj6} {id obj7} {id obj8} {id obj9} {id obj10} {id obj11}] title $3D Graph$ 
+labels 
+[$ Curve: 0.2*(A + tarc*(C - A))/((A_1+tarc*(C_1-A_1))^2 + (A_2+tarc*(C_2-A_2))^2 + (A_3+tarc*(C_3-A_3))^2)^0.5$ 
+$ Vector: C  starting at 0,0,0$ 
+$ Vector: ((A * C)/(C * C))*C  starting at 0,0,0$ $ Polyhedron$ 
+$ Vector: A  starting at 0,0,0$ $ Polygon$ 
+$ Vector: A - ((A * C)/(C * C))*C  starting at ((A * C)/(C * C))*C$]}}} 
+{frame.3d obj33 {canvas {canvas.3d obj42 {tool 1.0 points true graph {graph.3d 
+obj43 {light true graph {plots [{plot.curve obj34 {super {super {transpt $0$ 
+visible true addedz 0.0} color {coloring.group obj44 {colors [{coloring.gradient 
+obj45 {colors [{coloring.constant obj46 {color [0.0 0.0 0.0 0.0]}} 
+{coloring.constant obj47 {color [1.0 1.0 1.0 1.0]}}] values [$- 1$ $1.0$] expr 
+$sign(dot(A,C)^2 - 0.0001)$}}] opacities [1.0] mixings [0.0]}} expr 
+$f(0.2*(A + tarc*(C - A))/((A_1+tarc*(C_1-A_1))^2 + (A_2+tarc*(C_2-A_2))^2 + (A_3+tarc*(C_3-A_3))^2)^0.5)$} 
+thick true}} {plot.axes obj36 {super {transpt $0$ visible false addedz 0.0} 
+labels [x y z]}} {plot.vector obj41 {base $0,0,0$ endstyle 5.0 dir $f(C)$ color 
+{coloring.group obj48 {colors [{coloring.constant obj49 {color [0.0 0.0 1.0 
+1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 
+1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} endsize 
+10.0}} {plot.vector obj39 {base $f( ((A * C)/(C * C))*C )$ endstyle 0.0 dir 
+$f(A - ((A * C)/(C * C))*C)$ color {coloring.group obj50 {colors 
+[{coloring.constant obj51 {color [0.0 1.0 0.0 1.0]}}] opacities [1.0] mixings 
+[0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super 
+{transpt $0$ visible true addedz 0.0} endsize 10.0}} {plot.polygon obj38 {super 
+{transpt $0$ visible true addedz 0.0} subdivs 1.0 color {coloring.group obj52 
+{colors [{coloring.gradient obj53 {colors [{coloring.constant obj54 {color [1.0 
+1.0 1.0 1.0]}} {coloring.constant obj55 {color [0.0 0.0 0.0 0.0]}}] values 
+[$- 1$ $1.0$] expr $sign(dot(A,C)^2 - 0.0001)$}}] opacities [1.0] mixings 
+[0.0]}} vertices [$f(A/length(A)*.2)$ $f(A/length(A)*0.2 + C/length(C)*0.2)$ 
+$f(C/length(C)*0.2)$] dim 3.0 title Polygon thick true}} {plot.vector obj40 
+{base $0,0,0$ endstyle 5.0 dir $f(A)$ color {coloring.group obj56 {colors 
+[{coloring.constant obj57 {color [1.0 0.0 0.0 1.0]}}] opacities [1.0] mixings 
+[0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super 
+{transpt $0$ visible true addedz 0.0} endsize 10.0}} {plot.polyhedron obj35 
+{faces [[0.0 1.0 2.0]] super {transpt $0$ visible true addedz 0.0} colors 
+[{coloring.constant obj58 {color [0.75 0.75 0.75 1.0]}}] vertices [$f(0,0,0)$ 
+$f(A)$ $f(C)$] title Polyhedron}} {plot.vector obj37 {base $0,0,0$ endstyle 0.0 
+dir $f(((A * C)/(C * C))*C)$ color {coloring.constant obj59 {color [1.0 1.0 1.0 
+1.0]}} dim 3.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super 
+{transpt $0$ visible true addedz 0.0} endsize 10.0}}]} alpha true scale 
+100.01271474132783 surfacemode 2.0 drawmode 1.0 transf [1.0000000000000002 
+-1.3877787807814457E-16 2.220446049250313E-16 0.0 0.0 1.0 2.7755575615628914E-17 
+0.0 0.0 2.636779683484747E-16 1.0 0.0 0.0 0.0 0.0 1.0]}} group null hotspots [] 
+drawmode 1.0}} graph {id obj43} frame {visible true plots [{id obj34} {id obj35} 
+{id obj36} {id obj37} {id obj38} {id obj39} {id obj40} {id obj41}] title 
+$Alternate view$ labels 
+[$ Curve: f(0.2*(A + tarc*(C - A))/((A_1+tarc*(C_1-A_1))^2 + (A_2+tarc*(C_2-A_2))^2 + (A_3+tarc*(C_3-A_3))^2)^0.5)$ 
+$ Polyhedron$ $ Axes: x, y, z$ 
+$ Vector: f(((A * C)/(C * C))*C)  starting at 0,0,0$ $ Polygon$ 
+$ Vector: f(A - ((A * C)/(C * C))*C)  starting at f( ((A * C)/(C * C))*C )$ 
+$ Vector: f(A)  starting at 0,0,0$ $ Vector: f(C)  starting at 0,0,0$]}}}] "></applet>
+<big><a href="http://www.math.brown.edu/~banchoff/la2d9.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
+<br>
+<br>
+Exercise:&nbsp; Find the cosine of the angle between A =<br>
+(cos(a)cos(b),sin(a)cos(b),sin(b)) and C =<br>
+(cos(c)cos(d),sin(c)cos(d),sin(d)) where 0 &lt; a &lt; c &lt; π/2
+and 0 &lt; b &lt; d<br>
+&lt; π/2.<br>
+<br>
+Exercise:&nbsp; Show that the area of the triangle with sides A and C
+equals<br>
+(1/2)|A||C|sin(θ) = (1/2)√((A*A)(C*C)-(A*C)<sup>2</sup>) =<br>
+(1/2)sqrt((a<sub>2</sub>c<sub>3</sub>-a<sub>3</sub>c<sub>2</sub>)<sup>2</sup>
++ (a<sub>1</sub>c<sub>3</sub>-a<sub>3</sub>c<sub>1</sub>)<sup>2</sup> +
+(a<sub>2</sub>c<sub>1</sub>-a<sub>1</sub>c<sub>2</sub>)<sup>2</sup>).<br>
+Then observe that the area of the parallelogram with vertices O, A,
+A+C, and C<br>
+is equal to sqrt((a<sub>2</sub>c<sub>3</sub>-a<sub>3</sub>c<sub>2</sub>)<sup>2</sup>
++ (a<sub>1</sub>c<sub>3</sub>-a<sub>3</sub>c<sub>1</sub>)<sup>2</sup> +
+(a<sub>2</sub>c<sub>1</sub>-a<sub>1</sub>c<sub>2</sub>)<sup>2</sup>).<br>
+<br>
+The Cross Product in Three-Space<br>
+<br>
+If neither B nor C is a multiple of the other, we say that the two<br>
+vectors are "linearly independent" and the collection of all vectors sB
++<br>
+tC where s and t are real numbers is called the "plane spanned by B and
+C.<br>
+The collection of vectors A + sB + tC is called the "plane through A<br>
+parallel to the plane spanned by B and C".<br>
+<br>
+In order to describe the plane in three-space spanned by B and C, it is<br>
+convenient to have a non-zero vector perpendicular to this plane.&nbsp;
+We can<br>
+find such a vector by finding the vectors X = (x,y,z) such that X*B = 0<br>
+and X*C = 0, i.e. xb<sub>1</sub> + yb<sub>2</sub> + zb<sub>3</sub> = 0
+and xc<sub>1</sub> + yc<sub>2</sub> + zc<sub>3</sub> = 0.&nbsp;
+Then<br>
+(xb<sub>1</sub> + yb<sub>2</sub> + zb<sub>3</sub>)c<sub>3</sub> = 0 =
+(xc<sub>1</sub> + yc<sub>2</sub> + zc<sub>3</sub>)b<sub>3</sub> so x(b<sub>1</sub>c<sub>3</sub>-b<sub>3</sub>c<sub>1</sub>)
++<br>
+y(b<sub>2</sub>c<sub>3</sub>-b<sub>3</sub>c<sub>2</sub>) = 0.&nbsp;
+Similarly x(b<sub>1</sub>c<sub>2</sub>-b<sub>2</sub>c<sub>1</sub>) + z(b<sub>3</sub>c<sub>2</sub>-b<sub>2</sub>c<sub>3</sub>)
+=
+0.&nbsp; One<br>
+solution to the problem is then (x,y.z) =
+(b<sub>2</sub>c<sub>3</sub>-b<sub>3</sub>c<sub>2</sub>,b<sub>1</sub>c<sub>3</sub>-b<sub>3</sub>c<sub>1</sub>,b<sub>2</sub>c<sub>1</sub>-b<sub>1</sub>c<sub>2</sub>).<br>
+This vector, perpendicular to B and C, is called the "cross product of B<br>
+and C" and is denoted by B x C.<br>
+<br>
+<img style="width: 200px; height: 198px;" alt="figure6" src="./Linear Algebra 3D_files/lafigure2-6.png"><br>
+<br>
+<applet archive="Demo.jar" code="DemoApplet" height="50" width="400"><param name="NAME" value="Cross Product"> <param name="DATA" value="filever 100.0 env {interval $tarc=0,1,20$ interval $x=-1,1,20$ interval 
+$y=-1,1,20$ interval $t=-PI,PI,20$ interval $p=-PI,PI,20$ value 
+$C=(-0.7890543983581098 , 0.5494564694116356 , 0.15788322814915265)$ value 
+$A=(0.45568031529167424 , 0.5119616524669864 , 0.5189417851106752)$ value 
+$B=(0.45568031529167424 , 0.5119616524669864 , 0.5189417851106752)$} objects 
+[{frame.3d obj0 {canvas {canvas.3d obj8 {tool 100.0 points true graph {graph.3d 
+obj9 {light true graph {plots [{plot.polygon obj6 {super {transpt $0$ visible 
+true addedz 0.0} subdivs 1.0 color {coloring.constant obj10 {color [0.0 1.0 0.0 
+1.0]}} vertices [$0,0,0$ $B$ $B + C$ $C$ $0,0,0$] dim 3.0 title Polygon thick 
+false}} {plot.vector obj3 {base $0,0,0$ endstyle 5.0 dir $B$ color 
+{coloring.group obj11 {colors [{coloring.constant obj12 {color [1.0 0.0 0.0 
+1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 
+1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} endsize 
+10.0}} {plot.curve obj4 {super {super {transpt $0$ visible true addedz 0.0} 
+color {coloring.group obj13 {colors [{coloring.gradient obj14 {colors 
+[{coloring.constant obj15 {color [0.0 0.0 0.0 0.0]}} {coloring.constant obj16 
+{color [1.0 1.0 1.0 1.0]}}] values [$- 1$ $1.0$] expr 
+$sign(dot(B,C)^2-.0001)$}}] opacities [1.0] mixings [0.0]}} expr 
+$0.2*(B + tarc*(C - B))/((B_1+tarc*(C_1-B_1))^2 + (B_2+tarc*(C_2-B_2))^2 + (B_3+tarc*(C_3-B_3))^2)^0.5$} 
+thick true}} {plot.vector obj5 {base $0,0,0$ endstyle 5.0 dir 
+$B_2*C_3 - B_3 * C_2,B_3 * C_1 - B_1 * C_3,B_1*C_2 - B_2 * C_1$ color 
+{coloring.group obj17 {colors [{coloring.constant obj18 {color [0.0 1.0 0.0 
+1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 
+1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} endsize 
+10.0}} {plot.vector obj7 {base $0,0,0$ endstyle 5.0 dir $C$ color 
+{coloring.group obj19 {colors [{coloring.constant obj20 {color [0.0 0.0 1.0 
+1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 
+1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} endsize 
+10.0}} {plot.surface obj2 {intrpl true super {super {transpt $0$ visible true 
+addedz 0.0} color {coloring.group obj21 {colors [{coloring.constant obj22 {color 
+[0.75 0.75 0.75 1.0]}}] opacities [0.0] mixings [1.0]}} expr 
+$cos(t)*cos(p),cos(t)*sin(p),sin(t)$} vrtnml true}} {plot.axes obj23 {super 
+{transpt $0$ visible true addedz 0.0} labels [x y z]}} {plot.polygon obj1 {super 
+{transpt $0$ visible true addedz 0.0} subdivs 1.0 color {coloring.group obj24 
+{colors [{coloring.gradient obj25 {colors [{coloring.constant obj26 {color [1.0 
+1.0 1.0 1.0]}} {coloring.constant obj27 {color [0.0 0.0 0.0 0.0]}}] values 
+[$- 1$ $1.0$] expr $sign(dot(A,C)^2-.0001)$}}] opacities [1.0] mixings [0.0]}} 
+vertices [$A/length(A)*.2$ $A/length(A)*.2+C/length(C)*.2$ $C/length(C)*.2$] dim 
+3.0 title Polygon thick true}}]} alpha true scale 100.01271474132783 surfacemode 
+2.0 drawmode 1.0 transf [-0.8588879356477458 -0.34299431349358617 
+-0.3803503843955178 0.0 0.19849011519980353 -0.9075139515555519 
+0.3701622642841874 0.0 -0.4721368320378354 0.24243211141078502 
+0.8475337652212952 0.0 0.0 0.0 0.0 1.0]}} group null hotspots [{hotspot obj28 
+{origin $0, 0, 0$ entry B constraint $Point$ cmode 0.0 cobjs [{id obj2}]}} 
+{hotspot obj29 {origin $0, 0, 0$ entry A constraint $Point$ cmode 0.0 cobjs [{id 
+obj2}]}} {hotspot obj30 {origin $0, 0, 0$ entry C constraint $Point$ cmode 0.0 
+cobjs []}}] drawmode 1.0}} graph {id obj9} frame {visible true plots [{id obj1} 
+{id obj2} {id obj3} {id obj4} {id obj5} {id obj6} {id obj7}] title $3D Graph$ 
+labels [$ Polygon$ $ Surface: cos(t)*cos(p),cos(t)*sin(p),sin(t)$ 
+$ Vector: B  starting at 0,0,0$ 
+$ Curve: 0.2*(B + tarc*(C - B))/((B_1+tarc*(C_1-B_1))^2 + (B_2+tarc*(C_2-B_2))^2 + (B_3+tarc*(C_3-B_3))^2)^0.5$ 
+$ Vector: B_2*C_3 - B_3 * C_2,B_3 * C_1 - B_1 * C_3,B_1*C_2 - B_2 * C_1  starting at 0,0,0$ 
+$ Polygon$ $ Vector: C  starting at 0,0,0$]}}} {controls obj31 {constants [] 
+intervals [] objects [] readouts [{readout obj32 
+$((B_2*C_3 - B_3 * C_2)^2+(B_3 * C_1 - B_1 * C_3)^2+(B_1*C_2 - B_2 * C_1)^2)^0.5$}] 
+functions [] variables []}}] "></applet>
+<big><a href="http://www.math.brown.edu/~banchoff/la2d8.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
+<br>
+<br>
+Note that if we reverse the roles of B and C, we get the same three<br>
+coordinates with opposite signs, so C x B = -(B x C).&nbsp; From this it<br>
+follows that B x B = 0 for all vectors B.&nbsp; Moreover B x (A+C) =
+(BxA) +<br>
+(BxC) and B x (tC) = t(B x C).&nbsp; By the computation in the previous<br>
+section, |B x C|<sup>2</sup> = |B|<sup>2</sup>|C|<sup>2</sup>
+(sin(θ))<sup>2</sup>.<br>
+<br>
+Exercise:&nbsp; Find the intersection of the plane through A parallel
+to the<br>
+plane spanned by B and C and the line of all multiples of B x C.&nbsp;
+Explain<br>
+why this is the point of the plane closest to the origin.&nbsp; Find s
+and t<br>
+such that the vector A + sB + tC is perpendicular both to B and to C.<br>
+<br>
+<br>
+
+
+</body><script src="chrome-extension://ocggccaacacpienfcgmgcihoombokbbj/pages/client/livestartpage-message-add.js"></script></html>
