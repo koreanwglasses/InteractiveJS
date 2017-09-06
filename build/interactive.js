@@ -1916,18 +1916,21 @@ function Label2D(ax, text, opts) {
     this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
 }
 
-var toWindowCoords = function(worldX, worldY, cameraLeft, cameraRight, cameraTop, cameraBottom, divLeft, divTop, divWidth, divHeight) {
-    var windowX = divLeft + divWidth * (worldX - cameraLeft) / (cameraRight - cameraLeft);
-    var windowY = divTop + divHeight * (cameraTop - worldY) / (cameraTop - cameraBottom);
-    return {x: windowX, y: windowY};
-};
-
 Label2D.prototype.show = function() {
     var label = document.createElement('div');
-    label.style.position = 'absolute';
+    label.style.position = 'fixed';
     label.style.width = 100;
     label.style.height = 100;
     label.style.color = "white";
+
+    label.style.cursor = "default";
+    label.style['pointer-events'] = 'none';
+
+    label.style['-webkit-user-select'] = 'none'; /* Chrome, Opera, Safari */
+    label.style['-moz-user-select'] = 'none'; /* Firefox 2+ */
+    label.style['-ms-user-select'] = 'none'; /* IE 10+ */
+    label.style['user-select'] = 'none'; /* Standard syntax */
+
     label.innerHTML = this.text;
 
     this.label = label;
@@ -1937,10 +1940,22 @@ Label2D.prototype.show = function() {
 
 Label2D.prototype.refresh = function() {
     var _origin = this.opts.origin.evaluate();
-    var coords = toWindowCoords(_origin.q[0].value, _origin.q[1].value, this.ax.camera.left, this.ax.camera.right, this.ax.camera.top, this.ax.camera.bottom, this.ax.frame.container.offsetLeft, this.ax.frame.container.offsetTop, this.ax.frame.container.clientWidth, this.ax.frame.container.clientHeight );
 
-    this.label.style.top = coords.y + 'px';
-    this.label.style.left = coords.x + 'px';
+    var rect = this.ax.frame.container.getBoundingClientRect();
+    var _self = this.ax;
+    
+    // I forgot why this works kek
+    var project = function(vector) {
+        var vector2 = new THREE.Vector2(vector.q[0].value, vector.q[1].value);
+        var projected = vector2.clone().sub(_self.camera.position).multiplyScalar(_self.zoom / 2).add(new THREE.Vector2(_self.frame.width / 2, _self.frame.height / 2));
+        projected.y = _self.frame.height - projected.y;
+        return projected;
+    };
+
+    var coords = project(_origin);
+
+    this.label.style.top = coords.y + rect.top + 'px';
+    this.label.style.left = coords.x + rect.left + 'px';
 };
 
 function Parallelogram2D(plot, expr, opts) {
