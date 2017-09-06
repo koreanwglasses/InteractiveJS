@@ -93,8 +93,6 @@ through the origin, then A+C also lies on this line.<br>
   plot1 = new Interactive.Plot();
 
   ax1 = plot1.createAxes2D(document.getElementById('ax1'), {position: new THREE.Vector3(0.4,0.5,0)})
-  // arr1 = new Interactive.BasisVectors2D(plot1)
-  // ax1.addFigure(arr2);
 
   plot1.execExpression('v1=(0.5,1)');
   plot1.execExpression('v2=(1,0.2)');
@@ -143,45 +141,36 @@ the additive inverse of rA. <br>
 It follows that the collection of all vectors tA where t is a real
 number is "the line along A through the origin".<br>
 <br>
-<img style="width: 217px; height: 157px;" alt="figure1-2" src="./Linear Algebra_files/lafigure1-2.png"><br>
+<!-- <img style="width: 217px; height: 157px;" alt="figure1-2" src="./Linear Algebra_files/lafigure1-2.png"> -->
+<div id="ax2" class="ax" style="width: 245px; height: 155px;"></div>
+<div id="pan2" class="pan"></div>
+<script>
+  plot2 = new Interactive.Plot();
+  pan2 = plot2.createPanel(document.getElementById('pan2'))
+  ax2 = plot2.createAxes2D(document.getElementById('ax2'), {position: new THREE.Vector3(0.4,0.5,0), zoom:150})
+
+  plot2.execExpression('t=-0.5');
+  plot2.execExpression('v1=(1,0.5)');
+  plot2.execExpression('v2()=t*v1');
+
+  pan2.addSlider('{t,-2,2,100}', { continuous: true });
+
+  ax2.plotExpression('v1', 'arrow', {hex: 0xff0000});
+  ax2.plotExpression('v2()', 'arrow', {hex:0xffffff, thick: true});
+  ax2.plotExpression('v1', 'hotspot');       
+
+  ax2.plotExpression('A', 'label', {origin: 'v1'})
+  ax2.plotExpression('tA', 'label', {origin: 'v2()'})
+
+  ax2.plotExpression('X', 'label', {origin: '(1,0)'})
+  ax2.plotExpression('Y', 'label', {origin: '(0,1)'})
+
+  ;(function animate() {
+      requestAnimationFrame(animate);
+      plot2.render();
+  })();
+</script>
 <br>
-<applet archive="Demo.jar" code="DemoApplet" height="50" width="400"><param name="NAME" value="Scalar Multiplication in the Plane"> <param name="DATA" value="filever 100.0 env {variable $r= -2,2,20$ -0.7999999999999998 value 
-$B=(0.929881767938552 , 0.29996186062533936)$ value 
-$A=(0.8498919384384614 , 0.319959318000362)$} objects [{frame.2d obj0 {canvas 
-{canvas.3d obj7 {tool 0.0 points true graph {graph.3d obj8 {light false graph 
-{plots [{plot.point obj4 {super {transpt $0$ visible true addedz 0.0} color 
-{coloring.constant obj9 {color [1.0 1.0 1.0 1.0]}} label A size 10.0 style 3.0 
-showlabel true dim 2.0 expr $A$}} {plot.vector obj1 {base $0,0$ endstyle 1.0 dir 
-$B$ color {coloring.group obj10 {colors [{coloring.constant obj11 {color [0.0 
-0.0 1.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 2.0 thick true basestyle 0.0 
-subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible false addedz 0.0} 
-endsize 10.0}} {plot.vector obj6 {base $A$ endstyle 1.0 dir $B$ color 
-{coloring.group obj12 {colors [{coloring.constant obj13 {color [0.0 1.0 1.0 
-1.0]}}] opacities [1.0] mixings [0.0]}} dim 2.0 thick false basestyle 0.0 
-subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible false addedz 0.0} 
-endsize 10.0}} {plot.vector obj2 {base $0,0$ endstyle 1.0 dir $r*A$ color 
-{coloring.constant obj14 {color [1.0 1.0 1.0 1.0]}} dim 2.0 thick true basestyle 
-0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 
-0.0} endsize 10.0}} {plot.axes obj15 {super {transpt $0$ visible true addedz 
-0.0} labels [x y]}} {plot.vector obj3 {base $0,0$ endstyle 1.0 dir $A$ color 
-{coloring.group obj16 {colors [{coloring.constant obj17 {color [1.0 0.0 0.0 
-1.0]}}] opacities [1.0] mixings [0.0]}} dim 2.0 thick false basestyle 0.0 
-subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} 
-endsize 10.0}} {plot.vector obj5 {base $0,0$ endstyle 1.0 dir $A+B$ color 
-{coloring.group obj18 {colors [{coloring.constant obj19 {color [1.0 0.0 1.0 
-1.0]}}] opacities [1.0] mixings [0.0]}} dim 2.0 thick true basestyle 0.0 subdivs 
-1.0 len 1.0 basesize 10.0 super {transpt $0$ visible false addedz 0.0} endsize 
-10.0}}]} alpha false scale 100.01271474132783 surfacemode 1.0 drawmode 1.0 
-transf [1.0 0.0 0.0 -66.0 0.0 1.0 0.0 -38.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0]}} 
-group null hotspots [{hotspot obj20 {origin $0, 0$ entry A constraint $Point$ 
-cmode 0.0 cobjs []}} {hotspot obj21 {origin $0, 0$ entry B constraint $Point$ 
-cmode 0.0 cobjs []}}] drawmode 0.0}} graph {id obj8} frame {visible true plots 
-[{id obj1} {id obj2} {id obj3} {id obj4} {id obj5} {id obj6}] title $2D Graph$ 
-labels [$ Vector: B  starting at 0,0$ $ Vector: r*A  starting at 0,0$ 
-$ Vector: A  starting at 0,0$ $ Point: A$ $ Vector: A+B  starting at 0,0$ 
-$ Vector: B  starting at A$]}}} {controls obj22 {constants [] intervals [] 
-objects [] readouts [{readout obj23 $r*A$} {readout obj24 $A$}] functions [] 
-variables [r]}}] "></applet>
 <big><a href="http://www.math.brown.edu/~banchoff/la1d2.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
 <br>
 <br>
