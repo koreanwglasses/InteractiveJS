@@ -14,7 +14,7 @@ function Label2D(ax, text, opts) {
 
 Label2D.prototype.show = function() {
     var label = document.createElement('div');
-    label.style.position = 'fixed';
+    label.style.position = 'absolute';
     label.style.width = 100;
     label.style.height = 100;
     label.style.color = "white";
@@ -50,8 +50,8 @@ Label2D.prototype.refresh = function() {
 
     var coords = project(_origin);
 
-    this.label.style.top = coords.y + rect.top + 'px';
-    this.label.style.left = coords.x + rect.left + 'px';
+    this.label.style.top = window.scrollY + coords.y + rect.top + 'px';
+    this.label.style.left = window.scrollX + coords.x + rect.left + 'px';
 }
 
 export { Label2D };
