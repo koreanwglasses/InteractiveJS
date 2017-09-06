@@ -49,8 +49,19 @@ html {
   background: rgb(26,26,25) !important;
 }
 
+/* Plots */
+.ax {
+    background: repeating-linear-gradient( 45deg,
+    #606dbc,
+    #606dbc 10px,
+    #465298 10px,
+    #465298 20px);
+}
+
 }</style></head>
 <body>
+<script src="../../lib/three.min.js"></script>
+<script src="../../build/interactive.js"></script>
 VECTOR ADDITION IN THE PLANE <br>
 <br>
 Vectors in the plane are given by arrows based at the origin. We denote
@@ -76,65 +87,39 @@ addition is often called "the parallelogram law". <br>
 Note that if A and C are themselves parallel, lying along a line
 through the origin, then A+C also lies on this line.<br>
 <br>
-<img style="width: 245px; height: 155px;" alt="figure1-1" src="./Linear Algebra_files/lafigure1-1.png"><br>
+<!-- <img style="width: 245px; height: 155px;" alt="figure1-1" src="./Linear Algebra_files/lafigure1-1.png"><br> -->
+<div id="ax1" class="ax" style="width: 245px; height: 155px;"></div>
+<script>
+  plot1 = new Interactive.Plot();
+
+  ax1 = plot1.createAxes2D(document.getElementById('ax1'), {position: new THREE.Vector3(0.4,0.5,0)})
+  // arr1 = new Interactive.BasisVectors2D(plot1)
+  // ax1.addFigure(arr2);
+
+  plot1.execExpression('v1=(0.5,1)');
+  plot1.execExpression('v2=(1,0.2)');
+  plot1.execExpression('v3()=v1+v2');
+
+  ax1.plotExpression('v1', 'arrow', {hex: 0xff0000});
+  ax1.plotExpression('v2', 'arrow', {hex: 0x0000ff});
+  ax1.plotExpression('v3()', 'arrow', {hex:0xff00ff});
+  ax1.plotExpression('v1', 'hotspot');
+  ax1.plotExpression('v2', 'hotspot');           
+
+  ax1.plotExpression('(v1,v2)', 'parallelogram', {opacity: 0.5})
+
+  ax1.plotExpression('A', 'label', {origin: 'v1'})
+  ax1.plotExpression('C', 'label', {origin: 'v2'})
+
+  ax1.plotExpression('X', 'label', {origin: '(1,0)'})
+  ax1.plotExpression('Y', 'label', {origin: '(0,1)'})
+
+  ;(function animate() {
+      requestAnimationFrame(animate);
+      plot1.render();
+  })();
+</script>
 <br>
-<applet archive="Demo.jar" code="DemoApplet" height="50" width="400"><param name="NAME" value="Addition of Vectors in the Plane"> <param name="DATA" value="filever 100.0 env {variable $s= 0,1,10$ 0.0 variable $t= 0,1,10$ 0.0 value 
-$AHS=(0.6099224499381894 , 0.899885581876018 , 0.0)$ value 
-$CHS=(1.4698131170641628 , 0.14998093031266974 , 3.834421656206024E-16)$ value 
-$BHS=(1.089861426938733 , 0.26996567456280546 , 0.0)$ constant $A=AHS$ constant 
-$C= CHS$ constant $B=BHS$} objects [{frame.3d obj0 {canvas {canvas.3d obj12 
-{tool 0.0 points true graph {graph.3d obj13 {light true graph {plots 
-[{plot.point obj3 {super {transpt $0$ visible true addedz 0.0} color 
-{coloring.constant obj14 {color [1.0 1.0 1.0 1.0]}} label A size 10.0 style 3.0 
-showlabel true dim 3.0 expr $A$}} {plot.point obj4 {super {transpt $0$ visible 
-true addedz 0.0} color {coloring.constant obj15 {color [1.0 1.0 1.0 1.0]}} label 
-C size 10.0 style 3.0 showlabel true dim 3.0 expr $C$}} {plot.point obj11 {super 
-{transpt $0$ visible false addedz 0.0} color {coloring.constant obj16 {color 
-[1.0 1.0 1.0 1.0]}} label $$ size 10.0 style 0.0 showlabel false dim 3.0 expr 
-$BHS$}} {plot.vector obj7 {base $t*A$ endstyle 1.0 dir $C$ color {coloring.group 
-obj17 {colors [{coloring.constant obj18 {color [0.0 0.0 1.0 1.0]}}] opacities 
-[1.0] mixings [0.0]}} dim 3.0 thick false basestyle 0.0 subdivs 1.0 len 1.0 
-basesize 10.0 super {transpt $0$ visible true addedz 0.0} endsize 10.0}} 
-{plot.polyhedron obj10 {faces [[0.0 1.0 2.0 3.0 0.0]] super {transpt $0$ visible 
-true addedz -3.0} colors [{coloring.constant obj19 {color [0.5 0.5 0.5 0.5]}}] 
-vertices [$0,0,0$ $A_1,A_2,0$ $A_1+C_1,A_2+C_2,0$ $C_1,C_2,0$] title 
-Polyhedron}} {plot.vector obj1 {base $s*C$ endstyle 1.0 dir $A$ color 
-{coloring.group obj20 {colors [{coloring.constant obj21 {color [1.0 0.0 0.0 
-1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick false basestyle 0.0 
-subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} 
-endsize 10.0}} {plot.point obj6 {super {transpt $0$ visible false addedz 0.0} 
-color {coloring.constant obj22 {color [1.0 1.0 1.0 1.0]}} label $$ size 10.0 
-style 0.0 showlabel false dim 3.0 expr $AHS$}} {plot.point obj2 {super {transpt 
-$0$ visible false addedz 0.0} color {coloring.constant obj23 {color [1.0 1.0 1.0 
-1.0]}} label $$ size 10.0 style 0.0 showlabel false dim 3.0 expr $CHS$}} 
-{plot.vector obj5 {base $0,0,0$ endstyle 1.0 dir $A$ color {coloring.group obj24 
-{colors [{coloring.constant obj25 {color [1.0 0.0 0.0 1.0]}}] opacities [1.0] 
-mixings [0.0]}} dim 3.0 thick false basestyle 0.0 subdivs 1.0 len 1.0 basesize 
-10.0 super {transpt $0$ visible true addedz 0.0} endsize 10.0}} {plot.vector 
-obj8 {base $0,0,0$ endstyle 1.0 dir $C$ color {coloring.group obj26 {colors 
-[{coloring.constant obj27 {color [0.0 0.0 1.0 1.0]}}] opacities [1.0] mixings 
-[0.0]}} dim 3.0 thick false basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 
-super {transpt $0$ visible true addedz 0.0} endsize 10.0}} {plot.axes obj28 
-{super {transpt $0$ visible true addedz 0.0} labels [x y z]}} {plot.vector obj9 
-{base $(0,0,0)$ endstyle 1.0 dir $A + C$ color {coloring.group obj29 {colors 
-[{coloring.constant obj30 {color [1.0 0.0 1.0 1.0]}}] opacities [1.0] mixings 
-[0.0]}} dim 3.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super 
-{transpt $0$ visible true addedz 0.0} endsize 10.0}}]} alpha true scale 
-100.01271474132783 surfacemode 2.0 drawmode 1.0 transf [0.9999999999999998 
-6.938893903907228E-16 0.0 -68.0 -5.551115123125783E-17 1.0000000000000002 0.0 
--52.0 -5.551115123125783E-17 4.85722573273506E-16 1.0 0.0 0.0 0.0 0.0 1.0]}} 
-group null hotspots [{hotspot obj31 {origin $0, 0, 0$ entry AHS constraint 
-$Point_1,Point_2,0$ cmode 1.0 cobjs []}} {hotspot obj32 {origin $0, 0, 0$ entry 
-CHS constraint $Point$ cmode 0.0 cobjs []}} {hotspot obj33 {origin $0, 0, 0$ 
-entry BHS constraint $Point_1,Point_2,0$ cmode 1.0 cobjs []}}] drawmode 1.0}} 
-graph {id obj13} frame {visible true plots [{id obj1} {id obj2} {id obj3} {id 
-obj4} {id obj5} {id obj6} {id obj7} {id obj8} {id obj9} {id obj10} {id obj11}] 
-title $3D Graph$ labels [$ Vector: A  starting at s*C$ $ Point: CHS$ 
-$ Point: A$ $ Point: C$ $ Vector: A  starting at 0,0,0$ $ Point: AHS$ 
-$ Vector: C  starting at t*A$ $ Vector: C  starting at 0,0,0$ 
-$ Vector: A + C  starting at (0,0,0)$ $ Polyhedron$ $ Point: BHS$]}}} {controls 
-obj34 {constants [] intervals [] objects [] readouts [{readout obj35 $C$} 
-{readout obj36 $A$}] functions [] variables [t s]}}] "></applet>
 <big><a href="http://www.math.brown.edu/~banchoff/la1d1.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
 <br>
 <br>
