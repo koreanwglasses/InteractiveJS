@@ -1918,7 +1918,7 @@ function Label2D(ax, text, opts) {
 
 Label2D.prototype.show = function() {
     var label = document.createElement('div');
-    label.style.position = 'fixed';
+    label.style.position = 'absolute';
     label.style.width = 100;
     label.style.height = 100;
     label.style.color = "white";
@@ -1954,8 +1954,8 @@ Label2D.prototype.refresh = function() {
 
     var coords = project(_origin);
 
-    this.label.style.top = coords.y + rect.top + 'px';
-    this.label.style.left = coords.x + rect.left + 'px';
+    this.label.style.top = window.scrollY + coords.y + rect.top + 'px';
+    this.label.style.left = window.scrollX + coords.x + rect.left + 'px';
 };
 
 function Parallelogram2D(plot, expr, opts) {
@@ -2339,22 +2339,29 @@ Panel.prototype.addSlider = function(expr, opts) {
         slider.value = this.parent.context[interval.varstr].value;
     }
 
+    var valueLabel = document.createTextNode(slider.value);
+
     var _self = this;
     if(opts.continuous === undefined || opts.continuous === false) {
         slider.onchange = function() {            
             _self.parent.context[interval.varstr] = new Number(parseFloat(slider.value));
             _self.parent.refresh(interval.varstr);
+            
+            valueLabel.nodeValue = slider.value;
         };
     } else if(opts.continuous === true) {
         slider.oninput = function() {
             _self.parent.context[interval.varstr] = new Number(parseFloat(slider.value));
             _self.parent.refresh(interval.varstr);
+
+            valueLabel.nodeValue = slider.value;
         };
     }
 
-    var label = document.createTextNode(interval.varstr + ' = ');
+    var label = document.createTextNode(interval.varstr + ':');
     this.container.appendChild(label);
     this.container.appendChild(slider);
+    this.container.appendChild(valueLabel);
 };
 
 function Plot() {
