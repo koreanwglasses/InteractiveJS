@@ -34,6 +34,20 @@ MathPlus.derivative2 = function(X, t) {
     return MathPlus.derivative(X, tph).sub(MathPlus.derivative(X, tmh)).div(h2)
 }
 
+MathPlus.grad = function(X, u, v) {
+    var hu = MathPlus.optimalh(u);
+    var uph = u.add(hu);
+    var umh = u.sub(hu);
+    var du = uph.sub(umh);
+
+    var hv = MathPlus.optimalh(v);
+    var vph = v.add(hv);
+    var vmh = v.sub(hv);
+    var dv = vph.sub(vmh);
+
+    return X(uph, v).sub(X(umh, v)).div(du).add(X(u, vph).sub(X(u, vmh)).div(dv))
+}
+
 MathPlus.binormal = function(X, t) {
     var h = MathPlus.optimalh(t);
     return MathPlus.derivative(X, t.add(h)).crs(MathPlus.derivative(X, t.sub(h))).norm();
