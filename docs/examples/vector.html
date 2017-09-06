@@ -35,15 +35,23 @@
             arr2 = new Interactive.BasisVectors2D(plot)
             ax2.addFigure(arr2);
 
-            plot.execExpression('v1=(1,0.5)')
-            plot.execExpression('v2=(0.5,1)')
-            plot.execExpression('v3()=v1+v2')
+            plot.execExpression('v1=(0.5,1)');
+            plot.execExpression('v2=(1,0.2)');
+            plot.execExpression('v3()=v1+v2');
 
-            ax2.plotExpression('v1', 'arrow', {hex: 0x00ffff})
-            ax2.plotExpression('v2', 'arrow', {hex: 0xff0000})
-            ax2.plotExpression('v3()', 'arrow')
-            ax2.plotExpression('v1', 'hotspot')
+            ax2.plotExpression('v1', 'arrow', {hex: 0xff0000});
+            ax2.plotExpression('v2', 'arrow', {hex: 0x0000ff});
+            ax2.plotExpression('v3()', 'arrow', {hex:0xff00ff});
+            ax2.plotExpression('v1', 'hotspot');
             ax2.plotExpression('v2', 'hotspot');           
+
+            ax2.plotExpression('(v1,v2)', 'parallelogram', {opacity: 0.5})
+
+            ax2.plotExpression('A', 'label', {origin: 'v1'})
+            ax2.plotExpression('C', 'label', {origin: 'v2'})
+
+            ax2.plotExpression('X', 'label', {origin: '(1,0)'})
+            ax2.plotExpression('Y', 'label', {origin: '(0,1)'})
 
             ;(function animate() {
                 requestAnimationFrame(animate);
