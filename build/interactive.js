@@ -398,6 +398,18 @@ Vector.prototype.map = function(f) {
 };
 
 /**
+ * Extend a vector to an n-dimensional vector
+ */
+Vector.prototype.ext = function(dimensions) {
+    var result = this.clone();
+    for(var i = this.dimensions; i < dimensions; i++) {
+        result.q.push(Number[0]);
+    }
+    result.dimensions = dimensions;
+    return result;
+};
+
+/**
  * Sets this vector's coordinates to the input vector's
  */
 Vector.prototype.set = function(v) {
@@ -529,6 +541,20 @@ MathPlus.derivative2 = function(X, t) {
     var tmh = t.sub(h);
     var h2 = tph.sub(t).add(t.sub(tmh));
     return MathPlus.derivative(X, tph).sub(MathPlus.derivative(X, tmh)).div(h2)
+};
+
+MathPlus.grad = function(X, u, v) {
+    var hu = MathPlus.optimalh(u);
+    var uph = u.add(hu);
+    var umh = u.sub(hu);
+    var du = uph.sub(umh);
+
+    var hv = MathPlus.optimalh(v);
+    var vph = v.add(hv);
+    var vmh = v.sub(hv);
+    var dv = vph.sub(vmh);
+
+    return X(uph, v).sub(X(umh, v)).div(du).add(X(u, vph).sub(X(u, vmh)).div(dv))
 };
 
 MathPlus.binormal = function(X, t) {
@@ -1833,6 +1859,7 @@ Axes3D.prototype.plotExpression = function(expr, type, opts) {
 function Arrow2D(plot, expr, opts) {
     Plottable.call(this, plot, expr, opts);
 
+    if(opts === undefined) opts = {};
     this.opts = {};
     this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0,0)', plot.context);
     this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
@@ -1876,6 +1903,84 @@ Hotspot2D.prototype.ondrag = function(event) {
     this.plot.context[this.expr.string].q[1] = event.worldY;
 
     this.plot.refresh(this.expr.string);
+};
+
+function Label2D(ax, text, opts) {
+    var plot = ax.parent;
+    this.ax = ax;
+    this.text = text;
+
+    if(opts === undefined) opts = {};
+    this.opts = {};
+    this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0)', plot.context);
+    this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
+}
+
+var toWindowCoords = function(worldX, worldY, cameraLeft, cameraRight, cameraTop, cameraBottom, divLeft, divTop, divWidth, divHeight) {
+    var windowX = divLeft + divWidth * (worldX - cameraLeft) / (cameraRight - cameraLeft);
+    var windowY = divTop + divHeight * (cameraTop - worldY) / (cameraTop - cameraBottom);
+    return {x: windowX, y: windowY};
+};
+
+Label2D.prototype.show = function() {
+    var label = document.createElement('div');
+    label.style.position = 'absolute';
+    label.style.width = 100;
+    label.style.height = 100;
+    label.style.color = "white";
+    label.innerHTML = this.text;
+
+    this.label = label;
+    this.refresh();
+    document.body.appendChild(label);
+};
+
+Label2D.prototype.refresh = function() {
+    var _origin = this.opts.origin.evaluate();
+    var coords = toWindowCoords(_origin.q[0].value, _origin.q[1].value, this.ax.camera.left, this.ax.camera.right, this.ax.camera.top, this.ax.camera.bottom, this.ax.frame.container.offsetLeft, this.ax.frame.container.offsetTop, this.ax.frame.container.clientWidth, this.ax.frame.container.clientHeight );
+
+    this.label.style.top = coords.y + 'px';
+    this.label.style.left = coords.x + 'px';
+};
+
+function Parallelogram2D(plot, expr, opts) {
+    Plottable.call(this, plot, expr, opts);
+
+    if(opts === undefined) opts = {};
+
+    this.opts = {};
+    this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0)', plot.context);
+    this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
+    this.opts.opacity = opts.opacity !== undefined ? opts.opacity : 1;
+}
+
+Parallelogram2D.prototype = Object.create(Plottable.prototype);
+Parallelogram2D.prototype.constructor = Parallelogram2D;
+
+Parallelogram2D.prototype.getVariables = function() {
+    return this.expr.getVariables().concat(this.opts.origin.getVariables());
+};
+
+Parallelogram2D.prototype.createSceneObject = function() {
+    var _vector1 = this.expr.evaluate().q[0];
+    var _vector2 = this.expr.evaluate().q[1];
+    var _origin = this.opts.origin.evaluate();
+    
+    var geom = new THREE.Geometry();
+    geom.vertices.push(_origin.toVector3());
+    geom.vertices.push(_origin.add(_vector1).toVector3());
+    geom.vertices.push(_origin.add(_vector2).toVector3());
+    geom.vertices.push(_origin.add(_vector1).add(_vector2).toVector3());
+    
+    var f1 = new THREE.Face3(3, 1, 0);
+    var f2 = new THREE.Face3(0, 2, 3);
+
+    geom.faces.push(f1);                
+    geom.faces.push(f2);
+
+    var mat = new THREE.MeshBasicMaterial({color: this.opts.hex, side: THREE.DoubleSide, opacity: this.opts.opacity, transparent: true});
+
+    return new THREE.Mesh( geom, mat );
 };
 
 function Parametric2D(parent, expr, opts) {
@@ -2157,6 +2262,17 @@ Axes2D.prototype.plotExpression = function(expr, type, opts) {
             this.expressions[expr] = iso;
             this.addFigure(iso);
             return iso;
+        case 'parallelogram':
+        case 'pgram':
+            var par = new Parallelogram2D(this.parent, expr, opts);
+            this.expressions[expr] = par;
+            this.addFigure(par);
+            return par;
+        case 'label':
+            var label = new Label2D(this, expr, opts);
+            label.show();
+            this.nonJSObjects.push(label);
+            return label;
         default:
             console.log('Interactive.Axes2D: Invalid plot type');
             return null;
@@ -2344,6 +2460,9 @@ function Axes(parent, container, opts) {
     // Keeps a roll of sceneobjects to faciliate removal
     this.sceneObjects = [];
 
+    // Objects not rendered by THREE that still need to refreshed
+    this.nonJSObjects = [];
+
     /**
      * Expressions to plot
      */
@@ -2377,6 +2496,10 @@ Axes.prototype.render = function() {
     }
 
     this.frame.render(this.camera);
+
+    for(var i = 0; i < this.nonJSObjects.length; i++) {
+        this.nonJSObjects[i].refresh();
+    }
 };
 
 /**
@@ -2577,6 +2700,8 @@ exports.BasisVectors3D = BasisVectors3D;
 exports.Hotspot2D = Hotspot2D;
 exports.Isoline2D = Isoline2D;
 exports.Isoline3D = Isoline3D;
+exports.Label2D = Label2D;
+exports.Parallelogram2D = Parallelogram2D;
 exports.Parametric2D = Parametric2D;
 exports.Parametric3D = Parametric3D;
 exports.Plottable = Plottable;
