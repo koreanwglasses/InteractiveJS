@@ -129,6 +129,18 @@ Vector.prototype.map = function(f) {
 }
 
 /**
+ * Extend a vector to an n-dimensional vector
+ */
+Vector.prototype.ext = function(dimensions) {
+    var result = this.clone();
+    for(var i = this.dimensions; i < dimensions; i++) {
+        result.q.push(Number[0]);
+    }
+    result.dimensions = dimensions;
+    return result;
+}
+
+/**
  * Sets this vector's coordinates to the input vector's
  */
 Vector.prototype.set = function(v) {
