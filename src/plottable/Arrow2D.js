@@ -14,6 +14,7 @@ import { Plottable } from './Plottable.js';
 function Arrow2D(plot, expr, opts) {
     Plottable.call(this, plot, expr, opts)
 
+    if(opts === undefined) opts = {};
     this.opts = {}
     this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0,0)', plot.context);
     this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
