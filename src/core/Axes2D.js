@@ -1,6 +1,8 @@
 import { Axes } from '../core/Axes.js'
 import { Arrow2D } from '../plottable/Arrow2D.js';
 import { Hotspot2D } from '../plottable/Hotspot2D.js';
+import { Label2D } from '../plottable/Label2D.js';
+import { Parallelogram2D } from '../plottable/Parallelogram2D.js';
 import { Parametric2D } from '../plottable/Parametric2D.js';
 import { Isoline2D } from '../plottable/Isoline2D.js';
 import { Vector } from '../math/Vector.js';
@@ -149,6 +151,17 @@ Axes2D.prototype.plotExpression = function(expr, type, opts) {
             this.expressions[expr] = iso;
             this.addFigure(iso);
             return iso;
+        case 'parallelogram':
+        case 'pgram':
+            var par = new Parallelogram2D(this.parent, expr, opts);
+            this.expressions[expr] = par;
+            this.addFigure(par);
+            return par;
+        case 'label':
+            var label = new Label2D(this, expr, opts);
+            label.show();
+            this.nonJSObjects.push(label);
+            return label;
         default:
             console.log('Interactive.Axes2D: Invalid plot type');
             return null;

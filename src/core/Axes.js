@@ -39,6 +39,9 @@ function Axes(parent, container, opts) {
     // Keeps a roll of sceneobjects to faciliate removal
     this.sceneObjects = []
 
+    // Objects not rendered by THREE that still need to refreshed
+    this.nonJSObjects = []
+
     /**
      * Expressions to plot
      */
@@ -72,6 +75,10 @@ Axes.prototype.render = function() {
     }
 
     this.frame.render(this.camera);
+
+    for(var i = 0; i < this.nonJSObjects.length; i++) {
+        this.nonJSObjects[i].refresh();
+    }
 }
 
 /**
