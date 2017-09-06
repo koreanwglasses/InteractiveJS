@@ -22,6 +22,8 @@ export { BasisVectors3D } from './plottable/BasisVectors3D.js';
 export { Hotspot2D } from './plottable/Hotspot2D.js';
 export { Isoline2D } from './plottable/Isoline2D.js';
 export { Isoline3D } from './plottable/Isoline3D.js';
+export { Label2D } from './plottable/Label2D.js';
+export { Parallelogram2D } from './plottable/Parallelogram2D.js';
 export { Parametric2D } from './plottable/Parametric2D.js';
 export { Parametric3D } from './plottable/Parametric3D.js';
 export { Plottable } from './plottable/Plottable.js';
