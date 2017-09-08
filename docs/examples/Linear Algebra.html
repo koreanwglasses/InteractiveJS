@@ -51,11 +51,11 @@ html {
 
 /* Plots */
 .ax {
-    background: repeating-linear-gradient( 45deg,
-    #606dbc,
-    #606dbc 10px,
-    #465298 10px,
-    #465298 20px);
+  background: repeating-linear-gradient( 45deg,
+  #606dbc,
+  #606dbc 10px,
+  #465298 10px,
+  #465298 20px);
 }
 
 }</style></head>
@@ -88,13 +88,20 @@ Note that if A and C are themselves parallel, lying along a line
 through the origin, then A+C also lies on this line.<br>
 <br>
 <!-- <img style="width: 245px; height: 155px;" alt="figure1-1" src="./Linear Algebra_files/lafigure1-1.png"><br> -->
-<div id="ax1" class="ax" style="width: 245px; height: 155px;"></div>
+<div id="plot1" class="plot">
+<div id="ax1" class="ax" style="width: 250px; height: 250px;"></div>
+<div id="pan1" class="pan"></div>
+</div>
 <script>
   plot1 = new Interactive.Plot();
-
+  pan1 = plot1.createPanel(document.getElementById('pan1'))
   ax1 = plot1.createAxes2D(document.getElementById('ax1'), {position: new THREE.Vector3(0.4,0.5,0)})
 
-  plot1.execExpression('v1=(0.5,1)');
+  pan1.addReadout('v1');
+  pan1.addReadout('v2');
+  pan1.addReadout('v1+v2');
+
+  plot1.execExpression('v1=(0.3,1)');
   plot1.execExpression('v2=(1,0.2)');
   plot1.execExpression('v3()=v1+v2');
 
@@ -142,18 +149,22 @@ It follows that the collection of all vectors tA where t is a real
 number is "the line along A through the origin".<br>
 <br>
 <!-- <img style="width: 217px; height: 157px;" alt="figure1-2" src="./Linear Algebra_files/lafigure1-2.png"> -->
-<div id="ax2" class="ax" style="width: 217px; height: 157px;"></div>
+<div id="plot2" class="plot">
+<div id="ax2" class="ax" style="width: 250px; height: 250px;"></div>
 <div id="pan2" class="pan"></div>
+</div>
 <script>
   plot2 = new Interactive.Plot();
   pan2 = plot2.createPanel(document.getElementById('pan2'))
-  ax2 = plot2.createAxes2D(document.getElementById('ax2'), {position: new THREE.Vector3(0.4,0.5,0), zoom:150})
+  ax2 = plot2.createAxes2D(document.getElementById('ax2'), {position: new THREE.Vector3(0.4,0.5,0)})
 
   plot2.execExpression('t=-0.5');
   plot2.execExpression('v1=(1,0.5)');
   plot2.execExpression('v2()=t*v1');
 
   pan2.addSlider('{t,-2,2,100}', { continuous: true });
+  pan2.addReadout('v1');
+  pan2.addReadout('t*v1');
 
   ax2.plotExpression('v1', 'arrow', {hex: 0xff0000});
   ax2.plotExpression('v2()', 'arrow', {hex:0xffffff, thick: true});
@@ -187,48 +198,6 @@ line along A, obtained when t and s are both equal to 1.<br>
 <br>
 <img style="width: 443px; height: 199px;" alt="figure1-3" src="./Linear Algebra_files/lafigure1-3.png"><br>
 &nbsp;
-<br>
-<applet archive="Demo.jar" code="DemoApplet" height="50" width="400"><param name="NAME" value="Lines in the Plane (with hotspots)"> <param name="DATA" value="filever 100.0 env {interval $t= -1,1,20$ variable $t0= -1,1,20$ -1.0 value 
-$C=(2.0 , 0.5)$ value $A=(1.0 , 1.0)$ interval $t1= -1,t0,20$ function 
-$X(t)=A + t*C$} objects [{frame.2d obj0 {canvas {canvas.3d obj9 {tool 1.0 points 
-true graph {graph.3d obj10 {light false graph {plots [{plot.point obj5 {super 
-{transpt $0$ visible true addedz 0.0} color {coloring.group obj11 {colors 
-[{coloring.constant obj12 {color [1.0 0.0 0.0 1.0]}}] opacities [1.0] mixings 
-[0.0]}} label A size 10.0 style 0.0 showlabel true dim 2.0 expr $A$}} 
-{plot.point obj3 {super {transpt $0$ visible true addedz 0.0} color 
-{coloring.constant obj13 {color [1.0 1.0 1.0 1.0]}} label $X(t0)$ size 10.0 
-style 0.0 showlabel true dim 2.0 expr $X(t0)$}} {plot.axes obj14 {super {transpt 
-$0$ visible true addedz 0.0} labels [x y]}} {plot.vector obj6 {base $0,0$ 
-endstyle 1.0 dir $X(t0)$ color {coloring.group obj15 {colors [{coloring.constant 
-obj16 {color [0.0 1.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 2.0 thick 
-true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible 
-false addedz 0.0} endsize 10.0}} {plot.vector obj1 {base $0,0$ endstyle 1.0 dir 
-$A$ color {coloring.group obj17 {colors [{coloring.constant obj18 {color [1.0 
-0.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 2.0 thick false basestyle 
-0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 
-0.0} endsize 10.0}} {plot.curve obj4 {super {super {transpt $0$ visible true 
-addedz 0.0} color {coloring.constant obj19 {color [0.0 1.0 0.0 1.0]}} expr 
-$X(t1)$} thick true}} {plot.point obj8 {super {transpt $0$ visible true addedz 
-0.0} color {coloring.constant obj20 {color [1.0 1.0 1.0 1.0]}} label C size 10.0 
-style 0.0 showlabel true dim 2.0 expr $C$}} {plot.curve obj2 {super {super 
-{transpt $0$ visible true addedz 0.0} color {coloring.constant obj21 {color [0.0 
-1.0 0.0 1.0]}} expr $X(t)$} thick true}} {plot.vector obj7 {base $0,0$ endstyle 
-1.0 dir $C$ color {coloring.constant obj22 {color [1.0 1.0 1.0 1.0]}} dim 2.0 
-thick false basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ 
-visible true addedz 0.0} endsize 10.0}}]} alpha false scale 100.01271474132783 
-surfacemode 1.0 drawmode 1.0 transf [1.0069555500567213 0.0 0.0 0.0 0.0 
-1.0069555500567213 0.0 0.0 0.0 0.0 1.0069555500567213 0.0 0.0 0.0 0.0 1.0]}} 
-group null hotspots [{hotspot obj23 {origin $0, 0$ entry A constraint $Point$ 
-cmode 0.0 cobjs []}} {hotspot obj24 {origin $0, 0$ entry C constraint $Point$ 
-cmode 0.0 cobjs []}}] drawmode 0.0}} graph {id obj10} frame {visible true plots 
-[{id obj1} {id obj2} {id obj3} {id obj4} {id obj5} {id obj6} {id obj7} {id 
-obj8}] title $Straight line$ labels [$ Vector: A  starting at 0,0$ 
-$ Curve: X(t)$ $ Point: X(t0)$ $ Curve: X(t1)$ $ Point: A$ 
-$ Vector: X(t0)  starting at 0,0$ $ Vector: C  starting at 0,0$ $ Point: C$]}}} 
-{controls obj25 {constants [] intervals [] objects [{plotcheckbox obj26 {values 
-[true] label $Show entire curve$ plots [{id obj2}]}} {plotcheckbox obj27 {values 
-[true] label $Show position vector X(t0)$ plots [{id obj6}]}}] readouts [] 
-functions [X] variables [$t0$]}}] "></applet>
 <big><a href="http://www.math.brown.edu/~banchoff/la1d3.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
 <br>
 <applet archive="Demo.jar" code="DemoApplet" height="50" width="400"><param name="NAME" value="Lines in the Plane (type-in)"> <param name="DATA" value="filever 100.0 env {interval $t= -1,1,20$ variable $t0= -1,1,20$ -1.0 constant 
