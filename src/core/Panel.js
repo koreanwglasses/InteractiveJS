@@ -5,6 +5,8 @@ function Panel (parent, container) {
     this.parent = parent;
 
     this.container = container;
+
+    this.readOuts = [];
 }
 
 Panel.prototype.addSlider = function(expr, opts) {
@@ -42,9 +44,48 @@ Panel.prototype.addSlider = function(expr, opts) {
     }
 
     var label = document.createTextNode(interval.varstr + ':');
-    this.container.appendChild(label);
-    this.container.appendChild(slider);
-    this.container.appendChild(valueLabel);
+    
+    var div = document.createElement('div');
+
+    this.container.appendChild(div);
+    div.appendChild(label);
+    div.appendChild(slider);
+    div.appendChild(valueLabel);
+}
+
+Panel.prototype.addReadout = function(expr, opts) {
+    // TODO-ERR: Check if expr exists 
+
+    if(opts === undefined) opts = {};
+
+    var variable = expr;
+
+    var textBox = document.createElement('input');
+    textBox.setAttribute('type', 'text');
+    textBox.setAttribute('disabled', 'true');
+
+    // var _self = this;
+    // textBox.onchange = function() {            
+    //     _self.parent.context[expr] = new Expression(textBox.value, _self.parent.context);
+    //     _self.parent.refresh(interval.varstr);
+    // }
+
+    var label = document.createTextNode(expr + '=');
+
+    var div = document.createElement('div');
+    
+    this.container.appendChild(div);
+    div.appendChild(label);
+    div.appendChild(textBox);
+
+    this.readOuts.push({exprLabel: expr, expr: new Expression(expr, this.parent.context), div: div, textBox: textBox});
+}
+
+Panel.prototype.update = function() {
+    for(var i = 0; i < this.readOuts.length; i++) {
+        var readOut = this.readOuts[i];
+        readOut.textBox.value = readOut.expr.evaluate().toString({precision: 4});
+    }
 }
 
 export { Panel };
