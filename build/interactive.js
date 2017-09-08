@@ -261,7 +261,10 @@ Number.prototype.compareTo = function(n) {
     return null;
 };
 
-Number.prototype.toString = function() {
+Number.prototype.toString = function(opts) {
+    if(opts) {
+        if(opts.precision) return this.value.toFixed(opts.precision);
+    }
     return '' + this.value;
 };
 
@@ -450,10 +453,10 @@ Vector.prototype.eval = function() {
     return this;
 };
 
-Vector.prototype.toString = function() {
-    var str = '(' + this.q[0];
+Vector.prototype.toString = function(opts) {
+    var str = '(' + this.q[0].toString(opts);
     for(var i = 1; i < this.dimensions; i++) {
-        str += ',' + this.q[i];
+        str += ',' + this.q[i].toString(opts);
     }
     return str + ')';
 };
@@ -2322,6 +2325,8 @@ function Panel (parent, container) {
     this.parent = parent;
 
     this.container = container;
+
+    this.readOuts = [];
 }
 
 Panel.prototype.addSlider = function(expr, opts) {
@@ -2359,9 +2364,48 @@ Panel.prototype.addSlider = function(expr, opts) {
     }
 
     var label = document.createTextNode(interval.varstr + ':');
-    this.container.appendChild(label);
-    this.container.appendChild(slider);
-    this.container.appendChild(valueLabel);
+    
+    var div = document.createElement('div');
+
+    this.container.appendChild(div);
+    div.appendChild(label);
+    div.appendChild(slider);
+    div.appendChild(valueLabel);
+};
+
+Panel.prototype.addReadout = function(expr, opts) {
+    // TODO-ERR: Check if expr exists 
+
+    if(opts === undefined) opts = {};
+
+    var variable = expr;
+
+    var textBox = document.createElement('input');
+    textBox.setAttribute('type', 'text');
+    textBox.setAttribute('disabled', 'true');
+
+    // var _self = this;
+    // textBox.onchange = function() {            
+    //     _self.parent.context[expr] = new Expression(textBox.value, _self.parent.context);
+    //     _self.parent.refresh(interval.varstr);
+    // }
+
+    var label = document.createTextNode(expr + '=');
+
+    var div = document.createElement('div');
+    
+    this.container.appendChild(div);
+    div.appendChild(label);
+    div.appendChild(textBox);
+
+    this.readOuts.push({exprLabel: expr, expr: new Expression(expr, this.parent.context), div: div, textBox: textBox});
+};
+
+Panel.prototype.update = function() {
+    for(var i = 0; i < this.readOuts.length; i++) {
+        var readOut = this.readOuts[i];
+        readOut.textBox.value = readOut.expr.evaluate().toString({precision: 4});
+    }
 };
 
 function Plot() {
@@ -2443,6 +2487,10 @@ Plot.prototype.render = function() {
             if(ax.frame.isSleeping) ax.wake();
             ax.render();
         } else if(!ax.frame.isSleeping) ax.sleep();
+    });
+
+    this.panels.forEach(function(pan) {
+        pan.update();
     });
 };
 
