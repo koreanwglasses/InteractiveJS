@@ -44,7 +44,10 @@ Number.prototype.compareTo = function(n) {
     return null;
 }
 
-Number.prototype.toString = function() {
+Number.prototype.toString = function(opts) {
+    if(opts) {
+        if(opts.precision) return this.value.toFixed(opts.precision);
+    }
     return '' + this.value;
 }
 

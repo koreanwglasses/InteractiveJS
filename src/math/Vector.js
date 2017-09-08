@@ -181,10 +181,10 @@ Vector.prototype.eval = function() {
     return this;
 }
 
-Vector.prototype.toString = function() {
-    var str = '(' + this.q[0];
+Vector.prototype.toString = function(opts) {
+    var str = '(' + this.q[0].toString(opts);
     for(var i = 1; i < this.dimensions; i++) {
-        str += ',' + this.q[i];
+        str += ',' + this.q[i].toString(opts);
     }
     return str + ')';
 }
