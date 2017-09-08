@@ -83,6 +83,10 @@ Plot.prototype.render = function() {
             ax.render();
         } else if(!ax.frame.isSleeping) ax.sleep();
     })
+
+    this.panels.forEach(function(pan) {
+        pan.update();
+    })
 }
 
 export { Plot };
