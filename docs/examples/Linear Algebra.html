@@ -248,46 +248,35 @@ then equivalent to ac + bd = 0.&nbsp; We define the "dot product" or
 "inner product" of the
 vectors A = (a,b) and C = (c,d) to be ac + bd = A*C.<br>
 <br>
-<img style="width: 151px; height: 149px;" alt="figure4" src="./Linear Algebra_files/lafigure1-4.png"><br>
+<!-- <img style="width: 151px; height: 149px;" alt="figure4" src="./Linear Algebra_files/lafigure1-4.png"><br> -->
 <br>
-<applet archive="Demo.jar" code="DemoApplet" height="50" width="400"><param name="NAME" value="Dot Product"> <param name="DATA" value="filever 100.0 env {interval $x= -1, 1, 20$ interval $t=0,1,50$ interval 
-$y= -1, 1, 20$ value $C=(0.0 , 1.0)$ value $A=(1.0 , 0.0)$} objects [{controls 
-obj0 {constants [] intervals [] objects [] readouts [{readout obj1 $A$} {readout 
-obj2 $C$} {readout obj3 $dot(A,C)$}] functions [] variables []}} {frame.2d obj4 
-{canvas {canvas.3d obj10 {tool 0.0 points true graph {graph.3d obj11 {light 
-false graph {plots [{plot.axes obj12 {super {transpt $0$ visible true addedz 
-0.0} labels [x y]}} {plot.vector obj7 {base $0,0$ endstyle 1.0 dir $C$ color 
-{coloring.group obj13 {colors [{coloring.constant obj14 {color [0.0 0.0 1.0 
-1.0]}}] opacities [1.0] mixings [0.0]}} dim 2.0 thick true basestyle 0.0 subdivs 
-1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} endsize 
-10.0}} {plot.curve obj5 {super {super {transpt $0$ visible true addedz 0.0} 
-color {coloring.group obj15 {colors [{coloring.constant obj16 {color [0.5 0.5 
-0.5 1.0]}}] opacities [0.0] mixings [0.0]}} expr $cos(t),sin(t)$} thick false}} 
-{plot.curve obj6 {super {super {transpt $0$ visible true addedz 0.0} color 
-{coloring.group obj17 {colors [{coloring.gradient obj18 {colors 
-[{coloring.constant obj19 {color [0.0 0.0 0.0 0.0]}} {coloring.constant obj20 
-{color [1.0 1.0 1.0 1.0]}}] values [$- 1$ $1.0$] expr 
-$sign(dot(A,C)^2-.0001)$}}] opacities [1.0] mixings [0.0]}} expr 
-$0.2*(A + t*(C - A))/((A_1+t*(C_1-A_1))^2 + (A_2+t*(C_2-A_2))^2)^0.5$} thick 
-true}} {plot.polygon obj9 {super {transpt $0$ visible true addedz 0.0} subdivs 
-1.0 color {coloring.group obj21 {colors [{coloring.gradient obj22 {colors 
-[{coloring.constant obj23 {color [1.0 1.0 1.0 1.0]}} {coloring.constant obj24 
-{color [0.0 0.0 0.0 0.0]}}] values [$- 1$ $1.0$] expr 
-$sign(dot(A,C)^2-.0001)$}}] opacities [1.0] mixings [0.0]}} vertices 
-[$unit(A)*.2$ $unit(A)*.2+unit(C)*.2$ $unit(C)*.2$] dim 2.0 title Polygon thick 
-true}} {plot.vector obj8 {base $0,0$ endstyle 1.0 dir $A$ color {coloring.group 
-obj25 {colors [{coloring.constant obj26 {color [1.0 0.0 0.0 1.0]}}] opacities 
-[1.0] mixings [0.0]}} dim 2.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 
-basesize 10.0 super {transpt $0$ visible true addedz 0.0} endsize 10.0}}]} alpha 
-false scale 100.01271474132783 surfacemode 1.0 drawmode 1.0 transf [1.0 0.0 0.0 
--38.0 0.0 1.0 0.0 -5.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0]}} group null hotspots 
-[{hotspot obj27 {origin $0, 0$ entry A constraint $Point$ cmode 0.0 cobjs [{id 
-obj5}]}} {hotspot obj28 {origin $0, 0$ entry C constraint $Point$ cmode 0.0 
-cobjs []}}] drawmode 0.0}} graph {id obj11} frame {visible true plots [{id obj5} 
-{id obj6} {id obj7} {id obj8} {id obj9}] title $2D Graph$ labels 
-[$ Curve: cos(t),sin(t)$ 
-$ Curve: 0.2*(A + t*(C - A))/((A_1+t*(C_1-A_1))^2 + (A_2+t*(C_2-A_2))^2)^0.5$ 
-$ Vector: C  starting at 0,0$ $ Vector: A  starting at 0,0$ $ Polygon$]}}}] "></applet>
+<div id="plot4" class="plot">
+<div id="ax4" class="ax" style="width: 300px; height: 300px;"></div>
+<div id="pan4" class="pan"></div>
+<script>
+  plot4 = new Interactive.Plot();
+  pan4 = plot4.createPanel(document.getElementById('pan4'))
+  ax4 = plot4.createAxes2D(document.getElementById('ax4'), {position: new THREE.Vector4(0.5,0.5,0)})
+
+  plot4.execExpression('A=(0,1)');
+  plot4.execExpression('C=(1,0)');
+
+  ax4.plotExpression('A', 'arrow', {hex: 0xff0000})
+  ax4.plotExpression('C', 'arrow', {hex: 0x0000ff})
+
+  ax4.plotExpression('X', 'label', {origin: '(1,0)'})
+  ax4.plotExpression('Y', 'label', {origin: '(0,1)'})
+ 
+  ax4.plotExpression('A', 'hotspot')
+  ax4.plotExpression('C', 'hotspot')
+
+  pan4.addReadout('dot(A,C)', {label: "A . C"})
+
+  ;(function animate() {
+      requestAnimationFrame(animate);
+      plot4.render();
+  })();
+</script>
 <big><a href="http://www.math.brown.edu/~banchoff/la1d5.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
 <br>
 <br>
