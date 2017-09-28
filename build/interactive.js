@@ -658,6 +658,10 @@ MathPlus.select = function(i) {
     return arguments[i.value];
 };
 
+MathPlus.if = function(i) {
+    return arguments[i.value + 1];
+};
+
 MathPlus.spectrum = function(x) {
     var y = x.value % 1;
     if(y < 0) y += 1;
@@ -1108,11 +1112,17 @@ function Plottable(plot, expr, opts) {
     
     this.sceneObject = null;
     this.validated = false;
+
+    if(opts === undefined) opts = {};
+    this.showExpr = opts.show !== undefined ? new Expression(opts.show, plot.context) : null;
 }
 
 Plottable.prototype.getVariables = function() {
     if(!this.expr) {
         return []
+    }
+    if(this.showExpr) {
+        return this.expr.getVariables().concat(this.showExpr.getVariables());
     }
     return this.expr.getVariables();
 };
@@ -1122,7 +1132,11 @@ Plottable.prototype.getVariables = function() {
  */
 Plottable.prototype.getSceneObject = function() {
     if(this.validated === false) {
-        this.sceneObject = this.createSceneObject();
+        if(!this.showExpr || this.showExpr.evaluate() != 0) {
+            this.sceneObject = this.createSceneObject();
+        } else {
+            this.sceneObject = null;
+        }
         this.validated = true;
     }
     return this.sceneObject;
@@ -1166,8 +1180,8 @@ Arrow3D.prototype = Object.create(Plottable.prototype);
 Arrow3D.prototype.constructor = Arrow3D;
 
 Arrow3D.prototype.getVariables = function() {    
-    if(this.opts.origin !== undefined) return this.expr.getVariables().concat(this.opts.origin.getVariables());
-    else return this.expr.getVariables()
+    if(this.opts.origin !== undefined) return Plottable.prototype.getVariables.call(this).concat(this.opts.origin.getVariables());
+    else return Plottable.prototype.getVariables.call(this).getVariables()
 };
 
 Arrow3D.prototype.createSceneObject = function() {
@@ -1874,7 +1888,7 @@ Arrow2D.prototype = Object.create(Plottable.prototype);
 Arrow2D.prototype.constructor = Arrow2D;
 
 Arrow2D.prototype.getVariables = function() {
-    return this.expr.getVariables().concat(this.opts.origin.getVariables());
+    return Plottable.prototype.getVariables.call(this).concat(this.opts.origin.getVariables());
 };
 
 Arrow2D.prototype.createSceneObject = function() {
@@ -2119,6 +2133,34 @@ Parametric2D.prototype.createSceneObject = function() {
     return this.createLine(par);
 };
 
+function Point2D(plot, expr, opts) {
+    Plottable.call(this, plot, expr, opts);
+
+    if(opts === undefined) opts = {};
+    this.opts = {};
+    this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
+    this.opts.radius = opts.radius !== undefined ? opts.radius : 0.05;
+}
+
+Point2D.prototype = Object.create(Plottable.prototype);
+Point2D.prototype.constructor = Point2D;
+
+Point2D.prototype.getVariables = function() {
+    return this.expr.getVariables();
+};
+
+Point2D.prototype.createSceneObject = function() {
+    var _vector2 = this.expr.evaluate().toVector3();
+    var _hex = this.opts.hex;
+    var _radius = this.opts.radius;
+
+    var geometry = new THREE.CircleBufferGeometry( _radius, 32 );
+    var material = new THREE.MeshBasicMaterial( { color: _hex } );
+    var circle = new THREE.Mesh( geometry, material );
+    circle.position.copy(_vector2);
+    return circle;
+};
+
 function Isoline2D(parent, expr, opts) {
     Isoline3D.call(this, parent, expr, opts);
     
@@ -2286,6 +2328,11 @@ Axes2D.prototype.plotExpression = function(expr, type, opts) {
             this.expressions[expr] = par;
             this.addFigure(par);
             return par;
+        case 'point':
+            var point = new Point2D(this.parent, expr, opts);
+            this.expressions[expr] = point;
+            this.addFigure(point);
+            return point;
         case 'label':
             var label = new Label2D(this, expr, opts);
             label.show();
@@ -2370,7 +2417,7 @@ Panel.prototype.addSlider = function(expr, opts) {
     this.container.appendChild(div);
     div.appendChild(label);
     div.appendChild(slider);
-    div.appendChild(valueLabel);
+    // div.appendChild(valueLabel);
 };
 
 Panel.prototype.addReadout = function(expr, opts) {
@@ -2399,6 +2446,29 @@ Panel.prototype.addReadout = function(expr, opts) {
     div.appendChild(textBox);
 
     this.readOuts.push({exprLabel: expr, expr: new Expression(expr, this.parent.context), div: div, textBox: textBox});
+};
+
+Panel.prototype.addCheckBox = function(expr, opts) {
+    if(opts == undefined) opts = {};
+    var variable = expr;
+    
+    var chkBox = document.createElement('input');
+    chkBox.setAttribute('type', 'checkbox');
+
+    chkBox.checked = this.parent.context[variable] != 0;
+
+    var _self = this;
+    chkBox.onchange = function() {
+        _self.parent.context[variable] = chkBox.checked ? Number[1] : Number[0];
+        _self.parent.refresh(variable);
+    };
+
+    var label = document.createTextNode(opts.label);
+    var div = document.createElement('div');
+
+    this.container.appendChild(div);
+    div.appendChild(label);
+    div.appendChild(chkBox);
 };
 
 Panel.prototype.update = function() {
@@ -2560,7 +2630,9 @@ Axes.prototype.render = function() {
             if(this.sceneObjects[i] !== undefined) {
                 this.frame.scene.remove(this.sceneObjects[i]);
             }
-            this.frame.scene.add(sceneObject);
+            if(sceneObject != null) {
+                this.frame.scene.add(sceneObject);
+            }
             this.sceneObjects[i] = sceneObject;
         }
     }
