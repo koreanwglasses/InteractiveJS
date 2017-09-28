@@ -50,7 +50,7 @@ Panel.prototype.addSlider = function(expr, opts) {
     this.container.appendChild(div);
     div.appendChild(label);
     div.appendChild(slider);
-    div.appendChild(valueLabel);
+    // div.appendChild(valueLabel);
 }
 
 Panel.prototype.addReadout = function(expr, opts) {
@@ -79,6 +79,29 @@ Panel.prototype.addReadout = function(expr, opts) {
     div.appendChild(textBox);
 
     this.readOuts.push({exprLabel: expr, expr: new Expression(expr, this.parent.context), div: div, textBox: textBox});
+}
+
+Panel.prototype.addCheckBox = function(expr, opts) {
+    if(opts == undefined) opts = {};
+    var variable = expr;
+    
+    var chkBox = document.createElement('input');
+    chkBox.setAttribute('type', 'checkbox');
+
+    chkBox.checked = this.parent.context[variable] != 0;
+
+    var _self = this;
+    chkBox.onchange = function() {
+        _self.parent.context[variable] = chkBox.checked ? Number[1] : Number[0];
+        _self.parent.refresh(variable);
+    }
+
+    var label = document.createTextNode(opts.label);
+    var div = document.createElement('div');
+
+    this.container.appendChild(div);
+    div.appendChild(label);
+    div.appendChild(chkBox);
 }
 
 Panel.prototype.update = function() {
