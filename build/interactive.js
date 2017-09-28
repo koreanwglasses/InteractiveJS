@@ -343,6 +343,19 @@ Vector.prototype.crs = function(v) {
     }
 };
 
+Vector.prototype.dot = function(v) {
+    if(v.dimensions !== this.dimensions) {
+        console.log('Interactive.Vector: Dimensions mismatch');
+        return null;
+    }
+
+    var d = Number[0];
+    for(var i = 0; i < this.dimensions; i++) 
+        d = d.add(this.q[i].mul(v.q[i]));
+
+    return d;
+};
+
 Vector.prototype.mul = function(v) {
     if(v.isNumberInstance === true) {
         var result = this.clone();
@@ -591,6 +604,10 @@ MathPlus.norm = function(x) {
 
 MathPlus.component = function(v,i) {
     return v.q[i.value];
+};
+
+MathPlus.dot = function(a, b) {
+    return a.dot(b);
 };
 
 MathPlus.cos = function(x) {
