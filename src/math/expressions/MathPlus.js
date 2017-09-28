@@ -146,6 +146,10 @@ MathPlus.select = function(i) {
     return arguments[i.value];
 }
 
+MathPlus.if = function(i) {
+    return arguments[i.value + 1];
+}
+
 MathPlus.spectrum = function(x) {
     var y = x.value % 1;
     if(y < 0) y += 1;
