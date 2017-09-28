@@ -23,8 +23,8 @@ Arrow3D.prototype = Object.create(Plottable.prototype);
 Arrow3D.prototype.constructor = Arrow3D;
 
 Arrow3D.prototype.getVariables = function() {    
-    if(this.opts.origin !== undefined) return this.expr.getVariables().concat(this.opts.origin.getVariables());
-    else return this.expr.getVariables()
+    if(this.opts.origin !== undefined) return Plottable.prototype.getVariables.call(this).concat(this.opts.origin.getVariables());
+    else return Plottable.prototype.getVariables.call(this).getVariables()
 }
 
 Arrow3D.prototype.createSceneObject = function() {

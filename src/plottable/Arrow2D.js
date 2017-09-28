@@ -26,7 +26,7 @@ Arrow2D.prototype = Object.create(Plottable.prototype);
 Arrow2D.prototype.constructor = Arrow2D;
 
 Arrow2D.prototype.getVariables = function() {
-    return this.expr.getVariables().concat(this.opts.origin.getVariables());
+    return Plottable.prototype.getVariables.call(this).concat(this.opts.origin.getVariables());
 }
 
 Arrow2D.prototype.createSceneObject = function() {
