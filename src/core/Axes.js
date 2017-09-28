@@ -69,7 +69,9 @@ Axes.prototype.render = function() {
             if(this.sceneObjects[i] !== undefined) {
                 this.frame.scene.remove(this.sceneObjects[i])
             }
-            this.frame.scene.add(sceneObject);
+            if(sceneObject != null) {
+                this.frame.scene.add(sceneObject);
+            }
             this.sceneObjects[i] = sceneObject;
         }
     }
