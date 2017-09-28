@@ -4,7 +4,7 @@
   
   <title>Linear Algebra</title>
   <script type="text/javascript">
-<!--
+// <!--
 function openwindow(lnk, nme)
 {
 if (! window.focus)return true;
@@ -16,39 +16,9 @@ href=lnk.href;
 window.open(href, nme, 'width=300,height=300,scrollbars=yes');
 return false;
 }
-//-->
+// -->
   </script>
-<style id="dark-reader-style" type="text/css">@media screen {
-
-/* Leading rule */
-html {
-  -webkit-filter: invert(100%) hue-rotate(180deg) contrast(80%) grayscale(10%) sepia(10%) !important;
-}
-
-/* Contrary rule */
-img, iframe, video, *:not(object):not(body)>embed, object,
-svg image,
-*[style*="background:url"]:empty, *[style*="background-image:url"]:empty,
-*[style*="background: url"]:empty, *[style*="background-image: url"]:empty,
-twitterwidget {
-  -webkit-filter: invert(100%) hue-rotate(180deg) !important;
-}
-
-/* Text contrast */
-html {
-  text-shadow: 0 0 0 !important;
-}
-
-/* Full screen */
-*:-webkit-full-screen, *:-webkit-full-screen * {
-  -webkit-filter: none !important;
-}
-
-/* Page background */
-html {
-  background: rgb(26,26,25) !important;
-}
-
+<style>
 /* Plots */
 .ax {
   background: repeating-linear-gradient( 45deg,
@@ -57,8 +27,8 @@ html {
   #465298 10px,
   #465298 20px);
 }
-
-}</style></head>
+</style>
+</head>
 <body>
 <script src="../../lib/three.min.js"></script>
 <script src="../../build/interactive.js"></script>
@@ -196,49 +166,58 @@ parallel, then the point A+C is the intersection of the line through A
 parallel to the line along C and the line through C parallel to the
 line along A, obtained when t and s are both equal to 1.<br>
 <br>
-<img style="width: 443px; height: 199px;" alt="figure1-3" src="./Linear Algebra_files/lafigure1-3.png"><br>
+<!-- <img style="width: 443px; height: 199px;" alt="figure1-3" src="./Linear Algebra_files/lafigure1-3.png"><br> -->
+<div id="plot3" class="plot">
+<div id="ax3" class="ax" style="width: 600px; height: 300px;"></div>
+<div id="pan3" class="pan"></div>
 &nbsp;
 <big><a href="http://www.math.brown.edu/~banchoff/la1d3.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
 <br>
-<applet archive="Demo.jar" code="DemoApplet" height="50" width="400"><param name="NAME" value="Lines in the Plane (type-in)"> <param name="DATA" value="filever 100.0 env {interval $t= -1,1,20$ variable $t0= -1,1,20$ -1.0 constant 
-$A=(1,1)$ constant $C=(2,1/2)$ interval $t1= -1,t0, 20$ function $X(t)=A + t*C$} 
-objects [{controls obj0 {constants [A C] intervals [] objects [{plotcheckbox 
-obj1 {values [true] label $Show position vector X(t0)$ plots [{id obj2}]}} 
-{plotcheckbox obj3 {values [true] label $Show entire curve$ plots [{id obj4}]}}] 
-readouts [] functions [X] variables [$t0$]}} {frame.2d obj5 {canvas {canvas.3d 
-obj12 {tool 1.0 points true graph {graph.3d obj13 {light false graph {plots 
-[{plot.vector obj2 {base $0,0$ endstyle 1.0 dir $X(t0)$ color {coloring.group 
-obj14 {colors [{coloring.constant obj15 {color [0.0 1.0 0.0 1.0]}}] opacities 
-[1.0] mixings [0.0]}} dim 2.0 thick true basestyle 0.0 subdivs 1.0 len 1.0 
-basesize 10.0 super {transpt $0$ visible false addedz 0.0} endsize 10.0}} 
-{plot.curve obj10 {super {super {transpt $0$ visible true addedz 0.0} color 
-{coloring.constant obj16 {color [0.0 1.0 0.0 1.0]}} expr $X(t1)$} thick true}} 
-{plot.point obj6 {super {transpt $0$ visible true addedz 0.0} color 
-{coloring.group obj17 {colors [{coloring.constant obj18 {color [1.0 0.0 0.0 
-1.0]}}] opacities [1.0] mixings [0.0]}} label A size 10.0 style 0.0 showlabel 
-true dim 2.0 expr $A$}} {plot.point obj7 {super {transpt $0$ visible true addedz 
-0.0} color {coloring.constant obj19 {color [1.0 1.0 1.0 1.0]}} label C size 10.0 
-style 0.0 showlabel true dim 2.0 expr $C$}} {plot.axes obj20 {super {transpt 
-$0$ visible true addedz 0.0} labels [x y]}} {plot.vector obj8 {base $0,0$ 
-endstyle 1.0 dir $A$ color {coloring.group obj21 {colors [{coloring.constant 
-obj22 {color [1.0 0.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 2.0 thick 
-false basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible 
-true addedz 0.0} endsize 10.0}} {plot.point obj9 {super {transpt $0$ visible 
-true addedz 0.0} color {coloring.constant obj23 {color [1.0 1.0 1.0 1.0]}} label 
-$X(t0)$ size 10.0 style 0.0 showlabel true dim 2.0 expr $X(t0)$}} {plot.curve 
-obj4 {super {super {transpt $0$ visible true addedz 0.0} color 
-{coloring.constant obj24 {color [0.0 1.0 0.0 1.0]}} expr $X(t)$} thick true}} 
-{plot.vector obj11 {base $0,0$ endstyle 1.0 dir $C$ color {coloring.constant 
-obj25 {color [1.0 1.0 1.0 1.0]}} dim 2.0 thick false basestyle 0.0 subdivs 1.0 
-len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} endsize 
-10.0}}]} alpha false scale 100.01271474132783 surfacemode 1.0 drawmode 1.0 
-transf [1.0069555500567253 0.0 0.0 0.0 0.0 1.0069555500567253 0.0 
-1.0069555500567253 0.0 0.0 1.0069555500567253 0.0 0.0 0.0 0.0 1.0]}} group null 
-hotspots [] drawmode 0.0}} graph {id obj13} frame {visible true plots [{id obj6} 
-{id obj7} {id obj4} {id obj8} {id obj9} {id obj10} {id obj2} {id obj11}] title 
-$Straight line$ labels [$ Point: A$ $ Point: C$ $ Curve: X(t)$ 
-$ Vector: A  starting at 0,0$ $ Point: X(t0)$ $ Curve: X(t1)$ 
-$ Vector: X(t0)  starting at 0,0$ $ Vector: C  starting at 0,0$]}}}] "></applet>
+<script>
+  plot3 = new Interactive.Plot();
+  pan3 = plot3.createPanel(document.getElementById('pan3'))
+  ax3 = plot3.createAxes2D(document.getElementById('ax3'), {position: new THREE.Vector3(1,0.5,0)})
+
+  plot3.execExpression('A=(1,1)');
+  plot3.execExpression('C=(2,1/2)');
+  plot3.execExpression('t0=-0.8');
+
+  pan3.addSlider('{t0,-1,1,20}', {continuous: true});
+  pan3.addReadout('t0');
+
+  plot3.execExpression('X(t)=A + t*C');
+
+  ax3.plotExpression('A', 'arrow', {hex: 0xff0000})
+  ax3.plotExpression('C', 'arrow', {hex: 0xffffff})
+
+  ax3.plotExpression('A', 'point', {hex: 0xff0000})
+  ax3.plotExpression('C', 'point', {hex: 0xffffff})
+  ax3.plotExpression('X(t0)', 'point', {hex: 0xffffff})
+
+  ax3.plotExpression('X', 'label', {origin: '(1,0)'})
+  ax3.plotExpression('Y', 'label', {origin: '(0,1)'})
+ 
+  ax3.plotExpression('A', 'label', {origin: 'A'})
+  ax3.plotExpression('C', 'label', {origin: 'C'})
+  ax3.plotExpression('X(t0)', 'label', {origin: 'X(t0)'})
+
+  ax3.plotExpression('A', 'hotspot')
+  ax3.plotExpression('C', 'hotspot')
+
+  plot3.execExpression('D() = (0,1,0)')
+
+  ax3.plotExpression('X(t){t,-1,1,2}', 'parametric', {color: 'D'});
+
+  plot3.execExpression('opt1=0');
+  pan3.addCheckBox('opt1', {label: "Show position vector X(t0)"});
+
+  ax3.plotExpression('X(t0)', 'arrow', {show: 'opt1', hex: 0x00ff00});
+
+  ;(function animate() {
+      requestAnimationFrame(animate);
+      plot3.render();
+  })();
+</script>
 <big><a href="http://www.math.brown.edu/~banchoff/la1d4.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
 <br>
 <br>
