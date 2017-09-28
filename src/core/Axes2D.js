@@ -1,4 +1,5 @@
-import { Axes } from '../core/Axes.js'
+import { Axes } from '../core/Axes.js';
+import { AngleArc2D } from '../plottable/AngleArc2D.js';
 import { Arrow2D } from '../plottable/Arrow2D.js';
 import { Hotspot2D } from '../plottable/Hotspot2D.js';
 import { Label2D } from '../plottable/Label2D.js';
@@ -133,6 +134,11 @@ Axes2D.prototype.constructor = Axes2D;
 
 Axes2D.prototype.plotExpression = function(expr, type, opts) {
     switch(type) {
+        case 'angle':
+            var arc = new AngleArc2D(this.parent, expr, opts);
+            this.expressions[expr] = arc;
+            this.addFigure(arc);
+            return arc;
         case 'arrow':            
             var figure = new Arrow2D(this.parent, expr, opts)
             this.expressions[expr] = figure;
