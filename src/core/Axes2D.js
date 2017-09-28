@@ -4,6 +4,7 @@ import { Hotspot2D } from '../plottable/Hotspot2D.js';
 import { Label2D } from '../plottable/Label2D.js';
 import { Parallelogram2D } from '../plottable/Parallelogram2D.js';
 import { Parametric2D } from '../plottable/Parametric2D.js';
+import { Point2D } from '../plottable/Point2D.js';
 import { Isoline2D } from '../plottable/Isoline2D.js';
 import { Vector } from '../math/Vector.js';
 import { Number } from '../math/Number.js';
@@ -157,6 +158,11 @@ Axes2D.prototype.plotExpression = function(expr, type, opts) {
             this.expressions[expr] = par;
             this.addFigure(par);
             return par;
+        case 'point':
+            var point = new Point2D(this.parent, expr, opts);
+            this.expressions[expr] = point;
+            this.addFigure(point);
+            return point;
         case 'label':
             var label = new Label2D(this, expr, opts);
             label.show();
