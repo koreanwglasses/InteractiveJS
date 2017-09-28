@@ -81,6 +81,10 @@ MathPlus.component = function(v,i) {
     return v.q[i.value];
 }
 
+MathPlus.dot = function(a, b) {
+    return a.dot(b);
+}
+
 MathPlus.cos = function(x) {
     return new Number(Math.cos(x.value));
 }
