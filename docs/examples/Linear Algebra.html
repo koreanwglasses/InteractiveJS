@@ -270,7 +270,9 @@ vectors A = (a,b) and C = (c,d) to be ac + bd = A*C.<br>
   ax4.plotExpression('A', 'hotspot')
   ax4.plotExpression('C', 'hotspot')
 
-  pan4.addReadout('dot(A,C)', {label: "A . C"})
+  ax4.plotExpression('(A,C)','angle');
+
+  pan4.addReadout('dot(A,C)')
 
   ;(function animate() {
       requestAnimationFrame(animate);
