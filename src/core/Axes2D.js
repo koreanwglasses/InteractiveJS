@@ -6,6 +6,7 @@ import { Label2D } from '../plottable/Label2D.js';
 import { Parallelogram2D } from '../plottable/Parallelogram2D.js';
 import { Parametric2D } from '../plottable/Parametric2D.js';
 import { Point2D } from '../plottable/Point2D.js';
+import { Polygon2D } from '../plottable/Polygon2D.js';
 import { Isoline2D } from '../plottable/Isoline2D.js';
 import { Vector } from '../math/Vector.js';
 import { Number } from '../math/Number.js';
@@ -158,6 +159,10 @@ Axes2D.prototype.plotExpression = function(expr, type, opts) {
             this.expressions[expr] = iso;
             this.addFigure(iso);
             return iso;
+        case 'polygon':
+            var pgon = new Polygon2D(this.parent, expr, opts);
+            this.expressions[expr] = pgon;
+            this.addFigure(pgon);
         case 'parallelogram':
         case 'pgram':
             var par = new Parallelogram2D(this.parent, expr, opts);
