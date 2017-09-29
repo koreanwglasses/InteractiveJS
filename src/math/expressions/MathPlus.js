@@ -189,7 +189,7 @@ MathPlus.spectrum = function(x) {
 }
 
 MathPlus.abs = function(x) {
-    return new Number(Math.abs(x.value));
+    return x.abs();
 }
 
 MathPlus.ssign = function(x) {
