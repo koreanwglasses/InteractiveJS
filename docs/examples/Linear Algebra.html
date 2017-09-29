@@ -256,7 +256,7 @@ vectors A = (a,b) and C = (c,d) to be ac + bd = A*C.<br>
 <script>
   plot4 = new Interactive.Plot();
   pan4 = plot4.createPanel(document.getElementById('pan4'))
-  ax4 = plot4.createAxes2D(document.getElementById('ax4'), {position: new THREE.Vector4(0.5,0.5,0)})
+  ax4 = plot4.createAxes2D(document.getElementById('ax4'), {position: new THREE.Vector3(0.5,0.5,0)})
 
   plot4.execExpression('A=(0,1)');
   plot4.execExpression('C=(1,0)');
@@ -272,6 +272,8 @@ vectors A = (a,b) and C = (c,d) to be ac + bd = A*C.<br>
 
   ax4.plotExpression('(A,C)','angle');
 
+  pan4.addReadout('A');
+  pan4.addReadout('C');
   pan4.addReadout('dot(A,C)')
 
   ;(function animate() {
@@ -306,50 +308,43 @@ it follows that 2|A||C|cos(θ) = |A|<sup>2</sup> + |C|<sup>2</sup>
 C*C - (C-A)*(C-A) = 2A*C, by the above calculation.&nbsp; Therefore A*C
 = |A||C|cos(θ), and cos(θ) = A*C/(|A||C|).<br>
 <br>
-<img style="width: 148px; height: 152px;" alt="figure5" src="./Linear Algebra_files/lafigure1-5.png"><br>
+<!-- <img style="width: 148px; height: 152px;" alt="figure5" src="./Linear Algebra_files/lafigure1-5.png"><br> -->
 <br>
-<applet archive="Demo.jar" code="DemoApplet" height="50" width="400"><param name="NAME" value="Law of Cosines"> <param name="DATA" value="filever 100.0 env {value $A=(0.5399313491256108 , 0.9998728687511311 , 0.0)$ 
-value $C=(0.9398804966260633 , 0.0 , 0.0)$} objects [{controls obj0 {constants 
-[] intervals [] objects [] readouts [{readout obj1 $C$} {readout obj2 
-$dot(A,C)$} {readout obj3 $A$}] functions [] variables []}} {frame.3d obj4 
-{canvas {canvas.3d obj12 {tool 1.0 points true graph {graph.3d obj13 {light true 
-graph {plots [{plot.polyhedron obj6 {faces [[0.0 1.0 2.0]] super {transpt $0$ 
-visible true addedz 0.0} colors [{coloring.constant obj14 {color [0.75 0.75 0.75 
-1.0]}}] vertices [$(0,0,-0.1)$ $C + (0,0,-0.1)$ $A+ (0,0,-0.1)$] title 
-Polyhedron}} {plot.polygon obj9 {super {transpt $0$ visible true addedz 0.0} 
-subdivs 1.0 color {coloring.group obj15 {colors [{coloring.gradient obj16 
-{colors [{coloring.constant obj17 {color [1.0 1.0 1.0 1.0]}} {coloring.constant 
-obj18 {color [0.0 0.0 0.0 0.0]}}] values [$-1$ $1$] expr 
-$sign(dot(A,C)^2 - 0.0001)$}}] opacities [1.0] mixings [0.0]}} vertices 
-[$unit(A)*0.2$ $unit(A)*0.2 + unit(C)*0.2$ $unit(C)*0.2$] dim 3.0 title Polygon 
-thick true}} {plot.vector obj5 {base $(A*C)/(C*C)*C + (0,0,0.1)$ endstyle 0.0 
-dir $A - (A*C)/(C*C)*C$ color {coloring.group obj19 {colors [{coloring.constant 
-obj20 {color [0.0 1.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick 
-true basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible 
-true addedz 0.0} endsize 10.0}} {plot.axes obj10 {super {transpt $0$ visible 
-true addedz 0.0} labels [x y $$]}} {plot.vector obj11 {base $0,0,0.2$ endstyle 
-0.0 dir $(A*C)/(C*C)*C$ color {coloring.group obj21 {colors [{coloring.constant 
-obj22 {color [1.0 1.0 1.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick 
-false basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible 
-true addedz 0.0} endsize 10.0}} {plot.vector obj8 {base $0,0,0.1$ endstyle 1.0 
-dir $A$ color {coloring.group obj23 {colors [{coloring.constant obj24 {color 
-[1.0 0.0 0.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true 
-basestyle 0.0 subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true 
-addedz 0.0} endsize 10.0}} {plot.vector obj7 {base $0,0,0.1$ endstyle 1.0 dir 
-$C$ color {coloring.group obj25 {colors [{coloring.constant obj26 {color [0.0 
-0.0 1.0 1.0]}}] opacities [1.0] mixings [0.0]}} dim 3.0 thick true basestyle 0.0 
-subdivs 1.0 len 1.0 basesize 10.0 super {transpt $0$ visible true addedz 0.0} 
-endsize 10.0}}]} alpha true scale 100.01271474132783 surfacemode 2.0 drawmode 
-1.0 transf [1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0]}} 
-group null hotspots [{hotspot obj27 {origin $0, 0, 0$ entry C constraint 
-$Point_1, Point_2, 0$ cmode 1.0 cobjs []}} {hotspot obj28 {origin $0, 0, 0$ 
-entry A constraint $Point_1, Point_2, 0$ cmode 1.0 cobjs []}}] drawmode 1.0}} 
-graph {id obj13} frame {visible true plots [{id obj5} {id obj6} {id obj7} {id 
-obj8} {id obj9} {id obj10} {id obj11}] title $2D Graph$ labels 
-[$ Vector: A - (A*C)/(C*C)*C  starting at (A*C)/(C*C)*C + (0,0,0.1)$ 
-$ Polyhedron$ $ Vector: C  starting at 0,0,0.1$ 
-$ Vector: A  starting at 0,0,0.1$ $ Polygon$ $ Axes: x, y, $ 
-$ Vector: (A*C)/(C*C)*C  starting at 0,0,0.2$]}}}] "></applet>
+<div id="plot5" class="plot">
+<div id="ax5" class="ax" style="width: 300px; height: 300px;"></div>
+<div id="pan5" class="pan"></div>
+<script>
+  plot5 = new Interactive.Plot();
+  pan5 = plot5.createPanel(document.getElementById('pan5'))
+  ax5 = plot5.createAxes2D(document.getElementById('ax5'), {position: new THREE.Vector4(0.5,0.5,0)})
+
+  plot5.execExpression('A=(0.5,1)');
+  plot5.execExpression('C=(1,0)');
+
+  ax5.plotExpression('A', 'arrow', {hex: 0xff0000})
+  ax5.plotExpression('C', 'arrow', {hex: 0x0000ff})
+
+  ax5.plotExpression('X', 'label', {origin: '(1,0)'})
+  ax5.plotExpression('Y', 'label', {origin: '(0,1)'})
+ 
+  ax5.plotExpression('A', 'hotspot')
+  ax5.plotExpression('C', 'hotspot')
+
+  pan5.addReadout('A');
+  pan5.addReadout('C');
+  pan5.addReadout('dot(A,C)')
+
+  plot5.execExpression('Co() = (0,1,0)')
+
+  ax5.plotExpression('((0,0),A,C)','polygon', {opacity: 0.5});
+  ax5.plotExpression('A*t + (1-t) * dot(A,C)*C/(abs(C)^2) {t,0,1,2}', 'parametric', {color: 'Co'});
+  ax5.plotExpression('t*dot(A,C)*C/(abs(C)^2) {t,0,1,2}', 'parametric');
+
+  ;(function animate() {
+      requestAnimationFrame(animate);
+      plot5.render();
+  })();
+</script>
 <big><a href="http://www.math.brown.edu/~banchoff/la1d6.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
 <br>
 <br>
