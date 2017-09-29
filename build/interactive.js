@@ -1983,7 +1983,7 @@ function Hotspot2D(plot, expr) {
     this.plot = plot;
     this.expr = new Expression(expr, plot.context);
     this.position = this.expr.evaluate().clone();
-    this.size = 10;
+    this.size = 20;
 }
 
 Hotspot2D.prototype.ondrag = function(event) {
