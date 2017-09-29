@@ -714,7 +714,7 @@ MathPlus.spectrum = function(x) {
 };
 
 MathPlus.abs = function(x) {
-    return new Number(Math.abs(x.value));
+    return x.abs();
 };
 
 MathPlus.ssign = function(x) {
@@ -2235,6 +2235,36 @@ Point2D.prototype.createSceneObject = function() {
     return circle;
 };
 
+function Polygon2D(plot, expr, opts) {
+    Plottable.call(this, plot, expr, opts);
+
+    if(opts === undefined) opts = {};
+
+    this.opts = {};
+    this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
+    this.opts.opacity = opts.opacity !== undefined ? opts.opacity : 1;
+}
+
+Polygon2D.prototype = Object.create(Plottable.prototype);
+Polygon2D.prototype.constructor = Polygon2D;
+
+Polygon2D.prototype.createSceneObject = function() {
+    var _vectors = this.expr.evaluate();
+    
+    var geom = new THREE.Geometry();
+    for(var i = 0; i < _vectors.dimensions; i++) {
+        geom.vertices.push(_vectors.q[i].toVector3());
+        if(i > 1) {
+            var f = new THREE.Face3(0,i,i-1);
+            geom.faces.push(f);
+        }
+    }
+
+    var mat = new THREE.MeshBasicMaterial({color: this.opts.hex, side: THREE.DoubleSide, opacity: this.opts.opacity, transparent: true});
+
+    return new THREE.Mesh( geom, mat );
+};
+
 function Isoline2D(parent, expr, opts) {
     Isoline3D.call(this, parent, expr, opts);
     
@@ -2401,6 +2431,10 @@ Axes2D.prototype.plotExpression = function(expr, type, opts) {
             this.expressions[expr] = iso;
             this.addFigure(iso);
             return iso;
+        case 'polygon':
+            var pgon = new Polygon2D(this.parent, expr, opts);
+            this.expressions[expr] = pgon;
+            this.addFigure(pgon);
         case 'parallelogram':
         case 'pgram':
             var par = new Parallelogram2D(this.parent, expr, opts);
