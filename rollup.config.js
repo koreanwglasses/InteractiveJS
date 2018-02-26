@@ -1,6 +1,8 @@
 export default {
-    entry: 'src/Interactive.js',
-    moduleName: 'Interactive',
-    format: 'umd',
-    dest: 'build/interactive.js'
+    input: 'src/Interactive.js',
+    output: {
+        name: 'Interactive',
+        format: 'umd',
+        file: 'build/interactive.js'
+    }
 }
