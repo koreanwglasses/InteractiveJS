@@ -1,7 +1,7 @@
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	(factory((global.Interactive = global.Interactive || {})));
+	(factory((global.Interactive = {})));
 }(this, (function (exports) { 'use strict';
 
 /**
@@ -11,7 +11,6 @@
 function TouchEventListener(container, opts) {
     var _container = container;
 
-    var _mouseInContainer = false;
     var _leftButtonDown = false;
     var _rightButtonDown = false;
     var _buttonsDown = 0;
@@ -29,11 +28,11 @@ function TouchEventListener(container, opts) {
     if(opts.passive === undefined) opts.passive = true;
 
     _container.addEventListener('mouseenter', function() {
-        _mouseInContainer = true;
+        
     });
 
     _container.addEventListener('mouseleave', function() {
-        _mouseInContainer = false;
+        
     });
 
     _container.addEventListener('mousedown', function(event) {
@@ -1749,7 +1748,6 @@ function Axes3D(parent, container, opts) {
     // Bind Events: Panning and Orbiting
     var _cameraStartPol = 0;
     var _cameraStartAz = 0;
-    var _cameraStartR = 1;
     var _cameraStartUp = 1;
     var _cameraStartOr = null;
     var _cameraStartPos = null;
@@ -1763,7 +1761,7 @@ function Axes3D(parent, container, opts) {
             sc.setFromVector3(_self.camera.position.clone().sub(_self.corigin));
             _cameraStartPol = sc.phi;
             _cameraStartAz = sc.theta;
-            _cameraStartR = sc.r;
+            
         }
         if(event.buttons & 2) {
             _cameraStartOr = _self.corigin.clone();
@@ -2538,8 +2536,6 @@ Panel.prototype.addReadout = function(expr, opts) {
 
     if(opts === undefined) opts = {};
 
-    var variable = expr;
-
     var textBox = document.createElement('input');
     textBox.setAttribute('type', 'text');
     textBox.setAttribute('disabled', 'true');
@@ -2694,6 +2690,12 @@ function Axes(parent, container, opts) {
      * The plot that generated this figure. (Read-only)
      */
     this.parent = parent;
+
+
+    // Jquery compatibility
+    if(jQuery !== undefined && container instanceof jQuery) {
+        container = container[0];
+    }
 
     /**
      * The frame which will render the axes
@@ -2934,32 +2936,32 @@ BasisVectors3D.prototype.createSceneObject = function() {
     return sceneObject;
 };
 
+exports.Hotspot2D = Hotspot2D;
+exports.MathPlus = MathPlus;
+exports.Isoline = Isoline;
+exports.Arrow3D = Arrow3D;
+exports.Axes3D = Axes3D;
 exports.Axes = Axes;
 exports.Axes2D = Axes2D;
-exports.Axes3D = Axes3D;
-exports.Frame = Frame;
-exports.Panel = Panel;
-exports.Plot = Plot;
-exports.TouchEventListener = TouchEventListener;
-exports.Expression = Expression;
-exports.MathPlus = MathPlus;
-exports.Interval = Interval;
-exports.Isoline = Isoline;
-exports.Number = Number;
-exports.Parametric = Parametric;
-exports.Vector = Vector;
+exports.Parametric2D = Parametric2D;
 exports.Arrow2D = Arrow2D;
-exports.Arrow3D = Arrow3D;
-exports.BasisVectors2D = BasisVectors2D;
-exports.BasisVectors3D = BasisVectors3D;
-exports.Hotspot2D = Hotspot2D;
+exports.Parametric = Parametric;
+exports.Expression = Expression;
+exports.Panel = Panel;
 exports.Isoline2D = Isoline2D;
+exports.TouchEventListener = TouchEventListener;
+exports.Interval = Interval;
+exports.Vector = Vector;
+exports.Plottable = Plottable;
+exports.Parametric3D = Parametric3D;
+exports.Parallelogram2D = Parallelogram2D;
 exports.Isoline3D = Isoline3D;
 exports.Label2D = Label2D;
-exports.Parallelogram2D = Parallelogram2D;
-exports.Parametric2D = Parametric2D;
-exports.Parametric3D = Parametric3D;
-exports.Plottable = Plottable;
+exports.BasisVectors3D = BasisVectors3D;
+exports.Number = Number;
+exports.Plot = Plot;
+exports.Frame = Frame;
+exports.BasisVectors2D = BasisVectors2D;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 

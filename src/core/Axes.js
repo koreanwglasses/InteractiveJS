@@ -21,6 +21,12 @@ function Axes(parent, container, opts) {
      */
     this.parent = parent;
 
+
+    // Jquery compatibility
+    if(jQuery !== undefined && container instanceof jQuery) {
+        container = container[0];
+    }
+
     /**
      * The frame which will render the axes
      */

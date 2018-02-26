@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        #ax1 {
+            width: 300px;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div id="ax1"></div>
+    <script src="../../lib/three.min.js"></script>
+    <script src="../../lib/jquery-3.3.1.min.js"></script>
+    <script src="../../build/interactive.js"></script>
+    <script>
+        $(function() {
+            var plot = new Interactive.Plot();
+            
+            ax1 = plot.createAxes2D($('#ax1'));
+            arr1 = new Interactive.BasisVectors2D(plot)
+            ax1.addFigure(arr1);
+
+            plot.render();
+        });
+    </script>
+</body>
+</html>
