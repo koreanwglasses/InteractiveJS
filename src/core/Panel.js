@@ -9,6 +9,22 @@ function Panel (parent, container) {
     this.readOuts = [];
 }
 
+Panel.prototype.addConsole = function(opts) {
+    var textBox = document.createElement('textarea');
+    var refresh = document.createElement('input');
+    refresh.setAttribute('type', 'button');
+    refresh.setAttribute('value', 'refresh');
+    this.container.appendChild(textBox);
+    this.container.appendChild(refresh);
+
+    refresh.onclick = () => {
+        var lines = textBox.value.split('\n');
+        lines.forEach((line) => {
+            this.parent.execExpression(line);
+        });
+    };
+} 
+
 Panel.prototype.addSlider = function(expr, opts) {
     if(opts === undefined) opts = {};
 
