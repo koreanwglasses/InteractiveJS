@@ -12,9 +12,14 @@ function Frame(container, opts) {
      */
     this.type = 'Frame';
 
+    // Jquery compatibility
+    if('jQuery' in window && container instanceof jQuery) {
+        container = container[0];
+    }
+
     // Make sure the container is a dom element
     if(!container instanceof Element) {
-        console.log('Interactive.Axes3D: Invalid container. Must be a DOM Element');
+        console.log('Interactive.Frame: Invalid container. Must be a jQuery or DOM Element');
         return null;
     }
 
@@ -25,6 +30,9 @@ function Frame(container, opts) {
      * DOM Element which contains the frame
      */
     this.container = container;
+
+    this.inner = document.createElement('div');
+    this.container.appendChild(this.inner);
 
     /**
      * Event Listener for touch and mouse events
@@ -68,8 +76,8 @@ Frame.prototype.wake = function() {
 
         // Initialize renderer within container
         this.renderer.setSize(this.width, this.height);
-        this.container.innerHTML = '';
-        this.container.appendChild(this.renderer.domElement);
+        this.inner.innerHTML = '';
+        this.inner.appendChild(this.renderer.domElement);
         
         this.isSleeping = false;
     }

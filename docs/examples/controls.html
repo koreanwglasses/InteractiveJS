@@ -13,15 +13,19 @@
     </style>
 </head>
 <body>
+    <div id="panel1"></div>
     <div id="ax1"></div>
     <script src="../../lib/three.min.js"></script>
     <script src="../../lib/jquery-3.3.1.min.js"></script>
     <script src="../../build/interactive.js"></script>
     <script>
         $(function() {
-            var plot = new Interactive.Plot();
+            plot = new Interactive.Plot();
             
-            ax1 = plot.createAxes2D($('#ax1'));
+            var pan1 = plot.createPanel(document.getElementById('panel1'));
+            pan1.addConsole();
+
+            ax1 = plot.createAxes2D($('#ax1'), {showControls: true});
             arr1 = new Interactive.BasisVectors2D(plot)
             ax1.addFigure(arr1);
 

@@ -144,9 +144,14 @@ function Frame(container, opts) {
      */
     this.type = 'Frame';
 
+    // Jquery compatibility
+    if('jQuery' in window && container instanceof jQuery) {
+        container = container[0];
+    }
+
     // Make sure the container is a dom element
     if(!container instanceof Element) {
-        console.log('Interactive.Axes3D: Invalid container. Must be a DOM Element');
+        console.log('Interactive.Frame: Invalid container. Must be a jQuery or DOM Element');
         return null;
     }
 
@@ -157,6 +162,9 @@ function Frame(container, opts) {
      * DOM Element which contains the frame
      */
     this.container = container;
+
+    this.inner = document.createElement('div');
+    this.container.appendChild(this.inner);
 
     /**
      * Event Listener for touch and mouse events
@@ -200,8 +208,8 @@ Frame.prototype.wake = function() {
 
         // Initialize renderer within container
         this.renderer.setSize(this.width, this.height);
-        this.container.innerHTML = '';
-        this.container.appendChild(this.renderer.domElement);
+        this.inner.innerHTML = '';
+        this.inner.appendChild(this.renderer.domElement);
         
         this.isSleeping = false;
     }
@@ -2487,6 +2495,22 @@ function Panel (parent, container) {
     this.readOuts = [];
 }
 
+Panel.prototype.addConsole = function(opts) {
+    var textBox = document.createElement('textarea');
+    var refresh = document.createElement('input');
+    refresh.setAttribute('type', 'button');
+    refresh.setAttribute('value', 'refresh');
+    this.container.appendChild(textBox);
+    this.container.appendChild(refresh);
+
+    refresh.onclick = () => {
+        var lines = textBox.value.split('\n');
+        lines.forEach((line) => {
+            this.parent.execExpression(line);
+        });
+    };
+}; 
+
 Panel.prototype.addSlider = function(expr, opts) {
     if(opts === undefined) opts = {};
 
@@ -2691,12 +2715,6 @@ function Axes(parent, container, opts) {
      */
     this.parent = parent;
 
-
-    // Jquery compatibility
-    if(jQuery !== undefined && container instanceof jQuery) {
-        container = container[0];
-    }
-
     /**
      * The frame which will render the axes
      */
@@ -2722,6 +2740,8 @@ function Axes(parent, container, opts) {
      * Expressions to plot
      */
     this.expressions = {};
+
+    if(opts.showControls === true) this.showControls();
 }
 
 Axes.prototype.sleep = function() {
@@ -2829,6 +2849,49 @@ Axes.prototype.refresh = function(expr) {
             this.objects[i].invalidate(expr);
         }
     }
+};
+
+/** 
+ * Shows controls for the axes (requires jQuery)
+ */
+Axes.prototype.showControls = function() {
+    if(jQuery === undefined) {
+        console.error('Error: jQuery required to draw controls!');
+        return;
+    }
+
+    var $frame = $(this.frame.container);
+    
+    var plotMenuHeader = $('<span>Plot</span>');
+    plotMenuHeader.css('width', '100px');
+    plotMenuHeader.css('position', 'relative');
+    plotMenuHeader.css('display', 'inline-block');
+    
+    var plotMenu = $('<div></div>');
+    plotMenu.css('display', 'none');
+    plotMenu.css('position', 'absolute');
+    plotMenu.css('width', '100px');
+    plotMenu.css('height', '100px');
+    plotMenu.css('z-index', '1');
+    plotMenuHeader.append(plotMenu);
+
+    plotMenuHeader.on('mouseenter', () => {
+        plotMenu.css('display', 'block');
+    });
+    plotMenuHeader.on('mouseleave', () => {
+        plotMenu.css('display', 'none');
+    });
+
+    var plotMenuAddPlot = $('<div>Add Plot</div>');
+    plotMenu.append(plotMenuAddPlot);
+
+
+    var menuBar = $('<div></div>');
+    menuBar.css('width', '100%');
+    menuBar.css('height', '20px');
+    menuBar.append(plotMenuHeader);
+
+    $frame.append(menuBar);
 };
 
 function Isoline(parametric, parametricExpr, axis, level) {

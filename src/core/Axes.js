@@ -21,12 +21,6 @@ function Axes(parent, container, opts) {
      */
     this.parent = parent;
 
-
-    // Jquery compatibility
-    if(jQuery !== undefined && container instanceof jQuery) {
-        container = container[0];
-    }
-
     /**
      * The frame which will render the axes
      */
@@ -52,6 +46,8 @@ function Axes(parent, container, opts) {
      * Expressions to plot
      */
     this.expressions = {}
+
+    if(opts.showControls === true) this.showControls();
 }
 
 Axes.prototype.sleep = function() {
@@ -159,6 +155,49 @@ Axes.prototype.refresh = function(expr) {
             this.objects[i].invalidate(expr);
         }
     }
+}
+
+/** 
+ * Shows controls for the axes (requires jQuery)
+ */
+Axes.prototype.showControls = function() {
+    if(jQuery === undefined) {
+        console.error('Error: jQuery required to draw controls!');
+        return;
+    }
+
+    var $frame = $(this.frame.container);
+    
+    var plotMenuHeader = $('<span>Plot</span>');
+    plotMenuHeader.css('width', '100px');
+    plotMenuHeader.css('position', 'relative');
+    plotMenuHeader.css('display', 'inline-block');
+    
+    var plotMenu = $('<div></div>');
+    plotMenu.css('display', 'none');
+    plotMenu.css('position', 'absolute');
+    plotMenu.css('width', '100px');
+    plotMenu.css('height', '100px');
+    plotMenu.css('z-index', '1');
+    plotMenuHeader.append(plotMenu);
+
+    plotMenuHeader.on('mouseenter', () => {
+        plotMenu.css('display', 'block');
+    });
+    plotMenuHeader.on('mouseleave', () => {
+        plotMenu.css('display', 'none');
+    });
+
+    var plotMenuAddPlot = $('<div>Add Plot</div>');
+    plotMenu.append(plotMenuAddPlot);
+
+
+    var menuBar = $('<div></div>');
+    menuBar.css('width', '100%');
+    menuBar.css('height', '20px');
+    menuBar.append(plotMenuHeader);
+
+    $frame.append(menuBar);
 }
 
 export { Axes };
