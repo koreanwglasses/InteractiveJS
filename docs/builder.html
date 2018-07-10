@@ -33,7 +33,7 @@
     <script src="../build/interactive.js"></script>
     <script>
         var plot = new Interactive.Plot();
-        var axes = []
+        var axes = {}
         var axesDiv = document.getElementById('axes');
 
         var expr = []
@@ -44,21 +44,22 @@
             var axesContainer = document.createElement('div');
             axesContainer.classList.add('axes');
 
+            var index = Object.keys(axes).length + 1;
+
             var label = document.createElement('div');
             label.classList.add('label');
-            label.innerHTML = 'Axes ' + (axes.length + 1);
+            label.innerHTML = 'Axes ' + index;
 
             var controls = document.createElement('div');
             var btnRemove = document.createElement('input');
             btnRemove.setAttribute('type','button');
             btnRemove.setAttribute('value','Remove');
 
-            // var index = axes.length + 1;
-            // btnRemove.addEventListener('click', function(e) {
-            //     removeAxes(index);
-            // })
+            btnRemove.addEventListener('click', function(e) {
+                removeAxes(index);
+            });
 
-            // controls.appendChild(btnRemove)
+            controls.appendChild(btnRemove);
 
             axesWrapper.appendChild(label);
             axesWrapper.appendChild(axesContainer);
@@ -70,7 +71,7 @@
             var arr = new Interactive.BasisVectors2D(plot)
             ax.addFigure(arr)
 
-            axes.push(ax)
+            axes[index] = ax;
         }
 
         var createExpression = function() {
@@ -83,9 +84,10 @@
             exprDiv.appendChild(exprWrapper);
         }
 
-        // var removeAxes = function(index) {
-
-        // }
+        var removeAxes = function(index) {
+            plot.dropAxes(axes[index]);
+            console.log(plot.axes)
+        }
 
         var update = function() {
             plot.resetContext();
@@ -109,9 +111,10 @@
 
         ;(function animate() {
             requestAnimationFrame(animate);
-            axes.forEach(function(ax) {
+            for(var key in axes) {
+                var ax = axes[key];
                 ax.render();
-            })
+            }
         })();
     </script>
 </body>

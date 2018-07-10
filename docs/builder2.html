@@ -1,0 +1,287 @@
+<head>
+    <style>
+        body {
+            background-color: #222222;
+            color: #fff;
+        }
+        
+        .axes {
+            width: 400px;
+            height: 400px;
+            margin: 0;
+            margin-right: 20px;
+            margin-bottom: 20px;
+            display: inline-block;
+            background: black;
+        }
+    </style>
+</head>
+<body>
+    <input id="addaxes" type="button" value="Add Axes">
+    <input id="addexpr" type="button" value="Add Expression">
+    
+    <div id="plot">
+        <div id="expressions"></div>
+        <div id="axes"></div>
+    </div>
+
+    <script src="../lib/jquery-3.3.1.min.js"></script>
+    <script src="../lib/three.min.js"></script>
+    <script src="../build/interactive.js"></script>
+    <script>
+        var plot = new Interactive.Plot();
+        
+        var aid = 0;
+        var axesInfo = {};
+        
+        var eid = 0;
+        var expressionsInfo = {};
+        
+        var plotInitCode = [
+        'plot = new Interactive.Plot();',
+        ];
+        
+        var compile = function() {
+            var compileAxesInitCode = function(ai) {
+                var initCode = 'ax' + ai.id + ' = ';
+                if(ai.type == '2D') initCode += 'plot.createAxes2D('; 
+                if(ai.type == '3D') initCode += 'plot.createAxes3D('; 
+                initCode += 'document.getElementById("ax' +  ai.id + '")';
+                // other properties will go here
+                initCode += ');';
+                return initCode;
+            }
+            
+            var axInitCode = [
+            
+            ];
+            var axDrawCode = [
+            
+            ];
+            
+            for(var key in axesInfo) {
+                var ai = axesInfo[key];
+                var initCode = compileAxesInitCode(ai);
+                axInitCode.push(initCode);
+            }
+            
+            var compileExpressionCode = function(ex) {
+                var code = 'ex' + ex.id + ' = ';
+                code += 'plot.execExpression("';
+                code += ex.expr;
+                code += '");';
+                return code;
+            }
+            
+            var expressionCode = [
+            
+            ];
+            
+            var exprInfoSortedKeys = Object.keys(expressionsInfo);
+            exprInfoSortedKeys.sort((a, b) => expressionsInfo[a].priority < expressionsInfo[b].priority);
+            exprInfoSortedKeys.forEach((key) => {
+                var ex = expressionsInfo[key];
+                var exCode = compileExpressionCode(ex);
+                expressionCode.push(exCode);
+            });
+            
+            var code = '';
+            code += plotInitCode.join('\n');
+            code = code.trim();
+            code += '\n\n';
+            code += axInitCode.join('\n');
+            code = code.trim();
+            code += '\n\n';
+            code += expressionCode.join('\n');
+            code = code.trim();
+            code += '\n\n';
+            code += axDrawCode.join('\n');
+            code = code.trim();
+            code += '\n';
+            return code;
+        }
+        
+        var run = function() {
+            var code = compile();
+            console.log(code);
+            eval(code);
+        }
+        
+        var update = function() {
+            var reset = function() {
+                $('#axes').empty();
+            }
+            
+            var prepareContainers = function() {
+                var createAxesContainer = function(ai) {                    
+                    var axDiv = $('<div></div>');
+                    
+                    var axLabel = $('<h2></h2>');
+                    axLabel.text(ai.title);
+                    
+                    var axContainer = $('<div></div>');
+                    axContainer.css('float', 'left');
+                    axContainer.addClass('axes');
+                    axContainer.attr('id', 'ax' + ai.id);
+                    
+                    var plotSelect = $('<select></select>');
+                    plotSelect.append('<option>Parametric Curve</option>');
+
+                    var newPlotBtn = $('<input>');
+                    newPlotBtn.attr('type', 'button');
+                    newPlotBtn.attr('value', 'New Plot');
+                    newPlotBtn.click(() => {
+                        var controls = getPlotControls({type: plotSelect.val(), axesInfo: ai});
+                        controls.css('margin-top', '20px');
+                        controls.css('margin-bottom', '20px');
+                        plotControlContainer.append(controls);
+                    });
+
+                    var plotControlContainer = $('<div></div>');
+
+                    var removeBtn = $('<input>');
+                    removeBtn.attr('type', 'button');
+                    removeBtn.attr('value', 'Remove');
+                    removeBtn.click(() => {
+                        removeAxes(ai);
+                        update();
+                    });
+                    
+                    axDiv.append(axLabel);
+                    axDiv.append(axContainer);
+                    axDiv.append(plotSelect);
+                    axDiv.append(newPlotBtn);
+                    axDiv.append(plotControlContainer);
+                    axDiv.append(removeBtn);
+                    
+                    $('#axes').append(axDiv);
+                }
+                
+                for(var key in axesInfo) {
+                    var ai = axesInfo[key];
+                    createAxesContainer(ai);
+                }
+            }
+            
+            reset();
+            prepareContainers();
+            run();
+        }
+        
+        var addAxes = function() {
+            aid++;
+            axesInfo[aid] = {id: aid, title: 'Axes ' + aid, type: '2D'};
+        }
+        
+        var removeAxes = function(ai) {
+            delete axesInfo[ai.id];
+        }
+        
+        var getPlotControls = function(plotInfo) {
+            var intervalControl = function() {
+                var control = $('<span></span>');
+                
+                var varInput = $('<input>');
+                varInput.css('width', '4em')
+                varInput.attr('type', 'text');
+                varInput.attr('placeholder', 'e.g. x');
+                
+                var startInput = $('<input>');
+                startInput.css('width', '4em')
+                startInput.attr('type', 'text');
+                startInput.attr('placeholder', 'e.g. 0');
+                
+                var endInput = $('<input>');
+                endInput.css('width', '4em')
+                endInput.attr('type', 'text');
+                endInput.attr('placeholder', 'e.g. 1');
+                
+                var stepInput = $('<input>');
+                stepInput.css('width', '4em')
+                stepInput.attr('type', 'text');
+                stepInput.attr('placeholder', 'e.g. 10');
+                
+                control.append(varInput);
+                control.append(' goes from ');
+                control.append(startInput);
+                control.append(' to ');
+                control.append(endInput);
+                control.append(' in ');
+                control.append(stepInput);
+                control.append(' steps ');
+                
+                control.getValues = function() {
+                    return {
+                        variable: varInput.val(),
+                        start: startInput.val(),
+                        end: endInput.val(),
+                        steps: stepInput.val()
+                    }
+                }
+
+                return control;
+            }
+            
+            var loadParametricCurveControls = function() {
+                var pc = $('<div></div>');
+
+                var functionInput = $('<input>');
+                functionInput.css('width', '7em');
+                functionInput.attr('type', 'text');
+                functionInput.attr('placeholder', 'e.g (x, x^2)');
+
+                var param = intervalControl();
+                param.change(() => {
+                    console.log(param.getValues());
+                });
+
+                pc.append('Plot ');
+                pc.append(functionInput);
+                pc.append(' as ')
+                pc.append(param);
+
+                return pc;
+            }
+
+            return loadParametricCurveControls();
+        }
+        
+        var addExpressionInput = function() {
+            var id = eid++;
+            
+            var exDiv = $('<div></div>');
+            
+            var exInput = $('<input>');
+            exInput.attr('type', 'text');
+            exInput.change(() => {
+                // todo: check for errors/validation before eval
+                expressionsInfo[id] = {id: id, expr: exInput.val(), priority: id}; 
+                run();
+            });
+            
+            var exRemove = $('<input>');
+            exRemove.attr('type', 'button');
+            exRemove.attr('value', 'X');
+            exRemove.click(() => {
+                exDiv.remove();
+                if(expressionsInfo[id]) {
+                    delete expressionsInfo[id];
+                }
+            });
+            
+            exDiv.append(exInput);
+            exDiv.append(exRemove);
+            $('#expressions').append(exDiv);            
+        }
+        
+        ;(function() {
+            $('#addaxes').click(() => {
+                addAxes();
+                update();
+            });
+            $('#addexpr').click(() => {
+                addExpressionInput();
+            });
+        })();
+    </script>
+</body>

@@ -155,7 +155,6 @@ Expression.separate = function (str) {
 }
 
 Expression.toPostfix = function (parts) {
-    console.log(parts);
     var post = [];
     var ops = [];
     var funs = [];
@@ -211,180 +210,180 @@ Expression.splitTuple = function (string) {
 
 Expression.splitParametric = function (string) {
     return string.split(/(?={)/);
-    }
+}
+
+Expression.prototype.toJSExpression = function (string, specials, isparam, variables) {
+    var str = string.replace(/\s+/g, '')
     
-    Expression.prototype.toJSExpression = function (string, specials, isparam, variables) {
-        var str = string.replace(/\s+/g, '')
+    var type = Expression.typeOf(str);
+    
+    // Expression is an equation:
+    if (type === 'equation') {
+        var left, right;
+        left = string.split('=')[0];
+        right = string.split('=')[1];
         
-        var type = Expression.typeOf(str);
+        var leftParts = Expression.separate(left);
         
-        // Expression is an equation:
-        if (type === 'equation') {
-            var left, right;
-            left = string.split('=')[0];
-            right = string.split('=')[1];
-            
-            var leftParts = Expression.separate(left);
-            
-            // variable assignment
-            if (leftParts.length === 1 && leftParts[0].type === 'variable') {
-                var expr = 'context["' + left + '"]=' + this.toJSExpression(right);
-                return expr;
+        // variable assignment
+        if (leftParts.length === 1 && leftParts[0].type === 'variable') {
+            var expr = 'context["' + left + '"]=' + this.toJSExpression(right);
+            return expr;
+        }
+        
+        // function definition
+        if (leftParts[0].type === 'function') {
+            if (leftParts[2].type === 'null') {
+                var expr = 'context["' + leftParts[0].str + '"]=function(){ return ' + this.toJSExpression(right) + '; }';
+            } else if (leftParts[2].type === 'vector') {
+                var expr = 'context["' + leftParts[0].str + '"]=function' + leftParts[2].str + '{ return ' + this.toJSExpression(right, Expression.splitTuple(leftParts[2].str)) + '; }';
+            } else if (leftParts[2].type === 'variable') {
+                var expr = 'context["' + leftParts[0].str + '"]=function(' + leftParts[2].str + '){ return ' + this.toJSExpression(right, leftParts[2].str) + '; }';
             }
-            
-            // function definition
-            if (leftParts[0].type === 'function') {
-                if (leftParts[2].type === 'null') {
-                    var expr = 'context["' + leftParts[0].str + '"]=function(){ return ' + this.toJSExpression(right) + '; }';
-                } else if (leftParts[2].type === 'vector') {
-                    var expr = 'context["' + leftParts[0].str + '"]=function' + leftParts[2].str + '{ return ' + this.toJSExpression(right, Expression.splitTuple(leftParts[2].str)) + '; }';
-                } else if (leftParts[2].type === 'variable') {
-                    var expr = 'context["' + leftParts[0].str + '"]=function(' + leftParts[2].str + '){ return ' + this.toJSExpression(right, leftParts[2].str) + '; }';
-                }
-                this.context.functions[leftParts[0].str] = this;
-                return expr;
-            }
-        } else if (type === 'expression') {
-            var operations = Expression.toPostfix(Expression.separate(str));
-            
-            var stack = [];
-            
-            for (var i = 0; i < operations.length; i++) {
-                switch (operations[i].type) {
-                    case 'null':
-                    stack.push('');
-                    break;
-                    case 'variable':
-                    if (specials !== undefined && specials.indexOf(operations[i].str) !== -1) {
-                        stack.push(operations[i].str);
-                    } else {
-                        stack.push('context["' + operations[i].str + '"]')
-                        if (this.variables.indexOf(operations[i].str) !== -1 === false) this.variables.push(operations[i].str);
-                    }
-                    break;
-                    case 'constant':
-                    stack.push('new Interactive.Number(' + operations[i].str + ')')
-                    break;
-                    case 'vector':
-                    var param = operations[i + 1].type === 'function';
-                    stack.push(this.toJSExpression(operations[i].str, specials, param));
-                    break;
-                    case 'function':
-                    var a = stack.pop()
-                    stack.push('context["' + operations[i].str + '"](' + a + ')');
+            this.context.functions[leftParts[0].str] = this;
+            return expr;
+        }
+    } else if (type === 'expression') {
+        var operations = Expression.toPostfix(Expression.separate(str));
+        
+        var stack = [];
+        
+        for (var i = 0; i < operations.length; i++) {
+            switch (operations[i].type) {
+                case 'null':
+                stack.push('');
+                break;
+                case 'variable':
+                if (specials !== undefined && specials.indexOf(operations[i].str) !== -1) {
+                    stack.push(operations[i].str);
+                } else {
+                    stack.push('context["' + operations[i].str + '"]')
                     if (this.variables.indexOf(operations[i].str) !== -1 === false) this.variables.push(operations[i].str);
+                }
+                break;
+                case 'constant':
+                stack.push('new Interactive.Number(' + operations[i].str + ')')
+                break;
+                case 'vector':
+                var param = operations[i + 1].type === 'function';
+                stack.push(this.toJSExpression(operations[i].str, specials, param));
+                break;
+                case 'function':
+                var a = stack.pop()
+                stack.push('context["' + operations[i].str + '"](' + a + ')');
+                if (this.variables.indexOf(operations[i].str) !== -1 === false) this.variables.push(operations[i].str);
+                break;
+                case 'uoperator':
+                var a = stack.pop()
+                stack.push(a + '.neg()');
+                break;
+                case 'operator':
+                var b = stack.pop();
+                var a = stack.pop();
+                switch (operations[i].str) {
+                    case '+':
+                    stack.push(a + '.add(' + b + ')')
                     break;
-                    case 'uoperator':
-                    var a = stack.pop()
-                    stack.push(a + '.neg()');
+                    case '-':
+                    stack.push(a + '.sub(' + b + ')')
                     break;
-                    case 'operator':
-                    var b = stack.pop();
-                    var a = stack.pop();
-                    switch (operations[i].str) {
-                        case '+':
-                        stack.push(a + '.add(' + b + ')')
-                        break;
-                        case '-':
-                        stack.push(a + '.sub(' + b + ')')
-                        break;
-                        case '*':
-                        stack.push(a + '.mul(' + b + ')')
-                        break;
-                        case '/':
-                        stack.push(a + '.div(' + b + ')')
-                        break;
-                        case '^':
-                        stack.push(a + '.exp(' + b + ')')
-                        break;
-                        default:
-                        console.log('Interactive.Expression: Unknown symbol "' + operations[i].str + '" in \n\t' + string);
-                    }
+                    case '*':
+                    stack.push(a + '.mul(' + b + ')')
+                    break;
+                    case '/':
+                    stack.push(a + '.div(' + b + ')')
+                    break;
+                    case '^':
+                    stack.push(a + '.exp(' + b + ')')
                     break;
                     default:
                     console.log('Interactive.Expression: Unknown symbol "' + operations[i].str + '" in \n\t' + string);
                 }
+                break;
+                default:
+                console.log('Interactive.Expression: Unknown symbol "' + operations[i].str + '" in \n\t' + string);
             }
-            
-            return stack[0];
-        } else if (type === 'vector') {
-            var components = Expression.splitTuple(str);
-            if (isparam) {
-                var expr = ''
-                for (var i = 0; i < components.length; i++) {
-                    expr += this.toJSExpression(components[i], specials) + ',';
-                }
-                expr = expr.slice(0, expr.length - 1)
-                return expr;
-            } else {
-                var expr = 'new Interactive.Vector('
-                for (var i = 0; i < components.length; i++) {
-                    expr += this.toJSExpression(components[i], specials) + ',';
-                }
-                expr = expr.slice(0, expr.length - 1) + ')'
-                return expr;
+        }
+        
+        return stack[0];
+    } else if (type === 'vector') {
+        var components = Expression.splitTuple(str);
+        if (isparam) {
+            var expr = ''
+            for (var i = 0; i < components.length; i++) {
+                expr += this.toJSExpression(components[i], specials) + ',';
             }
-        } else if (type === 'interval') {
-            var params = Expression.splitTuple(str);
-            
-            var expr = 'new Interactive.Interval("' + params[0] + '",';
-            for (var i = 1; i < params.length; i++) {
-                expr += this.toJSExpression(params[i], specials) + ',';
+            expr = expr.slice(0, expr.length - 1)
+            return expr;
+        } else {
+            var expr = 'new Interactive.Vector('
+            for (var i = 0; i < components.length; i++) {
+                expr += this.toJSExpression(components[i], specials) + ',';
             }
             expr = expr.slice(0, expr.length - 1) + ')'
             return expr;
-        } else if (type === 'variable') {
-            if (specials !== undefined && specials.indexOf(str) !== -1) return str
-            var expr = 'context["' + str + '"]'
-            if (this.variables.indexOf(str) !== -1 === false) this.variables.push(str);
-            return expr;
-        } else if (type === 'parametric') {
-            var params = Expression.splitParametric(str);
-            var func = 'function('
-            var intervals = '';
-            
-            if (specials === undefined) specials = [];
-            
-            for (var i = 1; i < params.length; i++) {
-                var arg = Expression.splitTuple(params[i])[0]
-                specials.push(arg)
-                func += arg + ','
-                
-                intervals += ',' + this.toJSExpression(params[i]);
-            }
-            
-            func = func.slice(0, func.length - 1) + ') { return ' + this.toJSExpression(params[0], specials) + '; }';
-            
-            var expr = 'new Interactive.Parametric(' + func + intervals + ')';
-            return expr;
-        } else if (type === 'constant') {
-            var expr = 'new Interactive.Number(' + str + ')';
-            return expr;
-        } else if (type === 'isoline') {
-            var parts = str.split('|');
-            var parametric = this.toJSExpression(parts[0])
-            var axis = parts[1].split('=')[0];
-            var level = this.toJSExpression(parts[1].split('=')[1]);
-            
-            var expr = 'new Interactive.Isoline(' + parametric + ',"' + parts[0] + '","' + axis + '",' + level + ')';
-            return expr;
         }
+    } else if (type === 'interval') {
+        var params = Expression.splitTuple(str);
+        
+        var expr = 'new Interactive.Interval("' + params[0] + '",';
+        for (var i = 1; i < params.length; i++) {
+            expr += this.toJSExpression(params[i], specials) + ',';
+        }
+        expr = expr.slice(0, expr.length - 1) + ')'
+        return expr;
+    } else if (type === 'variable') {
+        if (specials !== undefined && specials.indexOf(str) !== -1) return str
+        var expr = 'context["' + str + '"]'
+        if (this.variables.indexOf(str) !== -1 === false) this.variables.push(str);
+        return expr;
+    } else if (type === 'parametric') {
+        var params = Expression.splitParametric(str);
+        var func = 'function('
+        var intervals = '';
+        
+        if (specials === undefined) specials = [];
+        
+        for (var i = 1; i < params.length; i++) {
+            var arg = Expression.splitTuple(params[i])[0]
+            specials.push(arg)
+            func += arg + ','
+            
+            intervals += ',' + this.toJSExpression(params[i]);
+        }
+        
+        func = func.slice(0, func.length - 1) + ') { return ' + this.toJSExpression(params[0], specials) + '; }';
+        
+        var expr = 'new Interactive.Parametric(' + func + intervals + ')';
+        return expr;
+    } else if (type === 'constant') {
+        var expr = 'new Interactive.Number(' + str + ')';
+        return expr;
+    } else if (type === 'isoline') {
+        var parts = str.split('|');
+        var parametric = this.toJSExpression(parts[0])
+        var axis = parts[1].split('=')[0];
+        var level = this.toJSExpression(parts[1].split('=')[1]);
+        
+        var expr = 'new Interactive.Isoline(' + parametric + ',"' + parts[0] + '","' + axis + '",' + level + ')';
+        return expr;
     }
-    
-    Expression.prototype.toJSFunction = function (string) {
-        var expr = this.toJSExpression(string);
-        return Function('context', 'return ' + expr + ';');
-    }
-    
-    /**
-    * Variables from given context will override variables from this context 
-    */
-    Expression.prototype.evaluate = function () {
-        return this.function(this.context);
-    }
-    
-    Expression.getDefaultContext = function () {
-        return Object.assign({ functions: {} }, MathPlus);
-    }
-    
-    export { Expression };
+}
+
+Expression.prototype.toJSFunction = function (string) {
+    var expr = this.toJSExpression(string);
+    return Function('context', 'return ' + expr + ';');
+}
+
+/**
+* Variables from given context will override variables from this context 
+*/
+Expression.prototype.evaluate = function () {
+    return this.function(this.context);
+}
+
+Expression.getDefaultContext = function () {
+    return Object.assign({ functions: {} }, MathPlus);
+}
+
+export { Expression };

@@ -2,6 +2,7 @@ import { Frame } from './Frame.js';
 import { Plot } from './Plot.js';
 import { Expression } from '../math/expressions/Expression.js';
 import { Plottable } from '../plottable/Plottable.js';
+import { uid } from '../utils/uid.js';
 
 /**
  * The base for rendering plots
@@ -15,6 +16,11 @@ function Axes(parent, container, opts) {
      * Used internally for optimization (Read-only)
      */
     this.isAxesInstance = true;
+
+    /**
+     * Used to identify this particular axes;
+     */
+    this.uid = uid.getUid();
 
     /**
      * The plot that generated this figure. (Read-only)

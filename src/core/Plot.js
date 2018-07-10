@@ -8,7 +8,7 @@ function Plot() {
      * The type of this object. (Read-only)
      */
     this.type = 'Plot';
-    this.axes = [];
+    this.axes = {};
     this.panels = [];
 
     /**
@@ -44,7 +44,7 @@ Plot.prototype.linkCameras = function(from) {
  */
 Plot.prototype.createAxes3D = function(container, opts) {
     var ax = new Axes3D(this, container, opts);
-    this.axes.push(ax)
+    this.axes[ax.uid] = ax;
     return ax;
 };
 
@@ -53,9 +53,14 @@ Plot.prototype.createAxes3D = function(container, opts) {
  */
 Plot.prototype.createAxes2D = function(container, opts) {
     var ax = new Axes2D(this, container, opts);
-    this.axes.push(ax)
+    this.axes[ax.uid] = ax;
     return ax;
 };
+
+Plot.prototype.dropAxes = function(axes) {
+    axes.sleep();
+    delete this.axes[axes.uid];
+}
 
 Plot.prototype.createPanel = function(container, opts) {
     var panel = new Panel(this, container, opts);
@@ -77,12 +82,13 @@ Plot.prototype.render = function() {
         return isVisible;
     }
 
-    this.axes.forEach(function(ax) {
+    for(var key in this.axes) {
+        var ax = this.axes[key];
         if(checkVisible(ax.frame.container)) {
             if(ax.frame.isSleeping) ax.wake();
             ax.render();
         } else if(!ax.frame.isSleeping) ax.sleep();
-    })
+    }
 
     this.panels.forEach(function(pan) {
         pan.update();
