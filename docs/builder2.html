@@ -17,7 +17,11 @@
     </style>
 </head>
 <body>
-    <input id="addaxes" type="button" value="Add Axes">
+    <select id="axestype">
+        <option>2D</option>
+        <option>3D</option>
+    </select>
+    <input id="addaxes" type="button" value="Add Axes"> <br>
     <input id="addexpr" type="button" value="Add Expression">
     
     <div id="plot">
@@ -77,8 +81,14 @@
                     case 'Parametric Curve': 
                     plotCode += '"parametric"';
                 }
+                plotCode += ',{';
+                if(pi.values.useColor) {
+                    plotCode += 'color:"';
+                    plotCode += pi.values.color;
+                    plotCode += '",'; 
+                }
                 // other properties will go here
-                plotCode += ');';
+                plotCode += '});';
                 return plotCode;
             }
             
@@ -147,6 +157,7 @@
         
         var update = function() {
             var reset = function() {
+                if(plot) plot.sleep();
                 $('#axes').empty();
             }
             
@@ -170,7 +181,7 @@
                     newPlotBtn.attr('type', 'button');
                     newPlotBtn.attr('value', 'New Plot');
                     newPlotBtn.click(() => {
-                        var controls = getPlotControls({type: plotSelect.val(), axesId: ai.id, valid: false, values: {}});
+                        var controls = getPlotControls({type: plotSelect.val(), axesId: ai.id});
                         controls.css('margin-top', '20px');
                         controls.css('margin-bottom', '20px');
                         plotControlContainer.append(controls);
@@ -215,13 +226,12 @@
         }
         
         var addAxes = function(ai) {
-            aid++;
-            if(ai === undefined) {
-                axesInfo[aid] = {id: aid, title: 'Axes ' + aid, type: '2D', plotIds: []};
-            } else {
-                ai.id = aid;
-                axesInfo[aid] = ai;
-            }
+            if(ai === undefined) ai = {};
+            if(ai.id === undefined) ai.id = aid++;
+            if(ai.title === undefined) ai.title = 'Axes ' + ai.id;
+            if(ai.type === undefined) ai.type = '2D';
+            if(ai.plotIds === undefined) ai.plotIds = [];
+            axesInfo[ai.id] = ai;
             
             return ai;
         }
@@ -232,13 +242,17 @@
         
         var addPlot = function(pi) {
             // Add entry to the global plot info set
-            pid++;
-            pi.id = pid;
-            plotInfo[pid] = pi;
+            if(pi === undefined) pi = {};
+            if(pi.id === undefined) pi.id = pid++;
+            if(pi.type === undefined) return null;
+            if(pi.axesId === undefined) return null;
+            if(pi.valid === undefined) pi.valid = false;
+            if(pi.values === undefined) pi.values = {};
+            plotInfo[pi.id] = pi;
             
             // Add a reference from the axes it is
             // embedded in
-            axesInfo[pi.axesId].plotIds.push(pid);
+            axesInfo[pi.axesId].plotIds.push(pi.id);
             
             return pi;
         }
@@ -257,7 +271,7 @@
         }
         
         var getPlotControls = function(pi) {
-            if(!plotInfo[pi.id]) addPlot(pi);
+            if(!plotInfo[pi.id]) pi = addPlot(pi);
             
             var intervalControl = function(values) {
                 var control = $('<span></span>');
@@ -309,12 +323,13 @@
             
             var loadParametricCurveControls = function() {
                 var pc = $('<div></div>');
+                var onchange;
                 
                 var removeBtn = $('<input>');
                 removeBtn.attr('type', 'button');
                 removeBtn.attr('value', 'X');
                 removeBtn.click(() => {
-                    if(pi.id) removePlot(pi);
+                    removePlot(pi);
                     update();
                 })
                 
@@ -325,35 +340,78 @@
                 if(pi.values.expr) functionInput.val(pi.values.expr);
                 
                 var param = intervalControl(pi.values.interval || {});
-                pc.keypress((e) => {
+                
+                var colorPanel = $('<div></div>');
+                
+                var useColorChk = $('<input>');
+                useColorChk.attr('type', 'checkbox');
+                useColorChk.prop('checked', pi.values.useColor);
+                useColorChk.change((e) => {
+                    onchange(e, true);
+                });
+                
+                var colorInput = $('<input>');
+                colorInput.css('width', '4em');
+                colorInput.attr('type', 'text');
+                colorInput.val(pi.values.color)
+                
+                colorPanel.append(useColorChk);
+                colorPanel.append('Color graph with (function): ')
+                colorPanel.append(colorInput);
+                colorPanel.hide();
+                
+                var toggleColorPanel = $('<input>');
+                toggleColorPanel.attr('type', 'button');
+                toggleColorPanel.attr('value', 'C');
+                toggleColorPanel.click(() => {
+                    colorPanel.toggle();
+                });
+                
+                
+                pc.append(removeBtn);
+                pc.append('Plot ');
+                pc.append(functionInput);
+                pc.append('<br>');
+                pc.append(' as ');
+                pc.append(param);
+                pc.append('<br>');
+                pc.append(toggleColorPanel);
+                pc.append(colorPanel);
+                
+                onchange = function(e, forceUpdate) {
                     setTimeout(()=>{                    
-                        var keycode = (e.keyCode ? e.keyCode : e.which);
                         var values = param.getValues();
                         pi.values.expr = functionInput.val();
                         pi.values.interval = values;
+                        pi.values.useColor = useColorChk.is(':checked');
+                        pi.values.color = colorInput.val();
+                        
                         
                         // For simplicity, assume valid if all fields are non-empty
                         if(functionInput.val() != "" && values.variable != "" && values.start != ""
-                        && values.end != "" && values.steps != "") {
+                        && values.end != "" && values.steps != "" 
+                        && (!pi.values.useColor || pi.values.color)) {
                             pi.valid = true;
-                            if(keycode == 13) update(); // Only update on enter
+                            if(forceUpdate) update(); // Only update on enter
                         } else {
                             pi.valid = false;
                         }
                         plotInfo[pi.id] = pi;
                     }, 10);
+                }
+                pc.keypress((e) => {
+                    var keycode = (e.keyCode ? e.keyCode : e.which);
+                    onchange(e, keycode == 13);
                 });
-                
-                pc.append(removeBtn);
-                pc.append('Plot ');
-                pc.append(functionInput);
-                pc.append(' as ')
-                pc.append(param);
                 
                 return pc;
             }
             
-            return loadParametricCurveControls();
+            switch(pi.type) {
+                case 'Parametric Curve':
+                return loadParametricCurveControls();
+                break;
+            }
         }
         
         var addExpressionInput = function() {
@@ -384,14 +442,15 @@
             $('#expressions').append(exDiv);            
         }
         
-        // ;(function animate() {
-        //     requestAnimationFrame(animate);
-        //     plot.render();
-        // })();
+        ;(function animate() {
+            requestAnimationFrame(animate);
+            plot.render();
+        })();
         
         ;(function() {
             $('#addaxes').click(() => {
-                addAxes();
+                var type = $('#axestype').val();
+                addAxes({type: type});
                 update();
             });
             $('#addexpr').click(() => {

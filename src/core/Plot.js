@@ -73,6 +73,12 @@ Plot.prototype.resetContext = function() {
     this.expressions = {};
 }
 
+Plot.prototype.sleep = function() {
+    for(var key in this.axes) {
+        this.axes[key].sleep();
+    }
+}
+
 Plot.prototype.render = function() {
     function checkVisible(el) {
         var elemTop = el.getBoundingClientRect().top;
