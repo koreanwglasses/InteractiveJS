@@ -28,8 +28,8 @@ Plot.prototype.execExpression = function(expr) {
 }
 
 Plot.prototype.refresh = function(expr) {
-    for(var i = 0; i < this.axes.length; i++) {
-        this.axes[i].refresh(expr);
+    for(var key in this.axes) {
+        this.axes[key].refresh(expr);
     }
 }
 
