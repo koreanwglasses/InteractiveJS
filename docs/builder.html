@@ -46,15 +46,44 @@
         plot.createAxesContainer = function(ai) {                    
             var axDiv = $('<div></div>');
             axDiv.css('clear', 'left');
-            
+
+            // Title
             var axLabel = $('<h2></h2>');
-            axLabel.text(ai.title);
-            
+
+            var axTitleInput = $('<input>')
+            axTitleInput.attr('type', 'text');
+            axTitleInput.css('font-size', '25px');
+            axTitleInput.hide();
+            axTitleInput.keypress((e) => {
+                var keycode = (e.keyCode ? e.keyCode : e.which);
+                if(keycode == 13) {
+                    ai.title = axTitleInput.val();
+                    axTitle.text(ai.title);
+
+                    axTitleInput.hide();
+                    axTitle.show();
+                }
+            });
+
+            var axTitle = $('<span></span>');
+            axTitle.text(ai.title);
+            axTitle.click(() => {
+                axTitleInput.val(ai.title);
+
+                axTitle.hide();
+                axTitleInput.show();
+            });
+
+            axLabel.append(axTitleInput);
+            axLabel.append(axTitle);
+
+            // Container
             var axContainer = $('<div></div>');
             axContainer.css('float', 'left');
             axContainer.addClass('axes');
             axContainer.attr('id', 'ax' + ai.id);
-            
+
+            // Controls
             var plotSelect = $('<select></select>');
             plotSelect.append('<option>Parametric Curve</option>');
             plotSelect.append('<option>Parametric Surface</option>');
