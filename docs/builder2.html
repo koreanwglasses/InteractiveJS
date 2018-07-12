@@ -83,6 +83,7 @@
                 plotCode += ','
                 switch(pi.type) {
                     case 'Parametric Curve': 
+                    case 'Parametric Surface':
                     plotCode += '"parametric"';
                     break;
                 }
@@ -247,6 +248,7 @@
                 
                 var plotSelect = $('<select></select>');
                 plotSelect.append('<option>Parametric Curve</option>');
+                plotSelect.append('<option>Parametric Surface</option>');
                 
                 var newPlotBtn = $('<input>');
                 newPlotBtn.attr('type', 'button');
@@ -292,6 +294,8 @@
             if(ai.plotIds === undefined) ai.plotIds = [];
             
             ai.container = createAxesContainer(ai); 
+
+            updateAxes(ai);
             
             axesInfo[ai.id] = ai;
             return ai;
@@ -350,16 +354,28 @@
             if(pi.values.expr) {
                 expr += pi.values.expr;
             }
+            
+            var intervalToString = function(interval) {
+                var out = '';
+                out +='{';
+                out += interval.variable;
+                out += ',';
+                out += interval.start;
+                out += ',';
+                out += interval.end;
+                out += ',';
+                out += interval.steps;
+                out += '}';
+                return out;
+            }
             if(pi.values.interval) {
-                expr +='{';
-                expr += pi.values.interval.variable;
-                expr += ',';
-                expr += pi.values.interval.start;
-                expr += ',';
-                expr += pi.values.interval.end;
-                expr += ',';
-                expr += pi.values.interval.steps;
-                expr += '}';
+                expr += intervalToString(pi.values.interval);   
+            }
+            if(pi.values.interval1) {
+                expr += intervalToString(pi.values.interval1);
+            }
+            if(pi.values.interval2) {
+                expr += intervalToString(pi.values.interval2);
             }
             
             var opts = {};
@@ -370,6 +386,7 @@
             if(pi.valid) {
                 switch(pi.type) {
                     case 'Parametric Curve':
+                    case 'Parametric Surface':
                     pi.obj = ai.obj.plotExpression(expr, 'parametric', opts);
                     break;
                 }
@@ -530,9 +547,105 @@
                 return pc;
             }
             
+            var loadParametricSurfaceControls = function() {
+                var pc = $('<div></div>');
+                var onchange;
+                
+                var removeBtn = $('<input>');
+                removeBtn.attr('type', 'button');
+                removeBtn.attr('value', 'X');
+                removeBtn.click(() => {
+                    pc.remove();
+                    removePlot(pi);
+                })
+                
+                var functionInput = $('<input>');
+                functionInput.css('width', '7em');
+                functionInput.attr('type', 'text');
+                functionInput.attr('placeholder', 'e.g (u, v, u * v)');
+                if(pi.values.expr) functionInput.val(pi.values.expr);
+                
+                var param1 = intervalControl(pi.values.interval1 || {});
+                var param2 = intervalControl(pi.values.interval2 || {});
+                
+                var colorPanel = $('<div></div>');
+                
+                var useColorChk = $('<input>');
+                useColorChk.attr('type', 'checkbox');
+                useColorChk.prop('checked', pi.values.useColor);
+                useColorChk.change((e) => {
+                    onchange(e, true);
+                });
+                
+                var colorInput = $('<input>');
+                colorInput.css('width', '4em');
+                colorInput.attr('type', 'text');
+                colorInput.val(pi.values.color)
+                
+                colorPanel.append(useColorChk);
+                colorPanel.append('Color graph with (function): ')
+                colorPanel.append(colorInput);
+                colorPanel.hide();
+                
+                var toggleColorPanel = $('<input>');
+                toggleColorPanel.attr('type', 'button');
+                toggleColorPanel.attr('value', 'C');
+                toggleColorPanel.click(() => {
+                    colorPanel.toggle();
+                });
+                
+                
+                pc.append(removeBtn);
+                pc.append('Plot ');
+                pc.append(functionInput);
+                pc.append('<br>');
+                pc.append(' as ');
+                pc.append(param1);
+                pc.append('<br>');
+                pc.append(' and as ');
+                pc.append(param2);
+                pc.append('<br>');
+                pc.append(toggleColorPanel);
+                pc.append(colorPanel);
+                
+                onchange = function(requestUpdate) {
+                    setTimeout(()=>{                    
+                        var values1 = param1.getValues();
+                        var values2 = param2.getValues();
+                        
+                        pi.values.expr = functionInput.val();
+                        pi.values.interval1 = values1;
+                        pi.values.interval2 = values2;
+                        pi.values.useColor = useColorChk.is(':checked');
+                        pi.values.color = colorInput.val();
+                        
+                        // For simplicity, assume valid if all fields are non-empty
+                        if(functionInput.val() != "" && values1.variable != "" && values1.start != ""
+                        && values1.end != "" && values1.steps != "" && values2.variable != "" 
+                        && values2.start != "" && values2.end != "" && values2.steps != "" 
+                        && (!pi.values.useColor || pi.values.color)) {
+                            pi.valid = true;
+                            if(requestUpdate) updatePlot(pi) // Only update on enter
+                        } else {
+                            pi.valid = false;
+                        }
+                        plotInfo[pi.id] = pi;
+                    }, 10);
+                }
+                pc.keypress((e) => {
+                    var keycode = (e.keyCode ? e.keyCode : e.which);
+                    onchange(keycode == 13);
+                });
+                
+                return pc;
+            }
+            
             switch(pi.type) {
                 case 'Parametric Curve':
                 return loadParametricCurveControls();
+                break;
+                case 'Parametric Surface':
+                return loadParametricSurfaceControls();
                 break;
             }
         }
@@ -601,9 +714,9 @@
                     plot.execExpression(ei.expr);
                 }
             }
-         
+            
             plot.refresh();
-
+            
             // Redraw all plots
             for(var key in plotInfo) {
                 var pi = plotInfo[key];
