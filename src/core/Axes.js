@@ -126,7 +126,7 @@ Axes.prototype.removeFigure = function(object) {
         return null;
     }
     this.objects.splice(index, 1);
-    this.frame.scene.remove(sceneObjects[index]);
+    this.frame.scene.remove(this.sceneObjects[index]);
     this.sceneObjects.splice(index, 1);
 }
 
