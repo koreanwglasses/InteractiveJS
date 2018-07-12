@@ -5,6 +5,8 @@ export { Frame } from './core/Frame.js';
 export { Panel } from './core/Panel.js';
 export { Plot } from './core/Plot.js';
 
+export { DynPlot } from './dyn/DynPlot.js';
+
 export { TouchEventListener } from './environment/TouchEventListener.js';
 
 export { Expression } from './math/expressions/Expression.js';
