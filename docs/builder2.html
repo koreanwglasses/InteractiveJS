@@ -17,12 +17,15 @@
     </style>
 </head>
 <body>
+    Save for later: <input id="save" type="button" value="Save"> <br>
+    Load from file: <input id="load" type="file" value="Load" accept=".json"> <br>
+    Export as code: <input id="export" type="button" value="Export"> <br> <br>
     <select id="axestype">
         <option>2D</option>
         <option>3D</option>
     </select>
     <input id="addaxes" type="button" value="Add Axes"> <br>
-    <input id="addexpr" type="button" value="Add Expression">
+    <input id="addexpr" type="button" value="Add Expression"> 
     
     <div id="plot">
         <div id="expressions"></div>
@@ -44,11 +47,12 @@
         var pid = 0;
         var plotInfo = {};
         
-        var plotInitCode = [
-        'plot = new Interactive.Plot();',
-        ];
         
         var compile = function() {
+            var plotInitCode = [
+            'plot = new Interactive.Plot();',
+            ];
+            
             var compileAxesInitCode = function(ai) {
                 var initCode = 'ax' + ai.id + ' = ';
                 if(ai.type == '2D') initCode += 'plot.createAxes2D('; 
@@ -151,17 +155,63 @@
         
         var run = function() {
             var code = compile();
-            console.log(code);
+            // console.log(code);
             eval(code);
         }
         
         var update = function() {
             var reset = function() {
                 if(plot) plot.sleep();
+                $('#expressions').empty();
                 $('#axes').empty();
             }
             
-            var prepareContainers = function() {
+            var prepareExpressionContainers = function() {
+                var createExpressionContainer = function(ei) {
+                    var exDiv = $('<div></div>');
+                    var onchange;
+                    
+                    var exInput = $('<input>');
+                    exInput.attr('type', 'text');
+                    exInput.val(ei.expr);
+                    
+                    var exRemove = $('<input>');
+                    exRemove.attr('type', 'button');
+                    exRemove.attr('value', 'X');
+                    exRemove.click(() => {
+                        removeExpression(ei);
+                        update();
+                    });
+                    
+                    exDiv.append(exInput);
+                    exDiv.append(exRemove);
+                    
+                    onchange = function(requestUpdate) {
+                        setTimeout(() => {
+                            // todo: check for errors/validation before eval
+                            ei.expr = exInput.val();
+                            expressionsInfo[ei.id] = ei; 
+                            
+                            if(requestUpdate) {
+                                update();
+                            }
+                        }, 10);
+                    }
+                    exDiv.keypress((e) => {
+                        var keycode = (e.keyCode ? e.keyCode : e.which);
+                        onchange(keycode == 13);
+                    });
+                    
+                    $('#expressions').append(exDiv);   
+                }
+                
+                for(var key in expressionsInfo) {
+                    var ei = expressionsInfo[key];
+                    createExpressionContainer(ei);
+                }
+            }
+            
+            var prepareAxesContainers = function() {
                 var createAxesContainer = function(ai) {                    
                     var axDiv = $('<div></div>');
                     axDiv.css('clear', 'left');
@@ -219,8 +269,9 @@
                 }
             }
             
-            reset();
-            prepareContainers();
+            reset()
+            prepareExpressionContainers();
+            prepareAxesContainers();
             run();
             plot.render();
         }
@@ -378,7 +429,7 @@
                 pc.append(toggleColorPanel);
                 pc.append(colorPanel);
                 
-                onchange = function(e, forceUpdate) {
+                onchange = function(requestUpdate) {
                     setTimeout(()=>{                    
                         var values = param.getValues();
                         pi.values.expr = functionInput.val();
@@ -392,7 +443,7 @@
                         && values.end != "" && values.steps != "" 
                         && (!pi.values.useColor || pi.values.color)) {
                             pi.valid = true;
-                            if(forceUpdate) update(); // Only update on enter
+                            if(requestUpdate) update(); // Only update on enter
                         } else {
                             pi.valid = false;
                         }
@@ -401,7 +452,7 @@
                 }
                 pc.keypress((e) => {
                     var keycode = (e.keyCode ? e.keyCode : e.which);
-                    onchange(e, keycode == 13);
+                    onchange(keycode == 13);
                 });
                 
                 return pc;
@@ -414,47 +465,95 @@
             }
         }
         
-        var addExpressionInput = function() {
-            var id = eid++;
+        var addExpression = function(ei) {
+            if(ei === undefined) ei = {};
+            if(ei.id === undefined) ei.id = eid++;
+            if(ei.expr === undefined) ei.expr = '';
+            if(ei.priority === undefined) ei.priority = ei.id;
+            expressionsInfo[ei.id] = ei;
             
-            var exDiv = $('<div></div>');
-            
-            var exInput = $('<input>');
-            exInput.attr('type', 'text');
-            exInput.change(() => {
-                // todo: check for errors/validation before eval
-                expressionsInfo[id] = {id: id, expr: exInput.val(), priority: id}; 
-                update();
-            });
-            
-            var exRemove = $('<input>');
-            exRemove.attr('type', 'button');
-            exRemove.attr('value', 'X');
-            exRemove.click(() => {
-                exDiv.remove();
-                if(expressionsInfo[id]) {
-                    delete expressionsInfo[id];
-                }
-            });
-            
-            exDiv.append(exInput);
-            exDiv.append(exRemove);
-            $('#expressions').append(exDiv);            
+            return ei;
         }
+        
+        var removeExpression = function(ei) {
+            delete expressionsInfo[ei.id];
+        }
+        
+        // File IO
+        
+        var download = function(filename, text) {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+            
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            
+            element.click();
+            
+            document.body.removeChild(element);
+        };
+        
+        var save = function() {
+            var info = {};
+            info.aid = aid;
+            info.axesInfo = axesInfo;
+            info.eid = eid;
+            info.expressionsInfo = expressionsInfo;
+            info.pid = pid;
+            info.plotInfo = plotInfo;
+            
+            var str = JSON.stringify(info);
+            download('plot.json', str);
+        }
+        
+        var load = function(e) {
+            var file = e.target.files[0];
+            if (!file) {
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var contents = e.target.result;
+                
+                var info = JSON.parse(contents);
+                aid = info.aid;
+                axesInfo = info.axesInfo;
+                eid = info.eid;
+                expressionsInfo = info.expressionsInfo;
+                pid = info.pid;
+                plotInfo = info.plotInfo;
+                
+                update();
+            };
+            reader.readAsText(file);
+        };
+        
+        var exprt = function() {
+            download('plotCode.js', compile());
+        }
+        
+        // Animate
         
         ;(function animate() {
             requestAnimationFrame(animate);
             plot.render();
         })();
         
+        //  Hooks/Handlers
+        
         ;(function() {
+            $('#save').click(save);
+            $('#load').change(load);
+            $('#export').click(exprt);
             $('#addaxes').click(() => {
                 var type = $('#axestype').val();
                 addAxes({type: type});
                 update();
             });
             $('#addexpr').click(() => {
-                addExpressionInput();
+                addExpression();
+                update();
             });
         })();
     </script>
