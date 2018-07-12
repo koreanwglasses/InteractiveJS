@@ -1,11 +1,10 @@
-<!DOCTYPE html>
 <head>
     <style>
         body {
-                background-color: #222222;
-                color: #fff;
+            /* background-color: #222222; */
+            /* color: #fff; */
         }
-
+        
         .axes {
             width: 400px;
             height: 400px;
@@ -18,103 +17,433 @@
     </style>
 </head>
 <body>
-    <input type="button" id="newExpr" value="Add new expression">
-    <div id="expressions">
-    </div>
-    <input type="button" id="redraw" value="Redraw">
-
-    <input type="button" id="newAxes2" value="Add 2D Axes">
-    <div id="axes">
-    </div>
-    <div id="controls">
+    Save for later: <input id="save" type="button" value="Save"> <br>
+    Load from file: <input id="load" type="file" value="Load" accept=".json"> <br>
+    Export as code: <input id="export" type="button" value="Export"> <br> <br>
+    <select id="axestype">
+        <option>2D</option>
+        <option>3D</option>
+    </select>
+    <input id="addaxes" type="button" value="Add Axes"> <br>
+    <input id="addexpr" type="button" value="Add Expression"> 
+    
+    <div id="plot">
+        <div id="expressions"></div>
+        <div id="axes"></div>
     </div>
     
+    <script src="../lib/jquery-3.3.1.min.js"></script>
     <script src="../lib/three.min.js"></script>
     <script src="../build/interactive.js"></script>
     <script>
-        var plot = new Interactive.Plot();
-        var axes = {}
-        var axesDiv = document.getElementById('axes');
-
-        var expr = []
-        var exprDiv = document.getElementById('expressions');
-
-        var createAxes2D = function() {
-            var axesWrapper = document.createElement('div');
-            var axesContainer = document.createElement('div');
-            axesContainer.classList.add('axes');
-
-            var index = Object.keys(axes).length + 1;
-
-            var label = document.createElement('div');
-            label.classList.add('label');
-            label.innerHTML = 'Axes ' + index;
-
-            var controls = document.createElement('div');
-            var btnRemove = document.createElement('input');
-            btnRemove.setAttribute('type','button');
-            btnRemove.setAttribute('value','Remove');
-
-            btnRemove.addEventListener('click', function(e) {
-                removeAxes(index);
+        var plot = new Interactive.DynPlot();
+        plot.resetContainer = function() {
+            $('#expressions').empty();
+            $('#axes').empty();
+        }
+        
+        var axDivs = {};
+        plot.createAxesContainer = function(ai) {                    
+            var axDiv = $('<div></div>');
+            axDiv.css('clear', 'left');
+            
+            var axLabel = $('<h2></h2>');
+            axLabel.text(ai.title);
+            
+            var axContainer = $('<div></div>');
+            axContainer.css('float', 'left');
+            axContainer.addClass('axes');
+            axContainer.attr('id', 'ax' + ai.id);
+            
+            var plotSelect = $('<select></select>');
+            plotSelect.append('<option>Parametric Curve</option>');
+            plotSelect.append('<option>Parametric Surface</option>');
+            
+            var newPlotBtn = $('<input>');
+            newPlotBtn.attr('type', 'button');
+            newPlotBtn.attr('value', 'New Plot');
+            newPlotBtn.click(() => {
+                var controls = getPlotControls({type: plotSelect.val(), axesId: ai.id});
+                controls.css('margin-top', '20px');
+                controls.css('margin-bottom', '20px');
+                plotControlContainer.append(controls);
             });
-
-            controls.appendChild(btnRemove);
-
-            axesWrapper.appendChild(label);
-            axesWrapper.appendChild(axesContainer);
-            axesWrapper.appendChild(controls);
-
-            axesDiv.appendChild(axesWrapper)
-
-            var ax = plot.createAxes2D(axesContainer, {antialias: true});
-            var arr = new Interactive.BasisVectors2D(plot)
-            ax.addFigure(arr)
-
-            axes[index] = ax;
+            
+            var plotControlContainer = $('<div></div>');
+            ai.plotIds.forEach((pid) => {
+                var controls = getPlotControls(plot.plotInfo[pid]);
+                controls.css('margin-top', '20px');
+                controls.css('margin-bottom', '20px');
+                plotControlContainer.append(controls);
+            });
+            
+            var removeBtn = $('<input>');
+            removeBtn.attr('type', 'button');
+            removeBtn.attr('value', 'Remove');
+            removeBtn.click(() => {
+                plot.removeAxes(ai);                    
+            });
+            
+            axDiv.append(axLabel);
+            axDiv.append(axContainer);
+            axDiv.append(plotSelect);
+            axDiv.append(newPlotBtn);
+            axDiv.append(plotControlContainer);
+            axDiv.append(removeBtn);
+            
+            $('#axes').append(axDiv);
+            
+            axDivs[ai.id] = axDiv;
+            
+            return axContainer;
         }
-
-        var createExpression = function() {
-            var exprWrapper = document.createElement('div')
-            var exprInput = document.createElement('input');
-
-            expr.push(exprInput);
-
-            exprWrapper.appendChild(exprInput);
-            exprDiv.appendChild(exprWrapper);
+        plot.removeAxesContainer = function(ai) {
+            axDivs[ai.id].remove();
+            delete axDivs[ai.id];
         }
-
-        var removeAxes = function(index) {
-            plot.dropAxes(axes[index]);
-            console.log(plot.axes)
+        
+        var exDivs = {};
+        plot.onCreateExpression = function(ei) {
+            var exDiv = $('<div></div>');
+            var onchange;
+            
+            var exInput = $('<input>');
+            exInput.attr('type', 'text');
+            exInput.val(ei.expr);
+            
+            var exRemove = $('<input>');
+            exRemove.attr('type', 'button');
+            exRemove.attr('value', 'X');
+            exRemove.click(() => {
+                plot.removeExpression(ei);                    
+            });
+            
+            exDiv.append(exInput);
+            exDiv.append(exRemove);
+            
+            onchange = function(requestUpdate) {
+                setTimeout(() => {
+                    // todo: check for errors/validation before eval
+                    ei.expr = exInput.val();
+                    ei.valid = true;
+                    plot.expressionsInfo[ei.id] = ei; 
+                    
+                    if(requestUpdate) {
+                        plot.updateExpressions();
+                    }
+                }, 10);
+            }
+            exDiv.keypress((e) => {
+                var keycode = (e.keyCode ? e.keyCode : e.which);
+                onchange(keycode == 13);
+            });
+            
+            $('#expressions').append(exDiv); 
+            
+            exDivs[ei.id] = exDiv;
         }
-
-        var update = function() {
-            plot.resetContext();
-            expr.forEach(function(e) {
-                console.log(e.value)
-                plot.execExpression(e.value);
-            })
+        plot.onRemoveExpression = function(ei) {
+            exDivs[ei.id].remove();
+            delete exDivs[ei.id];
         }
-
-        document.getElementById('newAxes2').addEventListener('click', function(e) {
-            createAxes2D();
-        })
-
-        document.getElementById('newExpr').addEventListener('click', function(e) {
-            createExpression();
-        })
-
-        document.getElementById('redraw').addEventListener('click', function(e) {
-            update();
-        })
-
+        
+        var getPlotControls = function(pi) {
+            if(!plot.plotInfo[pi.id]) pi = plot.addPlot(pi);
+            
+            var intervalControl = function(values) {
+                var control = $('<span></span>');
+                
+                var varInput = $('<input>');
+                varInput.css('width', '4em')
+                varInput.attr('type', 'text');
+                varInput.attr('placeholder', 'e.g. x');
+                if(values.variable) varInput.val(values.variable);
+                
+                var startInput = $('<input>');
+                startInput.css('width', '4em')
+                startInput.attr('type', 'text');
+                startInput.attr('placeholder', 'e.g. 0');
+                if(values.start) startInput.val(values.start);
+                
+                var endInput = $('<input>');
+                endInput.css('width', '4em')
+                endInput.attr('type', 'text');
+                endInput.attr('placeholder', 'e.g. 1');
+                if(values.end) endInput.val(values.end);
+                
+                var stepInput = $('<input>');
+                stepInput.css('width', '4em')
+                stepInput.attr('type', 'text');
+                stepInput.attr('placeholder', 'e.g. 10');
+                if(values.steps) stepInput.val(values.steps);
+                
+                control.append(varInput);
+                control.append(' goes from ');
+                control.append(startInput);
+                control.append(' to ');
+                control.append(endInput);
+                control.append(' in ');
+                control.append(stepInput);
+                control.append(' steps ');
+                
+                control.getValues = function() {
+                    return {
+                        variable: varInput.val(),
+                        start: startInput.val(),
+                        end: endInput.val(),
+                        steps: stepInput.val()
+                    }
+                }
+                
+                return control;
+            }
+            
+            var loadParametricCurveControls = function() {
+                var pc = $('<div></div>');
+                var onchange;
+                
+                var removeBtn = $('<input>');
+                removeBtn.attr('type', 'button');
+                removeBtn.attr('value', 'X');
+                removeBtn.click(() => {
+                    pc.remove();
+                    plot.removePlot(pi);
+                })
+                
+                var functionInput = $('<input>');
+                functionInput.css('width', '7em');
+                functionInput.attr('type', 'text');
+                functionInput.attr('placeholder', 'e.g (x, x^2)');
+                if(pi.values.expr) functionInput.val(pi.values.expr);
+                
+                var param = intervalControl(pi.values.interval || {});
+                
+                var colorPanel = $('<div></div>');
+                
+                var useColorChk = $('<input>');
+                useColorChk.attr('type', 'checkbox');
+                useColorChk.prop('checked', pi.values.useColor);
+                useColorChk.change((e) => {
+                    onchange(e, true);
+                });
+                
+                var colorInput = $('<input>');
+                colorInput.css('width', '4em');
+                colorInput.attr('type', 'text');
+                colorInput.val(pi.values.color)
+                
+                colorPanel.append(useColorChk);
+                colorPanel.append('Color graph with (function): ')
+                colorPanel.append(colorInput);
+                colorPanel.hide();
+                
+                var toggleColorPanel = $('<input>');
+                toggleColorPanel.attr('type', 'button');
+                toggleColorPanel.attr('value', 'C');
+                toggleColorPanel.click(() => {
+                    colorPanel.toggle();
+                });
+                
+                
+                pc.append(removeBtn);
+                pc.append('Plot ');
+                pc.append(functionInput);
+                pc.append('<br>');
+                pc.append(' as ');
+                pc.append(param);
+                pc.append('<br>');
+                pc.append(toggleColorPanel);
+                pc.append(colorPanel);
+                
+                onchange = function(requestUpdate) {
+                    setTimeout(()=>{                    
+                        var values = param.getValues();
+                        pi.values.expr = functionInput.val();
+                        pi.values.interval = values;
+                        pi.values.useColor = useColorChk.is(':checked');
+                        pi.values.color = colorInput.val();
+                        
+                        // For simplicity, assume valid if all fields are non-empty
+                        if(functionInput.val() != "" && values.variable != "" && values.start != ""
+                        && values.end != "" && values.steps != "" 
+                        && (!pi.values.useColor || pi.values.color)) {
+                            pi.valid = true;
+                            if(requestUpdate) plot.updatePlot(pi) // Only update on enter
+                        } else {
+                            pi.valid = false;
+                        }
+                        plot.plotInfo[pi.id] = pi;
+                    }, 10);
+                }
+                pc.keypress((e) => {
+                    var keycode = (e.keyCode ? e.keyCode : e.which);
+                    onchange(keycode == 13);
+                });
+                
+                return pc;
+            }
+            
+            var loadParametricSurfaceControls = function() {
+                var pc = $('<div></div>');
+                var onchange;
+                
+                var removeBtn = $('<input>');
+                removeBtn.attr('type', 'button');
+                removeBtn.attr('value', 'X');
+                removeBtn.click(() => {
+                    pc.remove();
+                    this.removePlot(pi);
+                })
+                
+                var functionInput = $('<input>');
+                functionInput.css('width', '7em');
+                functionInput.attr('type', 'text');
+                functionInput.attr('placeholder', 'e.g (u, v, u * v)');
+                if(pi.values.expr) functionInput.val(pi.values.expr);
+                
+                var param1 = intervalControl(pi.values.interval1 || {});
+                var param2 = intervalControl(pi.values.interval2 || {});
+                
+                var colorPanel = $('<div></div>');
+                
+                var useColorChk = $('<input>');
+                useColorChk.attr('type', 'checkbox');
+                useColorChk.prop('checked', pi.values.useColor);
+                useColorChk.change((e) => {
+                    onchange(e, true);
+                });
+                
+                var colorInput = $('<input>');
+                colorInput.css('width', '4em');
+                colorInput.attr('type', 'text');
+                colorInput.val(pi.values.color)
+                
+                colorPanel.append(useColorChk);
+                colorPanel.append('Color graph with (function): ')
+                colorPanel.append(colorInput);
+                colorPanel.hide();
+                
+                var toggleColorPanel = $('<input>');
+                toggleColorPanel.attr('type', 'button');
+                toggleColorPanel.attr('value', 'C');
+                toggleColorPanel.click(() => {
+                    colorPanel.toggle();
+                });
+                
+                
+                pc.append(removeBtn);
+                pc.append('Plot ');
+                pc.append(functionInput);
+                pc.append('<br>');
+                pc.append(' as ');
+                pc.append(param1);
+                pc.append('<br>');
+                pc.append(' and as ');
+                pc.append(param2);
+                pc.append('<br>');
+                pc.append(toggleColorPanel);
+                pc.append(colorPanel);
+                
+                onchange = function(requestUpdate) {
+                    setTimeout(()=>{                    
+                        var values1 = param1.getValues();
+                        var values2 = param2.getValues();
+                        
+                        pi.values.expr = functionInput.val();
+                        pi.values.interval1 = values1;
+                        pi.values.interval2 = values2;
+                        pi.values.useColor = useColorChk.is(':checked');
+                        pi.values.color = colorInput.val();
+                        
+                        // For simplicity, assume valid if all fields are non-empty
+                        if(functionInput.val() != "" && values1.variable != "" && values1.start != ""
+                        && values1.end != "" && values1.steps != "" && values2.variable != "" 
+                        && values2.start != "" && values2.end != "" && values2.steps != "" 
+                        && (!pi.values.useColor || pi.values.color)) {
+                            pi.valid = true;
+                            if(requestUpdate) plot.updatePlot(pi) // Only update on enter
+                        } else {
+                            pi.valid = false;
+                        }
+                        plot.plotInfo[pi.id] = pi;
+                    }, 10);
+                }
+                pc.keypress((e) => {
+                    var keycode = (e.keyCode ? e.keyCode : e.which);
+                    onchange(keycode == 13);
+                });
+                
+                return pc;
+            }
+            
+            switch(pi.type) {
+                case 'Parametric Curve':
+                return loadParametricCurveControls();
+                break;
+                case 'Parametric Surface':
+                return loadParametricSurfaceControls();
+                break;
+            }
+        }
+        
+        // File IO
+        
+        var download = function(filename, text) {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+            
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            
+            element.click();
+            
+            document.body.removeChild(element);
+        };
+        
+        var save = function() {
+            download('plot.json', plot.save());
+        }
+        
+        var load = function(e) {
+            var file = e.target.files[0];
+            if (!file) {
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var contents = e.target.result;
+                
+                var info = JSON.parse(contents);
+                plot.reload(info);
+            };
+            reader.readAsText(file);
+        };
+        
+        var exprt = function() {
+            download('plotCode.js', plot.compile());
+        }
+        
+        // Render
+        
         ;(function animate() {
             requestAnimationFrame(animate);
-            for(var key in axes) {
-                var ax = axes[key];
-                ax.render();
-            }
+            plot.render();
+        })();
+        
+        //  Hooks/Handlers
+        
+        ;(function() {
+            $('#save').click(save);
+            $('#load').change(load);
+            $('#export').click(exprt);
+            $('#addaxes').click(() => {
+                var type = $('#axestype').val();
+                plot.addAxes({type: type});
+            });
+            $('#addexpr').click(() => {
+                plot.addExpression();
+            });
         })();
     </script>
 </body>
