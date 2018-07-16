@@ -2,13 +2,63 @@
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
     <style>
         body {
+            margin: 0;
             font-family: 'Source Sans Pro', sans-serif;
-        }
+        }        
         input {
             font-family: 'Source Sans Pro', sans-serif;
             font-size: 15px;
         }
-        
+        input[type=button] {
+            height: 40px;
+            background-color: rgb(67, 118, 148);
+            border: none;
+            color: white;
+            padding: 0 10px;
+            margin-right: 5px;
+        }
+        input[type=button]:hover {
+            cursor: pointer;
+        }
+        select {
+            position: relative;
+            top: -1px;
+            margin: 0;
+            height: 40px;
+            border: none;
+            background-color: rgb(78, 135, 168);
+            color: white;
+        }
+        select:hover {
+            cursor: pointer;
+        }
+        select + input[type=button] {
+            margin-left: 0;
+        }
+        #masthead{
+            width: 100%;
+            height: 60px;
+            padding-left: 15px;
+            background-color: rgb(67, 170, 189);
+        }
+        #masthead h1{
+            color: white;
+            line-height: 60px;
+        }
+        #filecontrols {
+            color: white;
+            background-color: rgb(75, 190, 211);
+            padding: 5px;
+        }
+        #filecontrols input[type=button] {
+            background-color: transparent;
+        }
+        #mainplotcontrols {
+            margin: 5px;
+        }
+        #plot {
+            margin: 5px;
+        }
         .axes {
             width: 400px;
             height: 400px;
@@ -18,18 +68,35 @@
             display: inline-block;
             background: black;
         }
+        input[type=button].minorbutton {
+            height: 25px;
+            width: 25px;
+            padding: 0;
+            background-color: rgb(83, 150, 189);
+        }
     </style>
 </head>
 <body>
-    Save for later: <input id="save" type="button" value="Save"> <br>
-    Load from file: <input id="load" type="file" value="Load" accept=".json"> <br>
-    Export as code: <input id="export" type="button" value="Export"> <br> <br>
-    <select id="axestype">
-        <option>2D</option>
-        <option>3D</option>
-    </select>
-    <input id="addaxes" type="button" value="Add Axes"> <br>
-    <input id="addexpr" type="button" value="Add Expression"> 
+    
+    <div id="masthead">
+        <h1>InteractiveJS</h1>
+    </div>
+    
+    <div id="filecontrols">
+        <input id="save" type="button" value="Save">|
+        <input id="loadbtn" type="button" value="Load">
+        <!-- <input id="export" type="button" value="Export"> -->
+        <input id="load" type="file" value="Load from file" accept=".json" hidden>
+    </div>
+    
+    <div id="mainplotcontrols">
+        <select id="axestype">
+            <option>2D</option>
+            <option>3D</option>
+        </select><!--
+        --><input id="addaxes" type="button" value="Add Axes"><!--
+        --><input id="addexpr" type="button" value="Add Expression"> 
+    </div>
     
     <div id="plot">
         <div id="expressions"></div>
@@ -58,7 +125,7 @@
             axTitleInput.attr('type', 'text');
             axTitleInput.css('font-size', '25px');
             axTitleInput.hide();
-
+            
             var axTitleSubmit = function() {
                 ai.title = axTitleInput.val();
                 axTitle.text(ai.title);
@@ -151,6 +218,7 @@
             exInput.val(ei.expr);
             
             var exRemove = $('<input>');
+            exRemove.addClass('minorbutton');
             exRemove.attr('type', 'button');
             exRemove.attr('value', 'X');
             exRemove.click(() => {
@@ -242,6 +310,7 @@
                 var onchange;
                 
                 var removeBtn = $('<input>');
+                removeBtn.addClass('minorbutton');
                 removeBtn.attr('type', 'button');
                 removeBtn.attr('value', 'X');
                 removeBtn.click(() => {
@@ -277,6 +346,7 @@
                 colorPanel.hide();
                 
                 var toggleColorPanel = $('<input>');
+                toggleColorPanel.addClass('minorbutton');
                 toggleColorPanel.attr('type', 'button');
                 toggleColorPanel.attr('value', 'C');
                 toggleColorPanel.click(() => {
@@ -284,13 +354,13 @@
                 });
                 
                 
-                pc.append(removeBtn);
                 pc.append('Plot ');
                 pc.append(functionInput);
                 pc.append('<br>');
                 pc.append(' as ');
                 pc.append(param);
                 pc.append('<br>');
+                pc.append(removeBtn);
                 pc.append(toggleColorPanel);
                 pc.append(colorPanel);
                 
@@ -327,6 +397,7 @@
                 var onchange;
                 
                 var removeBtn = $('<input>');
+                removeBtn.addClass('minorbutton');
                 removeBtn.attr('type', 'button');
                 removeBtn.attr('value', 'X');
                 removeBtn.click(() => {
@@ -363,6 +434,7 @@
                 colorPanel.hide();
                 
                 var toggleColorPanel = $('<input>');
+                toggleColorPanel.addClass('minorbutton');
                 toggleColorPanel.attr('type', 'button');
                 toggleColorPanel.attr('value', 'C');
                 toggleColorPanel.click(() => {
@@ -370,7 +442,6 @@
                 });
                 
                 
-                pc.append(removeBtn);
                 pc.append('Plot ');
                 pc.append(functionInput);
                 pc.append('<br>');
@@ -380,6 +451,7 @@
                 pc.append(' and as ');
                 pc.append(param2);
                 pc.append('<br>');
+                pc.append(removeBtn);
                 pc.append(toggleColorPanel);
                 pc.append(colorPanel);
                 
@@ -475,6 +547,9 @@
         ;(function() {
             $('#save').click(save);
             $('#load').change(load);
+            $('#loadbtn').click(() => {
+                $('#load').click();
+            });
             $('#export').click(exprt);
             $('#addaxes').click(() => {
                 var type = $('#axestype').val();
