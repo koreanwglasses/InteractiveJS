@@ -19,6 +19,7 @@
         }
         input[type=button]:hover {
             cursor: pointer;
+            background-color: rgb(58, 101, 126);
         }
         select {
             position: relative;
@@ -53,6 +54,9 @@
         #filecontrols input[type=button] {
             background-color: transparent;
         }
+        #filecontrols input[type=button]:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
         #mainplotcontrols {
             margin: 5px;
         }
@@ -68,11 +72,44 @@
             display: inline-block;
             background: black;
         }
+        .collapsible {
+            width: 500px;
+            display: inline-block;
+            background-color: rgb(191, 219, 224);
+            padding: 5px;
+        }
+        .collapsible:nth-child(2) {
+            background-color: rgb(147, 196, 204);
+        }
+        .plotcontrols {
+            display: inline-block;
+        }
+        .less {
+            line-height: 25px;
+        }
+        .more {
+            line-height: 30px;
+        }
         input[type=button].minorbutton {
             height: 25px;
             width: 25px;
             padding: 0;
             background-color: rgb(83, 150, 189);
+        }
+        input[type=button].minorbutton:hover {
+            background-color: rgb(76, 136, 172);
+        }
+        input[type=button].groupbutton {
+            background-color: transparent;
+            margin: 0;
+        }
+        input[type=button].groupbutton:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+        .buttongroup {
+            padding: 0 2px;
+            display: inline-block;
+            color: white;
         }
     </style>
 </head>
@@ -170,16 +207,12 @@
             newPlotBtn.attr('value', 'New Plot');
             newPlotBtn.click(() => {
                 var controls = getPlotControls({type: plotSelect.val(), axesId: ai.id});
-                controls.css('margin-top', '20px');
-                controls.css('margin-bottom', '20px');
                 plotControlContainer.append(controls);
             });
             
             var plotControlContainer = $('<div></div>');
             ai.plotIds.forEach((pid) => {
                 var controls = getPlotControls(plot.plotInfo[pid]);
-                controls.css('margin-top', '20px');
-                controls.css('margin-bottom', '20px');
                 plotControlContainer.append(controls);
             });
             
@@ -257,6 +290,51 @@
         var getPlotControls = function(pi) {
             if(!plot.plotInfo[pi.id]) pi = plot.addPlot(pi);
             
+            var Collapsible = function() {
+                var self_ = this;
+                
+                var collapsible = $('<div></div>');
+                collapsible.addClass('collapsible');
+                
+                var collapseToggle = $('<input>');
+                collapseToggle.addClass('minorbutton');
+                collapseToggle.css('display', 'inline-block');
+                collapseToggle.css('float', 'left');
+                collapseToggle.attr('type', 'button');
+                collapseToggle.attr('value', '+');
+                collapseToggle.click(() => {
+                    self_.less.toggle();
+                    self_.more.toggle();
+                    
+                    if(collapseToggle.val() == '+') {
+                        collapseToggle.val('-');
+                    } else {
+                        collapseToggle.val('+');
+                    }
+                });
+                
+                this.setLess = function(less) {
+                    less.show();
+                    self_.less = less;
+                }
+                
+                this.setMore = function(more) {
+                    more.hide();
+                    self_.more = more;
+                }
+                
+                this.remove = function() {
+                    collapsible.remove();
+                }
+                
+                this.getElement = function() {
+                    collapsible.append(collapseToggle);
+                    collapsible.append(self_.less);
+                    collapsible.append(self_.more);
+                    return collapsible;
+                }
+            }
+            
             var intervalControl = function(values) {
                 var control = $('<span></span>');
                 
@@ -306,15 +384,25 @@
             }
             
             var loadParametricCurveControls = function() {
+                var collapsible = new Collapsible();
+
+                var less = $('<div></div>');
+                less.addClass('plotcontrols');
+                less.addClass('less');
+                less.text('Plot ...');
+                
                 var pc = $('<div></div>');
+                pc.addClass('plotcontrols');
+                pc.addClass('more');
                 var onchange;
                 
                 var removeBtn = $('<input>');
                 removeBtn.addClass('minorbutton');
+                removeBtn.addClass('groupbutton');
                 removeBtn.attr('type', 'button');
                 removeBtn.attr('value', 'X');
                 removeBtn.click(() => {
-                    pc.remove();
+                    collapsible.remove();
                     plot.removePlot(pi);
                 })
                 
@@ -347,12 +435,19 @@
                 
                 var toggleColorPanel = $('<input>');
                 toggleColorPanel.addClass('minorbutton');
+                toggleColorPanel.addClass('groupbutton');
                 toggleColorPanel.attr('type', 'button');
                 toggleColorPanel.attr('value', 'C');
                 toggleColorPanel.click(() => {
                     colorPanel.toggle();
                 });
                 
+                var buttonGroup = $('<div></div>')
+                buttonGroup.addClass('buttongroup');
+                buttonGroup.css('background-color', 'rgb(83, 150, 189)');
+                buttonGroup.append(removeBtn);                
+                buttonGroup.append('|');                
+                buttonGroup.append(toggleColorPanel);                
                 
                 pc.append('Plot ');
                 pc.append(functionInput);
@@ -360,8 +455,7 @@
                 pc.append(' as ');
                 pc.append(param);
                 pc.append('<br>');
-                pc.append(removeBtn);
-                pc.append(toggleColorPanel);
+                pc.append(buttonGroup);
                 pc.append(colorPanel);
                 
                 onchange = function(requestUpdate) {
@@ -382,6 +476,8 @@
                             pi.valid = false;
                         }
                         plot.plotInfo[pi.id] = pi;
+                        
+                        less.text('Plot ' + pi.values.expr + ' ...');
                     }, 10);
                 }
                 pc.keypress((e) => {
@@ -389,19 +485,33 @@
                     onchange(keycode == 13);
                 });
                 
-                return pc;
+                collapsible.setLess(less);
+                collapsible.setMore(pc);
+
+                return collapsible.getElement();
             }
             
             var loadParametricSurfaceControls = function() {
+                var collapsible = new Collapsible();
+
+                var less = $('<div></div>');
+                less.addClass('plotcontrols');
+                less.addClass('less');
+                less.text('Plot ...');
+                
                 var pc = $('<div></div>');
+                pc.addClass('plotcontrols');
+                pc.addClass('more');
+                
                 var onchange;
                 
                 var removeBtn = $('<input>');
                 removeBtn.addClass('minorbutton');
+                removeBtn.addClass('groupbutton');
                 removeBtn.attr('type', 'button');
                 removeBtn.attr('value', 'X');
                 removeBtn.click(() => {
-                    pc.remove();
+                    collapsible.remove();
                     plot.removePlot(pi);
                 })
                 
@@ -435,12 +545,19 @@
                 
                 var toggleColorPanel = $('<input>');
                 toggleColorPanel.addClass('minorbutton');
+                toggleColorPanel.addClass('groupbutton');
                 toggleColorPanel.attr('type', 'button');
                 toggleColorPanel.attr('value', 'C');
                 toggleColorPanel.click(() => {
                     colorPanel.toggle();
                 });
                 
+                var buttonGroup = $('<div></div>');
+                buttonGroup.addClass('buttongroup');
+                buttonGroup.css('background-color', 'rgb(83, 150, 189)');
+                buttonGroup.append(removeBtn);                
+                buttonGroup.append('|');                
+                buttonGroup.append(toggleColorPanel);                
                 
                 pc.append('Plot ');
                 pc.append(functionInput);
@@ -451,8 +568,7 @@
                 pc.append(' and as ');
                 pc.append(param2);
                 pc.append('<br>');
-                pc.append(removeBtn);
-                pc.append(toggleColorPanel);
+                pc.append(buttonGroup);
                 pc.append(colorPanel);
                 
                 onchange = function(requestUpdate) {
@@ -477,6 +593,8 @@
                             pi.valid = false;
                         }
                         plot.plotInfo[pi.id] = pi;
+                        
+                        less.text('Plot ' + pi.values.expr + ' ...');
                     }, 10);
                 }
                 pc.keypress((e) => {
@@ -484,7 +602,10 @@
                     onchange(keycode == 13);
                 });
                 
-                return pc;
+                collapsible.setLess(less);
+                collapsible.setMore(pc);
+
+                return collapsible.getElement();
             }
             
             switch(pi.type) {
