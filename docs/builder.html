@@ -15,7 +15,17 @@
             border: none;
             color: white;
             padding: 0 10px;
-            margin-right: 5px;
+            margin-right: 1px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        input[type=button].first {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+        input[type=button].last{
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
         }
         input[type=button]:hover {
             cursor: pointer;
@@ -29,6 +39,8 @@
             border: none;
             background-color: rgb(78, 135, 168);
             color: white;
+
+            border-radius: 10px 0 0 10px;
         }
         select:hover {
             cursor: pointer;
@@ -52,13 +64,14 @@
             padding: 5px;
         }
         #filecontrols input[type=button] {
+            margin: 0;
             background-color: transparent;
         }
         #filecontrols input[type=button]:hover {
             background-color: rgba(0,0,0,0.1);
         }
         #mainplotcontrols {
-            margin: 5px;
+            margin: 0 5px;
         }
         #plot {
             margin: 5px;
@@ -81,6 +94,14 @@
         .collapsible:nth-child(2) {
             background-color: rgb(147, 196, 204);
         }
+        .collapsible:first-of-type {
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        .collapsible:last-of-type {
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
         .plotcontrols {
             display: inline-block;
         }
@@ -91,25 +112,23 @@
             line-height: 30px;
         }
         input[type=button].minorbutton {
+            margin: 0;
+            margin-right: 1px;
             height: 25px;
             width: 25px;
             padding: 0;
             background-color: rgb(83, 150, 189);
+
+            border-radius: 10px;
         }
         input[type=button].minorbutton:hover {
             background-color: rgb(76, 136, 172);
         }
-        input[type=button].groupbutton {
-            background-color: transparent;
-            margin: 0;
+        input[type=button].minorbutton.first {
+            border-radius: 10px 0 0 10px;
         }
-        input[type=button].groupbutton:hover {
-            background-color: rgba(0,0,0,0.1);
-        }
-        .buttongroup {
-            padding: 0 2px;
-            display: inline-block;
-            color: white;
+        input[type=button].minorbutton.last{
+            border-radius: 0 10px 10px 0;
         }
     </style>
 </head>
@@ -132,7 +151,7 @@
             <option>3D</option>
         </select><!--
         --><input id="addaxes" type="button" value="Add Axes"><!--
-        --><input id="addexpr" type="button" value="Add Expression"> 
+        --><input id="addexpr" class="last" type="button" value="Add Expression"> 
     </div>
     
     <div id="plot">
@@ -203,6 +222,7 @@
             plotSelect.append('<option>Parametric Surface</option>');
             
             var newPlotBtn = $('<input>');
+            newPlotBtn.addClass('last');
             newPlotBtn.attr('type', 'button');
             newPlotBtn.attr('value', 'New Plot');
             newPlotBtn.click(() => {
@@ -217,6 +237,8 @@
             });
             
             var removeBtn = $('<input>');
+            removeBtn.addClass('first');
+            removeBtn.addClass('last');
             removeBtn.attr('type', 'button');
             removeBtn.attr('value', 'Remove');
             removeBtn.click(() => {
@@ -252,6 +274,7 @@
             
             var exRemove = $('<input>');
             exRemove.addClass('minorbutton');
+            exRemove.addClass('last');
             exRemove.attr('type', 'button');
             exRemove.attr('value', 'X');
             exRemove.click(() => {
@@ -398,7 +421,7 @@
                 
                 var removeBtn = $('<input>');
                 removeBtn.addClass('minorbutton');
-                removeBtn.addClass('groupbutton');
+                removeBtn.addClass('first');
                 removeBtn.attr('type', 'button');
                 removeBtn.attr('value', 'X');
                 removeBtn.click(() => {
@@ -435,7 +458,7 @@
                 
                 var toggleColorPanel = $('<input>');
                 toggleColorPanel.addClass('minorbutton');
-                toggleColorPanel.addClass('groupbutton');
+                toggleColorPanel.addClass('last');
                 toggleColorPanel.attr('type', 'button');
                 toggleColorPanel.attr('value', 'C');
                 toggleColorPanel.click(() => {
@@ -445,9 +468,6 @@
                 var buttonGroup = $('<div></div>')
                 buttonGroup.addClass('buttongroup');
                 buttonGroup.css('background-color', 'rgb(83, 150, 189)');
-                buttonGroup.append(removeBtn);                
-                buttonGroup.append('|');                
-                buttonGroup.append(toggleColorPanel);                
                 
                 pc.append('Plot ');
                 pc.append(functionInput);
@@ -455,7 +475,8 @@
                 pc.append(' as ');
                 pc.append(param);
                 pc.append('<br>');
-                pc.append(buttonGroup);
+                pc.append(removeBtn);                
+                pc.append(toggleColorPanel);                
                 pc.append(colorPanel);
                 
                 onchange = function(requestUpdate) {
@@ -507,7 +528,7 @@
                 
                 var removeBtn = $('<input>');
                 removeBtn.addClass('minorbutton');
-                removeBtn.addClass('groupbutton');
+                removeBtn.addClass('first');
                 removeBtn.attr('type', 'button');
                 removeBtn.attr('value', 'X');
                 removeBtn.click(() => {
@@ -545,19 +566,12 @@
                 
                 var toggleColorPanel = $('<input>');
                 toggleColorPanel.addClass('minorbutton');
-                toggleColorPanel.addClass('groupbutton');
+                toggleColorPanel.addClass('last');
                 toggleColorPanel.attr('type', 'button');
                 toggleColorPanel.attr('value', 'C');
                 toggleColorPanel.click(() => {
                     colorPanel.toggle();
                 });
-                
-                var buttonGroup = $('<div></div>');
-                buttonGroup.addClass('buttongroup');
-                buttonGroup.css('background-color', 'rgb(83, 150, 189)');
-                buttonGroup.append(removeBtn);                
-                buttonGroup.append('|');                
-                buttonGroup.append(toggleColorPanel);                
                 
                 pc.append('Plot ');
                 pc.append(functionInput);
@@ -568,7 +582,8 @@
                 pc.append(' and as ');
                 pc.append(param2);
                 pc.append('<br>');
-                pc.append(buttonGroup);
+                pc.append(removeBtn);              
+                pc.append(toggleColorPanel);                
                 pc.append(colorPanel);
                 
                 onchange = function(requestUpdate) {
