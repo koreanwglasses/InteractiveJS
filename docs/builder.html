@@ -535,7 +535,11 @@
                 var less = $('<div></div>');
                 less.addClass('plotcontrols');
                 less.addClass('less');
-                less.text('Plot ...');
+                if(pi.values.expr) {
+                    less.text('Plot ' + pi.values.expr + ' ...');
+                } else {
+                    less.text('Plot ...');
+                }
                 
                 var pc = $('<div></div>');
                 pc.addClass('plotcontrols');
