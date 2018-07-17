@@ -3169,6 +3169,8 @@
             this.removeAxesContainer(ai);
         } 
 
+        if(ai.obj) this.plot.dropAxes(ai.obj);
+
         delete this.axesInfo[ai.id];
     };
 
@@ -3254,14 +3256,12 @@
         this.axesInfo[pi.axesId] = ai;
         
         // Remove this this.plot from the axes object
-        ai.obj.removeFigure(pi.obj);
+        if(pi.obj) ai.obj.removeFigure(pi.obj);
         
         // Remove reference to this this.plot from the global
         // this.plot info set
         delete this.plotInfo[pi.id];
     };
-
-
 
     DynPlot.prototype.addExpression = function(ei) {
         
@@ -3320,14 +3320,6 @@
         
         var str = JSON.stringify(info, replacer);
         return str;
-    };
-
-    DynPlot.prototype.load = function(info) {
-        this.reload(info);
-    };
-
-    DynPlot.prototype.exprt = function() {
-        return this.compile();
     };
 
     DynPlot.prototype.render = function() {

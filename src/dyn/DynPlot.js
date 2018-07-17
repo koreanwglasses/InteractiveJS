@@ -256,6 +256,8 @@ DynPlot.prototype.removeAxes = function(ai) {
         this.removeAxesContainer(ai);
     } 
 
+    if(ai.obj) this.plot.dropAxes(ai.obj);
+
     delete this.axesInfo[ai.id];
 }
 
@@ -341,7 +343,7 @@ DynPlot.prototype.removePlot = function(pi) {
     this.axesInfo[pi.axesId] = ai;
     
     // Remove this this.plot from the axes object
-    ai.obj.removeFigure(pi.obj);
+    if(pi.obj) ai.obj.removeFigure(pi.obj);
     
     // Remove reference to this this.plot from the global
     // this.plot info set
