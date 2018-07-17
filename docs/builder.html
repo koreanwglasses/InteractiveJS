@@ -1,5 +1,6 @@
 <head>
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+    <link href="../res/jquery-ui.min.css" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -39,7 +40,7 @@
             border: none;
             background-color: rgb(78, 135, 168);
             color: white;
-
+            
             border-radius: 10px 0 0 10px;
         }
         select:hover {
@@ -73,6 +74,9 @@
         #mainplotcontrols {
             margin: 0 5px;
         }
+        .expression {
+            margin-bottom: 5px;
+        }
         #plot {
             margin: 5px;
         }
@@ -85,13 +89,18 @@
             display: inline-block;
             background: black;
         }
-        .collapsible {
+        .axescontrols {
+            display: inline-block;
+            vertical-align: top;
             width: 500px;
+        }
+        .collapsible {
+            width: 100%;
             display: inline-block;
             background-color: rgb(191, 219, 224);
             padding: 5px;
         }
-        .collapsible:nth-child(2) {
+        .collapsible:nth-child(even) {
             background-color: rgb(147, 196, 204);
         }
         .collapsible:first-of-type {
@@ -118,7 +127,7 @@
             width: 25px;
             padding: 0;
             background-color: rgb(83, 150, 189);
-
+            
             border-radius: 10px;
         }
         input[type=button].minorbutton:hover {
@@ -139,8 +148,8 @@
     </div>
     
     <div id="filecontrols">
-        <input id="save" type="button" value="Save">|
-        <input id="loadbtn" type="button" value="Load">
+        <input id="save" type="button" value="Save" title="Save to a file">|
+        <input id="loadbtn" type="button" value="Load" title="Load from file">
         <!-- <input id="export" type="button" value="Export"> -->
         <input id="load" type="file" value="Load from file" accept=".json" hidden>
     </div>
@@ -160,6 +169,7 @@
     </div>
     
     <script src="../lib/jquery-3.3.1.min.js"></script>
+    <script src="../lib/jquery-ui.min.js"></script>
     <script src="../lib/three.min.js"></script>
     <script src="../build/interactive.js"></script>
     <script>
@@ -172,7 +182,7 @@
         var axDivs = {};
         plot.createAxesContainer = function(ai) {                    
             var axDiv = $('<div></div>');
-            axDiv.css('clear', 'left');
+            axDiv.addClass('axesdiv');
             
             // Title
             var axLabel = $('<h2></h2>');
@@ -212,7 +222,6 @@
             
             // Container
             var axContainer = $('<div></div>');
-            axContainer.css('float', 'left');
             axContainer.addClass('axes');
             axContainer.attr('id', 'ax' + ai.id);
             
@@ -244,13 +253,17 @@
             removeBtn.click(() => {
                 plot.removeAxes(ai);                    
             });
-            
+          
+            var axControls = $('<div></div>');
+            axControls.addClass('axescontrols');
+            axControls.append(plotSelect);
+            axControls.append(newPlotBtn);
+            axControls.append(plotControlContainer);
+            axControls.append(removeBtn);
+
             axDiv.append(axLabel);
             axDiv.append(axContainer);
-            axDiv.append(plotSelect);
-            axDiv.append(newPlotBtn);
-            axDiv.append(plotControlContainer);
-            axDiv.append(removeBtn);
+            axDiv.append(axControls);
             
             $('#axes').append(axDiv);
             
@@ -266,6 +279,7 @@
         var exDivs = {};
         plot.onCreateExpression = function(ei) {
             var exDiv = $('<div></div>');
+            exDiv.addClass('expression');
             var onchange;
             
             var exInput = $('<input>');
@@ -277,6 +291,7 @@
             exRemove.addClass('last');
             exRemove.attr('type', 'button');
             exRemove.attr('value', 'X');
+            exRemove.attr('title', 'Remove');
             exRemove.click(() => {
                 plot.removeExpression(ei);                    
             });
@@ -408,7 +423,7 @@
             
             var loadParametricCurveControls = function() {
                 var collapsible = new Collapsible();
-
+                
                 var less = $('<div></div>');
                 less.addClass('plotcontrols');
                 less.addClass('less');
@@ -424,6 +439,7 @@
                 removeBtn.addClass('first');
                 removeBtn.attr('type', 'button');
                 removeBtn.attr('value', 'X');
+                removeBtn.attr('title', 'Remove');
                 removeBtn.click(() => {
                     collapsible.remove();
                     plot.removePlot(pi);
@@ -461,6 +477,7 @@
                 toggleColorPanel.addClass('last');
                 toggleColorPanel.attr('type', 'button');
                 toggleColorPanel.attr('value', 'C');
+                toggleColorPanel.attr('title', 'color');
                 toggleColorPanel.click(() => {
                     colorPanel.toggle();
                 });
@@ -508,13 +525,13 @@
                 
                 collapsible.setLess(less);
                 collapsible.setMore(pc);
-
+                
                 return collapsible.getElement();
             }
             
             var loadParametricSurfaceControls = function() {
                 var collapsible = new Collapsible();
-
+                
                 var less = $('<div></div>');
                 less.addClass('plotcontrols');
                 less.addClass('less');
@@ -531,6 +548,7 @@
                 removeBtn.addClass('first');
                 removeBtn.attr('type', 'button');
                 removeBtn.attr('value', 'X');
+                removeBtn.attr('title', 'Remove');
                 removeBtn.click(() => {
                     collapsible.remove();
                     plot.removePlot(pi);
@@ -569,6 +587,7 @@
                 toggleColorPanel.addClass('last');
                 toggleColorPanel.attr('type', 'button');
                 toggleColorPanel.attr('value', 'C');
+                toggleColorPanel.attr('title', 'Color')
                 toggleColorPanel.click(() => {
                     colorPanel.toggle();
                 });
@@ -619,7 +638,7 @@
                 
                 collapsible.setLess(less);
                 collapsible.setMore(pc);
-
+                
                 return collapsible.getElement();
             }
             
@@ -693,6 +712,12 @@
             });
             $('#addexpr').click(() => {
                 plot.addExpression();
+            });
+
+            $(document).tooltip({
+                show: {
+                    delay: 500,
+                }
             });
         })();
     </script>
