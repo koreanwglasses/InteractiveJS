@@ -1,4 +1,3 @@
-import { Expression } from '../math/expressions/Expression.js';
 import { Plottable } from './Plottable.js';
 
 /**
@@ -11,12 +10,13 @@ import { Plottable } from './Plottable.js';
  * headWidth -- The length of the width of the arrow. Default is 0.05.
  * (Derived from THREE.js)
  */
-function Arrow2D(plot, expr, opts) {
-    Plottable.call(this, plot, expr, opts)
+function Arrow2D(plot, plotInfo, opts) {
+    Plottable.call(this, plot, opts)
+
+    this.exprs = plotInfo.exprs;
 
     if(opts === undefined) opts = {};
     this.opts = {}
-    this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0,0)', plot.context);
     this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
     this.opts.headLength = opts.headLength !== undefined ? opts.headLength : 0.2;
     this.opts.headWidth = opts.headWidth !== undefined ? opts.headWidth : 0.05;
@@ -30,10 +30,12 @@ Arrow2D.prototype.getVariables = function() {
 }
 
 Arrow2D.prototype.createSceneObject = function() {
-    var _vector2 = this.expr.evaluate().toVector3();
-    var _dir = _vector2.clone().normalize();
-    var _length = _vector2.length();
-    var _origin = this.opts.origin.evaluate().toVector3();
+    var _end = this.plot.parser.eval(this.exprs.end);
+    var _vector2 = new THREE.Vector3(..._end.toArray());
+    var _start = this.plot.parser.eval(this.exprs.start);
+    var _origin = new THREE.Vector3(..._start.toArray());
+    var _dir = _vector2.clone().sub(_origin).normalize();
+    var _length = _vector2.distanceTo(_origin);
     var _hex = this.opts.hex;
     var _headLength = this.opts.headLength;
     var _headWidth = this.opts.headWidth;

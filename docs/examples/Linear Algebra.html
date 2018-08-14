@@ -31,6 +31,7 @@ return false;
 </head>
 <body>
 <script src="../../lib/three.min.js"></script>
+<script src="../../lib/math.min.js"></script>
 <script src="../../build/interactive.js"></script>
 VECTOR ADDITION IN THE PLANE <br>
 <br>
@@ -71,8 +72,8 @@ through the origin, then A+C also lies on this line.<br>
   pan1.addReadout('v2');
   pan1.addReadout('v1+v2');
 
-  plot1.execExpression('v1=(0.3,1)');
-  plot1.execExpression('v2=(1,0.2)');
+  plot1.execExpression('v1=[0.3,1]');
+  plot1.execExpression('v2=[1,0.2]');
   plot1.execExpression('v3()=v1+v2');
 
   ax1.plotExpression('v1', 'arrow', {hex: 0xff0000});
@@ -81,14 +82,14 @@ through the origin, then A+C also lies on this line.<br>
   ax1.plotExpression('v1', 'hotspot');
   ax1.plotExpression('v2', 'hotspot');           
 
-  ax1.plotExpression('(v1,v2)', 'parallelogram', {opacity: 0.5})
+  ax1.plotExpression('{v1,v2}', 'parallelogram', {opacity: 0.5})
 
-  ax1.plotExpression('A', 'label', {origin: 'v1'})
-  ax1.plotExpression('C', 'label', {origin: 'v2'})
-  ax1.plotExpression('A+C', 'label', {origin: 'v3()'})
+  ax1.plotExpression('A', 'label', {position: 'v1'})
+  ax1.plotExpression('C', 'label', {position: 'v2'})
+  ax1.plotExpression('A+C', 'label', {position: 'v3()'})
 
-  ax1.plotExpression('X', 'label', {origin: '(1,0)'})
-  ax1.plotExpression('Y', 'label', {origin: '(0,1)'})
+  ax1.plotExpression('X', 'label', {position: '[1,0]'})
+  ax1.plotExpression('Y', 'label', {position: '[0,1]'})
 
   ;(function animate() {
       requestAnimationFrame(animate);
@@ -129,7 +130,7 @@ number is "the line along A through the origin".<br>
   ax2 = plot2.createAxes2D(document.getElementById('ax2'), {position: new THREE.Vector3(0.4,0.5,0)})
 
   plot2.execExpression('t=-0.5');
-  plot2.execExpression('v1=(1,0.5)');
+  plot2.execExpression('v1=[1,0.5]');
   plot2.execExpression('v2()=t*v1');
 
   pan2.addSlider('{t,-2,2,100}', { continuous: true });
@@ -140,11 +141,11 @@ number is "the line along A through the origin".<br>
   ax2.plotExpression('v2()', 'arrow', {hex:0xffffff, thick: true});
   ax2.plotExpression('v1', 'hotspot');       
 
-  ax2.plotExpression('A', 'label', {origin: 'v1'})
-  ax2.plotExpression('tA', 'label', {origin: 'v2()'})
+  ax2.plotExpression('A', 'label', {position: 'v1'})
+  ax2.plotExpression('tA', 'label', {position: 'v2()'})
 
-  ax2.plotExpression('X', 'label', {origin: '(1,0)'})
-  ax2.plotExpression('Y', 'label', {origin: '(0,1)'})
+  ax2.plotExpression('X', 'label', {position: '[1,0]'})
+  ax2.plotExpression('Y', 'label', {position: '[0,1]'})
 
   ;(function animate() {
       requestAnimationFrame(animate);
@@ -178,8 +179,8 @@ line along A, obtained when t and s are both equal to 1.<br>
   pan3 = plot3.createPanel(document.getElementById('pan3'))
   ax3 = plot3.createAxes2D(document.getElementById('ax3'), {position: new THREE.Vector3(1,0.5,0)})
 
-  plot3.execExpression('A=(1,1)');
-  plot3.execExpression('C=(2,1/2)');
+  plot3.execExpression('A=[1,1]');
+  plot3.execExpression('C=[2,1/2]');
   plot3.execExpression('t0=-0.8');
 
   pan3.addSlider('{t0,-1,1,20}', {continuous: true});
@@ -194,19 +195,19 @@ line along A, obtained when t and s are both equal to 1.<br>
   ax3.plotExpression('C', 'point', {hex: 0xffffff})
   ax3.plotExpression('X(t0)', 'point', {hex: 0xffffff})
 
-  ax3.plotExpression('X', 'label', {origin: '(1,0)'})
-  ax3.plotExpression('Y', 'label', {origin: '(0,1)'})
+  ax3.plotExpression('X', 'label', {position: '[1,0]'})
+  ax3.plotExpression('Y', 'label', {position: '[0,1]'})
  
-  ax3.plotExpression('A', 'label', {origin: 'A'})
-  ax3.plotExpression('C', 'label', {origin: 'C'})
-  ax3.plotExpression('X(t0)', 'label', {origin: 'X(t0)'})
+  ax3.plotExpression('A', 'label', {position: 'A'})
+  ax3.plotExpression('C', 'label', {position: 'C'})
+  ax3.plotExpression('X(t0)', 'label', {position: 'X(t0)'})
 
   ax3.plotExpression('A', 'hotspot')
   ax3.plotExpression('C', 'hotspot')
 
-  plot3.execExpression('D() = (0,1,0)')
+  plot3.execExpression('D() = [0,1,0]')
 
-  ax3.plotExpression('X(t){t,-1,1,2}', 'parametric', {color: 'D'});
+  ax3.plotExpression('X(t){t,-1,1,2}', 'parametric', {color: 'D()'});
 
   plot3.execExpression('opt1=0');
   pan3.addCheckBox('opt1', {label: "Show position vector X(t0)"});
@@ -258,19 +259,19 @@ vectors A = (a,b) and C = (c,d) to be ac + bd = A*C.<br>
   pan4 = plot4.createPanel(document.getElementById('pan4'))
   ax4 = plot4.createAxes2D(document.getElementById('ax4'), {position: new THREE.Vector3(0.5,0.5,0)})
 
-  plot4.execExpression('A=(0,1)');
-  plot4.execExpression('C=(1,0)');
+  plot4.execExpression('A=[0,1]');
+  plot4.execExpression('C=[1,0]');
 
   ax4.plotExpression('A', 'arrow', {hex: 0xff0000})
   ax4.plotExpression('C', 'arrow', {hex: 0x0000ff})
 
-  ax4.plotExpression('X', 'label', {origin: '(1,0)'})
-  ax4.plotExpression('Y', 'label', {origin: '(0,1)'})
+  ax4.plotExpression('X', 'label', {position: '[1,0]'})
+  ax4.plotExpression('Y', 'label', {position: '[0,1]'})
  
   ax4.plotExpression('A', 'hotspot')
   ax4.plotExpression('C', 'hotspot')
 
-  ax4.plotExpression('(A,C)','angle');
+  ax4.plotExpression('{A,C}','angle');
 
   pan4.addReadout('A');
   pan4.addReadout('C');
@@ -318,14 +319,14 @@ C*C - (C-A)*(C-A) = 2A*C, by the above calculation.&nbsp; Therefore A*C
   pan5 = plot5.createPanel(document.getElementById('pan5'))
   ax5 = plot5.createAxes2D(document.getElementById('ax5'), {position: new THREE.Vector4(0.5,0.5,0)})
 
-  plot5.execExpression('A=(0.5,1)');
-  plot5.execExpression('C=(1,0)');
+  plot5.execExpression('A=[0.5,1]');
+  plot5.execExpression('C=[1,0]');
 
   ax5.plotExpression('A', 'arrow', {hex: 0xff0000})
   ax5.plotExpression('C', 'arrow', {hex: 0x0000ff})
 
-  ax5.plotExpression('X', 'label', {origin: '(1,0)'})
-  ax5.plotExpression('Y', 'label', {origin: '(0,1)'})
+  ax5.plotExpression('X', 'label', {position: '[1,0]'})
+  ax5.plotExpression('Y', 'label', {position: '[0,1]'})
  
   ax5.plotExpression('A', 'hotspot')
   ax5.plotExpression('C', 'hotspot')
@@ -334,11 +335,11 @@ C*C - (C-A)*(C-A) = 2A*C, by the above calculation.&nbsp; Therefore A*C
   pan5.addReadout('C');
   pan5.addReadout('dot(A,C)')
 
-  plot5.execExpression('Co() = (0,1,0)')
+  plot5.execExpression('Co() = [0,1,0]')
 
-  ax5.plotExpression('((0,0),A,C)','polygon', {opacity: 0.5});
-  ax5.plotExpression('A*t + (1-t) * dot(A,C)*C/(abs(C)^2) {t,0,1,2}', 'parametric', {color: 'Co'});
-  ax5.plotExpression('t*dot(A,C)*C/(abs(C)^2) {t,0,1,2}', 'parametric');
+  ax5.plotExpression('{[0,0],A,C}','polygon', {opacity: 0.5});
+  ax5.plotExpression('A*t + (1-t) * dot(A,C)*C/(norm(C)^2) {t,0,1,2}', 'parametric', {color: 'Co()'});
+  ax5.plotExpression('t*dot(A,C)*C/(norm(C)^2) {t,0,1,2}', 'parametric');
 
   ;(function animate() {
       requestAnimationFrame(animate);

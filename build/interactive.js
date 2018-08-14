@@ -219,907 +219,7 @@
         this.renderer.render( this.scene, camera );
     };
 
-    function Number(value) {
-        this.value = value;
-        this.isNumberInstance = true;
-    } 
-
-    Number.prototype.add = function(n) {
-        return new Number(this.value + n.value);
-    };
-
-    Number.prototype.sub = function(n) {
-        return new Number(this.value - n.value);
-    };
-
-    Number.prototype.mul = function(n) {
-        if(n.isNumberInstance !== true) {
-            return n.preMul(this);
-        }
-        return new Number(this.value * n.value);
-    };
-
-    Number.prototype.div = function(n) {
-        if(n.isNumberInstance !== true) {
-            return n.preMul(this);
-        }
-        return new Number(this.value / n.value);
-    };
-
-    Number.prototype.exp = function(n) {
-        return new Number(Math.pow(this.value, n.value));
-    };
-
-    Number.prototype.abs = function() {
-        return new Number(Math.abs(this.value));
-    };
-
-    Number.prototype.neg = function() {
-        return new Number(-this.value);
-    };
-
-    Number.prototype.compareTo = function(n) {
-        if(this.value > n.value) return 1;
-        if(this.value < n.value) return -1;
-        if(this.value === n.value) return 0;
-        return null;
-    };
-
-    Number.prototype.toString = function(opts) {
-        if(opts) {
-            if(opts.precision) return this.value.toFixed(opts.precision);
-        }
-        return '' + this.value;
-    };
-
-    for(var i = 0; i < 10; i++) {
-        Number[i] = new Number(i);
-    }
-
-    /**
-     * Represents a vector with an arbitrary number of dimensions, and of any type that supports adding and scaling. Operations create new instances
-     */
-    function Vector() {
-        this.type = 'Vector';
-        this.isVectorInstance = true;
-
-        // Support an arbitrary number of dimensions (Read-only)
-        this.dimensions = arguments.length;
-
-        if(arguments[0] instanceof THREE.Vector3) {
-            this.dimensions = 3;
-            this.q = [new Number(arguments[0].x), new Number(arguments[0].y), new Number(arguments[0].z)];
-        } else {
-            // q is the general term for a coordinate
-            this.q = Array.from(arguments);
-        }
-
-        this.expr = null;
-    }
-
-    /**
-     * Creates a copy of this vector
-     */
-    Vector.prototype.clone = function() {
-        var newVec = new Vector();
-        newVec.dimensions = this.dimensions;
-        newVec.q = this.q.slice();
-        return newVec;
-    };
-
-    /**
-     * Adds the vector to this vector
-     */
-    Vector.prototype.add = function(v) {
-        if(v.dimensions !== this.dimensions) {
-            console.log('Interactive.Vector: Dimensions mismatch');
-            return null;
-        }
-
-        var result = this.clone();
-        for(var i = 0; i < this.dimensions; i++) {
-            result.q[i] = result.q[i].add(v.q[i]);
-        }
-        return result;
-    };
-
-    Vector.prototype.sub = function(v) {
-        if(v.dimensions !== this.dimensions) {
-            console.log('Interactive.Vector: Dimensions mismatch');
-            return null;
-        }
-
-        var result = this.clone();
-        for(var i = 0; i < this.dimensions; i++) {
-            result.q[i] = result.q[i].sub(v.q[i]);
-        }
-        return result;
-    };
-
-    Vector.prototype.crs = function(v) {
-        if(v.dimensions !== this.dimensions) {
-            console.log('Interactive.Vector: Dimensions mismatch');
-            return null;
-        }
-
-        if(this.dimensions === 3) {
-            return new Vector(this.q[1].mul(v.q[2]).sub(this.q[2].mul(v.q[1])), this.q[2].mul(v.q[0]).sub(this.q[0].mul(v.q[2])), this.q[0].mul(v.q[1]).sub(this.q[1].mul(v.q[0])));
-        }
-    };
-
-    Vector.prototype.dot = function(v) {
-        if(v.dimensions !== this.dimensions) {
-            console.log('Interactive.Vector: Dimensions mismatch');
-            return null;
-        }
-
-        var d = Number[0];
-        for(var i = 0; i < this.dimensions; i++) 
-            d = d.add(this.q[i].mul(v.q[i]));
-
-        return d;
-    };
-
-    Vector.prototype.mul = function(v) {
-        if(v.isNumberInstance === true) {
-            var result = this.clone();
-            for(var i = 0; i < this.dimensions; i++) {
-                result.q[i] = result.q[i].mul(v);
-            }
-            return result;
-        } else if (v.isVectorInstance === true) {
-            var result = this.clone();
-            for(var i = 0; i < this.dimensions; i++) {
-                result.q[i] = result.q[i].mul(v.q[i]);
-            }
-            return result;
-        }
-    };
-
-    Vector.prototype.preMul = function(v) {
-        return this.mul(v);
-    };
-
-    Vector.prototype.div = function(v) {
-        var result = this.clone();
-        for(var i = 0; i < this.dimensions; i++) {
-            result.q[i] = result.q[i].div(v);
-        }
-        return result;
-    };
-
-    Vector.prototype.neg = function() {
-        var result = this.clone();
-        for(var i = 0; i < this.dimensions; i++) {
-            result.q[i] = result.q[i].neg();
-        }
-        return result;
-    };
-
-    Vector.prototype.abs = function() {
-        var ss = 0;
-        for(var i = 0; i < this.dimensions; i++) {
-            ss += this.q[i].value * this.q[i].value;
-        }
-        return new Number(Math.sqrt(ss))
-    };
-
-    Vector.prototype.norm = function() {
-        if(this.abs().value === 0) return this.clone();
-        return this.div(this.abs());
-    };
-
-    Vector.prototype.map = function(f) {
-        var result = this.clone();
-        for(var i = 0; i < this.dimensions; i++) {
-            result.q[i] = f(result.q[i]);
-        }
-        return result;
-    };
-
-    /**
-     * Extend a vector to an n-dimensional vector
-     */
-    Vector.prototype.ext = function(dimensions) {
-        var result = this.clone();
-        for(var i = this.dimensions; i < dimensions; i++) {
-            result.q.push(Number[0]);
-        }
-        result.dimensions = dimensions;
-        return result;
-    };
-
-    /**
-     * Sets this vector's coordinates to the input vector's
-     */
-    Vector.prototype.set = function(v) {
-        this.dimensions = v.dimensions;
-        this.q = v.q.slice();
-        return this;
-    };
-
-    /**
-     * Convert this to a THREE vector2
-     */
-    Vector.prototype.toVector2 = function() {
-        return new THREE.Vector2(this.q[0], this.q[1]);
-    };
-
-    /**
-     * Convert this to a THREE vector3
-     */
-    Vector.prototype.toVector3 = function() {
-        if(this.dimensions === 2) return new THREE.Vector3(this.q[0].value, this.q[1].value, 0);
-        else return new THREE.Vector3(this.q[0].value, this.q[1].value, this.q[2].value);
-    };
-
-    /**
-     * Sets an expression for this vector which can be evalulated with eval
-     */
-    Vector.prototype.setExpression = function(expr) {
-        this.expr = expr;
-    };
-
-    /**
-     * Sets this vector to the result of the evaulation of expression, or if expression is null, returns self
-     */
-    Vector.prototype.eval = function() {
-        if(this.expr !== null) {
-            this.set(this.expr.evaluate());
-        }
-        return this;
-    };
-
-    Vector.prototype.toString = function(opts) {
-        var str = '(' + this.q[0].toString(opts);
-        for(var i = 1; i < this.dimensions; i++) {
-            str += ',' + this.q[i].toString(opts);
-        }
-        return str + ')';
-    };
-
-    function Interval(varstr, start, end, steps) {
-        this.varstr = varstr; 
-
-        this.start = start;
-        this.end = end;
-        this.steps = steps;
-        this.step = end.sub(start).div(steps);
-
-        this.expr = null;
-
-        this.arr = null;
-    }
-
-    /**
-     * Creates an array of evenly distributed values based on start end (inclusive) and steps
-     */
-    Interval.prototype.array = function() {
-        if(this.arr === null) {
-            var step = (this.end.value - this.start.value) / (this.steps.value - 1);
-            var arr = [];
-            for(var x = this.start.value; x < this.end.value + step / 2; x += step) {
-                arr.push(new Number(x));
-            }
-            this.arr = arr;
-        }
-        return this.arr;
-    };
-
-    Interval.prototype.set = function(i) {
-        this.start = i.start;
-        this.end = i.end;
-        this.steps = i.steps;
-        this.arr = i.arr;
-    };
-
-    /**
-     * Sets an expression for this vector which can be evalulated with eval
-     */
-    Interval.prototype.setExpression = function(expr) {
-        this.expr = expr;
-    };
-
-    /**
-     * Sets this vector to the result of the evaulation of expression, or if expression is null, returns self
-     */
-    Interval.prototype.eval = function() {
-        if(this.expr !== null) {
-            this.set(this.expr.evaluate());
-        }
-        return this;
-    };
-
-    var MathPlus = {};
-
-    MathPlus.epsilon = new Number(1e-7);
-    MathPlus.epsilonx2 = MathPlus.epsilon.mul(new Number(2));
-
-    MathPlus.optimalh = function(x) {
-        if(x.abs().compareTo(Number[1]) > 0) {
-            return MathPlus.epsilon.mul(x.abs());
-        } else {
-            return MathPlus.epsilon;
-        }
-    };
-
-    MathPlus.singleton = function(x) {
-        return new Vector(x);
-    };
-
-    MathPlus.derivative = function(X, t) {
-        var h = MathPlus.optimalh(t);
-        var tph = t.add(h);
-        var tmh = t.sub(h);
-        var dt = tph.sub(tmh);
-        return X(tph).sub(X(tmh)).div(dt)
-    };
-
-    MathPlus.derivative2 = function(X, t) {
-        var h = MathPlus.optimalh(t);
-        var tph = t.add(h);
-        var tmh = t.sub(h);
-        var h2 = tph.sub(t).add(t.sub(tmh));
-        return MathPlus.derivative(X, tph).sub(MathPlus.derivative(X, tmh)).div(h2)
-    };
-
-    MathPlus.grad = function(X, u, v) {
-        var hu = MathPlus.optimalh(u);
-        var uph = u.add(hu);
-        var umh = u.sub(hu);
-        var du = uph.sub(umh);
-
-        var hv = MathPlus.optimalh(v);
-        var vph = v.add(hv);
-        var vmh = v.sub(hv);
-        var dv = vph.sub(vmh);
-
-        return X(uph, v).sub(X(umh, v)).div(du).add(X(u, vph).sub(X(u, vmh)).div(dv))
-    };
-
-    MathPlus.binormal = function(X, t) {
-        var h = MathPlus.optimalh(t);
-        return MathPlus.derivative(X, t.add(h)).crs(MathPlus.derivative(X, t.sub(h))).norm();
-    };
-
-    MathPlus.normal = function(X,u,v) {
-        if(v === undefined) {
-            return MathPlus.binormal(X, u).crs(MathPlus.derivative(X, u)).norm();
-        } else {
-            var dxdu = X(u.add(MathPlus.epsilon), v).sub(X(u.sub(MathPlus.epsilon), v)).div(MathPlus.epsilonx2);
-            var dxdv = X(u, v.add(MathPlus.epsilon)).sub(X(u, v.sub(MathPlus.epsilon))).div(MathPlus.epsilonx2);
-            return dxdu.crs(dxdv).norm();
-        }
-    };
-
-    MathPlus.perp = function(x) {
-        if(x.dimensions === 2) {
-            return new Vector(x.q[1], x.q[0].neg())
-        }
-    };
-
-    MathPlus.interpolate = function(a, b, alpha) {
-        return a.mul(alpha).add(b.mul(Number[1].sub(alpha)));
-    };
-
-    MathPlus.norm = function(x) {
-        return x.norm();
-    };
-
-    MathPlus.component = function(v,i) {
-        return v.q[i.value];
-    };
-
-    MathPlus.dot = function(a, b) {
-        return a.dot(b);
-    };
-
-    MathPlus.cos = function(x) {
-        return new Number(Math.cos(x.value));
-    };
-
-    MathPlus.sin = function(x) {
-        return new Number(Math.sin(x.value));
-    };
-
-    MathPlus.sign = function(x) {
-        return new Number(Math.sign(x.value));
-    };
-
-    MathPlus.signclamp = function(x, lower, upper) {
-        if(x.compareTo(Number[0]) < 0) return lower;
-        else if(x.compareTo(Number[0]) > 0) return upper;
-        else return Number[0]
-    };
-
-    MathPlus.quadrant = function(x) {
-        // if(x.q[0].value === 0 && x.q[1].value === 0) return Number[0];
-        if(x.q[0].value >= 0 && x.q[1].value >= 0) {
-            return Number[1];
-        }
-        if(x.q[0].value <= 0 && x.q[1].value >= 0) {
-            return Number[2];
-        }
-        if(x.q[0].value <= 0 && x.q[1].value <= 0) {
-            return Number[3];
-        }
-        if(x.q[0].value >= 0 && x.q[1].value <= 0) {
-            return Number[4];
-        }
-    };
-
-    MathPlus.octant = function(x) {
-        if(x.q[0].value >= 0 && x.q[1].value >= 0 && x.q[2].value >= 0) { // +++
-            return Number[1];
-        }
-        if(x.q[0].value <= 0 && x.q[1].value >= 0 && x.q[2].value >= 0) { // -++
-            return Number[2];
-        }
-        if(x.q[0].value <= 0 && x.q[1].value <= 0 && x.q[2].value >= 0) { // --+
-            return Number[3];
-        }
-        if(x.q[0].value >= 0 && x.q[1].value <= 0 && x.q[2].value >= 0) { // +-+
-            return Number[4];
-        }
-        if(x.q[0].value >= 0 && x.q[1].value >= 0 && x.q[2].value <= 0) { // ++-
-            return Number[5];
-        }
-        if(x.q[0].value <= 0 && x.q[1].value >= 0 && x.q[2].value <= 0) { // -+-
-            return Number[6];
-        }
-        if(x.q[0].value <= 0 && x.q[1].value <= 0 && x.q[2].value <= 0) { // ---
-            return Number[7];
-        }
-        if(x.q[0].value >= 0 && x.q[1].value <= 0 && x.q[2].value <= 0) { // +--
-            return Number[8];
-        }
-    };
-
-    MathPlus.select = function(i) {
-        return arguments[i.value];
-    };
-
-    MathPlus.if = function(i) {
-        return arguments[i.value + 1];
-    };
-
-    MathPlus.spectrum = function(x) {
-        var y = x.value % 1;
-        if(y < 0) y += 1;
-
-        var r,g,b;
-        if(y < 1/6) {
-            r = 1;
-            g = y*6;
-            b = 0;
-        } else if (y < 2/6) {
-            r = 2-y*6;
-            g = 1;
-            b = 0;
-        } else if (y < 3/6) {
-            r = 0;
-            g = 1;
-            b = y*6-2;
-        } else if (y < 4/6) {
-            r = 0;
-            g = 4-y*6;
-            b = 1;
-        } else if (y < 5/6) {
-            r = y*6-4;
-            g = 0;
-            b = 1;
-        } else {
-            r = 1;
-            g = 0;
-            b = 6-y*6;
-        }
-
-        return new Vector(new Number(r), new Number(g), new Number(b))
-    };
-
-    MathPlus.abs = function(x) {
-        return x.abs();
-    };
-
-    MathPlus.ssign = function(x) {
-        return MathPlus.sign(x).mul(MathPlus.abs(x).exp(new Number(0.2)));
-    };
-
-    MathPlus.map= function(v, f) {
-        return v.map(f);
-    };
-
-    MathPlus.log = function(x) {
-        return new Number(Math.log(x.value))
-    };
-
-    MathPlus.PI = new Number(Math.PI);
-
-    function Expression(string, context) {
-        this.type = 'Expression';
-        
-        this.string = string;
-        
-        this.context = context;
-        
-        this.variables = [];
-        this.function = this.toJSFunction(this.string);
-    }
-
-    Expression.prototype.getVariables = function () {
-        var variables = [];
-        for (var i = 0; i < this.variables.length; i++) {
-            var v = this.variables[i];
-            if (this.context.functions[v] !== undefined && variables.indexOf(v) !== -1 === false) {
-                variables = variables.concat(this.context.functions[v].getVariables());
-            } else {
-                variables.push(v);
-            }
-        }
-        return variables;
-    };
-
-    Expression.typeOf = function (string) {
-        
-        if (string === '()') return 'null';
-        if (string.indexOf('|') !== -1) return 'isoline';
-        if (string.indexOf('=') !== -1) return 'equation';
-        
-        var nestingLevel = 0;
-        var isVector = false;
-        if (string.charAt(string.length - 1) === '}') {
-            if (string.charAt(0) === '{')
-            return 'interval'
-            else
-            return 'parametric'
-        }
-        if (string.indexOf('(') !== -1 === false && string.indexOf(') !== -1') === false) {
-            if (/^[0-9.]+$/.test(string)) {
-                return 'constant'
-            } else if (string.indexOf('+') !== -1 || string.indexOf('-') !== -1 || string.indexOf('*') !== -1 || string.indexOf('/') !== -1 || string.indexOf('^') !== -1) {
-                return 'expression'
-            } else {
-                return 'variable'
-            }
-        }
-        for (var i = 0; i < string.length; i++) {
-            if (string.charAt(i) === '(') {
-                nestingLevel++;
-            } else if (string.charAt(i) === ')') {
-                nestingLevel--;
-            } else
-            if (string.charAt(i) === ',' && nestingLevel === 1) {
-                isVector = true;
-            }
-            if (string.charAt(i) === ';' && nestingLevel === 1) {
-                return 'matrix';
-            }
-            if (nestingLevel === 0 && i !== string.length - 1) {
-                return 'expression';
-            }
-        }
-        if (isVector) return 'vector';
-        return 'expression';
-    };
-
-    Expression.separate = function (str) {
-        // Separate into parts which alternate (expression/operator)
-        var parts = [];
-        var start = 0;
-        var nestingLevel = 0;
-        var type = null;
-        for (var i = 0; i < str.length; i++) {
-            if (type === 'interval') {
-                if (str.charAt(i) === '}') {
-                    parts.push({ str: str.substring(start, i + 1), type: type });
-                    start = i + 1;
-                    type = null;
-                }
-            } else if (str.charAt(i) === '{') {
-                type = 'interval';
-            } else if (str.charAt(i) === '(') {
-                nestingLevel++;
-                
-                if (type === null) {
-                    type = 'expression';
-                }
-                if (type === 'operator' || type === 'uoperator') {
-                    parts.push({ str: str.substring(start, i), type: type });
-                    start = i;
-                    type = 'expression';
-                } else if (type === 'variable') {
-                    type = 'function';
-                    parts.push({ str: str.substring(start, i), type: type });
-                    start = i;
-                    type = 'expression';
-                }
-            } else if (str.charAt(i) === ')') {
-                nestingLevel--;
-            } else if (nestingLevel == 0) {
-                if (str.charAt(i) === '-' && (type === null || type === 'operator')) {
-                    if (type === 'operator') {
-                        parts.push({ str: str.substring(start, i), type: type });
-                        start = i;
-                    }
-                    type = 'uoperator';
-                } else if (/[0-9a-zA-Z.]/.test(str.charAt(i)) === false || str.charAt(i) === '^') {
-                    parts.push({ str: str.substring(start, i), type: type });
-                    start = i;
-                    type = 'operator';
-                } else {
-                    if (type === null) {
-                        type = 'constant';
-                    }
-                    if (type === 'operator' || type === 'uoperator') {
-                        parts.push({ str: str.substring(start, i), type: type });
-                        start = i;
-                        type = 'constant';
-                    }
-                    if (/[0-9.]/.test(str.charAt(i)) === false)
-                    type = 'variable';
-                }
-            }
-        }
-        if (start != str.length) {
-            parts.push({ str: str.substring(start, str.length), type: type });
-        }
-        
-        // Split the expressions if applicable
-        for (var i = 0; i < parts.length; i++) {
-            if (parts[i].type === 'expression') {
-                parts[i].type = Expression.typeOf(parts[i].str);
-                if (parts[i].type === 'expression') {
-                    var newstr = parts[i].str.slice(1, parts[i].str.length - 1);
-                    var newparts = [{ str: '(', type: '(' }].concat(Expression.separate(newstr));
-                    newparts[newparts.length] = { str: ')', type: ')' }; // push doesnt work here for some reason....
-                    parts = parts.slice(0, i).concat(newparts).concat(parts.slice(i + 1, parts.length));
-                    i += newparts.length - 1;
-                } else if (i > 0 && parts[i].type === 'vector' && parts[i - 1].type === 'function') {
-                    parts.splice(i, 0, { str: '(', type: '(' });
-                    parts.splice(i + 2, 0, { str: ')', type: ')' });
-                } else if (parts[i].type === 'null') {
-                    parts[i].str = '';
-                    parts.splice(i, 0, { str: '(', type: '(' });
-                    parts.splice(i + 2, 0, { str: ')', type: ')' });
-                }
-            }
-        }
-        return parts;
-    };
-
-    Expression.toPostfix = function (parts) {
-        var post = [];
-        var ops = [];
-        var funs = [];
-        var precedence = { '+': 0, '-': 0, '*': 1, '/': 1, '^': 2, '(': -1, ')': -1 };
-        for (var i = 0; i < parts.length; i++) {
-            if (parts[i].type === 'operator' || parts[i].type === 'uoperator') {
-                while (ops.length > 0 && (ops[ops.length - 1].type === 'uoperator' || precedence[ops[ops.length - 1].str] >= precedence[parts[i].str])) {
-                    post.push(ops.pop());
-                }
-                ops.push(parts[i]);
-            } else if (parts[i].type === 'function') {
-                funs.push(parts[i]);
-            } else if (parts[i].type === '(') {
-                ops.push(parts[i]);
-            } else if (parts[i].type === ')') {
-                while (ops[ops.length - 1].type !== '(') {
-                    post.push(ops.pop());
-                }
-                if (funs.length > 0) {
-                    post.push(funs.pop());
-                }
-                ops.pop();
-            } else {
-                post.push(parts[i]);
-            }
-        }
-        while (ops.length > 0) {
-            post.push(ops.pop());
-        }
-        return post;
-    };
-
-    Expression.splitTuple = function (string) {
-        var str = string.substring(1, string.length - 1);
-        var parts = [];
-        var start = 0;
-        var nestingLevel = 0;
-        for (var i = 0; i < str.length; i++) {
-            if (str.charAt(i) === '(') {
-                nestingLevel++;
-            } else if (str.charAt(i) === ')') {
-                nestingLevel--;
-            } else if (nestingLevel == 0) {
-                if (str.charAt(i) === ',') {
-                    parts.push(str.substring(start, i));
-                    start = i + 1;
-                }
-            }
-        }
-        parts.push(str.substring(start, str.length));
-        return parts;
-    };
-
-    Expression.splitParametric = function (string) {
-        return string.split(/(?={)/);
-    };
-
-    Expression.prototype.toJSExpression = function (string, specials, isparam, variables) {
-        var str = string.replace(/\s+/g, '');
-        
-        var type = Expression.typeOf(str);
-        
-        // Expression is an equation:
-        if (type === 'equation') {
-            var left, right;
-            left = string.split('=')[0];
-            right = string.split('=')[1];
-            
-            var leftParts = Expression.separate(left);
-            
-            // variable assignment
-            if (leftParts.length === 1 && leftParts[0].type === 'variable') {
-                var expr = 'context["' + left + '"]=' + this.toJSExpression(right);
-                return expr;
-            }
-            
-            // function definition
-            if (leftParts[0].type === 'function') {
-                if (leftParts[2].type === 'null') {
-                    var expr = 'context["' + leftParts[0].str + '"]=function(){ return ' + this.toJSExpression(right) + '; }';
-                } else if (leftParts[2].type === 'vector') {
-                    var expr = 'context["' + leftParts[0].str + '"]=function' + leftParts[2].str + '{ return ' + this.toJSExpression(right, Expression.splitTuple(leftParts[2].str)) + '; }';
-                } else if (leftParts[2].type === 'variable') {
-                    var expr = 'context["' + leftParts[0].str + '"]=function(' + leftParts[2].str + '){ return ' + this.toJSExpression(right, leftParts[2].str) + '; }';
-                }
-                this.context.functions[leftParts[0].str] = this;
-                return expr;
-            }
-        } else if (type === 'expression') {
-            var operations = Expression.toPostfix(Expression.separate(str));
-            
-            var stack = [];
-            
-            for (var i = 0; i < operations.length; i++) {
-                switch (operations[i].type) {
-                    case 'null':
-                    stack.push('');
-                    break;
-                    case 'variable':
-                    if (specials !== undefined && specials.indexOf(operations[i].str) !== -1) {
-                        stack.push(operations[i].str);
-                    } else {
-                        stack.push('context["' + operations[i].str + '"]');
-                        if (this.variables.indexOf(operations[i].str) !== -1 === false) this.variables.push(operations[i].str);
-                    }
-                    break;
-                    case 'constant':
-                    stack.push('new Interactive.Number(' + operations[i].str + ')');
-                    break;
-                    case 'vector':
-                    var param = operations[i + 1].type === 'function';
-                    stack.push(this.toJSExpression(operations[i].str, specials, param));
-                    break;
-                    case 'function':
-                    var a = stack.pop();
-                    stack.push('context["' + operations[i].str + '"](' + a + ')');
-                    if (this.variables.indexOf(operations[i].str) !== -1 === false) this.variables.push(operations[i].str);
-                    break;
-                    case 'uoperator':
-                    var a = stack.pop();
-                    stack.push(a + '.neg()');
-                    break;
-                    case 'operator':
-                    var b = stack.pop();
-                    var a = stack.pop();
-                    switch (operations[i].str) {
-                        case '+':
-                        stack.push(a + '.add(' + b + ')');
-                        break;
-                        case '-':
-                        stack.push(a + '.sub(' + b + ')');
-                        break;
-                        case '*':
-                        stack.push(a + '.mul(' + b + ')');
-                        break;
-                        case '/':
-                        stack.push(a + '.div(' + b + ')');
-                        break;
-                        case '^':
-                        stack.push(a + '.exp(' + b + ')');
-                        break;
-                        default:
-                        console.log('Interactive.Expression: Unknown symbol "' + operations[i].str + '" in \n\t' + string);
-                    }
-                    break;
-                    default:
-                    console.log('Interactive.Expression: Unknown symbol "' + operations[i].str + '" in \n\t' + string);
-                }
-            }
-            
-            return stack[0];
-        } else if (type === 'vector') {
-            var components = Expression.splitTuple(str);
-            if (isparam) {
-                var expr = '';
-                for (var i = 0; i < components.length; i++) {
-                    expr += this.toJSExpression(components[i], specials) + ',';
-                }
-                expr = expr.slice(0, expr.length - 1);
-                return expr;
-            } else {
-                var expr = 'new Interactive.Vector(';
-                for (var i = 0; i < components.length; i++) {
-                    expr += this.toJSExpression(components[i], specials) + ',';
-                }
-                expr = expr.slice(0, expr.length - 1) + ')';
-                return expr;
-            }
-        } else if (type === 'interval') {
-            var params = Expression.splitTuple(str);
-            
-            var expr = 'new Interactive.Interval("' + params[0] + '",';
-            for (var i = 1; i < params.length; i++) {
-                expr += this.toJSExpression(params[i], specials) + ',';
-            }
-            expr = expr.slice(0, expr.length - 1) + ')';
-            return expr;
-        } else if (type === 'variable') {
-            if (specials !== undefined && specials.indexOf(str) !== -1) return str
-            var expr = 'context["' + str + '"]';
-            if (this.variables.indexOf(str) !== -1 === false) this.variables.push(str);
-            return expr;
-        } else if (type === 'parametric') {
-            var params = Expression.splitParametric(str);
-            var func = 'function(';
-            var intervals = '';
-            
-            if (specials === undefined) specials = [];
-            
-            for (var i = 1; i < params.length; i++) {
-                var arg = Expression.splitTuple(params[i])[0];
-                specials.push(arg);
-                func += arg + ',';
-                
-                intervals += ',' + this.toJSExpression(params[i]);
-            }
-            
-            func = func.slice(0, func.length - 1) + ') { return ' + this.toJSExpression(params[0], specials) + '; }';
-            
-            var expr = 'new Interactive.Parametric(' + func + intervals + ')';
-            return expr;
-        } else if (type === 'constant') {
-            var expr = 'new Interactive.Number(' + str + ')';
-            return expr;
-        } else if (type === 'isoline') {
-            var parts = str.split('|');
-            var parametric = this.toJSExpression(parts[0]);
-            var axis = parts[1].split('=')[0];
-            var level = this.toJSExpression(parts[1].split('=')[1]);
-            
-            var expr = 'new Interactive.Isoline(' + parametric + ',"' + parts[0] + '","' + axis + '",' + level + ')';
-            return expr;
-        }
-    };
-
-    Expression.prototype.toJSFunction = function (string) {
-        var expr = this.toJSExpression(string);
-        return Function('context', 'return ' + expr + ';');
-    };
-
-    /**
-    * Variables from given context will override variables from this context 
-    */
-    Expression.prototype.evaluate = function () {
-        return this.function(this.context);
-    };
-
-    Expression.getDefaultContext = function () {
-        return Object.assign({ functions: {} }, MathPlus);
-    };
-
-    function Plottable(plot, expr, opts) {
+    function Plottable(plot, opts) {
         /**
          * (Read-only)
          */
@@ -1127,26 +227,13 @@
 
         this.plot = plot;
         
-        if(expr) {
-            this.expr = new Expression(expr, plot.context);
-        }
-        
         this.sceneObject = null;
         this.validated = false;
 
         if(opts === undefined) opts = {};
-        this.showExpr = opts.show !== undefined ? new Expression(opts.show, plot.context) : null;
     }
 
-    Plottable.prototype.getVariables = function() {
-        if(!this.expr) {
-            return []
-        }
-        if(this.showExpr) {
-            return this.expr.getVariables().concat(this.showExpr.getVariables());
-        }
-        return this.expr.getVariables();
-    };
+
 
     /**
      * Returns an object that can be added to a THREE.js scene.
@@ -1180,21 +267,25 @@
     };
 
     /**
-     * Object that represents an arrow in 3d space.
-     * @param {*} vector The vector which this object is based on
-     * @param {*} opts Options to customize the appearance of the arrow. Includes:
-     * origin -- Point at which the arrow starts. Default is (0, 0, 0)
-     * hex -- hexadecimal value to define color. Default is 0xffff00.
-     * headLength -- The length of the head of the arrow. Default is 0.2 * length.
-     * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
-     * (Derived from THREE.js)
-     */
-    function Arrow3D(plot, expr, opts) {
-        Plottable.call(this, plot, expr, opts);
+    * Object that represents an arrow in 3d space.
+    * @param {*} vector The vector which this object is based on
+    * @param {*} opts Options to customize the appearance of the arrow. Includes:
+    * origin -- Point at which the arrow starts. Default is (0, 0, 0)
+    * hex -- hexadecimal value to define color. Default is 0xffff00.
+    * headLength -- The length of the head of the arrow. Default is 0.2 * length.
+    * headWidth -- The length of the width of the arrow. Default is 0.2 * headLength.
+    * (Derived from THREE.js)
+    */
+    function Arrow3D(plot, plotInfo, opts) {
+        Plottable.call(this, plot, opts);
         
+        this.exprs = plotInfo.exprs;
+        
+        if(opts === undefined) opts = {};
         this.opts = {};
-        this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0,0)', plot.context);
         this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
+        this.opts.headLength = opts.headLength !== undefined ? opts.headLength : 0.2;
+        this.opts.headWidth = opts.headWidth !== undefined ? opts.headWidth : 0.2;
     }
 
     Arrow3D.prototype = Object.create(Plottable.prototype);
@@ -1206,14 +297,16 @@
     };
 
     Arrow3D.prototype.createSceneObject = function() {
-        var _vector3 = this.expr.evaluate().toVector3();
-        var _dir = _vector3.clone().normalize();
-        var _origin = this.opts.origin.evaluate().toVector3();
-        var _length = _vector3.length();
+        var _end = this.plot.parser.eval(this.exprs.end);
+        var _vector3 = new THREE.Vector3(..._end.toArray());
+        var _start = this.plot.parser.eval(this.exprs.start);
+        var _origin = new THREE.Vector3(..._start.toArray());
+        var _dir = _vector3.clone().sub(_origin).normalize();
+        var _length = _vector3.distanceTo(_origin);
         var _hex = this.opts.hex;
-        var _headLength = this.opts.headLength !== undefined ? this.opts.headLength : 0.2 * _length;
-        var _headWidth = this.opts.headWidth !== undefined ? this.opts.headWidth : 0.2 * _headLength;
-
+        var _headLength = this.opts.headLength * _length;
+        var _headWidth = this.opts.headWidth * _headLength;
+        
         return new THREE.ArrowHelper(_dir, _origin, _length, _hex, _headLength, _headWidth);
     };
 
@@ -1234,194 +327,220 @@
         };
     }
 
-    function Parametric3D(parent, expr, opts) {
-        Plottable.call(this, parent.parent, expr, opts);
-
+    function Parametric3D(parent, plotInfo, opts) {
+        Plottable.call(this, parent.parent, opts);
+        
         this.parent = parent;
-        this.opts = opts !== undefined? opts: {};
-
-        if(this.opts.color !== undefined) {
-            this.color = new Expression(this.opts.color, this.plot.context);
-            this.colorf = this.color.evaluate();
+        this.opts = opts !== undefined ? opts : {};
+        
+        if (this.opts.color === undefined) this.opts.color = false;
+        if (this.opts.wireframe === undefined) this.opts.wireframe = false;
+        if (this.opts.flat === undefined) this.opts.flat = false;
+        if (this.opts.smooth === undefined) this.opts.smooth = true;
+        if (this.opts.thick === undefined) this.opts.thick = false;
+        
+        this.exprs = plotInfo.exprs;
+        
+        if(!this.exprs.color && this.opts.color) {
+            this.exprs.color = this.opts.color;
+            this.opts.color = true;
         }
-        if(this.opts.wireframe === undefined) this.opts.wireframe = false;
-        if(this.opts.flat === undefined) this.opts.flat = false;
-        if(this.opts.smooth === undefined) this.opts.smooth = true;
-        if(this.opts.thick === undefined) this.opts.thick = false;
+        
+        if (this.exprs.tvar) {
+            this.exprs.pointFunc = '_tmp(' + this.exprs.tvar + ') = ' + this.exprs.point;
+            if (this.exprs.color) {
+                this.exprs.colorFunc = '_tmp(' + this.exprs.tvar + ') = ' + this.exprs.color;
+            }
+        } else if (this.exprs.uvar && this.exprs.vvar) {
+            this.exprs.pointFunc = '_tmp(' + this.exprs.uvar + ',' + this.exprs.vvar + ') = ' + this.exprs.point;
+            if (this.exprs.color) {
+                this.exprs.colorFunc = '_tmp(' + this.exprs.uvar + ',' + this.exprs.vvar + ') = ' + this.exprs.color;
+            }
+        } 
     }
 
     Parametric3D.prototype = Object.create(Plottable.prototype);
     Parametric3D.prototype.constructor = Parametric3D;
 
-    Parametric3D.prototype.getVariables = function() {
-        if(this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
-        else return this.expr.getVariables();
-    };
-
-    Parametric3D.prototype.createLine = function(par) {
-     var geom = new THREE.BufferGeometry();
-        var int = par.intervals[0];
-        var tarr = int.array();
-
-        var direction = new Float32Array(tarr.length * 2);
-        var vertices = new Float32Array(tarr.length * 3 * 2);
-        var previous = new Float32Array(tarr.length * 3 * 2);
-        var next = new Float32Array(tarr.length * 3 * 2);
-
-        var colors = new Uint8Array(tarr.length * 4 * 2);
-
-        for(var i = 0; i < tarr.length; i++) {
-            var t = tarr[i];
-
-            direction[i*2] = 1;
-            direction[i*2+1] = -1;
-
-            // geom.vertices.push(par.func(t).toVector3());
-            var v = par.func(t).toVector3();
-            vertices[i*6] = v.x;
-            vertices[i*6+1] = v.y;
-            vertices[i*6+2] = v.z;
-
-            vertices[i*6+3] = v.x;
-            vertices[i*6+4] = v.y;
-            vertices[i*6+5] = v.z;
-
-            if(i > 0) {
-                previous[i*6] = vertices[i*6-6];
-                previous[i*6+1] = vertices[i*6-5];
-                previous[i*6+2] = vertices[i*6-4];
-                previous[i*6+3] = vertices[i*6-3];
-                previous[i*6+4] = vertices[i*6-2];
-                previous[i*6+5] = vertices[i*6-1];
-
-                next[i*6-6] = vertices[i*6];
-                next[i*6-5] = vertices[i*6+1];
-                next[i*6-4] = vertices[i*6+2];
-                next[i*6-3] = vertices[i*6+3];
-                next[i*6-2] = vertices[i*6+4];
-                next[i*6-1] = vertices[i*6+5];
+    Parametric3D.prototype.createLine = function (par) {
+        var geom = new THREE.BufferGeometry();
+        
+        var pointFunc = this.plot.parser.eval(this.exprs.pointFunc);
+        var tint = {
+            min: this.plot.parser.eval(this.exprs.tmin),
+            max: this.plot.parser.eval(this.exprs.tmax),
+            steps: this.plot.parser.eval(this.exprs.tsteps),
+        };
+        var colorFunc = this.plot.parser.eval(this.exprs.colorFunc);
+        
+        var direction = new Float32Array(tint.steps * 2);
+        var vertices = new Float32Array(tint.steps * 3 * 2);
+        var previous = new Float32Array(tint.steps * 3 * 2);
+        var next = new Float32Array(tint.steps * 3 * 2);
+        
+        var colors = new Uint8Array(tint.steps * 4 * 2);
+        
+        for (var i = 0; i < tint.steps; i++) {
+            var t = i * (tint.max - tint.min) / (tint.steps - 1) + tint.min;
+            
+            direction[i * 2] = 1;
+            direction[i * 2 + 1] = -1;
+            
+            var v = new THREE.Vector3(...pointFunc(t).toArray());
+            vertices[i * 6] = v.x;
+            vertices[i * 6 + 1] = v.y;
+            vertices[i * 6 + 2] = v.z;
+            
+            vertices[i * 6 + 3] = v.x;
+            vertices[i * 6 + 4] = v.y;
+            vertices[i * 6 + 5] = v.z;
+            
+            if (i > 0) {
+                previous[i * 6] = vertices[i * 6 - 6];
+                previous[i * 6 + 1] = vertices[i * 6 - 5];
+                previous[i * 6 + 2] = vertices[i * 6 - 4];
+                previous[i * 6 + 3] = vertices[i * 6 - 3];
+                previous[i * 6 + 4] = vertices[i * 6 - 2];
+                previous[i * 6 + 5] = vertices[i * 6 - 1];
+                
+                next[i * 6 - 6] = vertices[i * 6];
+                next[i * 6 - 5] = vertices[i * 6 + 1];
+                next[i * 6 - 4] = vertices[i * 6 + 2];
+                next[i * 6 - 3] = vertices[i * 6 + 3];
+                next[i * 6 - 2] = vertices[i * 6 + 4];
+                next[i * 6 - 1] = vertices[i * 6 + 5];
             }
-
-            if(this.color !== undefined) {
-                var color = this.colorf(t);
-                // geom.colors[i] = new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value)
-                colors[i*8] = color.q[0].value * 255;
-                colors[i*8 + 1] = color.q[1].value * 255;
-                colors[i*8 + 2] = color.q[2].value * 255;
-                colors[i*8 + 3] = 255;
-                colors[i*8 + 4] = color.q[0].value * 255;
-                colors[i*8 + 5] = color.q[1].value * 255;
-                colors[i*8 + 6] = color.q[2].value * 255;
-                colors[i*8 + 7] = 255;
+            
+            if (this.opts.color) {
+                var color = colorFunc(t).toArray();
+                colors[i * 8] = color[0] * 255;
+                colors[i * 8 + 1] = color[1] * 255;
+                colors[i * 8 + 2] = color[2] * 255;
+                colors[i * 8 + 3] = 255;
+                colors[i * 8 + 4] = color[0] * 255;
+                colors[i * 8 + 5] = color[1] * 255;
+                colors[i * 8 + 6] = color[2] * 255;
+                colors[i * 8 + 7] = 255;
             } else {
-                colors[i*8] = 255;
-                colors[i*8 + 1] = 255;
-                colors[i*8 + 2] = 255;
-                colors[i*8 + 3] = 255;
-                colors[i*8 + 4] = 255;
-                colors[i*8 + 5] = 255;
-                colors[i*8 + 6] = 255;
-                colors[i*8 + 7] = 255;
+                colors[i * 8] = 255;
+                colors[i * 8 + 1] = 255;
+                colors[i * 8 + 2] = 255;
+                colors[i * 8 + 3] = 255;
+                colors[i * 8 + 4] = 255;
+                colors[i * 8 + 5] = 255;
+                colors[i * 8 + 6] = 255;
+                colors[i * 8 + 7] = 255;
             }
         }
-
+        
         previous[0] = vertices[0];
         previous[1] = vertices[1];
         previous[2] = vertices[2];
         previous[3] = vertices[3];
         previous[4] = vertices[4];
         previous[5] = vertices[5];
-        next[tarr.length*6-6] = vertices[tarr.length*6-6];
-        next[tarr.length*6-5] = vertices[tarr.length*6-5];
-        next[tarr.length*6-4] = vertices[tarr.length*6-4];
-        next[tarr.length*6-3] = vertices[tarr.length*6-3];
-        next[tarr.length*6-2] = vertices[tarr.length*6-2];
-        next[tarr.length*6-1] = vertices[tarr.length*6-1];
-
+        next[tint.steps * 6 - 6] = vertices[tint.steps * 6 - 6];
+        next[tint.steps * 6 - 5] = vertices[tint.steps * 6 - 5];
+        next[tint.steps * 6 - 4] = vertices[tint.steps * 6 - 4];
+        next[tint.steps * 6 - 3] = vertices[tint.steps * 6 - 3];
+        next[tint.steps * 6 - 2] = vertices[tint.steps * 6 - 2];
+        next[tint.steps * 6 - 1] = vertices[tint.steps * 6 - 1];
+        
         geom.addAttribute('direction', new THREE.BufferAttribute(direction, 1));
         geom.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
         geom.addAttribute('previous', new THREE.BufferAttribute(previous, 3));
         geom.addAttribute('next', new THREE.BufferAttribute(next, 3));
         geom.addAttribute('color', new THREE.BufferAttribute(colors, 4, true));
-
+        
         var mat = new LineMaterialCreator(this.opts.thick === true ? 30 : 15, this.parent.frame.width, this.parent.frame.height).getMaterial();
         var mesh = new THREE.Mesh(geom, mat);
         mesh.drawMode = THREE.TriangleStripDrawMode;
         return mesh
     };
 
-    Parametric3D.prototype.createSurface = function(par) {
+    Parametric3D.prototype.createSurface = function () {
         var geom = new THREE.Geometry();
-        var uint = par.intervals[0];
-        var vint = par.intervals[1];
-        var uarr = uint.array();
-        var varr = vint.array();
+        
+        var pointFunc = this.plot.parser.eval(this.exprs.pointFunc);
+        var uint = {
+            min: this.plot.parser.eval(this.exprs.umin),
+            max: this.plot.parser.eval(this.exprs.umax),
+            steps: this.plot.parser.eval(this.exprs.usteps),
+        };
+        var vint = {
+            min: this.plot.parser.eval(this.exprs.vmin),
+            max: this.plot.parser.eval(this.exprs.vmax),
+            steps: this.plot.parser.eval(this.exprs.vsteps),
+        };
+        if(this.opts.color) {
+            var colorFunc = this.plot.parser.eval(this.exprs.colorFunc);
+        }
+        
         var colors = [];
-
-        for(var i = 0; i < uarr.length; i++) {
-            var u = uarr[i];
-            for(var j = 0; j < varr.length; j++) {
-                var v = varr[j];
-
-                var vert = par.func(u,v).toVector3();
+        
+        for (var i = 0; i < uint.steps; i++) {
+            var u = i * (uint.max - uint.min) / (uint.steps - 1) + uint.min;
+            for (var j = 0; j < vint.steps; j++) {
+                var v = j * (vint.max - vint.min) / (vint.steps - 1) + vint.min;
+                
+                var vert = new THREE.Vector3(...pointFunc(u, v).toArray());
                 geom.vertices.push(vert);
-
-                if(this.color !== undefined) {
-                    var color = this.colorf(u,v);
-                    colors.push(new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value));
+                
+                if (this.opts.color) {
+                    var color = colorFunc(u, v).toArray();
+                    colors.push(new THREE.Color(...color));
                 }
-
-                if(i > 0 && j > 0) {
-                    var v1 = i * varr.length + j;
-                    var v2 = i * varr.length + j - 1;
-                    var v3 = (i - 1) * varr.length + j;
-                    var v4 = (i - 1) * varr.length + j - 1;
-
+                
+                if (i > 0 && j > 0) {
+                    var v1 = i * vint.steps + j;
+                    var v2 = i * vint.steps + j - 1;
+                    var v3 = (i - 1) * vint.steps + j;
+                    var v4 = (i - 1) * vint.steps + j - 1;
+                    
                     var f1 = new THREE.Face3(v1, v2, v4);
                     var f2 = new THREE.Face3(v1, v4, v3);
-
-                    if(this.color !== undefined) {
+                    
+                    if (this.opts.color) {
                         f1.vertexColors[0] = colors[v1];
                         f1.vertexColors[1] = colors[v2];
                         f1.vertexColors[2] = colors[v4];
-
+                        
                         f2.vertexColors[0] = colors[v1];
                         f2.vertexColors[1] = colors[v4];
                         f2.vertexColors[2] = colors[v3];
                     }
-
-                    geom.faces.push(f1);                
+                    
+                    geom.faces.push(f1);
                     geom.faces.push(f2);
                 }
             }
         }
         geom.mergeVertices();
         geom.computeVertexNormals();
-
+        
         var opts = {};
-        if(this.color !== undefined) {
+        if (this.opts.color) {
             opts['vertexColors'] = THREE.VertexColors;
         }
-        if(this.opts.smooth === false) {
+        if (this.opts.smooth === false) {
             opts['shading'] = THREE.FlatShading;
         }
-
-        if(this.opts.wireframe === true || this.opts.flat === true) {
+        
+        if (this.opts.wireframe === true || this.opts.flat === true) {
             var mat = new THREE.MeshBasicMaterial(opts);
-            if(this.opts.wireframe) mat.wireframe = true;
+            if (this.opts.wireframe) mat.wireframe = true;
         } else {
             var mat = new THREE.MeshLambertMaterial(opts);
         }
         mat.side = THREE.DoubleSide;
-        return new THREE.Mesh( geom, mat );
+        return new THREE.Mesh(geom, mat);
     };
 
-    Parametric3D.prototype.createSceneObject = function() {
-        var par = this.expr.evaluate();
-        if(par.intervals.length === 1) {
-            return this.createLine(par);
+    Parametric3D.prototype.createSceneObject = function () {
+        if (this.exprs.tvar) {
+            return this.createLine();
         } else {
-            return this.createSurface(par);
+            return this.createSurface();
         }
     };
 
@@ -1511,52 +630,59 @@
         return mesh
     }
 
-    function Isoline3D(parent, expr, opts) {
-        Plottable.call(this, parent.parent, expr, opts);
-
+    function Isoline3D(parent, plotInfo, opts) {
+        Plottable.call(this, parent.parent, opts);
+        
         this.parent = parent;
-        this.isoline = this.expr.evaluate();
-        this.parExpr = new Expression(this.isoline.parametricExpr, this.plot.context);
-
+        
         this.opts = opts !== undefined ? opts : {};
-
-        this.sfld = [];
-
-        this.sfldValidated = false;
-
-        if (this.opts.color !== undefined) {
-            this.color = new Expression(this.opts.color, this.plot.context);
-            this.colorf = this.color.evaluate();
-        }
-        // if(this.opts.axis === undefined) this.opts.axis = 'y';
+        // if(this.opts.axis === undefined) this.opts.axs = 'y';
         this.lineWidth = this.opts.thick === true ? 40 : 15;
+     
+        this.exprs = plotInfo.exprs;
+        
+        if(!this.exprs.color && this.opts.color) {
+            this.exprs.color = this.opts.color;
+            this.opts.color = true;
+        }
+
+        if (this.exprs.uvar && this.exprs.vvar) {
+            this.exprs.pointFunc = '_tmp(' + this.exprs.uvar + ',' + this.exprs.vvar + ') = ' + this.exprs.point;
+            if (this.exprs.color) {
+                this.exprs.colorFunc = '_tmp(v) = ' + this.exprs.color;
+            }
+        } else {
+            console.error(new Error('Invalid parameters').stack);
+            return null;
+        }
+        
+        this.sfld = [];
+        this.sfldValidated = false;
     }
 
     Isoline3D.prototype = Object.create(Plottable.prototype);
     Isoline3D.prototype.constructor = Isoline3D;
 
-    Isoline3D.prototype.getVariables = function () {
-        if (this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
-        else return this.expr.getVariables();
-    };
-
-    Isoline3D.prototype.createScalarField = function (par) {
-        var uint = par.intervals[0];
-        var vint = par.intervals[1];
-
-        var uarr = uint.array();
-        var varr = vint.array();
-
-        var func = par.func;
+    Isoline3D.prototype.createScalarField = function () {
+        var pointFunc = this.plot.parser.eval(this.exprs.pointFunc);
+        var uint = {
+            min: this.plot.parser.eval(this.exprs.umin),
+            max: this.plot.parser.eval(this.exprs.umax),
+            steps: this.plot.parser.eval(this.exprs.usteps),
+        };
+        var vint = {
+            min: this.plot.parser.eval(this.exprs.vmin),
+            max: this.plot.parser.eval(this.exprs.vmax),
+            steps: this.plot.parser.eval(this.exprs.vsteps),
+        };
+        
         var sfld = [];
-        for (var i = 0; i < uarr.length; i++) {
-            var u = uarr[i];
+        for (var i = 0; i < uint.steps; i++) {
+            var u = i * (uint.max - uint.min) / (uint.steps - 1) + uint.min;
             sfld.push([]);
-            for (var j = 0; j < varr.length; j++) {
-                var v = varr[j];
-
-                var vert = func(u, v);
-
+            for (var j = 0; j < vint.steps; j++) {
+                var v = j * (vint.max - vint.min) / (vint.steps - 1) + vint.min;
+                var vert = pointFunc(u, v);
                 sfld[sfld.length - 1].push(vert);
             }
         }
@@ -1564,107 +690,114 @@
     };
 
     Isoline3D.prototype.lerp = function (a, b, az, z, bz) {
-            var alpha = z.sub(az).div(bz.sub(az));
-            var result = a.mul(Number[1].sub(alpha)).add(b.mul(alpha));
-            result.q[1] = z;
-            return result.toVector3();
+        var alpha = (z - az) / (bz - az);
+
+        a = new THREE.Vector3(...a);
+        b = new THREE.Vector3(...b);
+        var result = a.multiplyScalar(1 - alpha).add(b.multiplyScalar(alpha));
+        result.y = z;
+        return result;
     };
 
     Isoline3D.prototype.createIsoline = function (isoline) {
-        var par = isoline.parametric;
-
-        var uint = par.intervals[0];
-        var vint = par.intervals[1];
-
-        var uarr = uint.array();
-        var varr = vint.array();
-
-        var lvl = isoline.level;
-
-        if (this.sfldValidated === false) this.createScalarField(par);
-
+        var pointFunc = this.plot.parser.eval(this.exprs.pointFunc);
+        var uint = {
+            min: this.plot.parser.eval(this.exprs.umin),
+            max: this.plot.parser.eval(this.exprs.umax),
+            steps: this.plot.parser.eval(this.exprs.usteps),
+        };
+        var vint = {
+            min: this.plot.parser.eval(this.exprs.vmin),
+            max: this.plot.parser.eval(this.exprs.vmax),
+            steps: this.plot.parser.eval(this.exprs.vsteps),
+        };
+        
+        var lvl = this.plot.parser.eval(this.exprs.level);
+        
+        if (this.sfldValidated === false) this.createScalarField();
+        
         var edges = [];
-
-        for (var i = 0; i < uarr.length - 1; i++) {
-            for (var j = 0; j < varr.length - 1; j++) {
-                var a = this.sfld[i][j + 1];
-                var b = this.sfld[i + 1][j + 1];
-                var c = this.sfld[i + 1][j];
-                var d = this.sfld[i][j];
-
-                var cse = (d.q[1].compareTo(lvl) > 0);
-                cse = cse * 2 + (c.q[1].compareTo(lvl) > 0);
-                cse = cse * 2 + (b.q[1].compareTo(lvl) > 0);
-                cse = cse * 2 + (a.q[1].compareTo(lvl) > 0);
-
+        
+        for (var i = 0; i < uint.steps - 1; i++) {
+            for (var j = 0; j < vint.steps - 1; j++) {
+                var a = this.sfld[i][j + 1].toArray();
+                var b = this.sfld[i + 1][j + 1].toArray();
+                var c = this.sfld[i + 1][j].toArray();
+                var d = this.sfld[i][j].toArray();
+                
+                var cse = (d[1] > lvl);
+                cse = cse * 2 + (c[1] > lvl);
+                cse = cse * 2 + (b[1] > lvl);
+                cse = cse * 2 + (a[1] > lvl);
+                
                 switch (cse) {
                     case 0:
                     case 15:
-                        break;
+                    break;
                     case 1:
                     case 14:
-                        var v1 = this.lerp(a, d, a.q[1], lvl, d.q[1]);
-                        var v2 = this.lerp(a, b, a.q[1], lvl, b.q[1]);
-                        edges.push([v1, v2]);
-                        break;
+                    var v1 = this.lerp(a, d, a[1], lvl, d[1]);
+                    var v2 = this.lerp(a, b, a[1], lvl, b[1]);
+                    edges.push([v1, v2]);
+                    break;
                     case 2:
                     case 13:
-                        var v1 = this.lerp(a, b, a.q[1], lvl, b.q[1]);
-                        var v2 = this.lerp(b, c, b.q[1], lvl, c.q[1]);
-                        edges.push([v1, v2]);
-                        break;
+                    var v1 = this.lerp(a, b, a[1], lvl, b[1]);
+                    var v2 = this.lerp(b, c, b[1], lvl, c[1]);
+                    edges.push([v1, v2]);
+                    break;
                     case 3:
                     case 12:
-                        var v1 = this.lerp(a, d, a.q[1], lvl, d.q[1]);
-                        var v2 = this.lerp(b, c, b.q[1], lvl, c.q[1]);
-                        edges.push([v1, v2]);
-                        break;
+                    var v1 = this.lerp(a, d, a[1], lvl, d[1]);
+                    var v2 = this.lerp(b, c, b[1], lvl, c[1]);
+                    edges.push([v1, v2]);
+                    break;
                     case 4:
                     case 11:
-                        var v1 = this.lerp(b, c, b.q[1], lvl, c.q[1]);
-                        var v2 = this.lerp(c, d, c.q[1], lvl, d.q[1]);
-                        edges.push([v1, v2]);
-                        break;
+                    var v1 = this.lerp(b, c, b[1], lvl, c[1]);
+                    var v2 = this.lerp(c, d, c[1], lvl, d[1]);
+                    edges.push([v1, v2]);
+                    break;
                     case 5:
                     case 10:
-                        if ((cse === 10) ^ (a.q[i].add(b.q[i]).add(c.q[i]).add(d.q[i]).compareTo(lvl.mul(4)) > 0)) {
-                            var v1 = this.lerp(a, d, a.q[1], lvl, d.q[1]);
-                            var v2 = this.lerp(c, d, c.q[1], lvl, d.q[1]);
-                            var v3 = this.lerp(a, b, a.q[1], lvl, b.q[1]);
-                            var v4 = this.lerp(b, c, b.q[1], lvl, c.q[1]);
-                            edges.push([v1, v2]);
-                            edges.push([v3, v4]);
-                        } else {
-                            var v1 = this.lerp(a, b, a.q[1], lvl, b.q[1]);
-                            var v2 = this.lerp(a, d, a.q[1], lvl, d.q[1]);
-                            var v3 = this.lerp(b, c, b.q[1], lvl, c.q[1]);
-                            var v4 = this.lerp(c, d, c.q[1], lvl, d.q[1]);
-                            edges.push([v1, v2]);
-                            edges.push([v3, v4]);
-                        }
-                        break;
+                    if ((cse === 10) ^ (a[i] + (b[i]) + c[i] + d[i] > 4 * lvl)) {
+                        var v1 = this.lerp(a, d, a[1], lvl, d[1]);
+                        var v2 = this.lerp(c, d, c[1], lvl, d[1]);
+                        var v3 = this.lerp(a, b, a[1], lvl, b[1]);
+                        var v4 = this.lerp(b, c, b[1], lvl, c[1]);
+                        edges.push([v1, v2]);
+                        edges.push([v3, v4]);
+                    } else {
+                        var v1 = this.lerp(a, b, a[1], lvl, b[1]);
+                        var v2 = this.lerp(a, d, a[1], lvl, d[1]);
+                        var v3 = this.lerp(b, c, b[1], lvl, c[1]);
+                        var v4 = this.lerp(c, d, c[1], lvl, d[1]);
+                        edges.push([v1, v2]);
+                        edges.push([v3, v4]);
+                    }
+                    break;
                     case 6:
                     case 9:
-                        var v1 = this.lerp(a, b, a.q[1], lvl, b.q[1]);
-                        var v2 = this.lerp(c, d, c.q[1], lvl, d.q[1]);
-                        edges.push([v1, v2]);
-                        break;
+                    var v1 = this.lerp(a, b, a[1], lvl, b[1]);
+                    var v2 = this.lerp(c, d, c[1], lvl, d[1]);
+                    edges.push([v1, v2]);
+                    break;
                     case 7:
                     case 8:
-                        var v1 = this.lerp(a, d, a.q[1], lvl, d.q[1]);
-                        var v2 = this.lerp(c, d, c.q[1], lvl, d.q[1]);
-                        edges.push([v1, v2]);
-                        break;
+                    var v1 = this.lerp(a, d, a[1], lvl, d[1]);
+                    var v2 = this.lerp(c, d, c[1], lvl, d[1]);
+                    edges.push([v1, v2]);
+                    break;
                 }
             }
         }
-
+        
         // merge vertices
-
+        
         var equiv = function(a,b) {
             return a.distanceTo(b) < 0.000005;
         };
-
+        
         var curves = [];
         while(edges.length > 0) {
             var e = edges.pop();
@@ -1691,18 +824,19 @@
                 return;
             })();
         }
-
+        
         var objct = new THREE.Group();
-
+        
         var mat = new LineMaterialCreator(this.lineWidth, this.parent.frame.width, this.parent.frame.height).getMaterial();
         for(var i = 0; i < curves.length; i++) {
             var colors = undefined;
-            if(this.opts.color !== undefined) {
+            if(this.opts.color) {
+                var colorFunc = this.plot.parser.eval(this.exprs.colorFunc);
                 colors = [];
                 for(var j = 0; j < curves[i].length; j++) {
-                    var v = new Vector(curves[i][j]);
-                    var color = this.colorf(v);
-                    colors.push(new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value));
+                    var v = curves[i][j].toArray();
+                    var color = colorFunc(v).toArray();
+                    colors.push(new THREE.Color(color[0], color[1], color[2]));
                 }
             }
             objct.add(Line(curves[i],colors,mat));
@@ -1711,13 +845,495 @@
     };
 
     Isoline3D.prototype.createSceneObject = function() {
-        this.isoline = this.expr.evaluate();
-        return this.createIsoline(this.isoline);
+        return this.createIsoline();
     };
 
-    Isoline3D.prototype.invalidate = function (expr) {
-        if (this.parExpr.getVariables().indexOf(expr) !== -1) this.sfldValidated = false;
+    Isoline3D.prototype.invalidate = function () {
+        // if (this.parExpr.getVariables().indexOf(expr) !== -1) this.sfldValidated = false;
+        this.sfldValidated = false;
         this.validated = false;
+    };
+
+    var PlotInfo = function() {
+        
+    };
+
+    var splitTuple = function(string) {
+        var level = 0;
+        var strip = false;
+        var parts = [''];
+        for(var i = 0; i < string.length; i++) {
+            if(string[i] == '(' || string[i] == '[' || string[i] == '{') {
+                level++;
+                if(i == 0) {
+                    strip = true;
+                } else {
+                    parts[parts.length - 1] += string[i];
+                }
+            } else if (string[i] == ')' || string[i] == ']' || string[i] == '}') {
+                level--;
+                if(i != string.length - 1 || !strip) {
+                    parts[parts.length - 1] += string[i];
+                }
+            } else if (((strip && level == 1) || (!strip && level == 0)) && string[i] == ',') {
+                parts.push('');
+            } else {
+                parts[parts.length - 1] += string[i];
+            }
+        }
+        return parts;
+    };
+
+    PlotInfo.AngleArc2D = function(exprs) {
+        this.exprs = {
+            // Vector or Null
+            offset: '[0,0]',
+
+            // Vector
+            v1: null,
+
+            // Vector
+            v2: null
+        };
+
+        if(exprs.offset) {
+            this.exprs.offset = exprs.offset;
+        }
+
+        if(exprs.v1) {
+            this.exprs.v1 = exprs.v1;
+        } else {
+            throw new Error('Invalid expressions for AngleArc2D plot info: missing .v1');
+        }
+
+        if(exprs.v2) {
+            this.exprs.v2 = exprs.v2;
+        } else {
+            throw new Error('Invalid expressions for AngleArc2D plot info: missing .v2');
+        }
+    };
+    PlotInfo.AngleArc2D.fromString = function(string) {
+        string = string.replace(/\s/g, '');
+        var parts = splitTuple(string);
+
+        var exprs = {};
+        if(parts.length == 2) {
+            exprs.v1 = parts[0];        exprs.v2 = parts[1];
+        } else if (parts.length == 3) {
+            exprs.offset = parts[0];
+            exprs.v1 = parts[1];
+            exprs.v2 = parts[2];
+        } else {
+            throw new Error('Invalid syntax for AngleArc2D expression');
+        }
+
+        return new PlotInfo.Parallelogram2D(exprs);
+    };
+
+    PlotInfo.Arrow2D = function(exprs) {
+       this.exprs = {
+            // Vector or null
+            start: '[0,0]',
+
+            // Vector
+            end: null,
+        };
+
+        // Object.assign(this.exprs, exprs);
+
+        if(exprs.start) {
+            this.exprs.start = exprs.start;
+        }
+
+        if(exprs.end) {
+            this.exprs.end = exprs.end;
+        } else {
+            throw new Error('Invalid expressions for Arrow2D plot info: missing .end');
+        }
+    };
+    PlotInfo.Arrow2D.fromString = function(string) {
+        string = string.replace(/\s/g, '');
+        var parts = splitTuple(string);
+
+        var exprs = {};
+
+        if(parts.length == 1) {
+            exprs.end = parts[0];
+        } else if(parts.length == 2) {
+            exprs.start = parts[0];
+            exprs.end = parts[1];
+        } else {
+            throw new Error('Invalid syntax for Arrow2D expression');
+        }
+
+        return new PlotInfo.Arrow2D(exprs);
+    };
+
+    PlotInfo.Arrow3D = function(exprs) {
+       this.exprs = {
+            // Vector or null
+            start: '[0,0,0]',
+
+            // Vector
+            end: null,
+        };
+
+        // Object.assign(this.exprs, exprs);
+
+        if(exprs.start) {
+            this.exprs.start = exprs.start;
+        }
+
+        if(exprs.end) {
+            this.exprs.end = exprs.end;
+        } else {
+            throw new Error('Invalid expressions for Arrow3D plot info: missing .end');
+        }
+    };
+    PlotInfo.Arrow3D.fromString = function(string) {
+        string = string.replace(/\s/g, '');
+        var parts = splitTuple(string);
+
+        var exprs = {};
+        if(parts.length == 2) {
+            exprs.end = parts[0];
+        } else if(parts.length == 4) {
+            exprs.start = parts[0];
+            exprs.end = parts[1];
+        } else {
+            throw new Error('Invalid syntax for Arrow3D expression');
+        }
+
+        return new PlotInfo.Arrow3D(exprs);
+    };
+
+    PlotInfo.Isoline3D = function(exprs) {
+        // Default values
+        this.exprs = {
+            // Vector
+            point: null,
+            
+            // Variable
+            level: null,
+            
+            // String
+            uvar: null,
+            // Variable
+            umin: null,
+            // Variable
+            umax: null,
+            // Variable
+            usteps: null,
+            
+            // String or Null
+            vvar: null,
+            // Variable or Null
+            vmin: null,
+            // Variable or Null
+            vmax: null,
+            // Variable or Null
+            vsteps: null,
+            
+            // Vector3 or Null
+            color: null
+        };
+        
+        // Object.assign(this.exprs, exprs);
+        
+        if(exprs.point) {
+            this.exprs.point = exprs.point;
+        } else {
+            throw new Error('Invalid expressions for Isoline3D plot info: missing .point');
+        }
+
+        if(exprs.level) {
+            this.exprs.level = exprs.level;
+        } else {
+            throw new Error('Invalid expressions for Isoline3D plot info: missing .level');
+        }
+        
+        if ((exprs.uvar && exprs.umin && exprs.umax && exprs.usteps) 
+        && (exprs.vvar && exprs.vmin && exprs.vmax && exprs.vsteps) ) {
+            this.exprs.uvar = exprs.uvar;
+            this.exprs.umin = exprs.umin;
+            this.exprs.umax = exprs.umax;
+            this.exprs.usteps = exprs.usteps;
+            
+            this.exprs.vvar = exprs.vvar;
+            this.exprs.vmin = exprs.vmin;
+            this.exprs.vmax = exprs.vmax;
+            this.exprs.vsteps = exprs.vsteps;
+        } else {
+            throw new Error('Invalid expressions for Isoline3D plot info: invalid parameterization');
+        }
+        
+        if(exprs.color) {
+            this.exprs.color = exprs.color;
+        }
+    };
+    PlotInfo.Isoline3D.fromString = function(string) {
+        string = string.replace(/\s/g, '');
+        var parts = string.split(/(?:{|}|\|)+/g);
+        
+        var exprs = {};
+        exprs.point = parts[0];
+        
+        var uint = parts[1].split(',');
+        var vint = parts[2].split(',');
+        var level = parts[3].split('=');
+        
+        exprs.uvar = uint[0];
+        exprs.umin = uint[1];
+        exprs.umax = uint[2];
+        exprs.usteps = uint[3];
+        
+        exprs.vvar = vint[0];
+        exprs.vmin = vint[1];
+        exprs.vmax = vint[2];
+        exprs.vsteps = vint[3];
+        
+        exprs.level = level[1];
+
+        return new PlotInfo.Isoline3D(exprs);
+    };
+
+    PlotInfo.Isoline2D = PlotInfo.Isoline3D;
+
+    PlotInfo.Parallelogram2D = function(exprs) {
+        this.exprs = {
+            // Vector or Null
+            offset: '[0,0]',
+
+            // Vector
+            v1: null,
+
+            // Vector
+            v2: null
+        };
+
+        if(exprs.offset) {
+            this.exprs.offset = exprs.offset;
+        }
+
+        if(exprs.v1) {
+            this.exprs.v1 = exprs.v1;
+        } else {
+            throw new Error('Invalid expressions for Parallelogram2D plot info: missing .v1');
+        }
+
+        if(exprs.v2) {
+            this.exprs.v2 = exprs.v2;
+        } else {
+            throw new Error('Invalid expressions for Parallelogram2D plot info: missing .v2');
+        }
+    };
+    PlotInfo.Parallelogram2D.fromString = function(string) {
+        string = string.replace(/\s/g, '');
+        var parts = splitTuple(string);
+
+        var exprs = {};
+        if(parts.length == 2) {
+            exprs.v1 = parts[0];        exprs.v2 = parts[1];
+        } else if (parts.length == 3) {
+            exprs.offset = parts[0];
+            exprs.v1 = parts[1];
+            exprs.v2 = parts[2];
+        } else {
+            throw new Error('Invalid syntax for Parallelogram2D expression');
+        }
+
+        return new PlotInfo.Parallelogram2D(exprs);
+    };
+
+    PlotInfo.Polygon2D = function(exprs) {
+       this.exprs = {
+            // Array of vectors
+            vertices: []
+        };
+
+        if(exprs.vertices && exprs.vertices.length > 1) {
+            this.exprs.vertices = exprs.vertices;
+        } else {
+            throw new Error('Invalid expressions for Arrow3D plot info: missing .vertices');
+        }
+    };
+    PlotInfo.Polygon2D.fromString = function(string) {
+        string = string.replace(/\s/g, '');
+        var parts = splitTuple(string);
+
+        var exprs = {};
+        if(parts.length > 1) {
+            exprs.vertices = parts;
+        } else {
+            throw new Error('Invalid syntax for Polygon2D expression');
+        }
+
+        return new PlotInfo.Polygon2D(exprs);
+    };
+
+    PlotInfo.Parametric2D = function(exprs) {
+        // Default values
+        this.exprs = {
+            // Vector
+            point: null,
+            
+            // String
+            tvar: null,
+            // Variable
+            tmin: null,
+            // Variable
+            tmax: null,
+            // Variable
+            tsteps: null,
+            
+            // Vector3 or Null
+            color: null
+        };
+        
+        // Object.assign(this.exprs, exprs);
+        
+        if(exprs.point) {
+            this.exprs.point = exprs.point;
+        } else {
+            throw new Error('Invalid expressions for Parametric3D plot info: missing .point');
+        }
+        
+        if( exprs.tvar && exprs.tmin && exprs.tmax && exprs.tsteps ) {
+            this.exprs.tvar = exprs.tvar;
+            this.exprs.tmin = exprs.tmin;
+            this.exprs.tmax = exprs.tmax;
+            this.exprs.tsteps = exprs.tsteps;
+        } else {
+            throw new Error('Invalid expressions for Parametric3D info: invalid parameterization');
+        }
+        
+        if(exprs.color) {
+            this.exprs.color = exprs.color;
+        }
+    };
+    PlotInfo.Parametric2D.fromString = function(string) {
+        string = string.replace(/\s/g, '');
+        var parts = string.split(/(?:{|})+/g);
+        
+        var exprs = {};
+        exprs.point = parts[0];
+        
+        if(parts.length == 3) {
+            var interval = parts[1].split(',');
+            exprs.tvar = interval[0];
+            exprs.tmin = interval[1];
+            exprs.tmax = interval[2];
+            exprs.tsteps = interval[3];
+        } else {
+            console.error('Invalid syntax for Parametric3D expression');
+        }
+        
+        return new PlotInfo.Parametric2D(exprs);
+    };
+
+    PlotInfo.Parametric3D = function(exprs) {
+        // Default values
+        this.exprs = {
+            // Vector
+            point: null,
+            
+            // String
+            tvar: null,
+            // Variable
+            tmin: null,
+            // Variable
+            tmax: null,
+            // Variable
+            tsteps: null,
+            
+            // String
+            uvar: null,
+            // Variable
+            umin: null,
+            // Variable
+            umax: null,
+            // Variable
+            usteps: null,
+            
+            // String or Null
+            vvar: null,
+            // Variable or Null
+            vmin: null,
+            // Variable or Null
+            vmax: null,
+            // Variable or Null
+            vsteps: null,
+            
+            // Vector3 or Null
+            color: null
+        };
+        
+        // Object.assign(this.exprs, exprs);
+        
+        if(exprs.point) {
+            this.exprs.point = exprs.point;
+        } else {
+            throw new Error('Invalid expressions for Parametric3D plot info: missing .point');
+        }
+        
+        if( (exprs.tvar && exprs.tmin && exprs.tmax && exprs.tsteps)
+        && (!exprs.uvar && !exprs.umin && !exprs.umax && !exprs.usteps) 
+        && (!exprs.vvar && !exprs.vmin && !exprs.vmax && !exprs.vsteps) ) {
+            this.exprs.tvar = exprs.tvar;
+            this.exprs.tmin = exprs.tmin;
+            this.exprs.tmax = exprs.tmax;
+            this.exprs.tsteps = exprs.tsteps;
+        } else if ( (!exprs.tvar && !exprs.tmin && !exprs.tmax && !exprs.tsteps)
+        && (exprs.uvar && exprs.umin && exprs.umax && exprs.usteps) 
+        && (exprs.vvar && exprs.vmin && exprs.vmax && exprs.vsteps) ) {
+            this.exprs.uvar = exprs.uvar;
+            this.exprs.umin = exprs.umin;
+            this.exprs.umax = exprs.umax;
+            this.exprs.usteps = exprs.usteps;
+            
+            this.exprs.vvar = exprs.vvar;
+            this.exprs.vmin = exprs.vmin;
+            this.exprs.vmax = exprs.vmax;
+            this.exprs.vsteps = exprs.vsteps;
+        } else {
+            throw new Error('Invalid expressions for Parametric3D info: invalid parameterization');
+        }
+        
+        if(exprs.color) {
+            this.exprs.color = exprs.color;
+        }
+    };
+    PlotInfo.Parametric3D.fromString = function(string) {
+        string = string.replace(/\s/g, '');
+        var parts = string.split(/(?:{|})+/g);
+        
+        var exprs = {};
+        exprs.point = parts[0];
+        
+        if(parts.length == 3) {
+            var interval = parts[1].split(',');
+            exprs.tvar = interval[0];
+            exprs.tmin = interval[1];
+            exprs.tmax = interval[2];
+            exprs.tsteps = interval[3];
+        } else if(parts.length == 4) {
+            var interval1 = parts[1].split(',');
+            var interval2 = parts[2].split(',');
+            
+            exprs.uvar = interval1[0];
+            exprs.umin = interval1[1];
+            exprs.umax = interval1[2];
+            exprs.usteps = interval1[3];
+            
+            exprs.vvar = interval2[0];
+            exprs.vmin = interval2[1];
+            exprs.vmax = interval2[2];
+            exprs.vsteps = interval2[3];
+        } else {
+            console.error('Invalid syntax for Parametric3D expression');
+        }
+        
+        return new PlotInfo.Parametric3D(exprs);
     };
 
     function Axes3D(parent, container, opts) {
@@ -1859,21 +1475,26 @@
     /**
      * Plot an expression
      */
-    Axes3D.prototype.plotExpression = function(expr, type, opts) {
+    Axes3D.prototype.plotExpression = function(exprs, type, opts) {
+        var expr = null;
+        if(typeof exprs == 'string') {
+            expr = exprs;
+        }
+
         switch(type) {
             case 'arrow':            
-                var figure = new Arrow3D(this.parent, expr, opts);
-                this.expressions[expr] = figure;
+                if(expr) exprs = PlotInfo.Arrow3D.fromString(expr);
+                var figure = new Arrow3D(this.parent, exprs, opts);
                 this.addFigure(figure);
                 return figure;
-            case 'parametric':           
-                var par = new Parametric3D(this, expr, opts);
-                this.expressions[expr] = par;
+            case 'parametric':  
+                if(expr) exprs = PlotInfo.Parametric3D.fromString(expr);
+                var par = new Parametric3D(this, exprs, opts);
                 this.addFigure(par);
                 return par;
             case 'isoline':
-                var iso = new Isoline3D(this, expr, opts);
-                this.expressions[expr] = iso;
+                if(expr) exprs = PlotInfo.Isoline3D.fromString(expr);
+                var iso = new Isoline3D(this, exprs, opts);
                 this.addFigure(iso);
                 return iso;
             default:
@@ -1882,12 +1503,13 @@
         }
     };
 
-    function AngleArc2D(plot, expr, opts) {
-        Plottable.call(this, plot, expr, opts);
+    function AngleArc2D(plot, plotInfo, opts) {
+        Plottable.call(this, plot, opts);
+
+        this.exprs = plotInfo.exprs;
 
         if(opts === undefined) opts = {};
         this.opts = {};
-        this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0)');
         this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
         this.opts.radius = opts.radius !== undefined ? opts.radius : 0.2;
         this.opts.tolerance = opts.tolerance !== undefined ? opts.tolerance : 0.01;
@@ -1896,28 +1518,23 @@
     AngleArc2D.prototype = Object.create(Plottable.prototype);
     AngleArc2D.prototype.constructor = AngleArc2D;
 
-    AngleArc2D.prototype.getVariables = function() {
-        return this.expr.getVariables();
-    };
-
     AngleArc2D.prototype.createSceneObject = function() {
-        var _vectors = this.expr.evaluate();
-        var _a = _vectors.q[0];
-        var _b = _vectors.q[1];
+        var _a = new THREE.Vector3(...this.plot.parser.eval(this.exprs.v1).toArray());
+        var _b = new THREE.Vector3(...this.plot.parser.eval(this.exprs.v2).toArray());
 
-        var _thetaA = Math.atan2(_a.q[1].value, _a.q[0].value);
-        var _thetaB = Math.atan2(_b.q[1].value, _b.q[0].value);
+        var _thetaA = Math.atan2(_a.y, _a.x);
+        var _thetaB = Math.atan2(_b.y, _b.x);
         var _clockwise = _thetaA-_thetaB < Math.PI && _thetaA-_thetaB >= 0;
 
         var _hex = this.opts.hex;
         var _radius = this.opts.radius;
         var _tolerance = this.opts.tolerance;
 
-        if(Math.abs(_a.dot(_b).value) < _tolerance) {
-            var v1 = _a.norm().mul(new Number(_radius));
-            var v3 = _b.norm().mul(new Number(_radius));
-            var v2 = v1.add(v3);
-            var points = [v1.toVector3(), v2.toVector3(), v3.toVector3()];
+        if(Math.abs(_a.dot(_b)) < _tolerance) {
+            var v1 = _a.clone().normalize().multiplyScalar(_radius);
+            var v3 = _b.clone().normalize().multiplyScalar(_radius);
+            var v2 = v1.clone().add(v3);
+            var points = [v1, v2, v3];
         } else {
             var curve = new THREE.EllipseCurve(
                 0, 0,             // ax, aY
@@ -1949,12 +1566,13 @@
      * headWidth -- The length of the width of the arrow. Default is 0.05.
      * (Derived from THREE.js)
      */
-    function Arrow2D(plot, expr, opts) {
-        Plottable.call(this, plot, expr, opts);
+    function Arrow2D(plot, plotInfo, opts) {
+        Plottable.call(this, plot, opts);
+
+        this.exprs = plotInfo.exprs;
 
         if(opts === undefined) opts = {};
         this.opts = {};
-        this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0,0)', plot.context);
         this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
         this.opts.headLength = opts.headLength !== undefined ? opts.headLength : 0.2;
         this.opts.headWidth = opts.headWidth !== undefined ? opts.headWidth : 0.05;
@@ -1968,10 +1586,12 @@
     };
 
     Arrow2D.prototype.createSceneObject = function() {
-        var _vector2 = this.expr.evaluate().toVector3();
-        var _dir = _vector2.clone().normalize();
-        var _length = _vector2.length();
-        var _origin = this.opts.origin.evaluate().toVector3();
+        var _end = this.plot.parser.eval(this.exprs.end);
+        var _vector2 = new THREE.Vector3(..._end.toArray());
+        var _start = this.plot.parser.eval(this.exprs.start);
+        var _origin = new THREE.Vector3(..._start.toArray());
+        var _dir = _vector2.clone().sub(_origin).normalize();
+        var _length = _vector2.distanceTo(_origin);
         var _hex = this.opts.hex;
         var _headLength = this.opts.headLength;
         var _headWidth = this.opts.headWidth;
@@ -1983,29 +1603,30 @@
         this.isHotspot2DInstance = true;
         
         this.plot = plot;
-        this.expr = new Expression(expr, plot.context);
-        this.position = this.expr.evaluate().clone();
+        this.expr = expr;
+        this.position = this.plot.parser.eval(expr);
         this.size = 20;
     }
 
     Hotspot2D.prototype.ondrag = function(event) {
-        this.position.q[0] = event.worldX;
-        this.position.q[1] = event.worldY;
+        this.position._data[0] = event.worldX;
+        this.position._data[1] = event.worldY;
 
-        this.plot.context[this.expr.string].q[0] = event.worldX;
-        this.plot.context[this.expr.string].q[1] = event.worldY;
+        // this.plot.context[this.expr.string].q[0] = event.worldX;
+        // this.plot.context[this.expr.string].q[1] = event.worldY;
+        this.plot.parser.set(this.expr, math.matrix([event.worldX, event.worldY]));
 
-        this.plot.refresh(this.expr.string);
+        this.plot.refresh();
     };
 
     function Label2D(ax, text, opts) {
-        var plot = ax.parent;
+        this.plot = ax.parent;
         this.ax = ax;
         this.text = text;
 
         if(opts === undefined) opts = {};
         this.opts = {};
-        this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0)', plot.context);
+        this.opts.position = opts.position !== undefined ? opts.position : '[0,0]';
         this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
     }
 
@@ -2032,14 +1653,14 @@
     };
 
     Label2D.prototype.refresh = function() {
-        var _origin = this.opts.origin.evaluate();
+        var _origin = this.plot.parser.eval(this.opts.position);
 
         var rect = this.ax.frame.container.getBoundingClientRect();
         var _self = this.ax;
         
-        // I forgot why this works kek
+        // I forgot why this works
         var project = function(vector) {
-            var vector2 = new THREE.Vector2(vector.q[0].value, vector.q[1].value);
+            var vector2 = new THREE.Vector2(...vector.toArray());
             var projected = vector2.clone().sub(_self.camera.position).multiplyScalar(_self.zoom / 2).add(new THREE.Vector2(_self.frame.width / 2, _self.frame.height / 2));
             projected.y = _self.frame.height - projected.y;
             return projected;
@@ -2051,34 +1672,31 @@
         this.label.style.left = window.scrollX + coords.x + rect.left + 'px';
     };
 
-    function Parallelogram2D(plot, expr, opts) {
-        Plottable.call(this, plot, expr, opts);
+    function Parallelogram2D(plot,plotInfo, opts) {
+        Plottable.call(this, plot, opts);
 
         if(opts === undefined) opts = {};
 
         this.opts = {};
-        this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0)', plot.context);
         this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
         this.opts.opacity = opts.opacity !== undefined ? opts.opacity : 1;
+
+        this.exprs = plotInfo.exprs;
     }
 
     Parallelogram2D.prototype = Object.create(Plottable.prototype);
     Parallelogram2D.prototype.constructor = Parallelogram2D;
 
-    Parallelogram2D.prototype.getVariables = function() {
-        return this.expr.getVariables().concat(this.opts.origin.getVariables());
-    };
-
     Parallelogram2D.prototype.createSceneObject = function() {
-        var _vector1 = this.expr.evaluate().q[0];
-        var _vector2 = this.expr.evaluate().q[1];
-        var _origin = this.opts.origin.evaluate();
+        var _vector1 = new THREE.Vector3(...this.plot.parser.eval(this.exprs.v1).toArray());
+        var _vector2 = new THREE.Vector3(...this.plot.parser.eval(this.exprs.v2).toArray());
+        var _origin = new THREE.Vector3(...this.plot.parser.eval(this.exprs.offset).toArray());
         
         var geom = new THREE.Geometry();
-        geom.vertices.push(_origin.toVector3());
-        geom.vertices.push(_origin.add(_vector1).toVector3());
-        geom.vertices.push(_origin.add(_vector2).toVector3());
-        geom.vertices.push(_origin.add(_vector1).add(_vector2).toVector3());
+        geom.vertices.push(_origin);
+        geom.vertices.push(_origin.clone().add(_vector1));
+        geom.vertices.push(_origin.clone().add(_vector2));
+        geom.vertices.push(_origin.clone().add(_vector1).add(_vector2));
         
         var f1 = new THREE.Face3(3, 1, 0);
         var f2 = new THREE.Face3(0, 2, 3);
@@ -2091,126 +1709,141 @@
         return new THREE.Mesh( geom, mat );
     };
 
-    function Parametric2D(parent, expr, opts) {
-        Plottable.call(this, parent.parent, expr, opts);
+    function Parametric2D(parent, plotInfo, opts) {
+        Plottable.call(this, parent.parent, opts);
 
         this.parent = parent;
-        this.opts = opts !== undefined? opts: {};
+        this.opts = opts !== undefined ? opts : {};
+        
+        if (this.opts.thick === undefined) this.opts.thick = false;
 
-        if(this.opts.color !== undefined) {
-            this.color = new Expression(this.opts.color, this.plot.context);
-            this.colorf = this.color.evaluate();
+        this.exprs = plotInfo.exprs; 
+
+        if(!this.exprs.color && this.opts.color) {
+            this.exprs.color = this.opts.color;
+            this.opts.color = true;
         }
-        if(this.opts.thick === undefined) this.opts.thick = false;
+
+        this.exprs.pointFunc = '_tmp(' + this.exprs.tvar + ') = ' + this.exprs.point;
+        if (this.exprs.color) {
+            this.exprs.colorFunc = '_tmp(' + this.exprs.tvar + ') = ' + this.exprs.color;
+        }
     }
 
     Parametric2D.prototype = Object.create(Plottable.prototype);
     Parametric2D.prototype.constructor = Parametric2D;
 
-    Parametric2D.prototype.getVariables = function() {
-        if(this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
+    Parametric2D.prototype.getVariables = function () {
+        if (this.opts.color !== undefined) return this.expr.getVariables().concat(this.color.getVariables());
         else return this.expr.getVariables();
     };
 
-    Parametric2D.prototype.createLine = function(par) {
+    Parametric2D.prototype.createLine = function () {
         var geom = new THREE.BufferGeometry();
-        var int = par.intervals[0];
-        var tarr = int.array();
-
-        var direction = new Float32Array(tarr.length * 2);
-        var vertices = new Float32Array(tarr.length * 3 * 2);
-        var previous = new Float32Array(tarr.length * 3 * 2);
-        var next = new Float32Array(tarr.length * 3 * 2);
-
-        var colors = new Uint8Array(tarr.length * 4 * 2);
-
-        for(var i = 0; i < tarr.length; i++) {
-            var t = tarr[i];
-
-            direction[i*2] = 1;
-            direction[i*2+1] = -1;
-
-            // geom.vertices.push(par.func(t).toVector3());
-            var v = par.func(t).toVector3();
-            vertices[i*6] = v.x;
-            vertices[i*6+1] = v.y;
-            vertices[i*6+2] = v.z;
-
-            vertices[i*6+3] = v.x;
-            vertices[i*6+4] = v.y;
-            vertices[i*6+5] = v.z;
-
-            if(i > 0) {
-                previous[i*6] = vertices[i*6-6];
-                previous[i*6+1] = vertices[i*6-5];
-                previous[i*6+2] = vertices[i*6-4];
-                previous[i*6+3] = vertices[i*6-3];
-                previous[i*6+4] = vertices[i*6-2];
-                previous[i*6+5] = vertices[i*6-1];
-
-                next[i*6-6] = vertices[i*6];
-                next[i*6-5] = vertices[i*6+1];
-                next[i*6-4] = vertices[i*6+2];
-                next[i*6-3] = vertices[i*6+3];
-                next[i*6-2] = vertices[i*6+4];
-                next[i*6-1] = vertices[i*6+5];
+        
+        var pointFunc = this.plot.parser.eval(this.exprs.pointFunc);
+        var tint = {
+            min: this.plot.parser.eval(this.exprs.tmin),
+            max: this.plot.parser.eval(this.exprs.tmax),
+            steps: this.plot.parser.eval(this.exprs.tsteps),
+        };
+        if(this.opts.color) {
+            var colorFunc = this.plot.parser.eval(this.exprs.colorFunc);
+        }
+        
+        var direction = new Float32Array(tint.steps * 2);
+        var vertices = new Float32Array(tint.steps * 3 * 2);
+        var previous = new Float32Array(tint.steps * 3 * 2);
+        var next = new Float32Array(tint.steps * 3 * 2);
+        
+        var colors = new Uint8Array(tint.steps * 4 * 2);
+        
+        for (var i = 0; i < tint.steps; i++) {
+            var t = i * (tint.max - tint.min) / (tint.steps - 1) + tint.min;
+            
+            direction[i * 2] = 1;
+            direction[i * 2 + 1] = -1;
+            
+            var v = new THREE.Vector3(...pointFunc(t).toArray());
+            vertices[i * 6] = v.x;
+            vertices[i * 6 + 1] = v.y;
+            vertices[i * 6 + 2] = v.z;
+            
+            vertices[i * 6 + 3] = v.x;
+            vertices[i * 6 + 4] = v.y;
+            vertices[i * 6 + 5] = v.z;
+            
+            if (i > 0) {
+                previous[i * 6] = vertices[i * 6 - 6];
+                previous[i * 6 + 1] = vertices[i * 6 - 5];
+                previous[i * 6 + 2] = vertices[i * 6 - 4];
+                previous[i * 6 + 3] = vertices[i * 6 - 3];
+                previous[i * 6 + 4] = vertices[i * 6 - 2];
+                previous[i * 6 + 5] = vertices[i * 6 - 1];
+                
+                next[i * 6 - 6] = vertices[i * 6];
+                next[i * 6 - 5] = vertices[i * 6 + 1];
+                next[i * 6 - 4] = vertices[i * 6 + 2];
+                next[i * 6 - 3] = vertices[i * 6 + 3];
+                next[i * 6 - 2] = vertices[i * 6 + 4];
+                next[i * 6 - 1] = vertices[i * 6 + 5];
             }
-
-            if(this.color !== undefined) {
-                var color = this.colorf(t);
-                // geom.colors[i] = new THREE.Color(color.q[0].value, color.q[1].value, color.q[2].value)
-                colors[i*8] = color.q[0].value * 255;
-                colors[i*8 + 1] = color.q[1].value * 255;
-                colors[i*8 + 2] = color.q[2].value * 255;
-                colors[i*8 + 3] = 255;
-                colors[i*8 + 4] = color.q[0].value * 255;
-                colors[i*8 + 5] = color.q[1].value * 255;
-                colors[i*8 + 6] = color.q[2].value * 255;
-                colors[i*8 + 7] = 255;
+            
+            if (this.opts.color) {
+                var color = colorFunc(t).toArray();
+                colors[i * 8] = color[0] * 255;
+                colors[i * 8 + 1] = color[1] * 255;
+                colors[i * 8 + 2] = color[2] * 255;
+                colors[i * 8 + 3] = 255;
+                colors[i * 8 + 4] = color[0] * 255;
+                colors[i * 8 + 5] = color[1] * 255;
+                colors[i * 8 + 6] = color[2] * 255;
+                colors[i * 8 + 7] = 255;
             } else {
-                colors[i*8] = 255;
-                colors[i*8 + 1] = 255;
-                colors[i*8 + 2] = 255;
-                colors[i*8 + 3] = 255;
-                colors[i*8 + 4] = 255;
-                colors[i*8 + 5] = 255;
-                colors[i*8 + 6] = 255;
-                colors[i*8 + 7] = 255;
+                colors[i * 8] = 255;
+                colors[i * 8 + 1] = 255;
+                colors[i * 8 + 2] = 255;
+                colors[i * 8 + 3] = 255;
+                colors[i * 8 + 4] = 255;
+                colors[i * 8 + 5] = 255;
+                colors[i * 8 + 6] = 255;
+                colors[i * 8 + 7] = 255;
             }
         }
-
+        
         previous[0] = vertices[0];
         previous[1] = vertices[1];
         previous[2] = vertices[2];
         previous[3] = vertices[3];
         previous[4] = vertices[4];
         previous[5] = vertices[5];
-        next[tarr.length*6-6] = vertices[tarr.length*6-6];
-        next[tarr.length*6-5] = vertices[tarr.length*6-5];
-        next[tarr.length*6-4] = vertices[tarr.length*6-4];
-        next[tarr.length*6-3] = vertices[tarr.length*6-3];
-        next[tarr.length*6-2] = vertices[tarr.length*6-2];
-        next[tarr.length*6-1] = vertices[tarr.length*6-1];
-
+        next[tint.steps * 6 - 6] = vertices[tint.steps * 6 - 6];
+        next[tint.steps * 6 - 5] = vertices[tint.steps * 6 - 5];
+        next[tint.steps * 6 - 4] = vertices[tint.steps * 6 - 4];
+        next[tint.steps * 6 - 3] = vertices[tint.steps * 6 - 3];
+        next[tint.steps * 6 - 2] = vertices[tint.steps * 6 - 2];
+        next[tint.steps * 6 - 1] = vertices[tint.steps * 6 - 1];
+        
         geom.addAttribute('direction', new THREE.BufferAttribute(direction, 1));
         geom.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
         geom.addAttribute('previous', new THREE.BufferAttribute(previous, 3));
         geom.addAttribute('next', new THREE.BufferAttribute(next, 3));
         geom.addAttribute('color', new THREE.BufferAttribute(colors, 4, true));
-
+        
         var mat = new LineMaterialCreator(this.opts.thick === true ? 10 : 5, this.parent.frame.width, this.parent.frame.height).getMaterial();
         var mesh = new THREE.Mesh(geom, mat);
         mesh.drawMode = THREE.TriangleStripDrawMode;
         return mesh
     };
 
-    Parametric2D.prototype.createSceneObject = function() {
-        var par = this.expr.evaluate();
-        return this.createLine(par);
+    Parametric2D.prototype.createSceneObject = function () {
+        return this.createLine();
     };
 
     function Point2D(plot, expr, opts) {
-        Plottable.call(this, plot, expr, opts);
+        Plottable.call(this, plot, opts);
+
+        this.expr = expr;
 
         if(opts === undefined) opts = {};
         this.opts = {};
@@ -2221,12 +1854,8 @@
     Point2D.prototype = Object.create(Plottable.prototype);
     Point2D.prototype.constructor = Point2D;
 
-    Point2D.prototype.getVariables = function() {
-        return this.expr.getVariables();
-    };
-
     Point2D.prototype.createSceneObject = function() {
-        var _vector2 = this.expr.evaluate().toVector3();
+        var _vector2 = new THREE.Vector3(...this.plot.parser.eval(this.expr).toArray());
         var _hex = this.opts.hex;
         var _radius = this.opts.radius;
 
@@ -2237,25 +1866,30 @@
         return circle;
     };
 
-    function Polygon2D(plot, expr, opts) {
-        Plottable.call(this, plot, expr, opts);
+    function Polygon2D(plot, plotInfo, opts) {
+        Plottable.call(this, plot, opts);
 
         if(opts === undefined) opts = {};
 
         this.opts = {};
         this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
         this.opts.opacity = opts.opacity !== undefined ? opts.opacity : 1;
+
+        this.exprs = plotInfo.exprs;
     }
 
     Polygon2D.prototype = Object.create(Plottable.prototype);
     Polygon2D.prototype.constructor = Polygon2D;
 
     Polygon2D.prototype.createSceneObject = function() {
-        var _vectors = this.expr.evaluate();
+        var _self = this;
+        var _vectors = this.exprs.vertices.map((expr) => {
+            return _self.plot.parser.eval(expr);
+        });
         
         var geom = new THREE.Geometry();
         for(var i = 0; i < _vectors.dimensions; i++) {
-            geom.vertices.push(_vectors.q[i].toVector3());
+            geom.vertices.push(new THREE.Vector3(..._vectors.toArray()));
             if(i > 1) {
                 var f = new THREE.Face3(0,i,i-1);
                 geom.faces.push(f);
@@ -2277,13 +1911,17 @@
     Isoline2D.prototype.constructor = Isoline2D;
 
     Isoline2D.prototype.lerp = function(a, b, az, z, bz) {
-        var alpha = z.sub(az).div(bz.sub(az));
-        var result = a.mul(Number[1].sub(alpha)).add(b.mul(alpha));
-        var temp = result.q[1];
-        result.q[1] = result.q[2];
-        // result.q[2] = Number[0];
-        result.q[2] = temp;
-        return result.toVector3();
+        var alpha = (z - az) / (bz - az);
+        
+        a = new THREE.Vector3(...a);
+        b = new THREE.Vector3(...b);
+        var result = a.multiplyScalar(1 - alpha).add(b.multiplyScalar(alpha));
+        
+        var temp = result.y;
+        result.y = result.z;
+        result.z = temp;
+        
+        return result;
     };
 
     function Axes2D(parent, container, opts) {
@@ -2329,7 +1967,7 @@
 
         // Projects from world to client coords
         var project = function(vector) {
-            var vector2 = new THREE.Vector2(vector.q[0].value, vector.q[1].value);
+            var vector2 = new THREE.Vector2(...vector.toArray());
             var projected = vector2.clone().sub(_self.camera.position).multiplyScalar(_self.zoom / 2).add(new THREE.Vector2(_self.frame.width / 2, _self.frame.height / 2));
             projected.y = _self.frame.height - projected.y;
             return projected;
@@ -2376,8 +2014,8 @@
                 if (_hotspot !== null) {
                     var containerBounds = _self.frame.container.getBoundingClientRect();
                     var e = {
-                        worldX: _hotspotpos.q[0].add(new Number(2 * (event.screenX - event.screenStartX) / _self.zoom)),
-                        worldY: _hotspotpos.q[1].add(new Number(-2 * (event.screenY - event.screenStartY) / _self.zoom))
+                        worldX: _hotspotpos._data[0] + 2 * (event.screenX - event.screenStartX) / _self.zoom,
+                        worldY: _hotspotpos._data[1] + -2 * (event.screenY - event.screenStartY) / _self.zoom
                     };
                     _hotspot.ondrag(e);
                 }
@@ -2407,16 +2045,21 @@
     Axes2D.prototype = Object.create(Axes.prototype);
     Axes2D.prototype.constructor = Axes2D;
 
-    Axes2D.prototype.plotExpression = function(expr, type, opts) {
+    Axes2D.prototype.plotExpression = function(exprs, type, opts) {
+        var expr = null;
+        if(typeof exprs == 'string') {
+            expr = exprs;
+        }
+
         switch(type) {
             case 'angle':
-                var arc = new AngleArc2D(this.parent, expr, opts);
-                this.expressions[expr] = arc;
+                if(expr) exprs = PlotInfo.AngleArc2D.fromString(expr);
+                var arc = new AngleArc2D(this.parent, exprs, opts);
                 this.addFigure(arc);
                 return arc;
             case 'arrow':            
-                var figure = new Arrow2D(this.parent, expr, opts);
-                this.expressions[expr] = figure;
+                if(expr) exprs = PlotInfo.Arrow2D.fromString(expr);
+                var figure = new Arrow2D(this.parent, exprs, opts);
                 this.addFigure(figure);
                 return figure;
             case 'hotspot':
@@ -2424,28 +2067,27 @@
                 this.addHotspot(hotspot);
                 return hotspot;
             case 'parametric':           
-                var par = new Parametric2D(this, expr, opts);
-                this.expressions[expr] = par;
+                if(expr) exprs = PlotInfo.Parametric2D.fromString(expr);
+                var par = new Parametric2D(this, exprs, opts);
                 this.addFigure(par);
                 return par;
             case 'isoline':           
-                var iso = new Isoline2D(this, expr, opts);
-                this.expressions[expr] = iso;
+                if(expr) exprs = PlotInfo.Isoline2D.fromString(expr);
+                var iso = new Isoline2D(this, exprs, opts);
                 this.addFigure(iso);
                 return iso;
             case 'polygon':
-                var pgon = new Polygon2D(this.parent, expr, opts);
-                this.expressions[expr] = pgon;
+                if(expr) exprs = PlotInfo.Polygon2D.fromString(expr);
+                var pgon = new Polygon2D(this.parent, exprs, opts);
                 this.addFigure(pgon);
             case 'parallelogram':
             case 'pgram':
-                var par = new Parallelogram2D(this.parent, expr, opts);
-                this.expressions[expr] = par;
+                if(expr) exprs = PlotInfo.Parallelogram2D.fromString(expr);
+                var par = new Parallelogram2D(this.parent, exprs, opts);
                 this.addFigure(par);
                 return par;
             case 'point':
                 var point = new Point2D(this.parent, expr, opts);
-                this.expressions[expr] = point;
                 this.addFigure(point);
                 return point;
             case 'label':
@@ -2485,9 +2127,9 @@
 
     function Panel (parent, container) {
         this.parent = parent;
-
+        
         this.container = container;
-
+        
         this.readOuts = [];
     }
 
@@ -2498,7 +2140,7 @@
         refresh.setAttribute('value', 'refresh');
         this.container.appendChild(textBox);
         this.container.appendChild(refresh);
-
+        
         refresh.onclick = () => {
             var lines = textBox.value.split('\n');
             lines.forEach((line) => {
@@ -2509,42 +2151,50 @@
 
     Panel.prototype.addSlider = function(expr, opts) {
         if(opts === undefined) opts = {};
-
-        var interval = new Expression(expr, this.parent.context).evaluate();
-
+        
+        var parts = expr.split(/(?:{|}|,)+/g);
+        var interval = {
+            varstr: parts[1],
+            start: parts[2],
+            end: parts[3],
+            steps: parts[4]
+        };
+        
         var slider = document.createElement('input');
         slider.setAttribute('type', 'range');
-        slider.min = interval.start.value;
-        slider.max = interval.end.value;
-        slider.step = interval.step.value;
-
-        if(this.parent.context[interval.varstr] !== undefined) {
-            slider.value = this.parent.context[interval.varstr].value;
+        slider.min = this.parent.parser.eval(interval.start);
+        slider.max = this.parent.parser.eval(interval.end);
+        slider.step = (slider.max - slider.min) / this.parent.parser.eval(interval.steps);
+        
+        if(this.parent.parser.get(interval.varstr) !== undefined) {
+            slider.value = this.parent.parser.get(interval.varstr);
         }
-
+        
         var valueLabel = document.createTextNode(slider.value);
-
+        
         var _self = this;
-        if(opts.continuous === undefined || opts.continuous === false) {
-            slider.onchange = function() {            
-                _self.parent.context[interval.varstr] = new Number(parseFloat(slider.value));
-                _self.parent.refresh(interval.varstr);
-                
-                valueLabel.nodeValue = slider.value;
-            };
-        } else if(opts.continuous === true) {
-            slider.oninput = function() {
-                _self.parent.context[interval.varstr] = new Number(parseFloat(slider.value));
-                _self.parent.refresh(interval.varstr);
-
-                valueLabel.nodeValue = slider.value;
-            };
+        var update = function() {      
+            _self.parent.parser.set(interval.varstr, parseFloat(slider.value));
+            if(opts.updateAxes) {
+                opts.updateAxes.forEach((axes) => {
+                    axes.refresh();
+                });
+            } else {
+                _self.parent.refresh();
+            }
+            
+            valueLabel.nodeValue = slider.value;
+        };
+        if(opts.continuous) {
+            slider.oninput = update;
+        } else {
+            slider.onchange = update;
         }
-
+        
         var label = document.createTextNode(interval.varstr + ':');
         
         var div = document.createElement('div');
-
+        
         this.container.appendChild(div);
         div.appendChild(label);
         div.appendChild(slider);
@@ -2553,28 +2203,28 @@
 
     Panel.prototype.addReadout = function(expr, opts) {
         // TODO-ERR: Check if expr exists 
-
+        
         if(opts === undefined) opts = {};
-
+        
         var textBox = document.createElement('input');
         textBox.setAttribute('type', 'text');
         textBox.setAttribute('disabled', 'true');
-
+        
         // var _self = this;
         // textBox.onchange = function() {            
         //     _self.parent.context[expr] = new Expression(textBox.value, _self.parent.context);
         //     _self.parent.refresh(interval.varstr);
         // }
-
+        
         var label = document.createTextNode(expr + '=');
-
+        
         var div = document.createElement('div');
         
         this.container.appendChild(div);
         div.appendChild(label);
         div.appendChild(textBox);
-
-        this.readOuts.push({exprLabel: expr, expr: new Expression(expr, this.parent.context), div: div, textBox: textBox});
+        
+        this.readOuts.push({exprLabel: expr, expr: expr, div: div, textBox: textBox});
     };
 
     Panel.prototype.addCheckBox = function(expr, opts) {
@@ -2583,18 +2233,18 @@
         
         var chkBox = document.createElement('input');
         chkBox.setAttribute('type', 'checkbox');
-
-        chkBox.checked = this.parent.context[variable] != 0;
-
+        
+        chkBox.checked = this.parent.parser.get(variable) != 0;
+        
         var _self = this;
         chkBox.onchange = function() {
-            _self.parent.context[variable] = chkBox.checked ? Number[1] : Number[0];
-            _self.parent.refresh(variable);
+            _self.parent.parser.set(variable, chkBox.checked ? 1 : 0);
+            _self.parent.refresh();
         };
-
+        
         var label = document.createTextNode(opts.label);
         var div = document.createElement('div');
-
+        
         this.container.appendChild(div);
         div.appendChild(label);
         div.appendChild(chkBox);
@@ -2603,37 +2253,86 @@
     Panel.prototype.update = function() {
         for(var i = 0; i < this.readOuts.length; i++) {
             var readOut = this.readOuts[i];
-            readOut.textBox.value = readOut.expr.evaluate().toString({precision: 4});
+            readOut.textBox.value = math.round(this.parent.parser.eval(readOut.expr), 6).toString();
         }
     };
 
     function Plot() {
         /**
-         * The type of this object. (Read-only)
-         */
+        * The type of this object. (Read-only)
+        */
         this.type = 'Plot';
         this.axes = {};
         this.panels = [];
+        
+        this.parser = math.parser();
+        this.parser.set('diffh', function(f, x, h) {
+            return math.divide(math.subtract(f(x + h/2), f(x - h/2)), h);
+        });
+        this.parser.eval('diff(f, x) = diffh(f, x, 0.0000001)');
+        this.parser.set('diff2h', function(f, x, h) {
+            return math.divide(math.add(f(x + h), f(x - h), math.multiply(f(x), -2)), math.multiply(h, h));
+        });
+        this.parser.eval('diff2(f, x) = diff2h(f, x, 0.0000001)');
+        this.parser.eval('interpolate(a, b, alpha) = a * (1 - alpha) + b * alpha');
+        this.parser.set('normalh', function(X, u, v, h) {
+            var du = math.divide(math.subtract(X(u + h/2, v), X(u - h/2, v)), h);
+            var dv = math.divide(math.subtract(X(u, v + h/2), X(u, v - h/2)), h);
+            return math.cross(du, dv);
+        });
+        this.parser.eval('normal(X, u, v) = normalh(X, u, v, 0.0000001)');
+        this.parser.eval('normalize(b) = b / norm(b)');
+        this.parser.set('quadrant', function(v) {
+            var arr = v.toArray();
+            if(arr[0] < 0 && arr[1] < 0) return 3;
+            if(arr[0] < 0 && arr[1] == 0) return 2.5;
+            if(arr[0] < 0 && arr[1] > 0) return 2;
+            if(arr[0] == 0 && arr[1] < 0) return 3.5;
+            if(arr[0] == 0 && arr[1] == 0) return 0;
+            if(arr[0] == 0 && arr[1] > 0) return 1.5;
+            if(arr[0] > 0 && arr[1] < 0) return 4;
+            if(arr[0] > 0 && arr[1] == 0) return 0.5;
+            if(arr[0] > 0 && arr[1] > 0) return 1;
+        });
+        this.parser.set('select', function(i) {
+            if(!Number.isInteger(i) || !(1 <= i && i <= arguments.length)) {
+                throw new Error('Invalid argument "' + i + '"!')
+            }
+            return arguments[i];
+        });
+        this.parser.set('spectrum', function(h) {
+            h = h % 1;
+            if(h < 0) h = h + 1;
 
-        /**
-         * The variables the expressions will reference
-         */
-        this.context = Expression.getDefaultContext();
-
-        /**
-         * Cached expressions
-         */
-        this.expressions = {};
+            var r, g, b, i, f, q;
+            i = Math.floor(h * 6);
+            f = h * 6 - i;
+            q = 1 - f;
+            switch (i % 6) {
+                case 0: r = 1, g = f, b = 0; break;
+                case 1: r = q, g = 1, b = 0; break;
+                case 2: r = 0, g = 1, b = f; break;
+                case 3: r = 0, g = q, b = 1; break;
+                case 4: r = f, g = 0, b = 1; break;
+                case 5: r = 1, g = 0, b = q; break;
+            }
+            return math.matrix([r, g, b]);
+        });    
     }
 
     Plot.prototype.execExpression = function(expr) {
-        if(this.expressions[expr] === undefined) this.expressions[expr] = new Expression(expr, this.context);
-        return this.expressions[expr].evaluate();
+        var result;
+        try {
+            result = this.parser.eval(expr);
+        } catch (err) {
+            result = err;
+        } 
+        return result;
     };
 
-    Plot.prototype.refresh = function(expr) {
+    Plot.prototype.refresh = function() {
         for(var key in this.axes) {
-            this.axes[key].refresh(expr);
+            this.axes[key].refresh();
         }
     };
 
@@ -2644,8 +2343,8 @@
     };
 
     /**
-     * Create a 3D axis in the context of this plot
-     */
+    * Create a 3D axis in the context of this plot
+    */
     Plot.prototype.createAxes3D = function(container, opts) {
         var ax = new Axes3D(this, container, opts);
         this.axes[ax.uid] = ax;
@@ -2653,8 +2352,8 @@
     };
 
     /**
-     * Create a 2D axis in the context of this plot
-     */
+    * Create a 2D axis in the context of this plot
+    */
     Plot.prototype.createAxes2D = function(container, opts) {
         var ax = new Axes2D(this, container, opts);
         this.axes[ax.uid] = ax;
@@ -2673,8 +2372,7 @@
     };
 
     Plot.prototype.resetContext = function() {
-        this.context = Expression.getDefaultContext();
-        this.expressions = {};
+        this.parser = math.parser();
     };
 
     Plot.prototype.sleep = function() {
@@ -2687,11 +2385,11 @@
         function checkVisible(el) {
             var elemTop = el.getBoundingClientRect().top;
             var elemBottom = el.getBoundingClientRect().bottom;
-
+            
             var isVisible = (elemBottom >= 0) && (elemTop <= window.innerHeight);
             return isVisible;
         }
-
+        
         for(var key in this.axes) {
             var ax = this.axes[key];
             if(checkVisible(ax.frame.container)) {
@@ -2699,7 +2397,7 @@
                 ax.render();
             } else if(!ax.frame.isSleeping) ax.sleep();
         }
-
+        
         this.panels.forEach(function(pan) {
             pan.update();
         });
@@ -2755,11 +2453,6 @@
         // Objects not rendered by THREE that still need to refreshed
         this.nonJSObjects = [];
 
-        /**
-         * Expressions to plot
-         */
-        this.expressions = {};
-
         if(opts.showControls === true) this.showControls();
     }
 
@@ -2804,7 +2497,7 @@
      * @param {String} type Type of plot
      * @param {*} opts Options
      */
-    Axes.prototype.plotExpression = function(expr, type, opts) {
+    Axes.prototype.plotExpression = function(exprs, type, opts) {
         console.log('Interactive.' + this._proto_.constructor.name + ': Method not implemented');
         return null;
     };
@@ -2850,22 +2543,21 @@
         object.invalidate();
     };
 
-    /**
-     * Redraw an existing expression
-     * @param {Expression} expr Expression to redraw
-     */
-    Axes.prototype.redrawExpression = function(expr) {
-        this.redrawFigure(this.expressions[expr]);
-    };
+    // /**
+    //  * Redraw an existing expression
+    //  * @param {Expression} expr Expression to redraw
+    //  */
+    // Axes.prototype.redrawExpression = function(expr) {
+    //     this.redrawFigure(this.expressions[expr]);
+    // }
 
     /**
      * Redraw all objects
-     * @param {Expression} expr Optional: only redraw expressions which contain the variables in given expression
      */
-    Axes.prototype.refresh = function(expr) {
+    Axes.prototype.refresh = function() {
         for(var i = 0; i < this.objects.length; i++) {
-            if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().indexOf(expr) !== -1)) {
-                this.objects[i].invalidate(expr);
+            if(this.objects[i].invalidate !== undefined) {
+                this.objects[i].invalidate();
             }
         }
     };
@@ -3182,6 +2874,7 @@
         if(pi.axesId === undefined) return null;
         if(pi.valid === undefined) pi.valid = false;
         if(pi.values === undefined) pi.values = {};
+        if(pi.opts === undefined) pi.opts = {};
         
         // Add a reference from the axes it is
         // embedded in
@@ -3201,45 +2894,12 @@
             ai.obj.removeFigure(pi.obj);    
             pi.obj = null;
         }
-        
-        var expr = '';
-        if(pi.values.expr) {
-            expr += pi.values.expr;
-        }
-        
-        var intervalToString = function(interval) {
-            var out = '';
-            out +='{';
-            out += interval.variable;
-            out += ',';
-            out += interval.start;
-            out += ',';
-            out += interval.end;
-            out += ',';
-            out += interval.steps;
-            out += '}';
-            return out;
-        };
-        if(pi.values.interval) {
-            expr += intervalToString(pi.values.interval);   
-        }
-        if(pi.values.interval1) {
-            expr += intervalToString(pi.values.interval1);
-        }
-        if(pi.values.interval2) {
-            expr += intervalToString(pi.values.interval2);
-        }
-        
-        var opts = {};
-        if(pi.values.useColor) {
-            opts.color = pi.values.color;
-        }
-        
+
         if(pi.valid) {
             switch(pi.type) {
                 case 'Parametric Curve':
                 case 'Parametric Surface':
-                pi.obj = ai.obj.plotExpression(expr, 'parametric', opts);
+                pi.obj = ai.obj.plotExpression(pi.values, 'parametric', pi.opts);
                 break;
             }
         }
@@ -3326,18 +2986,6 @@
         this.plot.render();
     };
 
-    function Isoline(parametric, parametricExpr, axis, level) {
-        this.parametric = parametric;
-        this.parametricExpr = parametricExpr;
-        this.axis = axis; 
-        this.level = level;
-    }
-
-    function Parametric(func, intervals) {
-        this.func = func;
-        this.intervals = Array.from(arguments).slice(1);
-    }
-
     /**
      * Object that represents basis axes in 2d space.
      * @param {*} opts Options to customize the appearance of the arrows. Includes:
@@ -3352,8 +3000,8 @@
 
         var _opts = opts !== undefined ? opts : {};
 
-        this.xBasis = '(1,0)';
-        this.yBasis = '(0,1)';
+        this.xBasis = '[1,0]';
+        this.yBasis = '[0,1]';
 
         var _xOpts = Object.assign({},_opts);
         var _yOpts = Object.assign({},_opts);
@@ -3368,9 +3016,8 @@
         if( _opts.yHex === undefined) {
             _yOpts.hex = 0x008800;
         }
-
-        this.xArrow = new Arrow2D(plot, this.xBasis, _xOpts);   
-        this.yArrow = new Arrow2D(plot, this.yBasis, _yOpts);
+        this.xArrow = new Arrow2D(plot, new PlotInfo.Arrow2D({end: this.xBasis}), _xOpts);   
+        this.yArrow = new Arrow2D(plot, new PlotInfo.Arrow2D({end: this.yBasis}), _yOpts);
     }
 
     BasisVectors2D.prototype = Object.create(Plottable.prototype);
@@ -3397,9 +3044,9 @@
 
         var _opts = opts !== undefined ? opts : {};
 
-        this.xBasis = '(1,0,0)';
-        this.yBasis = '(0,1,0)';
-        this.zBasis = '(0,0,1)';
+        this.xBasis = '[1,0,0]';
+        this.yBasis = '[0,1,0]';
+        this.zBasis = '[0,0,1]';
 
         var _xOpts = Object.assign({},_opts);
         var _yOpts = Object.assign({},_opts);
@@ -3415,9 +3062,9 @@
             _zOpts.hex = 0x4444ff;
         }
 
-        this.xArrow = new Arrow3D(plot, this.xBasis, _xOpts);   
-        this.yArrow = new Arrow3D(plot, this.yBasis, _yOpts);
-        this.zArrow = new Arrow3D(plot, this.zBasis, _zOpts);
+        this.xArrow = new Arrow3D(plot, new PlotInfo.Arrow3D({end: this.xBasis}), _xOpts);   
+        this.yArrow = new Arrow3D(plot, new PlotInfo.Arrow3D({end: this.yBasis}), _yOpts);
+        this.zArrow = new Arrow3D(plot, new PlotInfo.Arrow3D({end: this.zBasis}), _zOpts);
     }
 
     BasisVectors3D.prototype = Object.create(Plottable.prototype);
@@ -3432,28 +3079,21 @@
     };
 
     exports.Hotspot2D = Hotspot2D;
-    exports.MathPlus = MathPlus;
-    exports.Isoline = Isoline;
     exports.Arrow3D = Arrow3D;
     exports.Axes3D = Axes3D;
     exports.Axes = Axes;
     exports.Axes2D = Axes2D;
     exports.Parametric2D = Parametric2D;
     exports.Arrow2D = Arrow2D;
-    exports.Parametric = Parametric;
-    exports.Expression = Expression;
     exports.Panel = Panel;
     exports.Isoline2D = Isoline2D;
     exports.TouchEventListener = TouchEventListener;
-    exports.Interval = Interval;
-    exports.Vector = Vector;
-    exports.Plottable = Plottable;
     exports.Parametric3D = Parametric3D;
+    exports.Plottable = Plottable;
     exports.Parallelogram2D = Parallelogram2D;
     exports.Isoline3D = Isoline3D;
     exports.Label2D = Label2D;
     exports.BasisVectors3D = BasisVectors3D;
-    exports.Number = Number;
     exports.Plot = Plot;
     exports.DynPlot = DynPlot;
     exports.Frame = Frame;

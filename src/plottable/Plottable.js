@@ -1,6 +1,4 @@
-import { Expression } from '../math/expressions/Expression.js'
-
-function Plottable(plot, expr, opts) {
+function Plottable(plot, opts) {
     /**
      * (Read-only)
      */
@@ -8,26 +6,13 @@ function Plottable(plot, expr, opts) {
 
     this.plot = plot;
     
-    if(expr) {
-        this.expr = new Expression(expr, plot.context);
-    }
-    
     this.sceneObject = null;
     this.validated = false;
 
     if(opts === undefined) opts = {}
-    this.showExpr = opts.show !== undefined ? new Expression(opts.show, plot.context) : null;
 }
 
-Plottable.prototype.getVariables = function() {
-    if(!this.expr) {
-        return []
-    }
-    if(this.showExpr) {
-        return this.expr.getVariables().concat(this.showExpr.getVariables());
-    }
-    return this.expr.getVariables();
-}
+
 
 /**
  * Returns an object that can be added to a THREE.js scene.

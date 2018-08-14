@@ -1,7 +1,6 @@
-import { Vector } from '../math/Vector.js';
-import { Expression } from '../math/expressions/Expression.js'
 import { Arrow2D } from './Arrow2D.js';
 import { Plottable } from './Plottable.js';
+import { PlotInfo } from '../dyn/PlotInfo.js';
 
 /**
  * Object that represents basis axes in 2d space.
@@ -17,8 +16,8 @@ function BasisVectors2D(plot, opts) {
 
     var _opts = opts !== undefined ? opts : {};
 
-    this.xBasis = '(1,0)'
-    this.yBasis = '(0,1)'
+    this.xBasis = '[1,0]';
+    this.yBasis = '[0,1]';
 
     var _xOpts = Object.assign({},_opts);
     var _yOpts = Object.assign({},_opts);
@@ -33,9 +32,8 @@ function BasisVectors2D(plot, opts) {
     if( _opts.yHex === undefined) {
         _yOpts.hex = 0x008800;
     }
-
-    this.xArrow = new Arrow2D(plot, this.xBasis, _xOpts);   
-    this.yArrow = new Arrow2D(plot, this.yBasis, _yOpts);
+    this.xArrow = new Arrow2D(plot, new PlotInfo.Arrow2D({end: this.xBasis}), _xOpts);   
+    this.yArrow = new Arrow2D(plot, new PlotInfo.Arrow2D({end: this.yBasis}), _yOpts);
 }
 
 BasisVectors2D.prototype = Object.create(Plottable.prototype);

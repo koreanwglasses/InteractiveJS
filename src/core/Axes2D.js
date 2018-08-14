@@ -8,9 +8,7 @@ import { Parametric2D } from '../plottable/Parametric2D.js';
 import { Point2D } from '../plottable/Point2D.js';
 import { Polygon2D } from '../plottable/Polygon2D.js';
 import { Isoline2D } from '../plottable/Isoline2D.js';
-import { Vector } from '../math/Vector.js';
-import { Number } from '../math/Number.js';
-import { Expression } from '../math/expressions/Expression.js';
+import { PlotInfo } from '../dyn/PlotInfo.js';
 
 function Axes2D(parent, container, opts) {
     Axes.call(this, parent, container, opts);
@@ -55,7 +53,7 @@ function Axes2D(parent, container, opts) {
 
     // Projects from world to client coords
     var project = function(vector) {
-        var vector2 = new THREE.Vector2(vector.q[0].value, vector.q[1].value);
+        var vector2 = new THREE.Vector2(...vector.toArray());
         var projected = vector2.clone().sub(_self.camera.position).multiplyScalar(_self.zoom / 2).add(new THREE.Vector2(_self.frame.width / 2, _self.frame.height / 2));
         projected.y = _self.frame.height - projected.y;
         return projected;
@@ -102,8 +100,8 @@ function Axes2D(parent, container, opts) {
             if (_hotspot !== null) {
                 var containerBounds = _self.frame.container.getBoundingClientRect();
                 var e = {
-                    worldX: _hotspotpos.q[0].add(new Number(2 * (event.screenX - event.screenStartX) / _self.zoom)),
-                    worldY: _hotspotpos.q[1].add(new Number(-2 * (event.screenY - event.screenStartY) / _self.zoom))
+                    worldX: _hotspotpos._data[0] + 2 * (event.screenX - event.screenStartX) / _self.zoom,
+                    worldY: _hotspotpos._data[1] + -2 * (event.screenY - event.screenStartY) / _self.zoom
                 }
                 _hotspot.ondrag(e);
             }
@@ -133,16 +131,21 @@ function Axes2D(parent, container, opts) {
 Axes2D.prototype = Object.create(Axes.prototype);
 Axes2D.prototype.constructor = Axes2D;
 
-Axes2D.prototype.plotExpression = function(expr, type, opts) {
+Axes2D.prototype.plotExpression = function(exprs, type, opts) {
+    var expr = null;
+    if(typeof exprs == 'string') {
+        expr = exprs;
+    }
+
     switch(type) {
         case 'angle':
-            var arc = new AngleArc2D(this.parent, expr, opts);
-            this.expressions[expr] = arc;
+            if(expr) exprs = PlotInfo.AngleArc2D.fromString(expr);
+            var arc = new AngleArc2D(this.parent, exprs, opts);
             this.addFigure(arc);
             return arc;
         case 'arrow':            
-            var figure = new Arrow2D(this.parent, expr, opts)
-            this.expressions[expr] = figure;
+            if(expr) exprs = PlotInfo.Arrow2D.fromString(expr);
+            var figure = new Arrow2D(this.parent, exprs, opts)
             this.addFigure(figure)
             return figure;
         case 'hotspot':
@@ -150,28 +153,27 @@ Axes2D.prototype.plotExpression = function(expr, type, opts) {
             this.addHotspot(hotspot);
             return hotspot;
         case 'parametric':           
-            var par = new Parametric2D(this, expr, opts)
-            this.expressions[expr] = par;
+            if(expr) exprs = PlotInfo.Parametric2D.fromString(expr);
+            var par = new Parametric2D(this, exprs, opts)
             this.addFigure(par);
             return par;
         case 'isoline':           
-            var iso = new Isoline2D(this, expr, opts)
-            this.expressions[expr] = iso;
+            if(expr) exprs = PlotInfo.Isoline2D.fromString(expr);
+            var iso = new Isoline2D(this, exprs, opts)
             this.addFigure(iso);
             return iso;
         case 'polygon':
-            var pgon = new Polygon2D(this.parent, expr, opts);
-            this.expressions[expr] = pgon;
+            if(expr) exprs = PlotInfo.Polygon2D.fromString(expr);
+            var pgon = new Polygon2D(this.parent, exprs, opts);
             this.addFigure(pgon);
         case 'parallelogram':
         case 'pgram':
-            var par = new Parallelogram2D(this.parent, expr, opts);
-            this.expressions[expr] = par;
+            if(expr) exprs = PlotInfo.Parallelogram2D.fromString(expr);
+            var par = new Parallelogram2D(this.parent, exprs, opts);
             this.addFigure(par);
             return par;
         case 'point':
             var point = new Point2D(this.parent, expr, opts);
-            this.expressions[expr] = point;
             this.addFigure(point);
             return point;
         case 'label':

@@ -171,6 +171,7 @@
     <script src="../lib/jquery-3.3.1.min.js"></script>
     <script src="../lib/jquery-ui.min.js"></script>
     <script src="../lib/three.min.js"></script>
+    <script src="../lib/math.min.js"></script>
     <script src="../build/interactive.js"></script>
     <script>
         var plot = new Interactive.DynPlot();
@@ -253,14 +254,14 @@
             removeBtn.click(() => {
                 plot.removeAxes(ai);                    
             });
-          
+            
             var axControls = $('<div></div>');
             axControls.addClass('axescontrols');
             axControls.append(plotSelect);
             axControls.append(newPlotBtn);
             axControls.append(plotControlContainer);
             axControls.append(removeBtn);
-
+            
             axDiv.append(axLabel);
             axDiv.append(axContainer);
             axDiv.append(axControls);
@@ -427,7 +428,11 @@
                 var less = $('<div></div>');
                 less.addClass('plotcontrols');
                 less.addClass('less');
-                less.text('Plot ...');
+                if(pi.values.point) {
+                    less.text('Plot ' + pi.values.point + ' ...');
+                } else {
+                    less.text('Plot ...');
+                }
                 
                 var pc = $('<div></div>');
                 pc.addClass('plotcontrols');
@@ -449,15 +454,16 @@
                 functionInput.css('width', '7em');
                 functionInput.attr('type', 'text');
                 functionInput.attr('placeholder', 'e.g (x, x^2)');
-                if(pi.values.expr) functionInput.val(pi.values.expr);
+                if(pi.values.point) functionInput.val(pi.values.point);
                 
-                var param = intervalControl(pi.values.interval || {});
+                var interval = {variable: pi.values.tvar, start: pi.values.tmin, end: pi.values.tmax, steps: pi.values.tsteps};
+                var param = intervalControl(pi.values.tvar ? interval : {});
                 
                 var colorPanel = $('<div></div>');
                 
                 var useColorChk = $('<input>');
                 useColorChk.attr('type', 'checkbox');
-                useColorChk.prop('checked', pi.values.useColor);
+                useColorChk.prop('checked', pi.opts.color);
                 useColorChk.change((e) => {
                     onchange(e, true);
                 });
@@ -499,10 +505,17 @@
                 onchange = function(requestUpdate) {
                     setTimeout(()=>{                    
                         var values = param.getValues();
-                        pi.values.expr = functionInput.val();
-                        pi.values.interval = values;
-                        pi.values.useColor = useColorChk.is(':checked');
+                        
+                        pi.values.point = functionInput.val();
+                        
+                        pi.values.tvar = values.variable;
+                        pi.values.tmin = values.start;
+                        pi.values.tmax = values.end;
+                        pi.values.tsteps = values.steps;
+                        
                         pi.values.color = colorInput.val();
+                        
+                        pi.opts.color = useColorChk.is(':checked');
                         
                         // For simplicity, assume valid if all fields are non-empty
                         if(functionInput.val() != "" && values.variable != "" && values.start != ""
@@ -515,7 +528,7 @@
                         }
                         plot.plotInfo[pi.id] = pi;
                         
-                        less.text('Plot ' + pi.values.expr + ' ...');
+                        less.text('Plot ' + pi.values.point + ' ...');
                     }, 10);
                 }
                 pc.keypress((e) => {
@@ -535,8 +548,8 @@
                 var less = $('<div></div>');
                 less.addClass('plotcontrols');
                 less.addClass('less');
-                if(pi.values.expr) {
-                    less.text('Plot ' + pi.values.expr + ' ...');
+                if(pi.values.point) {
+                    less.text('Plot ' + pi.values.point + ' ...');
                 } else {
                     less.text('Plot ...');
                 }
@@ -562,16 +575,18 @@
                 functionInput.css('width', '7em');
                 functionInput.attr('type', 'text');
                 functionInput.attr('placeholder', 'e.g (u, v, u * v)');
-                if(pi.values.expr) functionInput.val(pi.values.expr);
+                if(pi.values.point) functionInput.val(pi.values.point);
                 
-                var param1 = intervalControl(pi.values.interval1 || {});
-                var param2 = intervalControl(pi.values.interval2 || {});
+                var interval1 = {variable: pi.values.uvar, start: pi.values.umin, end: pi.values.umax, steps: pi.values.usteps};
+                var interval2 = {variable: pi.values.vvar, start: pi.values.vmin, end: pi.values.vmax, steps: pi.values.vsteps};
+                var param1 = intervalControl(pi.values.uvar ? interval1 : {});
+                var param2 = intervalControl(pi.values.vvar ? interval2 : {});
                 
                 var colorPanel = $('<div></div>');
                 
                 var useColorChk = $('<input>');
                 useColorChk.attr('type', 'checkbox');
-                useColorChk.prop('checked', pi.values.useColor);
+                useColorChk.prop('checked', pi.opts.color);
                 useColorChk.change((e) => {
                     onchange(e, true);
                 });
@@ -614,17 +629,27 @@
                         var values1 = param1.getValues();
                         var values2 = param2.getValues();
                         
-                        pi.values.expr = functionInput.val();
-                        pi.values.interval1 = values1;
-                        pi.values.interval2 = values2;
-                        pi.values.useColor = useColorChk.is(':checked');
+                        pi.values.point = functionInput.val();
+                        
+                        pi.values.uvar = values1.variable;
+                        pi.values.umin = values1.start;
+                        pi.values.umax = values1.end;
+                        pi.values.usteps = values1.steps;
+                        
+                        pi.values.vvar = values2.variable;
+                        pi.values.vmin = values2.start;
+                        pi.values.vmax = values2.end;
+                        pi.values.vsteps = values2.steps;
+                        
                         pi.values.color = colorInput.val();
+                        
+                        pi.opts.color = useColorChk.is(':checked');
                         
                         // For simplicity, assume valid if all fields are non-empty
                         if(functionInput.val() != "" && values1.variable != "" && values1.start != ""
                         && values1.end != "" && values1.steps != "" && values2.variable != "" 
                         && values2.start != "" && values2.end != "" && values2.steps != "" 
-                        && (!pi.values.useColor || pi.values.color)) {
+                        && (!pi.opts.color || pi.values.color)) {
                             pi.valid = true;
                             if(requestUpdate) plot.updatePlot(pi) // Only update on enter
                         } else {
@@ -632,7 +657,7 @@
                         }
                         plot.plotInfo[pi.id] = pi;
                         
-                        less.text('Plot ' + pi.values.expr + ' ...');
+                        less.text('Plot ' + pi.values.point + ' ...');
                     }, 10);
                 }
                 pc.keypress((e) => {
@@ -717,7 +742,7 @@
             $('#addexpr').click(() => {
                 plot.addExpression();
             });
-
+            
             $(document).tooltip({
                 show: {
                     delay: 500,

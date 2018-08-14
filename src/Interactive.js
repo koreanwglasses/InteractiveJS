@@ -9,14 +9,6 @@ export { DynPlot } from './dyn/DynPlot.js';
 
 export { TouchEventListener } from './environment/TouchEventListener.js';
 
-export { Expression } from './math/expressions/Expression.js';
-export { MathPlus } from './math/expressions/MathPlus.js';
-export { Interval } from './math/Interval.js';
-export { Isoline } from './math/Isoline.js';
-export { Number } from './math/Number.js';
-export { Parametric } from './math/Parametric.js';
-export { Vector } from './math/Vector.js';
-
 export { Arrow2D } from './plottable/Arrow2D.js';
 export { Arrow3D } from './plottable/Arrow3D.js';
 export { BasisVectors2D } from './plottable/BasisVectors2D.js';

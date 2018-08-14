@@ -269,6 +269,7 @@ DynPlot.prototype.addPlot = function(pi) {
     if(pi.axesId === undefined) return null;
     if(pi.valid === undefined) pi.valid = false;
     if(pi.values === undefined) pi.values = {};
+    if(pi.opts === undefined) pi.opts = {};
     
     // Add a reference from the axes it is
     // embedded in
@@ -288,45 +289,12 @@ DynPlot.prototype.updatePlot = function(pi) {
         ai.obj.removeFigure(pi.obj);    
         pi.obj = null;
     }
-    
-    var expr = '';
-    if(pi.values.expr) {
-        expr += pi.values.expr;
-    }
-    
-    var intervalToString = function(interval) {
-        var out = '';
-        out +='{';
-        out += interval.variable;
-        out += ',';
-        out += interval.start;
-        out += ',';
-        out += interval.end;
-        out += ',';
-        out += interval.steps;
-        out += '}';
-        return out;
-    }
-    if(pi.values.interval) {
-        expr += intervalToString(pi.values.interval);   
-    }
-    if(pi.values.interval1) {
-        expr += intervalToString(pi.values.interval1);
-    }
-    if(pi.values.interval2) {
-        expr += intervalToString(pi.values.interval2);
-    }
-    
-    var opts = {};
-    if(pi.values.useColor) {
-        opts.color = pi.values.color;
-    }
-    
+
     if(pi.valid) {
         switch(pi.type) {
             case 'Parametric Curve':
             case 'Parametric Surface':
-            pi.obj = ai.obj.plotExpression(expr, 'parametric', opts);
+            pi.obj = ai.obj.plotExpression(pi.values, 'parametric', pi.opts);
             break;
         }
     }

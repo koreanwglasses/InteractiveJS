@@ -1,8 +1,9 @@
-import { Expression } from '../math/expressions/Expression.js';
 import { Plottable } from './Plottable.js';
 
 function Point2D(plot, expr, opts) {
-    Plottable.call(this, plot, expr, opts)
+    Plottable.call(this, plot, opts)
+
+    this.expr = expr;
 
     if(opts === undefined) opts = {};
     this.opts = {}
@@ -13,12 +14,8 @@ function Point2D(plot, expr, opts) {
 Point2D.prototype = Object.create(Plottable.prototype);
 Point2D.prototype.constructor = Point2D;
 
-Point2D.prototype.getVariables = function() {
-    return this.expr.getVariables();
-}
-
 Point2D.prototype.createSceneObject = function() {
-    var _vector2 = this.expr.evaluate().toVector3();
+    var _vector2 = new THREE.Vector3(...this.plot.parser.eval(this.expr).toArray());
     var _hex = this.opts.hex;
     var _radius = this.opts.radius;
 

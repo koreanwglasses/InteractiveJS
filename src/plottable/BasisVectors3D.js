@@ -1,7 +1,6 @@
-import { Expression } from '../math/expressions/Expression.js';
-import { Vector } from '../math/Vector.js';
 import { Arrow3D } from './Arrow3D.js';
 import { Plottable } from './Plottable.js';
+import { PlotInfo } from '../dyn/PlotInfo.js';
 
 /**
  * Object that represents basis axes in 3d space.
@@ -17,9 +16,9 @@ function BasisVectors3D(plot, opts) {
 
     var _opts = opts !== undefined ? opts : {};
 
-    this.xBasis = '(1,0,0)'
-    this.yBasis = '(0,1,0)'
-    this.zBasis = '(0,0,1)'
+    this.xBasis = '[1,0,0]';
+    this.yBasis = '[0,1,0]';
+    this.zBasis = '[0,0,1]';
 
     var _xOpts = Object.assign({},_opts);
     var _yOpts = Object.assign({},_opts);
@@ -35,9 +34,9 @@ function BasisVectors3D(plot, opts) {
         _zOpts.hex = 0x4444ff;
     }
 
-    this.xArrow = new Arrow3D(plot, this.xBasis, _xOpts);   
-    this.yArrow = new Arrow3D(plot, this.yBasis, _yOpts);
-    this.zArrow = new Arrow3D(plot, this.zBasis, _zOpts);
+    this.xArrow = new Arrow3D(plot, new PlotInfo.Arrow3D({end: this.xBasis}), _xOpts);   
+    this.yArrow = new Arrow3D(plot, new PlotInfo.Arrow3D({end: this.yBasis}), _yOpts);
+    this.zArrow = new Arrow3D(plot, new PlotInfo.Arrow3D({end: this.zBasis}), _zOpts);
 }
 
 BasisVectors3D.prototype = Object.create(Plottable.prototype);

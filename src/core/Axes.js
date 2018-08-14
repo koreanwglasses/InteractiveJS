@@ -1,6 +1,5 @@
 import { Frame } from './Frame.js';
 import { Plot } from './Plot.js';
-import { Expression } from '../math/expressions/Expression.js';
 import { Plottable } from '../plottable/Plottable.js';
 import { uid } from '../utils/uid.js';
 
@@ -48,11 +47,6 @@ function Axes(parent, container, opts) {
     // Objects not rendered by THREE that still need to refreshed
     this.nonJSObjects = []
 
-    /**
-     * Expressions to plot
-     */
-    this.expressions = {}
-
     if(opts.showControls === true) this.showControls();
 }
 
@@ -97,7 +91,7 @@ Axes.prototype.render = function() {
  * @param {String} type Type of plot
  * @param {*} opts Options
  */
-Axes.prototype.plotExpression = function(expr, type, opts) {
+Axes.prototype.plotExpression = function(exprs, type, opts) {
     console.log('Interactive.' + this._proto_.constructor.name + ': Method not implemented')
     return null;
 }
@@ -143,22 +137,21 @@ Axes.prototype.redrawFigure = function(object) {
     object.invalidate();
 }
 
-/**
- * Redraw an existing expression
- * @param {Expression} expr Expression to redraw
- */
-Axes.prototype.redrawExpression = function(expr) {
-    this.redrawFigure(this.expressions[expr]);
-}
+// /**
+//  * Redraw an existing expression
+//  * @param {Expression} expr Expression to redraw
+//  */
+// Axes.prototype.redrawExpression = function(expr) {
+//     this.redrawFigure(this.expressions[expr]);
+// }
 
 /**
  * Redraw all objects
- * @param {Expression} expr Optional: only redraw expressions which contain the variables in given expression
  */
-Axes.prototype.refresh = function(expr) {
+Axes.prototype.refresh = function() {
     for(var i = 0; i < this.objects.length; i++) {
-        if(this.objects[i].invalidate !== undefined && (expr === undefined || this.objects[i].getVariables().indexOf(expr) !== -1)) {
-            this.objects[i].invalidate(expr);
+        if(this.objects[i].invalidate !== undefined) {
+            this.objects[i].invalidate();
         }
     }
 }

@@ -25,6 +25,7 @@
         <div id="ax2"></div>
         <div id="panel"></div>
         <script src="../../lib/three.min.js"></script>
+        <script src="../../lib/math.min.js"></script>
         <script src="../../build/interactive.js"></script>
         <script>
             plot = new Interactive.Plot();
@@ -43,11 +44,11 @@
             panel.addSlider('{m,-2,2,40}', {continuous: true});
             
             plot.execExpression('f(r,t)=-(r^4)+2*r^2+m*(r*cos(t))')
-            plot.execExpression('X(r,t)=(r*cos(t),f(r,t),r*sin(t))')
-            plot.execExpression('g(x)=ssign(x)/3+2/3')
-            plot.execExpression('c(r,t)=map(normal(X,r,t),g)')
+            plot.execExpression('X(r,t)=[r*cos(t),f(r,t),r*sin(t)]')
+            plot.execExpression('g(x)=sign(x)/3+2/3')
+            plot.execExpression('c(r,t)=g(normal(X,r,t))')
 
-            ax1.plotExpression('X(r,t){r,0,1.5,50}{t,0,2*PI,50}', 'parametric', {color: 'c'})
+            ax1.plotExpression('X(r,t){r,0,1.5,50}{t,0,2*PI,50}', 'parametric', {color: 'c(r, t)'})
 
             ;(function animate() {
                 requestAnimationFrame(animate);

@@ -1,34 +1,30 @@
-import { Expression } from '../math/expressions/Expression.js';
 import { Plottable } from './Plottable.js';
 
-function Parallelogram2D(plot, expr, opts) {
-    Plottable.call(this, plot, expr, opts)
+function Parallelogram2D(plot,plotInfo, opts) {
+    Plottable.call(this, plot, opts)
 
     if(opts === undefined) opts = {};
 
     this.opts = {}
-    this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0)', plot.context);
     this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
     this.opts.opacity = opts.opacity !== undefined ? opts.opacity : 1;
+
+    this.exprs = plotInfo.exprs;
 }
 
 Parallelogram2D.prototype = Object.create(Plottable.prototype);
 Parallelogram2D.prototype.constructor = Parallelogram2D;
 
-Parallelogram2D.prototype.getVariables = function() {
-    return this.expr.getVariables().concat(this.opts.origin.getVariables());
-}
-
 Parallelogram2D.prototype.createSceneObject = function() {
-    var _vector1 = this.expr.evaluate().q[0];
-    var _vector2 = this.expr.evaluate().q[1];
-    var _origin = this.opts.origin.evaluate();
+    var _vector1 = new THREE.Vector3(...this.plot.parser.eval(this.exprs.v1).toArray());
+    var _vector2 = new THREE.Vector3(...this.plot.parser.eval(this.exprs.v2).toArray());
+    var _origin = new THREE.Vector3(...this.plot.parser.eval(this.exprs.offset).toArray());
     
     var geom = new THREE.Geometry();
-    geom.vertices.push(_origin.toVector3());
-    geom.vertices.push(_origin.add(_vector1).toVector3());
-    geom.vertices.push(_origin.add(_vector2).toVector3());
-    geom.vertices.push(_origin.add(_vector1).add(_vector2).toVector3());
+    geom.vertices.push(_origin);
+    geom.vertices.push(_origin.clone().add(_vector1));
+    geom.vertices.push(_origin.clone().add(_vector2));
+    geom.vertices.push(_origin.clone().add(_vector1).add(_vector2));
     
     var f1 = new THREE.Face3(3, 1, 0);
     var f2 = new THREE.Face3(0, 2, 3);

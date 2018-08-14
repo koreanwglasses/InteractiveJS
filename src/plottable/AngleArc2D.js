@@ -1,13 +1,12 @@
-import { Expression } from '../math/expressions/Expression.js';
 import { Plottable } from './Plottable.js';
-import { Number } from '../math/Number.js';
 
-function AngleArc2D(plot, expr, opts) {
-    Plottable.call(this, plot, expr, opts)
+function AngleArc2D(plot, plotInfo, opts) {
+    Plottable.call(this, plot, opts)
+
+    this.exprs = plotInfo.exprs;
 
     if(opts === undefined) opts = {};
     this.opts = {}
-    this.opts.origin = opts.origin !== undefined ? new Expression(opts.origin, plot.context) : new Expression('(0,0)');
     this.opts.hex = opts.hex !== undefined ? opts.hex : 0xffffff;
     this.opts.radius = opts.radius !== undefined ? opts.radius : 0.2;
     this.opts.tolerance = opts.tolerance !== undefined ? opts.tolerance : 0.01;
@@ -16,28 +15,23 @@ function AngleArc2D(plot, expr, opts) {
 AngleArc2D.prototype = Object.create(Plottable.prototype);
 AngleArc2D.prototype.constructor = AngleArc2D;
 
-AngleArc2D.prototype.getVariables = function() {
-    return this.expr.getVariables();
-}
-
 AngleArc2D.prototype.createSceneObject = function() {
-    var _vectors = this.expr.evaluate();
-    var _a = _vectors.q[0];
-    var _b = _vectors.q[1];
+    var _a = new THREE.Vector3(...this.plot.parser.eval(this.exprs.v1).toArray());
+    var _b = new THREE.Vector3(...this.plot.parser.eval(this.exprs.v2).toArray());
 
-    var _thetaA = Math.atan2(_a.q[1].value, _a.q[0].value);
-    var _thetaB = Math.atan2(_b.q[1].value, _b.q[0].value);
+    var _thetaA = Math.atan2(_a.y, _a.x);
+    var _thetaB = Math.atan2(_b.y, _b.x);
     var _clockwise = _thetaA-_thetaB < Math.PI && _thetaA-_thetaB >= 0;
 
     var _hex = this.opts.hex;
     var _radius = this.opts.radius;
     var _tolerance = this.opts.tolerance;
 
-    if(Math.abs(_a.dot(_b).value) < _tolerance) {
-        var v1 = _a.norm().mul(new Number(_radius));
-        var v3 = _b.norm().mul(new Number(_radius));
-        var v2 = v1.add(v3);
-        var points = [v1.toVector3(), v2.toVector3(), v3.toVector3()]
+    if(Math.abs(_a.dot(_b)) < _tolerance) {
+        var v1 = _a.clone().normalize().multiplyScalar(_radius);
+        var v3 = _b.clone().normalize().multiplyScalar(_radius);
+        var v2 = v1.clone().add(v3);
+        var points = [v1, v2, v3];
     } else {
         var curve = new THREE.EllipseCurve(
             0, 0,             // ax, aY

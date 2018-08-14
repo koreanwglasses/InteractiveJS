@@ -1,8 +1,9 @@
 import { Axes } from '../core/Axes.js'
-import { Expression } from '../math/expressions/Expression.js';
 import { Arrow3D } from '../plottable/Arrow3D.js';
 import { Parametric3D } from '../plottable/Parametric3D.js';
 import { Isoline3D } from '../plottable/Isoline3D.js';
+import { PlotInfo } from '../dyn/PlotInfo.js';
+import { Plot } from './Plot.js';
 
 function Axes3D(parent, container, opts) {
     Axes.call(this, parent, container, opts);
@@ -145,21 +146,26 @@ Axes3D.prototype.render = function() {
 /**
  * Plot an expression
  */
-Axes3D.prototype.plotExpression = function(expr, type, opts) {
+Axes3D.prototype.plotExpression = function(exprs, type, opts) {
+    var expr = null;
+    if(typeof exprs == 'string') {
+        expr = exprs;
+    }
+
     switch(type) {
         case 'arrow':            
-            var figure = new Arrow3D(this.parent, expr, opts)
-            this.expressions[expr] = figure;
+            if(expr) exprs = PlotInfo.Arrow3D.fromString(expr);
+            var figure = new Arrow3D(this.parent, exprs, opts)
             this.addFigure(figure)
             return figure;
-        case 'parametric':           
-            var par = new Parametric3D(this, expr, opts)
-            this.expressions[expr] = par;
+        case 'parametric':  
+            if(expr) exprs = PlotInfo.Parametric3D.fromString(expr);
+            var par = new Parametric3D(this, exprs, opts)
             this.addFigure(par);
             return par;
         case 'isoline':
-            var iso = new Isoline3D(this, expr, opts)
-            this.expressions[expr] = iso;
+            if(expr) exprs = PlotInfo.Isoline3D.fromString(expr);
+            var iso = new Isoline3D(this, exprs, opts)
             this.addFigure(iso);
             return iso;
         default:
