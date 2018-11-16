@@ -1,14 +1,14 @@
 {
     "compilerOptions": {
-        "module": "system",
+        "outDir": "./dist/",
+        "sourceMap": true,
         "noImplicitAny": true,
-        "removeComments": true,
-        "preserveConstEnums": true,
-        "outFile": "./build/Interactive.js",
-        "sourceMap": true
+        "module": "commonjs",
+        "target": "es5",
+        "jsx": "react"
     },
     "include": [
-        "src/**/*"
+        "./src/**/*"
     ],
     "exclude": [
         "node_modules",

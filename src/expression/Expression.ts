@@ -1,4 +1,4 @@
-import { Context } from './context';
+import { Context } from './Context';
 
 /**
  * Represents an expression that will evaluate to a type T
