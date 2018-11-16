@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/koreanwglasses/InteractiveJS#readme",
   "devDependencies": {
-    "rollup": "^0.43.0",
-    "rollup-watch": "^4.0.0"
+    "@types/jasmine": "^2.8.11",
+    "jasmine": "^3.3.0",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.1.6"
   }
 }
