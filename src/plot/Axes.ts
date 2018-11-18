@@ -1,21 +1,24 @@
 import { Expression } from "../expression/Expression";
 import { Figure } from "./Figure";
+import { Plot } from "./Plot";
 
 /**
  * Used for plotting. Can put multiple figures on axes.
  */
 export interface Axes {
     /**
-     * Adds the figure to this plot. Will be drawn on next call to render()
+     * Adds the figure to this plot, if its not already there. Will be drawn on next call to render(). 
      * @param figure Figure to add to plot
+     * @returns true if figure was not already present in this axes. false otherwise.
      */
-    addFigure: (figure: Figure) => void;
+    addFigure: (figure: Figure) => boolean;
 
     /**
-     * Removes the figure from this plot. Will be erased on next call to render()
+     * Removes the figure from this plot, if it exists. Will be erased on next call to render()
      * @param figure Figure to remove from plot
+     * @returns true if figure was removed. false if it did not exist
      */
-    removeFigure: (figure: Figure) => void;
+    removeFigure: (figure: Figure) => boolean;
 
     /**
      * Forces all figures to recalculate their scene model.
@@ -36,4 +39,13 @@ export interface Axes {
      * Restores the GL context.
      */
     wake: () => void;
+
+    /**
+     * Returns the plot that this axes is created on
+     */
+    getPlot: () => Plot;
+}
+
+export interface AxesArgs {
+    container: HTMLElement;
 }
