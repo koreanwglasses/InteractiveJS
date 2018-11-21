@@ -1,3 +1,4 @@
+var Interactive =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -86,85 +87,6 @@
 /************************************************************************/
 /******/ ({
 
-/***/ "./src/expression/Context.ts":
-/*!***********************************!*\
-  !*** ./src/expression/Context.ts ***!
-  \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * Represents a context in which an expression can be evaluated. Contains variable values, functions, etc.
- */
-var Context = /** @class */ (function () {
-    /**
-     * Creates a new context
-     */
-    function Context() {
-        throw new Error("Method not implemented.");
-    }
-    /**
-     * Defines the specified variable in this context, and assigns its value. Updates the value if variable already exists.
-     * @param name Name of the variable to define
-     * @param value Value to assign to variable
-     */
-    Context.prototype.defineVariable = function (name, value) {
-        throw new Error("Method not implemented.");
-    };
-    /**
-     * Frees the specified variable (now acts as a free variable
-     * @param name Name of the variable to free
-     */
-    Context.prototype.freeVariable = function (name) {
-        throw new Error("Method not implemented.");
-    };
-    /**
-     * Gets the value specified variable. Returns undefined if it is a free variable.
-     * @param name Name of variable to get
-     */
-    Context.prototype.getVariable = function (name) {
-        throw new Error("Method not implemented.");
-    };
-    return Context;
-}());
-exports.Context = Context;
-
-
-/***/ }),
-
-/***/ "./src/expression/ExpressionParser.ts":
-/*!********************************************!*\
-  !*** ./src/expression/ExpressionParser.ts ***!
-  \********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * Contains factory methods for creating expressions out of strings.
- */
-var ExpressionParser = /** @class */ (function () {
-    function ExpressionParser() {
-    }
-    /**
-     * Parses the string and returns an Expression.
-     * @param string
-     */
-    ExpressionParser.parseString = function (string) {
-        throw new Error("Method not implemented.");
-    };
-    return ExpressionParser;
-}());
-exports.ExpressionParser = ExpressionParser;
-
-
-/***/ }),
-
 /***/ "./src/index.ts":
 /*!**********************!*\
   !*** ./src/index.ts ***!
@@ -175,10 +97,6 @@ exports.ExpressionParser = ExpressionParser;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Context_1 = __webpack_require__(/*! ./expression/Context */ "./src/expression/Context.ts");
-exports.Context = Context_1.Context;
-var ExpressionParser_1 = __webpack_require__(/*! ./expression/ExpressionParser */ "./src/expression/ExpressionParser.ts");
-exports.ExpressionParser = ExpressionParser_1.ExpressionParser;
 var Axes2D_1 = __webpack_require__(/*! ./plot/Axes2D */ "./src/plot/Axes2D.ts");
 exports.Axes2D = Axes2D_1.Axes2D;
 var Axes3D_1 = __webpack_require__(/*! ./plot/Axes3D */ "./src/plot/Axes3D.ts");
@@ -199,32 +117,29 @@ exports.Plot = Plot_1.Plot;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Axes2D = /** @class */ (function () {
-    function Axes2D() {
+class Axes2D {
+    addFigure(figure) {
+        throw new Error("Method not implemented.");
     }
-    Axes2D.prototype.addFigure = function (figure) {
+    removeFigure(figure) {
         throw new Error("Method not implemented.");
-    };
-    Axes2D.prototype.removeFigure = function (figure) {
+    }
+    refresh() {
         throw new Error("Method not implemented.");
-    };
-    Axes2D.prototype.refresh = function () {
+    }
+    render() {
         throw new Error("Method not implemented.");
-    };
-    Axes2D.prototype.render = function () {
+    }
+    sleep() {
         throw new Error("Method not implemented.");
-    };
-    Axes2D.prototype.sleep = function () {
+    }
+    wake() {
         throw new Error("Method not implemented.");
-    };
-    Axes2D.prototype.wake = function () {
+    }
+    getPlot() {
         throw new Error("Method not implemented.");
-    };
-    Axes2D.prototype.getPlot = function () {
-        throw new Error("Method not implemented.");
-    };
-    return Axes2D;
-}());
+    }
+}
 exports.Axes2D = Axes2D;
 
 
@@ -240,32 +155,29 @@ exports.Axes2D = Axes2D;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Axes3D = /** @class */ (function () {
-    function Axes3D() {
+class Axes3D {
+    addFigure(figure) {
+        throw new Error("Method not implemented.");
     }
-    Axes3D.prototype.addFigure = function (figure) {
+    removeFigure(figure) {
         throw new Error("Method not implemented.");
-    };
-    Axes3D.prototype.removeFigure = function (figure) {
+    }
+    refresh() {
         throw new Error("Method not implemented.");
-    };
-    Axes3D.prototype.refresh = function () {
+    }
+    render() {
         throw new Error("Method not implemented.");
-    };
-    Axes3D.prototype.render = function () {
+    }
+    sleep() {
         throw new Error("Method not implemented.");
-    };
-    Axes3D.prototype.sleep = function () {
+    }
+    wake() {
         throw new Error("Method not implemented.");
-    };
-    Axes3D.prototype.wake = function () {
+    }
+    getPlot() {
         throw new Error("Method not implemented.");
-    };
-    Axes3D.prototype.getPlot = function () {
-        throw new Error("Method not implemented.");
-    };
-    return Axes3D;
-}());
+    }
+}
 exports.Axes3D = Axes3D;
 
 
@@ -286,52 +198,49 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * several figures. Each plot contains its own context on which expression are
  * evaluates/executed
  */
-var Plot = /** @class */ (function () {
-    function Plot() {
+class Plot {
+    /**
+     * Creates a new 2D axes from given arguments
+     * @param args
+     */
+    createAxes2D(args) {
+        throw new Error("Method not implemented.");
     }
     /**
      * Creates a new 2D axes from given arguments
      * @param args
      */
-    Plot.prototype.createAxes2D = function (args) {
+    createAxes3D(args) {
         throw new Error("Method not implemented.");
-    };
-    /**
-     * Creates a new 2D axes from given arguments
-     * @param args
-     */
-    Plot.prototype.createAxes3D = function (args) {
-        throw new Error("Method not implemented.");
-    };
+    }
     /**
      * Removes the axes if it is present.
      * @param axes
      * @returns true is axes was removed. false if it did not exist.
      */
-    Plot.prototype.dropAxes = function (axes) {
+    dropAxes(axes) {
         throw new Error("Method not implemented.");
-    };
+    }
     /**
      * Disposes all GL contexts hosted by this plot
      */
-    Plot.prototype.sleep = function () {
+    sleep() {
         throw new Error("Method not implemented.");
-    };
+    }
     /**
      * Re-instances the GL contexts
      */
-    Plot.prototype.wake = function () {
+    wake() {
         throw new Error("Method not implemented.");
-    };
+    }
     /**
      * Adds specified axes to graph.
      * @param axes
      */
-    Plot.prototype.addAxes = function (axes) {
+    addAxes(axes) {
         throw new Error("Method not implemented.");
-    };
-    return Plot;
-}());
+    }
+}
 exports.Plot = Plot;
 
 
