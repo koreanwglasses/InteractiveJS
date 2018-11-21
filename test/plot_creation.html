@@ -2,9 +2,11 @@
 <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/three.js/98/three.min.js"></script>
 <script src="../dist/bundle.js"></script>
-<div id="container">
 
-</div>
+<div id="container"></div>
+
 <script>
     let plot = new Interactive.Plot();
+    let axArgs = {container: document.getElementById('container')};
+    let ax = plot.createAxes2D(axArgs);
 </script>
