@@ -29,8 +29,9 @@ export class Context {
     /**
      * Gets the value specified variable. Returns undefined if it is a free variable.
      * @param name Name of variable to get
+     * @returns The value of the variable
      */
-    public getVariable(name: string) {
+    public getVariable(name: string) : any {
         throw new Error("Method not implemented.")
     }
 }
