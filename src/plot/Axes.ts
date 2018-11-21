@@ -1,4 +1,3 @@
-import { Expression } from "../expression/Expression";
 import { Figure } from "./Figure";
 import { Plot } from "./Plot";
 
