@@ -2,7 +2,7 @@ import { Axes, AxesArgs } from "./Axes";
 import { Figure } from "./Figure";
 import { Plot } from "./Plot";
 
-export class Axes3D implements Axes {
+export class Axes3D extends Axes {
     public addFigure(figure: Figure): boolean {
         throw new Error("Method not implemented.");
     }
@@ -32,5 +32,5 @@ export class Axes3D implements Axes {
     }
 }
 
-export interface Axes3DArgs extends AxesArgs {
+export class Axes3DArgs extends AxesArgs {
 }

@@ -13,7 +13,10 @@ export class Plot {
      * Creates a new 2D axes from given arguments
      * @param args 
      */
-    public createAxes2D(args: Axes2DArgs): Axes2D {
+    public createAxes2D(args: any): Axes2D {
+        let axesArgs = new Axes2DArgs(args);
+        axesArgs.plot = this;
+
         throw new Error("Method not implemented.");
     }
 
@@ -21,7 +24,10 @@ export class Plot {
      * Creates a new 2D axes from given arguments
      * @param args 
      */
-    public createAxes3D(args: Axes3DArgs): Axes3D {
+    public createAxes3D(args: any): Axes3D {
+        let axesArgs = new Axes3DArgs(args);
+        axesArgs.plot = this;
+
         throw new Error("Method not implemented.");
     }
 
