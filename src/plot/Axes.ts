@@ -1,26 +1,26 @@
 import { Figure } from "./Figure";
 import { Plot } from "./Plot";
 import * as THREE from "three";
-import { instanceOf } from "prop-types";
 
 /**
- * Used for plotting. Can put multiple figures on axes.
- */
+* Used for plotting. Can put multiple figures on axes.
+*/
 export abstract class Axes {
     private plot: Plot;
     private container: HTMLElement;
     private width: number;
     private height: number;
-
+    
     private renderer: THREE.WebGLRenderer;
+    private scene: THREE.Scene;
     private antialias: boolean;
-
+    
     private figures: Set<Figure>;
     private meshMap: Map<Figure, THREE.Mesh>;
-
+    
     /**
-     * Creates a new Axes from given args. Throws an error if args are invalid.
-     */
+    * Creates a new Axes from given args. Throws an error if args are invalid.
+    */
     public constructor(args: AxesArgs) {
         args.validate();
         args.default();
@@ -29,60 +29,80 @@ export abstract class Axes {
         this.width = args.width;
         this.height = args.height;
         this.antialias = args.antialias;
-
+        
         this.renderer = null;
-
+        this.scene = new THREE.Scene();
+        
         this.figures = new Set<Figure>();
         this.meshMap = new Map<Figure, THREE.Mesh>();
-
-        throw new Error("Method not implemented.")
     }
-
+    
     /**
-     * Adds the figure to this plot, if its not already there. Will be drawn on next call to render(). 
-     * @param figure Figure to add to plot
-     * @returns true if figure was not already present in this axes. false otherwise.
-     */
+    * Adds the figure to this plot, if its not already there. Will be drawn on next call to render(). 
+    * @param figure Figure to add to plot
+    * @returns true if figure was not already present in this axes. false otherwise.
+    */
     public addFigure(figure: Figure): boolean {
         if(this.figures.has(figure)) {
             return false;
         } else {
             this.figures.add(figure);
+            this.meshMap.set(figure, null);
             return true;
         }
     }
-
+    
     /**
-     * Removes the figure from this plot, if it exists. Will be erased on next call to render()
-     * @param figure Figure to remove from plot
-     * @returns true if figure was removed. false if it did not exist
-     */
+    * Removes the figure from this plot, if it exists. Will be erased on next call to render()
+    * @param figure Figure to remove from plot
+    * @returns true if figure was removed. false if it did not exist
+    */
     public removeFigure(figure: Figure): boolean {
         if(!this.figures.has(figure)) {
             return false;
         } else {
             this.figures.delete(figure);
+            this.meshMap.delete(figure);
             return true;
         }
     }
-
+    
     /**
-     * Forces all figures to recalculate their scene model.
-     */
-    public refresh(): void {
+    * Forces a figure to recalculate its scene model.
+    * @param figure Figure to refresh
+    */
+    public refresh(figure : Figure): void {
+        let mesh = this.meshMap.get(figure);
+        if(mesh != null) {
+            this.scene.remove(mesh);
+        }
+        this.meshMap.set(figure, null);
+    }
+    
+    /**
+    * Forces all figures to recalculate their scene models
+    */
+    public refreshAll(): void {
         for(let figure of this.figures) {
-            this.meshMap.set(figure, null);
+            this.refresh(figure);
         }
     }
-
+    
     /**
-     * Draws all figures
-     */
-    public abstract render(): void;
-
+    * Draws all figures. Does nothing if the Axes is asleep
+    */
+    public render(): void {
+        // If sleeping, do nothing
+        if(this.renderer == null) {
+            return;
+        }
+        this.recalculate();
+        this.renderer.render(this.scene, this.getCamera(), this.container);
+    }
+    
     /**
-     * Removes the GL context from the page to conserve memory.
-     */
+    * Removes the GL context from the page to conserve memory.
+    */
     public sleep(): void {
         if(this.renderer != null) {
             this.renderer.forceContextLoss();
@@ -91,50 +111,82 @@ export abstract class Axes {
             this.renderer = null;
         }
     }
-
+    
     /**
-     * Restores the GL context.
-     */
+    * Restores the GL context.
+    */
     public wake(): void {
         if(this.renderer == null) {
             this.renderer = new THREE.WebGLRenderer({antialias: this.antialias});
-    
+            
             // Initialize renderer within container
             this.renderer.setSize(this.width, this.height);
             this.container.innerHTML = '';
             this.container.appendChild(this.renderer.domElement);
         }
     }
-
+    
     /**
-     * Returns the plot that this axes is created on
-     */
+    * Returns the plot that this axes is created on
+    */
     public getPlot(): Plot {
         return this.plot;
+    }
+
+    /**
+     * Returns the HTMLELement that this axes is rendered into
+     */
+    public getContainer() : HTMLElement {
+        return this.container;
+    }
+    
+    protected getRenderer(): THREE.WebGLRenderer {
+        return this.renderer;
+    }
+    
+    protected getScene(): THREE.Scene {
+        return this.scene;
+    }
+
+    protected abstract getCamera(): THREE.Camera;
+    
+    /**
+    * Recalculates the mesh for figures whose mesh have not been calculated,
+    * and adds them to the scene
+    */
+    private recalculate() : void {
+        for(let figure of this.figures) {
+            let mesh = this.meshMap.get(figure);
+            if(mesh == null) {
+                mesh = figure.getSceneObject();
+                this.meshMap.set(figure, mesh);
+                this.scene.add(mesh);
+            }
+        }
     }
 }
 
 /**
- * Arguments to use in the creation of Axes. Does not represent an ADT; is more
- * of a JS Object with more security.
- */
+* Arguments to use in the creation of Axes. Does not represent an ADT; is more
+* of a JS Object with more security.
+*/
 export abstract class AxesArgs {
     public plot: Plot;
     public container: HTMLElement;
-
+    
     public width: number;
     public height: number;
-
+    
     public antialias: boolean;
-
+    
     constructor(args: any) {
         this.plot = args.plot;
         this.container = args.container;
     }
-   
+    
     /**
-     * Checks if arguments are valid. Returns true if valid. Throws error if not.
-     */
+    * Checks if arguments are valid. Returns true if valid. Throws error if not.
+    */
     public validate(): boolean {
         if(!this.plot) {
             throw new Error("Invalid arguments: Parent plot not defined!");
@@ -142,7 +194,7 @@ export abstract class AxesArgs {
         if(!(this.plot instanceof Plot)) {
             throw new Error("Invalid arguments: Parent plot is not an instance of Plot!");
         }
-
+        
         if(!this.container) {
             throw new Error("Invalid arguments: container (HTMLElement) not defined!");
         }
@@ -153,8 +205,8 @@ export abstract class AxesArgs {
     }
     
     /**
-     * Fills in default values for undefined properties
-     */
+    * Fills in default values for undefined properties
+    */
     public default(): void {
         if(this.width === undefined) {
             this.width = this.container.clientWidth;
@@ -162,7 +214,7 @@ export abstract class AxesArgs {
         if(this.height === undefined) {
             this.height = this.container.clientHeight;
         }
-
+        
         if(this.antialias === undefined) {
             this.antialias = false;
         }
