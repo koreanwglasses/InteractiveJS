@@ -97,12 +97,14 @@ var Interactive =
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Axes2D_1 = __webpack_require__(/*! ./plot/Axes2D */ "./src/plot/Axes2D.ts");
-exports.Axes2D = Axes2D_1.Axes2D;
-var Axes3D_1 = __webpack_require__(/*! ./plot/Axes3D */ "./src/plot/Axes3D.ts");
-exports.Axes3D = Axes3D_1.Axes3D;
-var Plot_1 = __webpack_require__(/*! ./plot/Plot */ "./src/plot/Plot.ts");
-exports.Plot = Plot_1.Plot;
+var internal_1 = __webpack_require__(/*! ./plot/internal */ "./src/plot/internal.ts");
+exports.Axes2D = internal_1.Axes2D;
+exports.Axes2DArgs = internal_1.Axes2DArgs;
+exports.Axes3D = internal_1.Axes3D;
+exports.Axes3DArgs = internal_1.Axes3DArgs;
+exports.Plot = internal_1.Plot;
+// export {  } from './plot/Axes3D';
+// export { Plot } from './plot/Plot';
 
 
 /***/ }),
@@ -117,7 +119,7 @@ exports.Plot = Plot_1.Plot;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Plot_1 = __webpack_require__(/*! ./Plot */ "./src/plot/Plot.ts");
+const internal_1 = __webpack_require__(/*! ./internal */ "./src/plot/internal.ts");
 const THREE = __webpack_require__(/*! three */ "three");
 /**
 * Used for plotting. Can put multiple figures on axes.
@@ -272,7 +274,7 @@ class AxesArgs {
         if (!this.plot) {
             throw new Error("Invalid arguments: Parent plot not defined!");
         }
-        if (!(this.plot instanceof Plot_1.Plot)) {
+        if (!(this.plot instanceof internal_1.Plot)) {
             throw new Error("Invalid arguments: Parent plot is not an instance of Plot!");
         }
         if (!this.container) {
@@ -313,9 +315,9 @@ exports.AxesArgs = AxesArgs;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Axes_1 = __webpack_require__(/*! ./Axes */ "./src/plot/Axes.ts");
+const internal_1 = __webpack_require__(/*! ./internal */ "./src/plot/internal.ts");
 const THREE = __webpack_require__(/*! three */ "three");
-class Axes2D extends Axes_1.Axes {
+class Axes2D extends internal_1.Axes {
     constructor(args) {
         super(args);
         this.camera = new THREE.OrthographicCamera(args.left, args.right, args.top, args.bottom);
@@ -325,7 +327,7 @@ class Axes2D extends Axes_1.Axes {
     }
 }
 exports.Axes2D = Axes2D;
-class Axes2DArgs extends Axes_1.AxesArgs {
+class Axes2DArgs extends internal_1.AxesArgs {
     constructor(args) {
         super(args);
         this.left = args.left;
@@ -335,10 +337,10 @@ class Axes2DArgs extends Axes_1.AxesArgs {
     }
     validate() {
         super.validate();
-        if (this.right != undefined && this.left !== undefined && this.right - this.left <= 0) {
+        if (this.right !== undefined && this.left !== undefined && this.right - this.left <= 0) {
             throw new Error("Invalid arguments: left >= right.");
         }
-        if (this.top != undefined && this.bottom !== undefined && this.top - this.bottom <= 0) {
+        if (this.top !== undefined && this.bottom !== undefined && this.top - this.bottom <= 0) {
             throw new Error("Invalid arguments: top <= bottom.");
         }
         return true;
@@ -374,9 +376,9 @@ exports.Axes2DArgs = Axes2DArgs;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Axes_1 = __webpack_require__(/*! ./Axes */ "./src/plot/Axes.ts");
+const internal_1 = __webpack_require__(/*! ./internal */ "./src/plot/internal.ts");
 const THREE = __webpack_require__(/*! three */ "three");
-class Axes3D extends Axes_1.Axes {
+class Axes3D extends internal_1.Axes {
     constructor(args) {
         super(args);
         this.camera = new THREE.PerspectiveCamera();
@@ -386,7 +388,7 @@ class Axes3D extends Axes_1.Axes {
     }
 }
 exports.Axes3D = Axes3D;
-class Axes3DArgs extends Axes_1.AxesArgs {
+class Axes3DArgs extends internal_1.AxesArgs {
 }
 exports.Axes3DArgs = Axes3DArgs;
 
@@ -403,20 +405,22 @@ exports.Axes3DArgs = Axes3DArgs;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const Axes2D_1 = __webpack_require__(/*! ./Axes2D */ "./src/plot/Axes2D.ts");
-const Axes3D_1 = __webpack_require__(/*! ./Axes3D */ "./src/plot/Axes3D.ts");
+const internal_1 = __webpack_require__(/*! ./internal */ "./src/plot/internal.ts");
 /**
  * A controller for a plot. Can contain several axes, which can in turn contain
  * several figures. Each plot contains its own context on which expression are
  * evaluates/executed
  */
 class Plot {
+    constructor() {
+        console.log(internal_1.Axes2D);
+    }
     /**
      * Creates a new 2D axes from given arguments
      * @param args
      */
     createAxes2D(args) {
-        let axesArgs = new Axes2D_1.Axes2DArgs(args);
+        let axesArgs = new internal_1.Axes2DArgs(args);
         axesArgs.plot = this;
         throw new Error("Method not implemented.");
     }
@@ -425,7 +429,7 @@ class Plot {
      * @param args
      */
     createAxes3D(args) {
-        let axesArgs = new Axes3D_1.Axes3DArgs(args);
+        let axesArgs = new internal_1.Axes3DArgs(args);
         axesArgs.plot = this;
         throw new Error("Method not implemented.");
     }
@@ -458,6 +462,27 @@ class Plot {
     }
 }
 exports.Plot = Plot;
+
+
+/***/ }),
+
+/***/ "./src/plot/internal.ts":
+/*!******************************!*\
+  !*** ./src/plot/internal.ts ***!
+  \******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(__webpack_require__(/*! ./Axes */ "./src/plot/Axes.ts"));
+__export(__webpack_require__(/*! ./Axes2D */ "./src/plot/Axes2D.ts"));
+__export(__webpack_require__(/*! ./Axes3D */ "./src/plot/Axes3D.ts"));
+__export(__webpack_require__(/*! ./Plot */ "./src/plot/Plot.ts"));
 
 
 /***/ }),

@@ -1,6 +1,4 @@
-import { Axes, AxesArgs } from "./Axes";
-import { Figure } from "./Figure";
-import { Plot } from "./Plot";
+import { Axes, AxesArgs } from "./internal";
 import * as THREE from "three";
 
 export class Axes2D extends Axes {
@@ -21,7 +19,7 @@ export class Axes2DArgs extends AxesArgs {
     public top : number;
     public bottom : number;
 
-    constructor(args: any) {
+    public constructor(args: any) {
         super(args);
         this.left = args.left;
         this.right = args.right;
@@ -31,11 +29,11 @@ export class Axes2DArgs extends AxesArgs {
 
     public validate() : boolean {
         super.validate();
-        if(this.right - this.left <= 0) {
+        if(this.right !== undefined && this.left !== undefined && this.right - this.left <= 0) {
             throw new Error("Invalid arguments: left >= right.");
         }
 
-        if(this.top - this.bottom <= 0) {
+        if(this.top !== undefined && this.bottom !== undefined && this.top - this.bottom <= 0) {
             throw new Error("Invalid arguments: top <= bottom.");
         }
         return true;
@@ -53,7 +51,7 @@ export class Axes2DArgs extends AxesArgs {
             this.top = 10;
         }
         if(this.bottom === undefined) {
-            this.bottom= -10;
+            this.bottom = -10;
         }
     }
 }

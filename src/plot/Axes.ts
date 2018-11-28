@@ -1,5 +1,4 @@
-import { Figure } from "./Figure";
-import { Plot } from "./Plot";
+import { Figure, Plot } from "./internal";
 import * as THREE from "three";
 
 /**
@@ -179,7 +178,7 @@ export abstract class AxesArgs {
     
     public antialias: boolean;
     
-    constructor(args: any) {
+    public constructor(args: any) {
         this.plot = args.plot;
         this.container = args.container;
     }

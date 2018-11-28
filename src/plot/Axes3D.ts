@@ -1,33 +1,14 @@
-import { Axes, AxesArgs } from "./Axes";
-import { Figure } from "./Figure";
-import { Plot } from "./Plot";
+import { Axes, AxesArgs } from "./internal";
+import * as THREE from "three";
 
 export class Axes3D extends Axes {
-    public addFigure(figure: Figure): boolean {
-        throw new Error("Method not implemented.");
+    private camera : THREE.Camera;
+    public constructor(args: Axes3DArgs) {
+        super(args);
+        this.camera = new THREE.PerspectiveCamera();
     }
 
-    public removeFigure(figure: Figure): boolean {
-        throw new Error("Method not implemented.");
-    }
-
-    public refresh(): void {
-        throw new Error("Method not implemented.");
-    }
-
-    public render(): void {
-        throw new Error("Method not implemented.");
-    }
-
-    public sleep(): void {
-        throw new Error("Method not implemented.");
-    }
-
-    public wake(): void {
-        throw new Error("Method not implemented.");
-    }
-
-    public getPlot(): Plot {
+    public getCamera(): THREE.Camera {
         throw new Error("Method not implemented.");
     }
 }

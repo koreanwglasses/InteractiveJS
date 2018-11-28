@@ -1,6 +1,4 @@
-import { Axes, AxesArgs } from './Axes';
-import { Axes2D, Axes2DArgs } from './Axes2D';
-import { Axes3D, Axes3DArgs } from './Axes3D';
+import { Axes, AxesArgs, Axes2D, Axes2DArgs, Axes3D, Axes3DArgs } from './internal';
 
 /**
  * A controller for a plot. Can contain several axes, which can in turn contain
@@ -8,6 +6,10 @@ import { Axes3D, Axes3DArgs } from './Axes3D';
  * evaluates/executed
  */
 export class Plot {
+
+    public constructor() {
+        console.log(Axes2D);        
+    }
 
     /**
      * Creates a new 2D axes from given arguments
