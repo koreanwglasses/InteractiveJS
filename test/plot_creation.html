@@ -9,4 +9,10 @@
     let plot = new Interactive.Plot();
     let axArgs = {container: document.getElementById('container')};
     let ax = plot.createAxes2D(axArgs);
+
+    let arrArgs = new Interactive.Arrow2DArgs({end:'[1,0]'});
+    let arr = new Interactive.Arrow2D(arrArgs);
+    ax.addFigure(arr);
+
+    plot.render();
 </script>
