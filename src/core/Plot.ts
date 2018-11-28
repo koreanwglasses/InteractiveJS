@@ -46,6 +46,17 @@ export class Plot {
     }
 
     /**
+     * Renders all axes that are awake
+     */
+    public render() : void {
+        for(let ax of this.axes) {
+            if(!ax.isSleeping()) {
+                ax.render();
+            }
+        }
+    }
+
+    /**
      * Disposes all GL contexts hosted by this plot
      */
     public sleep(): void {

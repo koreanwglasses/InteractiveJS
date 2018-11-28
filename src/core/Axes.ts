@@ -99,7 +99,7 @@ export abstract class Axes {
             return;
         }
         this.recalculate();
-        this.renderer.render(this.scene, this.getCamera(), this.container);
+        this.renderer.render(this.scene, this.getCamera());
     }
     
     /**
@@ -140,6 +140,13 @@ export abstract class Axes {
      */
     public getContainer() : HTMLElement {
         return this.container;
+    }
+
+    /**
+     * @returns Returns whether or not this axes is sleeping
+     */
+    public isSleeping() : boolean {
+        return this.renderer == null;
     }
     
     protected getRenderer(): THREE.WebGLRenderer {
