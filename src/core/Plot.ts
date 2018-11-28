@@ -1,4 +1,5 @@
 import { Axes, Axes2D, Axes2DArgs, Axes3D, Axes3DArgs } from './internal';
+import * as math from 'mathjs';
 
 /**
  * A controller for a plot. Can contain several axes, which can in turn contain
@@ -7,9 +8,11 @@ import { Axes, Axes2D, Axes2DArgs, Axes3D, Axes3DArgs } from './internal';
  */
 export class Plot {
     private axes : Set<Axes>;
+    private scope : any;
 
     public constructor() {
         this.axes = new Set<Axes>();
+        this.scope = {};
     }
 
     /**
@@ -21,7 +24,7 @@ export class Plot {
         axesArgs.plot = this;
 
         let newAxes = new Axes2D(axesArgs);
-        this.axes.add(newAxes);
+        this.addAxes(newAxes);
         return newAxes;
     }
 
@@ -42,7 +45,7 @@ export class Plot {
      * @returns true is axes was removed. false if it did not exist.
      */
     public dropAxes(axes: Axes): boolean {
-        throw new Error("Method not implemented.");
+        return this.axes.delete(axes);
     }
 
     /**
@@ -71,10 +74,25 @@ export class Plot {
     }
 
     /**
+     * Executes an expression
+     */
+    public execExpression(expr: string) : any {
+        math.eval(expr, this.scope);
+    }
+
+    /**
+     * Returns the scope used in evaluating expresions. Due to limitations on
+     * how Javascript copies objects, it just returns a shallow copy.
+     */
+    public getScope() : any {
+        return Object.create(this.scope);
+    }
+
+    /**
      * Adds specified axes to graph. 
      * @param axes
      */
     private addAxes(axes: Axes): void {
-        throw new Error("Method not implemented.");
+        this.axes.add(axes);
     }
 }

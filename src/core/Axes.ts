@@ -167,7 +167,7 @@ export abstract class Axes {
         for(let figure of this.figures) {
             let mesh = this.objMap.get(figure);
             if(mesh == null) {
-                mesh = figure.getSceneObject();
+                mesh = figure.getSceneObject(this.plot.getScope());
                 this.objMap.set(figure, mesh);
                 this.scene.add(mesh);
             }
