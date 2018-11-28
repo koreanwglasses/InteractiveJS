@@ -34,6 +34,8 @@ export abstract class Axes {
         
         this.figures = new Set<Figure>();
         this.meshMap = new Map<Figure, THREE.Mesh>();
+
+        this.wake();
     }
     
     /**
@@ -112,7 +114,7 @@ export abstract class Axes {
     }
     
     /**
-    * Restores the GL context.
+    * Restores/creates the GL context.
     */
     public wake(): void {
         if(this.renderer == null) {
@@ -199,6 +201,19 @@ export abstract class AxesArgs {
         }
         if(!(this.container instanceof HTMLElement)) {
             throw new Error("Invalid arguments: container is not an instance of HTMLElement!");
+        }
+
+        if(this.width === undefined && this.container.clientWidth == 0) {
+            throw new Error("Invalid arguments: container has client width 0!");
+        }
+        if(this.height === undefined && this.container.clientHeight == 0) {
+            throw new Error("Invalid arguments: container has client height 0!");
+        }
+        if(this.width !== undefined && this.width <= 0) {
+            throw new Error("Invalid arguments: width <= 0!");
+        }
+        if(this.height !== undefined && this.height <= 0) {
+            throw new Error("Invalid arguments: height <= 0!");
         }
         return true;
     }

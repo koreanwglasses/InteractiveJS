@@ -103,8 +103,6 @@ exports.Axes2DArgs = internal_1.Axes2DArgs;
 exports.Axes3D = internal_1.Axes3D;
 exports.Axes3DArgs = internal_1.Axes3DArgs;
 exports.Plot = internal_1.Plot;
-// export {  } from './plot/Axes3D';
-// export { Plot } from './plot/Plot';
 
 
 /***/ }),
@@ -140,6 +138,7 @@ class Axes {
         this.scene = new THREE.Scene();
         this.figures = new Set();
         this.meshMap = new Map();
+        this.wake();
     }
     /**
     * Adds the figure to this plot, if its not already there. Will be drawn on next call to render().
@@ -213,7 +212,7 @@ class Axes {
         }
     }
     /**
-    * Restores the GL context.
+    * Restores/creates the GL context.
     */
     wake() {
         if (this.renderer == null) {
@@ -282,6 +281,18 @@ class AxesArgs {
         }
         if (!(this.container instanceof HTMLElement)) {
             throw new Error("Invalid arguments: container is not an instance of HTMLElement!");
+        }
+        if (this.width === undefined && this.container.clientWidth == 0) {
+            throw new Error("Invalid arguments: container has client width 0!");
+        }
+        if (this.height === undefined && this.container.clientHeight == 0) {
+            throw new Error("Invalid arguments: container has client height 0!");
+        }
+        if (this.width !== undefined && this.width <= 0) {
+            throw new Error("Invalid arguments: width <= 0!");
+        }
+        if (this.height !== undefined && this.height <= 0) {
+            throw new Error("Invalid arguments: height <= 0!");
         }
         return true;
     }
@@ -413,7 +424,7 @@ const internal_1 = __webpack_require__(/*! ./internal */ "./src/plot/internal.ts
  */
 class Plot {
     constructor() {
-        console.log(internal_1.Axes2D);
+        this.axes = new Set();
     }
     /**
      * Creates a new 2D axes from given arguments
@@ -422,7 +433,9 @@ class Plot {
     createAxes2D(args) {
         let axesArgs = new internal_1.Axes2DArgs(args);
         axesArgs.plot = this;
-        throw new Error("Method not implemented.");
+        let newAxes = new internal_1.Axes2D(axesArgs);
+        this.axes.add(newAxes);
+        return newAxes;
     }
     /**
      * Creates a new 2D axes from given arguments

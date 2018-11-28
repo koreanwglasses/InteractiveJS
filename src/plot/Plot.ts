@@ -6,9 +6,10 @@ import { Axes, AxesArgs, Axes2D, Axes2DArgs, Axes3D, Axes3DArgs } from './intern
  * evaluates/executed
  */
 export class Plot {
+    private axes : Set<Axes>;
 
     public constructor() {
-        console.log(Axes2D);        
+        this.axes = new Set<Axes>();
     }
 
     /**
@@ -19,7 +20,9 @@ export class Plot {
         let axesArgs = new Axes2DArgs(args);
         axesArgs.plot = this;
 
-        throw new Error("Method not implemented.");
+        let newAxes = new Axes2D(axesArgs);
+        this.axes.add(newAxes);
+        return newAxes;
     }
 
     /**
