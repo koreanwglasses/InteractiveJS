@@ -14,23 +14,23 @@ export class Arrow2D implements Figure {
         args2.validate();
         args2.default();
         
-        let startNode = math.parse(args.start);
+        let startNode = math.parse(args2.start);
         if(math.typeof(startNode) != 'ArrayNode') {
             throw new Error("Invalid arguments: Start vector expression is not a vector (array)!");
         } else {
             this.startFun = startNode.compile();
         }
 
-        let endNode = math.parse(args.end);
+        let endNode = math.parse(args2.end);
         if(math.typeof(endNode) != 'ArrayNode') {
             throw new Error("Invalid arguments: End vector expression is not a vector (array)!");
         } else {
             this.endFun = endNode.compile();
         }
 
-        this.hex = args.hex;
-        this.headLength = args.headLength;
-        this.headWidth = args.headWidth;
+        this.hex = args2.hex;
+        this.headLength = args2.headLength;
+        this.headWidth = args2.headWidth;
     }
     
     public getSceneObject(scope : any) : Object3D {

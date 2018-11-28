@@ -65438,25 +65438,26 @@ const three_1 = __webpack_require__(/*! three */ "three");
 const math = __webpack_require__(/*! mathjs */ "./node_modules/mathjs/index.js");
 class Arrow2D {
     constructor(args) {
-        args.validate();
-        args.default();
-        let startNode = math.parse(args.start);
+        let args2 = new Arrow2DArgs(args);
+        args2.validate();
+        args2.default();
+        let startNode = math.parse(args2.start);
         if (math.typeof(startNode) != 'ArrayNode') {
             throw new Error("Invalid arguments: Start vector expression is not a vector (array)!");
         }
         else {
             this.startFun = startNode.compile();
         }
-        let endNode = math.parse(args.end);
+        let endNode = math.parse(args2.end);
         if (math.typeof(endNode) != 'ArrayNode') {
             throw new Error("Invalid arguments: End vector expression is not a vector (array)!");
         }
         else {
             this.endFun = endNode.compile();
         }
-        this.hex = args.hex;
-        this.headLength = args.headLength;
-        this.headWidth = args.headWidth;
+        this.hex = args2.hex;
+        this.headLength = args2.headLength;
+        this.headWidth = args2.headWidth;
     }
     getSceneObject(scope) {
         let end = this.endFun.eval(scope);
