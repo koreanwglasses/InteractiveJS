@@ -16,7 +16,7 @@ export abstract class Axes {
     private antialias: boolean;
     
     private figures: Set<Figure>;
-    private meshMap: Map<Figure, THREE.Mesh>;
+    private objMap: Map<Figure, THREE.Object3D>;
     
     /**
     * Creates a new Axes from given args. Throws an error if args are invalid.
@@ -34,7 +34,7 @@ export abstract class Axes {
         this.scene = new THREE.Scene();
         
         this.figures = new Set<Figure>();
-        this.meshMap = new Map<Figure, THREE.Mesh>();
+        this.objMap = new Map<Figure, THREE.Mesh>();
 
         this.wake();
     }
@@ -49,7 +49,7 @@ export abstract class Axes {
             return false;
         } else {
             this.figures.add(figure);
-            this.meshMap.set(figure, null);
+            this.objMap.set(figure, null);
             return true;
         }
     }
@@ -64,7 +64,7 @@ export abstract class Axes {
             return false;
         } else {
             this.figures.delete(figure);
-            this.meshMap.delete(figure);
+            this.objMap.delete(figure);
             return true;
         }
     }
@@ -74,11 +74,11 @@ export abstract class Axes {
     * @param figure Figure to refresh
     */
     public refresh(figure : Figure): void {
-        let mesh = this.meshMap.get(figure);
+        let mesh = this.objMap.get(figure);
         if(mesh != null) {
             this.scene.remove(mesh);
         }
-        this.meshMap.set(figure, null);
+        this.objMap.set(figure, null);
     }
     
     /**
@@ -158,10 +158,10 @@ export abstract class Axes {
     */
     private recalculate() : void {
         for(let figure of this.figures) {
-            let mesh = this.meshMap.get(figure);
+            let mesh = this.objMap.get(figure);
             if(mesh == null) {
                 mesh = figure.getSceneObject();
-                this.meshMap.set(figure, mesh);
+                this.objMap.set(figure, mesh);
                 this.scene.add(mesh);
             }
         }
