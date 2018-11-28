@@ -9,9 +9,10 @@ export class Arrow2D implements Figure {
     private headLength: number;
     private headWidth: number;
     
-    public constructor(args: Arrow2DArgs) {
-        args.validate();
-        args.default();
+    public constructor(args: any) {
+        let args2 = new Arrow2DArgs(args); 
+        args2.validate();
+        args2.default();
         
         let startNode = math.parse(args.start);
         if(math.typeof(startNode) != 'ArrayNode') {
