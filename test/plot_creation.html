@@ -9,9 +9,12 @@
     let plot = new Interactive.Plot();
     let axArgs = {container: document.getElementById('container')};
     let ax = plot.createAxes2D(axArgs);
-
+    
     let arr = new Interactive.Arrow2D({end:'[5,0]'});
     ax.addFigure(arr);
-
-    plot.render();
+    
+    ;(function animate() {
+        requestAnimationFrame(animate);
+        plot.render();
+    })();
 </script>

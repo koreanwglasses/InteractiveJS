@@ -65160,7 +65160,7 @@ class Axes {
         for (let figure of this.figures) {
             let mesh = this.objMap.get(figure);
             if (mesh == null) {
-                mesh = figure.getSceneObject();
+                mesh = figure.getSceneObject(this.plot.getScope());
                 this.objMap.set(figure, mesh);
                 this.scene.add(mesh);
             }
@@ -65245,6 +65245,45 @@ class Axes2D extends internal_1.Axes {
         this.camera = new THREE.OrthographicCamera(args.left, args.right, args.top, args.bottom, 0, 20);
         this.camera.position.z = 10;
         this.camera.lookAt(this.getScene().position);
+        this.left = args.left;
+        this.right = args.right;
+        this.top = args.top;
+        this.bottom = args.bottom;
+        let self_ = this;
+        let clientPosStart = null;
+        let cameraPosStart = null;
+        let onPanStart = function (clientX, clientY) {
+            clientPosStart = [clientX, clientY];
+            cameraPosStart = self_.camera.position.clone();
+        };
+        let onPan = function (clientX, clientY) {
+            let clientBounds = self_.getContainer().getBoundingClientRect();
+            let clientDiff = [clientX - clientPosStart[0], clientY - clientPosStart[1]];
+            let cameraDim = [self_.right - self_.left, self_.top - self_.bottom];
+            let cameraDiff = [clientDiff[0] / clientBounds.width * cameraDim[0], clientDiff[1] / clientBounds.height * cameraDim[1]];
+            self_.camera.position.x = cameraPosStart.x - cameraDiff[0];
+            self_.camera.position.y = cameraPosStart.y + cameraDiff[1];
+            self_.camera.updateMatrix();
+        };
+        let onPanEnd = function (clientX, clientY) {
+            clientPosStart = null;
+            cameraPosStart = null;
+        };
+        this.getContainer().addEventListener('mousedown', (e) => {
+            if (e.buttons & 1) {
+                onPanStart(e.clientX, e.clientY);
+            }
+        });
+        this.getContainer().addEventListener('mousemove', (e) => {
+            if (e.buttons & 1) {
+                onPan(e.clientX, e.clientY);
+            }
+        });
+        this.getContainer().addEventListener('mouseup', (e) => {
+            if (e.buttons & 1) {
+                onPanEnd(e.clientX, e.clientY);
+            }
+        });
     }
     getCamera() {
         return this.camera;
@@ -65330,6 +65369,7 @@ exports.Axes3DArgs = Axes3DArgs;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const internal_1 = __webpack_require__(/*! ./internal */ "./src/core/internal.ts");
+const math = __webpack_require__(/*! mathjs */ "./node_modules/mathjs/index.js");
 /**
  * A controller for a plot. Can contain several axes, which can in turn contain
  * several figures. Each plot contains its own context on which expression are
@@ -65338,6 +65378,7 @@ const internal_1 = __webpack_require__(/*! ./internal */ "./src/core/internal.ts
 class Plot {
     constructor() {
         this.axes = new Set();
+        this.scope = {};
     }
     /**
      * Creates a new 2D axes from given arguments
@@ -65347,7 +65388,7 @@ class Plot {
         let axesArgs = new internal_1.Axes2DArgs(args);
         axesArgs.plot = this;
         let newAxes = new internal_1.Axes2D(axesArgs);
-        this.axes.add(newAxes);
+        this.addAxes(newAxes);
         return newAxes;
     }
     /**
@@ -65365,7 +65406,7 @@ class Plot {
      * @returns true is axes was removed. false if it did not exist.
      */
     dropAxes(axes) {
-        throw new Error("Method not implemented.");
+        return this.axes.delete(axes);
     }
     /**
      * Renders all axes that are awake
@@ -65390,11 +65431,24 @@ class Plot {
         throw new Error("Method not implemented.");
     }
     /**
+     * Executes an expression
+     */
+    execExpression(expr) {
+        math.eval(expr, this.scope);
+    }
+    /**
+     * Returns the scope used in evaluating expresions. Due to limitations on
+     * how Javascript copies objects, it just returns a shallow copy.
+     */
+    getScope() {
+        return Object.create(this.scope);
+    }
+    /**
      * Adds specified axes to graph.
      * @param axes
      */
     addAxes(axes) {
-        throw new Error("Method not implemented.");
+        this.axes.add(axes);
     }
 }
 exports.Plot = Plot;
