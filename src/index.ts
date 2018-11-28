@@ -1,1 +1,1 @@
-export { Axes2D, Axes2DArgs, Axes3D, Axes3DArgs, Plot } from './plot/internal';
+export { Axes2D, Axes2DArgs, Axes3D, Axes3DArgs, Plot } from './core/internal';
