@@ -65242,7 +65242,9 @@ const THREE = __webpack_require__(/*! three */ "three");
 class Axes2D extends internal_1.Axes {
     constructor(args) {
         super(args);
-        this.camera = new THREE.OrthographicCamera(args.left, args.right, args.top, args.bottom);
+        this.camera = new THREE.OrthographicCamera(args.left, args.right, args.top, args.bottom, 0, 20);
+        this.camera.position.z = 10;
+        this.camera.lookAt(this.getScene().position);
     }
     getCamera() {
         return this.camera;
@@ -65464,8 +65466,8 @@ class Arrow2D {
         let dir = endVec.clone().sub(startVec).normalize();
         let length = endVec.distanceTo(startVec);
         let hex = this.hex;
-        let headLength = this.headLength;
-        let headWidth = this.headWidth;
+        let headLength = this.headLength * length;
+        let headWidth = this.headWidth * headLength;
         return new three_1.ArrowHelper(dir, startVec, length, hex, headLength, headWidth);
     }
 }
@@ -65496,7 +65498,7 @@ class Arrow2DArgs {
             this.headLength = 0.2;
         }
         if (this.headWidth === undefined) {
-            this.headWidth = 0.05;
+            this.headWidth = 0.5;
         }
     }
 }

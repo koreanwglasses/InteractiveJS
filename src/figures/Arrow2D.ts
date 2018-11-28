@@ -43,8 +43,8 @@ export class Arrow2D implements Figure {
         let length = endVec.distanceTo(startVec);
 
         let hex = this.hex;
-        let headLength = this.headLength;
-        let headWidth = this.headWidth;     
+        let headLength = this.headLength * length;
+        let headWidth = this.headWidth * headLength;     
         
         return new ArrowHelper(dir, startVec, length, hex, headLength, headWidth);
     }
@@ -84,7 +84,7 @@ export class Arrow2DArgs {
             this.headLength = 0.2;
         }
         if(this.headWidth === undefined) {
-            this.headWidth = 0.05;
+            this.headWidth = 0.5;
         }
     }
 }
