@@ -1,4 +1,4 @@
-import { Axes, AxesArgs, Axes2D, Axes2DArgs, Axes3D, Axes3DArgs } from './internal';
+import { Axes, Axes2D, Axes2DArgs, Axes3D, Axes3DArgs } from './internal';
 
 /**
  * A controller for a plot. Can contain several axes, which can in turn contain

@@ -1,4 +1,5 @@
-import { Figure, Plot } from "./internal";
+import { Figure } from "./Figure";
+import { Plot } from "./internal";
 import * as THREE from "three";
 
 /**
