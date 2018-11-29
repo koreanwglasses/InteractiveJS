@@ -9,7 +9,7 @@ declare module 'three.meshline' {
          * @param g geometry
          * @param c width callback
          */
-        setGeometry(g: THREE.Geometry | THREE.BufferGeometry | Float32Array | Array<number>, c : Function): void;
+        setGeometry(g: THREE.Geometry | Float32Array | Array<number>, c : Function): void;
     }
 
     export class MeshLineMaterial {
