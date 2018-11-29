@@ -14,19 +14,8 @@ export class Arrow2D implements Figure {
         args2.validate();
         args2.defaults();
         
-        let startNode = math.parse(args2.start);
-        if(math.typeof(startNode) != 'ArrayNode') {
-            throw new Error("Invalid arguments: Start vector expression is not a vector (array)!");
-        } else {
-            this.startFun = startNode.compile();
-        }
-
-        let endNode = math.parse(args2.end);
-        if(math.typeof(endNode) != 'ArrayNode') {
-            throw new Error("Invalid arguments: End vector expression is not a vector (array)!");
-        } else {
-            this.endFun = endNode.compile();
-        }
+        this.startFun = math.parse(args2.start).compile();
+        this.endFun = math.parse(args2.end).compile();
 
         this.hex = args2.hex;
         this.headLength = args2.headLength;
@@ -35,9 +24,16 @@ export class Arrow2D implements Figure {
     
     public getSceneObject(scope : any) : Object3D {
         let end = this.endFun.eval(scope);
+        if(math.typeof(end) != 'Matrix') {
+            throw new Error('End expression does not evaluate to a vector (Matrix)!');
+        }
+
         let endVec = new Vector3(end._data[0], end._data[1], 0);
         
         let start = this.startFun.eval(scope);
+        if(math.typeof(start) != 'Matrix') {
+            throw new Error('Start expression does not evaluate to vector (Matrix)!');
+        }
         let startVec = new Vector3(start._data[0], start._data[1], 0);
 
         let dir = endVec.clone().sub(startVec).normalize();
