@@ -1,4 +1,7 @@
-module.exports = {
+module.exports = [{
+    /////////////////////
+    //// Development ////
+    /////////////////////
     entry: "./src/index.ts",
     output: {
         filename: "interactive.js",
@@ -36,4 +39,39 @@ module.exports = {
         "three": "THREE",
         "mathjs": "math"
     }
-};
+}, {
+    ////////////////////
+    //// Production ////
+    ////////////////////
+    entry: "./src/index.ts",
+    output: {
+        filename: "interactive.min.js",
+        path: __dirname + "/dist",
+        library: "Interactive"
+    },
+
+    mode: "production",
+
+    resolve: {
+        // Add '.ts' and '.tsx' as resolvable extensions.
+        extensions: [".ts", ".tsx", ".js", ".json"]
+    },
+
+    module: {
+        rules: [
+            // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
+            { test: /\.tsx?$/, loader: "awesome-typescript-loader" },
+        ]
+    },
+
+    // When importing a module whose path matches one of the following, just
+    // assume a corresponding global variable exists and use that instead.
+    // This is important because it allows us to avoid bundling all of our
+    // dependencies, which allows browsers to cache those libraries between builds.
+    externals: {
+        "react": "React",
+        "react-dom": "ReactDOM",
+        "three": "THREE",
+        "mathjs": "math"
+    }
+}];
