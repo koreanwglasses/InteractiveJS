@@ -33,6 +33,7 @@ module.exports = {
     externals: {
         "react": "React",
         "react-dom": "ReactDOM",
-        "three": "THREE"
+        "three": "THREE",
+        "mathjs": "math"
     }
 };
