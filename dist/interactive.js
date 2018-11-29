@@ -109,6 +109,7 @@ if( !THREE )
 function MeshLine() {
 
 	this.positions = [];
+	this.colors = [];
 
 	this.previous = [];
 	this.next = [];
@@ -136,13 +137,26 @@ MeshLine.prototype.setGeometry = function( g, c ) {
 			var c = j/g.vertices.length;
 			this.positions.push( v.x, v.y, v.z );
 			this.positions.push( v.x, v.y, v.z );
+			this.colors.push( 0, 0, 0, 0 );
+			this.colors.push( 0, 0, 0, 0 );
 			this.counters.push(c);
 			this.counters.push(c);
 		}
 	}
 
 	if( g instanceof THREE.BufferGeometry ) {
-		// read attribute positions ?
+		var verts = g.getAttribute('position').array;
+		var colors = g.getAttribute('color').array;
+
+		for( var j = 0; j*3 < verts.length; j += 1 ) {
+			var c = j*3/verts.length;
+			this.positions.push( verts[ j*3 ], verts[ j*3 + 1 ], verts[ j*3 + 2 ] );
+			this.positions.push( verts[ j*3 ], verts[ j*3 + 1 ], verts[ j*3 + 2 ] );
+			this.colors.push( colors[ j*4 ], colors[ j*4 + 1 ], colors[ j*4 + 2 ], colors[ j*4 + 3 ] );
+			this.colors.push( colors[ j*4 ], colors[ j*4 + 1 ], colors[ j*4 + 2 ], colors[ j*4 + 3 ] );
+			this.counters.push(c);
+			this.counters.push(c);
+		}
 	}
 
 	if( g instanceof Float32Array || g instanceof Array ) {
@@ -150,6 +164,8 @@ MeshLine.prototype.setGeometry = function( g, c ) {
 			var c = j/g.length;
 			this.positions.push( g[ j ], g[ j + 1 ], g[ j + 2 ] );
 			this.positions.push( g[ j ], g[ j + 1 ], g[ j + 2 ] );
+			this.colors.push( 0, 0, 0, 0 );
+			this.colors.push( 0, 0, 0, 0 );
 			this.counters.push(c);
 			this.counters.push(c);
 		}
@@ -241,6 +257,7 @@ MeshLine.prototype.process = function() {
 	if (!this.attributes) {
 		this.attributes = {
 			position: new THREE.BufferAttribute( new Float32Array( this.positions ), 3 ),
+			color: new THREE.BufferAttribute(new Float32Array( this.colors ), 4 ),
 			previous: new THREE.BufferAttribute( new Float32Array( this.previous ), 3 ),
 			next: new THREE.BufferAttribute( new Float32Array( this.next ), 3 ),
 			side: new THREE.BufferAttribute( new Float32Array( this.side ), 1 ),
@@ -252,6 +269,8 @@ MeshLine.prototype.process = function() {
 	} else {
 		this.attributes.position.copyArray(new Float32Array(this.positions));
 		this.attributes.position.needsUpdate = true;
+		this.attributes.color.copyArray(new Float32Array(this.colors));
+		this.attributes.color.needsUpdate = true;
 		this.attributes.previous.copyArray(new Float32Array(this.previous));
 		this.attributes.previous.needsUpdate = true;
 		this.attributes.next.copyArray(new Float32Array(this.next));
@@ -267,6 +286,7 @@ MeshLine.prototype.process = function() {
     }
 
 	this.geometry.addAttribute( 'position', this.attributes.position );
+	this.geometry.addAttribute( 'color', this.attributes.color );
 	this.geometry.addAttribute( 'previous', this.attributes.previous );
 	this.geometry.addAttribute( 'next', this.attributes.next );
 	this.geometry.addAttribute( 'side', this.attributes.side );
@@ -345,6 +365,7 @@ function MeshLineMaterial( parameters ) {
 'precision highp float;',
 '',
 'attribute vec3 position;',
+'attribute vec4 color;',
 'attribute vec3 previous;',
 'attribute vec3 next;',
 'attribute float side;',
@@ -356,8 +377,9 @@ function MeshLineMaterial( parameters ) {
 'uniform mat4 modelViewMatrix;',
 'uniform vec2 resolution;',
 'uniform float lineWidth;',
-'uniform vec3 color;',
-'uniform float opacity;',
+'uniform float useGlobalColor;',
+'uniform vec3 gcolor;',
+'uniform float gopacity;',
 'uniform float near;',
 'uniform float far;',
 'uniform float sizeAttenuation;',
@@ -380,7 +402,12 @@ function MeshLineMaterial( parameters ) {
 '    float aspect = resolution.x / resolution.y;',
 '	 float pixelWidthRatio = 1. / (resolution.x * projectionMatrix[0][0]);',
 '',
-'    vColor = vec4( color, opacity );',
+'    if(useGlobalColor == 1.0) {',
+'        vColor = vec4( gcolor, gopacity );',
+'    } else {',
+'        vColor = color;',
+'    }',
+'',
 '    vUV = uv;',
 '',
 '    mat4 m = projectionMatrix * modelViewMatrix;',
@@ -472,6 +499,7 @@ function MeshLineMaterial( parameters ) {
 	this.useMap = check( parameters.useMap, 0 );
 	this.alphaMap = check( parameters.alphaMap, null );
 	this.useAlphaMap = check( parameters.useAlphaMap, 0 );
+	this.useGlobalColor = check( parameters.useGlobalColor, 1 );
 	this.color = check( parameters.color, new THREE.Color( 0xffffff ) );
 	this.opacity = check( parameters.opacity, 1 );
 	this.resolution = check( parameters.resolution, new THREE.Vector2( 1, 1 ) );
@@ -493,8 +521,9 @@ function MeshLineMaterial( parameters ) {
 			useMap: { type: 'f', value: this.useMap },
 			alphaMap: { type: 't', value: this.alphaMap },
 			useAlphaMap: { type: 'f', value: this.useAlphaMap },
-			color: { type: 'c', value: this.color },
-			opacity: { type: 'f', value: this.opacity },
+			useGlobalColor: {type: 'f', value: this.useGlobalColor },
+			gcolor: { type: 'c', value: this.color },
+			gopacity: { type: 'f', value: this.opacity },
 			resolution: { type: 'v2', value: this.resolution },
 			sizeAttenuation: { type: 'f', value: this.sizeAttenuation },
 			near: { type: 'f', value: this.near },
@@ -516,6 +545,7 @@ function MeshLineMaterial( parameters ) {
 	delete parameters.useMap;
 	delete parameters.alphaMap;
 	delete parameters.useAlphaMap;
+	delete parameters.useGlobalColor;
 	delete parameters.color;
 	delete parameters.opacity;
 	delete parameters.resolution;
@@ -549,6 +579,7 @@ MeshLineMaterial.prototype.copy = function ( source ) {
 	this.useMap = source.useMap;
 	this.alphaMap = source.alphaMap;
 	this.useAlphaMap = source.useAlphaMap;
+	this.useGlobalColor = check( parameters.useGlobalColor, 1);
 	this.color.copy( source.color );
 	this.opacity = source.opacity;
 	this.resolution.copy( source.resolution );
@@ -1069,29 +1100,23 @@ class Arrow2D {
     constructor(args) {
         let args2 = new Arrow2DArgs(args);
         args2.validate();
-        args2.default();
-        let startNode = math.parse(args2.start);
-        if (math.typeof(startNode) != 'ArrayNode') {
-            throw new Error("Invalid arguments: Start vector expression is not a vector (array)!");
-        }
-        else {
-            this.startFun = startNode.compile();
-        }
-        let endNode = math.parse(args2.end);
-        if (math.typeof(endNode) != 'ArrayNode') {
-            throw new Error("Invalid arguments: End vector expression is not a vector (array)!");
-        }
-        else {
-            this.endFun = endNode.compile();
-        }
+        args2.defaults();
+        this.startFun = math.parse(args2.start).compile();
+        this.endFun = math.parse(args2.end).compile();
         this.hex = args2.hex;
         this.headLength = args2.headLength;
         this.headWidth = args2.headWidth;
     }
     getSceneObject(scope) {
         let end = this.endFun.eval(scope);
+        if (math.typeof(end) != 'Matrix') {
+            throw new Error('End expression does not evaluate to a vector (Matrix)!');
+        }
         let endVec = new three_1.Vector3(end._data[0], end._data[1], 0);
         let start = this.startFun.eval(scope);
+        if (math.typeof(start) != 'Matrix') {
+            throw new Error('Start expression does not evaluate to vector (Matrix)!');
+        }
         let startVec = new three_1.Vector3(start._data[0], start._data[1], 0);
         let dir = endVec.clone().sub(startVec).normalize();
         let length = endVec.distanceTo(startVec);
@@ -1116,7 +1141,7 @@ class Arrow2DArgs {
         }
         return true;
     }
-    default() {
+    defaults() {
         let args = {};
         if (this.start === undefined) {
             this.start = '[0,0]';
@@ -1148,13 +1173,133 @@ exports.Arrow2DArgs = Arrow2DArgs;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const three_meshline_1 = __webpack_require__(/*! three.meshline */ "./node_modules/three.meshline/src/THREE.MeshLine.js");
+const math = __webpack_require__(/*! mathjs */ "mathjs");
+const three_1 = __webpack_require__(/*! three */ "three");
 class Parametric2D {
+    constructor(args) {
+        let args2 = new Parametric2DArgs(args);
+        args2.validate();
+        args2.defaults();
+        this.expressionFun = math.parse(args2.expression).compile();
+        this.parameter = args.parameter;
+        this.startFun = math.parse(args2.start).compile();
+        this.endFun = math.parse(args2.end).compile();
+        this.stepsFun = math.parse(args2.steps).compile();
+        if (args.color == null) {
+            this.colorFun = null;
+        }
+        else {
+            this.colorFun = math.parse(args2.color).compile();
+        }
+        this.width = args2.width;
+    }
     getSceneObject(scope) {
-        new three_meshline_1.MeshLine();
-        return null;
+        let self_ = this;
+        let newScope = Object.create(scope);
+        // Determine start end step
+        let start = this.startFun.eval(scope);
+        if (math.typeof(start) != 'number') {
+            throw new Error("Start does not evaluate to a number!");
+        }
+        let end = this.endFun.eval(scope);
+        if (math.typeof(end) != 'number') {
+            throw new Error("End does not evaluate to a number!");
+        }
+        let steps = this.stepsFun.eval(scope);
+        if (math.typeof(steps) != 'number') {
+            throw new Error("Step does not evaluate to a number!");
+        }
+        // Create parametric function
+        let parametricFun = function (t) {
+            newScope[self_.parameter] = t;
+            return self_.expressionFun.eval(newScope);
+        };
+        // Test expression returns correct type
+        if (math.typeof(parametricFun(start)) != 'Matrix') {
+            throw new Error("Expression does not evaluate to a vector (Matrix)!");
+        }
+        // Create color function
+        let colorFun;
+        if (this.colorFun != null) {
+            // Test to make sure color returns correct type
+            newScope[this.parameter] = start;
+            if (math.typeof(this.colorFun.eval(newScope)) != 'Matrix') {
+                throw new Error("Color does not evaluate to a vector (Matrix)!");
+            }
+            colorFun = function (t) {
+                newScope[self_.parameter] = t;
+                let result = self_.colorFun.eval(newScope);
+                return [...result._data];
+            };
+        }
+        else {
+            colorFun = function (t) {
+                return [1, 1, 1];
+            };
+        }
+        let step = (end - start) / (steps - 1);
+        let verts = new Float32Array(steps * 3);
+        let colors = new Float32Array(steps * 4);
+        for (let i = 0; i < steps; i++) {
+            let t = start + i * step;
+            let point = parametricFun(t);
+            let color = colorFun(t);
+            verts[i * 3] = point._data[0];
+            verts[i * 3 + 1] = point._data[1];
+            verts[i * 3 + 2] = 0;
+            colors[i * 4] = color[0];
+            colors[i * 4 + 1] = color[1];
+            colors[i * 4 + 2] = color[2];
+            colors[i * 4 + 3] = 1;
+        }
+        let geom = new three_1.BufferGeometry();
+        geom.addAttribute('position', new three_1.BufferAttribute(verts, 3));
+        geom.addAttribute('color', new three_1.BufferAttribute(colors, 4));
+        let line = new three_meshline_1.MeshLine();
+        line.setGeometry(geom);
+        let material = new three_meshline_1.MeshLineMaterial({ useGlobalColor: 0, lineWidth: this.width });
+        return new three_1.Mesh(line.geometry, material);
     }
 }
 exports.Parametric2D = Parametric2D;
+class Parametric2DArgs {
+    constructor(args) {
+        this.expression = args.expression;
+        this.parameter = args.parameter;
+        this.start = args.start;
+        this.end = args.end;
+        this.steps = args.steps;
+        this.color = args.color;
+        this.width = args.width;
+    }
+    validate() {
+        if (!this.expression) {
+            throw new Error("Invalid arguments: expression not defined!");
+        }
+        if (!this.parameter) {
+            throw new Error("Invalid arguments: parameter (variable) not defined!");
+        }
+        if (this.start === undefined) {
+            throw new Error("Invalid arguments: start not defined!");
+        }
+        if (this.end === undefined) {
+            throw new Error("Invalid arguments: end not defined!");
+        }
+        return true;
+    }
+    defaults() {
+        if (this.steps === undefined) {
+            this.steps = '50';
+        }
+        if (this.color === undefined) {
+            this.color = null;
+        }
+        if (this.width === undefined) {
+            this.width = 0.01;
+        }
+    }
+}
+exports.Parametric2DArgs = Parametric2DArgs;
 
 
 /***/ }),
@@ -1180,6 +1325,7 @@ exports.Arrow2D = Arrow2D_1.Arrow2D;
 exports.Arrow2DArgs = Arrow2D_1.Arrow2DArgs;
 var Parametric2D_1 = __webpack_require__(/*! ./figures/Parametric2D */ "./src/figures/Parametric2D.ts");
 exports.Parametric2D = Parametric2D_1.Parametric2D;
+exports.Parametric2DArgs = Parametric2D_1.Parametric2DArgs;
 
 
 /***/ }),

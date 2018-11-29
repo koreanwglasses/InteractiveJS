@@ -4,7 +4,7 @@
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.2.3/math.min.js"></script>
 <script src="../dist/interactive.js"></script>
 
-<div id="container" style="width: 200px; height: 200px"></div>
+<div id="container" style="width: 300px; height: 300px"></div>
 
 <script>
     let plot = new Interactive.Plot();
@@ -13,6 +13,9 @@
     
     let arr = new Interactive.Arrow2D({end:'[5,0]'});
     ax.addFigure(arr);
+
+    let par = new Interactive.Parametric2D({expression: '[x, x^2]', parameter:'x', start: 0, end: 5, step: 100, color: '[x/5,1-x/5,x/5]'});
+    ax.addFigure(par);
     
     ;(function animate() {
         requestAnimationFrame(animate);
