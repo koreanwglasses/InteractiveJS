@@ -11,10 +11,13 @@
     let axArgs = {container: document.getElementById('container')};
     let ax = plot.createAxes2D(axArgs);
     
-    let arr = new Interactive.Arrow2D({end:'[5,0]'});
+    let arr = new Interactive.Arrow2D({end:'[2,4]'});
     ax.addFigure(arr);
 
-    let par = new Interactive.Parametric2D({expression: '[x, x^2]', parameter:'x', start: 0, end: 5, step: 100, color: '[x/5,1-x/5,x/5]'});
+    plot.execExpression('f(x) = 2sin(x)');
+    plot.execExpression('c(x) = [sin(x)^2, cos(x)^2, 1]')
+
+    let par = new Interactive.Parametric2D({expression: '[x, f(x)]', parameter:'x', start: -10, end: 10, step: 100, color: 'c(x)'});
     ax.addFigure(par);
     
     ;(function animate() {

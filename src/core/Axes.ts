@@ -17,6 +17,7 @@ export abstract class Axes {
     
     private figures: Set<Figure>;
     private objMap: Map<Figure, THREE.Object3D>;
+    private skip: Set<Figure>; // Figures to skip when recalculating
     
     /**
     * Creates a new Axes from given args. Throws an error if args are invalid.
@@ -35,7 +36,8 @@ export abstract class Axes {
         
         this.figures = new Set<Figure>();
         this.objMap = new Map<Figure, THREE.Mesh>();
-
+        this.skip = new Set<Figure>();
+        
         this.wake();
     }
     
@@ -79,6 +81,7 @@ export abstract class Axes {
             this.scene.remove(mesh);
         }
         this.objMap.set(figure, null);
+        this.skip.delete(figure);
     }
     
     /**
@@ -134,17 +137,17 @@ export abstract class Axes {
     public getPlot(): Plot {
         return this.plot;
     }
-
+    
     /**
-     * Returns the HTMLELement that this axes is rendered into
-     */
+    * Returns the HTMLELement that this axes is rendered into
+    */
     public getContainer() : HTMLElement {
         return this.container;
     }
-
+    
     /**
-     * @returns Returns whether or not this axes is sleeping
-     */
+    * @returns Returns whether or not this axes is sleeping
+    */
     public isSleeping() : boolean {
         return this.renderer == null;
     }
@@ -156,7 +159,7 @@ export abstract class Axes {
     protected getScene(): THREE.Scene {
         return this.scene;
     }
-
+    
     protected abstract getCamera(): THREE.Camera;
     
     /**
@@ -166,10 +169,21 @@ export abstract class Axes {
     private recalculate() : void {
         for(let figure of this.figures) {
             let mesh = this.objMap.get(figure);
-            if(mesh == null) {
-                mesh = figure.getSceneObject(this.plot.getScope());
-                this.objMap.set(figure, mesh);
-                this.scene.add(mesh);
+            if(mesh == null && !this.skip.has(figure)) {
+                let success = true;
+                try {
+                    mesh = figure.getSceneObject(this.plot.getScope());
+                } catch (e) {
+                    success = false;
+                    console.error(e);
+                    console.warn('Figure not rendered!');
+                    this.skip.add(figure);
+                } 
+                
+                if(success) {
+                    this.objMap.set(figure, mesh);
+                    this.scene.add(mesh);
+                }
             }
         }
     }
@@ -210,7 +224,7 @@ export abstract class AxesArgs {
         if(!(this.container instanceof HTMLElement)) {
             throw new Error("Invalid arguments: container is not an instance of HTMLElement!");
         }
-
+        
         if(this.width === undefined && this.container.clientWidth == 0) {
             throw new Error("Invalid arguments: container has client width 0!");
         }

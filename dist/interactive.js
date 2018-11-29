@@ -643,6 +643,7 @@ class Axes {
         this.scene = new THREE.Scene();
         this.figures = new Set();
         this.objMap = new Map();
+        this.skip = new Set();
         this.wake();
     }
     /**
@@ -685,6 +686,7 @@ class Axes {
             this.scene.remove(mesh);
         }
         this.objMap.set(figure, null);
+        this.skip.delete(figure);
     }
     /**
     * Forces all figures to recalculate their scene models
@@ -735,14 +737,14 @@ class Axes {
         return this.plot;
     }
     /**
-     * Returns the HTMLELement that this axes is rendered into
-     */
+    * Returns the HTMLELement that this axes is rendered into
+    */
     getContainer() {
         return this.container;
     }
     /**
-     * @returns Returns whether or not this axes is sleeping
-     */
+    * @returns Returns whether or not this axes is sleeping
+    */
     isSleeping() {
         return this.renderer == null;
     }
@@ -759,10 +761,21 @@ class Axes {
     recalculate() {
         for (let figure of this.figures) {
             let mesh = this.objMap.get(figure);
-            if (mesh == null) {
-                mesh = figure.getSceneObject(this.plot.getScope());
-                this.objMap.set(figure, mesh);
-                this.scene.add(mesh);
+            if (mesh == null && !this.skip.has(figure)) {
+                let success = true;
+                try {
+                    mesh = figure.getSceneObject(this.plot.getScope());
+                }
+                catch (e) {
+                    success = false;
+                    console.error(e);
+                    console.warn('Figure not rendered!');
+                    this.skip.add(figure);
+                }
+                if (success) {
+                    this.objMap.set(figure, mesh);
+                    this.scene.add(mesh);
+                }
             }
         }
     }
