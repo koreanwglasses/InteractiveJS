@@ -12,7 +12,7 @@ export class Arrow2D implements Figure {
     public constructor(args: any) {
         let args2 = new Arrow2DArgs(args); 
         args2.validate();
-        args2.default();
+        args2.defaults();
         
         let startNode = math.parse(args2.start);
         if(math.typeof(startNode) != 'ArrayNode') {
@@ -73,7 +73,7 @@ export class Arrow2DArgs {
         return true;
     }
     
-    public default() : void {
+    public defaults() : void {
         let args : any = {};
         if (this.start === undefined) {
             this.start = '[0,0]';
