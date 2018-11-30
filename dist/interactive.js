@@ -977,6 +977,103 @@ exports.Axes3DArgs = Axes3DArgs;
 
 /***/ }),
 
+/***/ "./src/core/Panel.tsx":
+/*!****************************!*\
+  !*** ./src/core/Panel.tsx ***!
+  \****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const math = __webpack_require__(/*! mathjs */ "mathjs");
+class Panel {
+    constructor(args) {
+        let args2 = new PanelArgs(args);
+        args2.validate();
+        args2.defaults();
+        this.plot = args2.plot;
+        this.container = args2.container;
+    }
+    createSlider(args) {
+        let args2 = new Panel.SliderArgs(args);
+        args2.validate();
+        args2.defaults();
+        let step = (args2.end - args2.start) / (args2.steps - 1);
+        let self_ = this;
+        let onInput = function (e) {
+            self_.plot.setConstant(args2.variable, parseFloat(this.value));
+            self_.plot.refresh();
+        };
+        let value = this.plot.getScope()[args.variable];
+        // Set initial value if not already set
+        if (math.typeof(value) != 'number') {
+            value = args2.start;
+            this.plot.setConstant(args2.variable, value);
+        }
+        let slider = document.createElement('input');
+        slider.setAttribute('type', 'range');
+        slider.setAttribute('min', args2.start.toString());
+        slider.setAttribute('max', args2.end.toString());
+        slider.setAttribute('step', step.toString());
+        slider.setAttribute('value', value.toString());
+        slider.addEventListener('input', onInput);
+        this.container.appendChild(slider);
+    }
+}
+Panel.SliderArgs = class {
+    constructor(args) {
+        this.variable = args.variable;
+        this.start = args.start;
+        this.end = args.end;
+        this.steps = args.steps;
+        this.continuousUpdate = args.continuousUpdate;
+    }
+    validate() {
+        if (this.variable === undefined) {
+            throw new Error('Invalid arguments: Variable not defined!');
+        }
+        if (this.start === undefined) {
+            throw new Error('Invalid arguments: Start not defined!');
+        }
+        if (this.end === undefined) {
+            throw new Error('Invalid arguments: End not defined!');
+        }
+        return true;
+    }
+    defaults() {
+        if (this.steps === undefined) {
+            this.steps = 50;
+        }
+        if (this.continuousUpdate === undefined) {
+            this.continuousUpdate = true;
+        }
+    }
+};
+exports.Panel = Panel;
+class PanelArgs {
+    constructor(args) {
+        this.plot = args.plot;
+        this.container = args.container;
+    }
+    validate() {
+        if (this.plot === undefined) {
+            throw new Error("Invalid arguments: Plot not defined!");
+        }
+        if (this.container === undefined) {
+            throw new Error("Invalid arguments: Container not defined!");
+        }
+        return true;
+    }
+    defaults() {
+    }
+}
+exports.PanelArgs = PanelArgs;
+
+
+/***/ }),
+
 /***/ "./src/core/Plot.ts":
 /*!**************************!*\
   !*** ./src/core/Plot.ts ***!
@@ -1028,6 +1125,17 @@ class Plot {
         return this.axes.delete(axes);
     }
     /**
+     * Creates a panel
+     * @param args
+     * @return The new panel
+     */
+    createPanel(args) {
+        let args2 = new internal_1.PanelArgs(args);
+        args2.plot = this;
+        let panel = new internal_1.Panel(args2);
+        return panel;
+    }
+    /**
      * Renders all axes that are awake
      */
     render() {
@@ -1035,6 +1143,14 @@ class Plot {
             if (!ax.isSleeping()) {
                 ax.render();
             }
+        }
+    }
+    /**
+     * Refresh all axes
+     */
+    refresh() {
+        for (let ax of this.axes) {
+            ax.refreshAll();
         }
     }
     /**
@@ -1054,6 +1170,14 @@ class Plot {
      */
     execExpression(expr) {
         math.eval(expr, this.scope);
+    }
+    /**
+     * Sets the value of specified variable in the scope.
+     * @param variable
+     * @param value
+     */
+    setConstant(variable, value) {
+        this.scope[variable] = value;
     }
     /**
      * Returns the scope used in evaluating expresions. Due to limitations on
@@ -1092,6 +1216,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __export(__webpack_require__(/*! ./Axes */ "./src/core/Axes.ts"));
 __export(__webpack_require__(/*! ./Axes2D */ "./src/core/Axes2D.ts"));
 __export(__webpack_require__(/*! ./Axes3D */ "./src/core/Axes3D.ts"));
+__export(__webpack_require__(/*! ./Panel */ "./src/core/Panel.tsx"));
 __export(__webpack_require__(/*! ./Plot */ "./src/core/Plot.ts"));
 
 

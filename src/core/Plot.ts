@@ -1,4 +1,4 @@
-import { Axes, Axes2D, Axes2DArgs, Axes3D, Axes3DArgs } from './internal';
+import { Axes, Axes2D, Axes2DArgs, Axes3D, Axes3DArgs, Panel, PanelArgs } from './internal';
 import * as math from 'mathjs';
 
 /**
@@ -49,6 +49,18 @@ export class Plot {
     }
 
     /**
+     * Creates a panel
+     * @param args 
+     * @return The new panel
+     */
+    public createPanel(args: any): Panel {
+        let args2 = new PanelArgs(args);
+        args2.plot = this;
+        let panel = new Panel(args2);
+        return panel;
+    }
+
+    /**
      * Renders all axes that are awake
      */
     public render() : void {
@@ -56,6 +68,15 @@ export class Plot {
             if(!ax.isSleeping()) {
                 ax.render();
             }
+        }
+    }
+
+    /**
+     * Refresh all axes
+     */
+    public refresh() : void {
+        for(let ax of this.axes) {
+            ax.refreshAll();
         }
     }
 
@@ -78,6 +99,15 @@ export class Plot {
      */
     public execExpression(expr: string) : any {
         math.eval(expr, this.scope);
+    }
+
+    /**
+     * Sets the value of specified variable in the scope.
+     * @param variable 
+     * @param value 
+     */
+    public setConstant(variable: string, value: number) {
+        this.scope[variable] = value;
     }
 
     /**
