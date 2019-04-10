@@ -1131,11 +1131,10 @@ class Panel {
         let slider = React.createElement(PanelComponent.Slider, Object.assign({}, args, { key: this.panelComponents.length }));
         this.append(slider);
     }
-    addReadout(expression) {
-        let args = {
-            plot: this.plot,
-            expression: expression
-        };
+    addReadout(expression, opts) {
+        let args = Object.assign({}, opts);
+        args.plot = this.plot;
+        args.expression = expression;
         let readout = React.createElement(PanelComponent.Readout, Object.assign({}, args, { key: this.panelComponents.length }));
         this.append(readout);
     }
@@ -1240,7 +1239,7 @@ var PanelComponent;
             this.args.plot.onExecExpression(updateValue);
         }
         render() {
-            return [this.args.expression + " =", React.createElement("input", { key: "1", type: "text", disabled: true, value: this.state.value })];
+            return [this.args.label + " =", React.createElement("input", { key: "1", type: "text", disabled: true, value: this.state.value })];
         }
     }
     PanelComponent.Readout = Readout;
@@ -1248,6 +1247,7 @@ var PanelComponent;
         constructor(args) {
             this.plot = args.plot;
             this.expression = args.expression;
+            this.label = args.label;
         }
         validate() {
             if (this.plot === undefined) {
@@ -1259,6 +1259,9 @@ var PanelComponent;
             return true;
         }
         defaults() {
+            if (this.label === undefined) {
+                this.label = this.expression;
+            }
         }
     }
     PanelComponent.ReadoutArgs = ReadoutArgs;

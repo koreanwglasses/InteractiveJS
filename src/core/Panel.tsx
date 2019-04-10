@@ -27,11 +27,10 @@ export class Panel {
         this.append(slider);
     }
 
-    public addReadout(expression: string) {
-        let args = {
-            plot: this.plot,
-            expression: expression
-        } as any;
+    public addReadout(expression: string, opts: string) {
+        let args = Object.assign({}, opts) as any;
+        args.plot = this.plot;
+        args.expression = expression;
         let readout = <PanelComponent.Readout {...args} key={this.panelComponents.length}/>;
 
         this.append(readout);
@@ -184,7 +183,7 @@ export namespace PanelComponent {
         }
 
         public render() {
-            return [this.args.expression + " =", <input key="1" type="text"
+            return [this.args.label + " =", <input key="1" type="text"
                 disabled={true} value={this.state.value}></input>];
         }
     }
@@ -192,10 +191,12 @@ export namespace PanelComponent {
     export class ReadoutArgs {
         public plot: Plot;
         public expression: string;
+        public label: string;
 
         public constructor(args: any) {
             this.plot = args.plot;
             this.expression = args.expression;
+            this.label = args.label;
         }
 
         public validate() : boolean {
@@ -209,7 +210,9 @@ export namespace PanelComponent {
         }
 
         public defaults() : void {
-            
+            if(this.label === undefined) {
+                this.label = this.expression;
+            }
         }
     }
 
