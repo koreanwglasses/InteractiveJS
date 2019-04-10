@@ -9,5 +9,5 @@ export interface Figure {
      * Creates a mesh that can be rendered on a THREE.Scene. Should not alter the scope.
      * @param scope The scope to evaluate any mathjs expressions with.
      */
-    getSceneObject: (scope? : any) => Object3D;
+    render: (scope? : any) => Object3D;
 }

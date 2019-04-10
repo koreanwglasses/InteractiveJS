@@ -37,7 +37,7 @@ export class Parametric2D implements Figure {
         this.width = args2.width;
     }
 
-    public getSceneObject(scope?: any) : Object3D {
+    public render(scope?: any) : Object3D {
         let self_ = this;
         let newScope = Object.create(scope);
 

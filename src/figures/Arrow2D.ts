@@ -8,6 +8,8 @@ export class Arrow2D implements Figure {
     private hex: number;
     private headLength: number;
     private headWidth: number;
+
+    private showFun: math.EvalFunction;
     
     public constructor(args: any) {
         let args2 = new Arrow2DArgs(args); 
@@ -20,9 +22,14 @@ export class Arrow2D implements Figure {
         this.hex = args2.hex;
         this.headLength = args2.headLength;
         this.headWidth = args2.headWidth;
+
+        this.showFun = math.parse(args2.show).compile();
     }
     
-    public getSceneObject(scope : any) : Object3D {
+    public render(scope : any) : Object3D {
+        let show = this.showFun.eval(scope);
+        if(show == 0) return null;
+
         let end = this.endFun.eval(scope);
         if(math.typeof(end) != 'Matrix') {
             throw new Error('End expression does not evaluate to a vector (Matrix)!');
@@ -40,8 +47,8 @@ export class Arrow2D implements Figure {
         let length = endVec.distanceTo(startVec);
 
         let hex = this.hex;
-        let headLength = this.headLength * length;
-        let headWidth = this.headWidth * headLength;     
+        let headLength = this.headLength;
+        let headWidth = this.headWidth;     
         
         return new ArrowHelper(dir, startVec, length, hex, headLength, headWidth);
     }
@@ -53,6 +60,11 @@ export class Arrow2DArgs {
     public hex : number;
     public headLength : number;
     public headWidth : number;
+
+    /**
+     * Arrow is visible is show evals to 1
+     */
+    public show: string;
     
     public constructor(args : any) {
         this.start = args.start;
@@ -60,6 +72,8 @@ export class Arrow2DArgs {
         this.hex = args.hex;
         this.headLength = args.headLength;
         this.headWidth = args.headWidth;
+
+        this.show = args.show;
     }
     
     public validate() : boolean {
@@ -81,7 +95,10 @@ export class Arrow2DArgs {
             this.headLength = 0.2;
         }
         if(this.headWidth === undefined) {
-            this.headWidth = 0.5;
+            this.headWidth = 0.1;
+        }
+        if(this.show === undefined) {
+            this.show = '1';
         }
     }
 }

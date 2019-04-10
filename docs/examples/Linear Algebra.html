@@ -30,9 +30,11 @@ return false;
 </style>
 </head>
 <body>
-<script src="../../lib/three.min.js"></script>
-<script src="../../lib/math.min.js"></script>
-<script src="../../build/interactive.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/103/three.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.9.0/math.js"></script>
+<script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+<script src="../../dist/interactive.js"></script>
 VECTOR ADDITION IN THE PLANE <br>
 <br>
 Vectors in the plane are given by arrows based at the origin. We denote
@@ -65,8 +67,9 @@ through the origin, then A+C also lies on this line.<br>
 </div>
 <script>
   plot1 = new Interactive.Plot();
-  pan1 = plot1.createPanel(document.getElementById('pan1'))
-  ax1 = plot1.createAxes2D(document.getElementById('ax1'), {position: new THREE.Vector3(0.4,0.5,0)})
+  pan1 = plot1.createPanel({container: document.getElementById('pan1')});
+  ax1 = plot1.createAxes2D({container: document.getElementById('ax1'),
+    left: -1, right: 2, bottom: -1, top:2});
 
   pan1.addReadout('v1');
   pan1.addReadout('v2');
@@ -76,25 +79,26 @@ through the origin, then A+C also lies on this line.<br>
   plot1.execExpression('v2=[1,0.2]');
   plot1.execExpression('v3()=v1+v2');
 
-  ax1.plotExpression('v1', 'arrow', {hex: 0xff0000});
-  ax1.plotExpression('v2', 'arrow', {hex: 0x0000ff});
-  ax1.plotExpression('v3()', 'arrow', {hex:0xff00ff});
-  ax1.plotExpression('v1', 'hotspot');
-  ax1.plotExpression('v2', 'hotspot');           
+  ax1.addFigure(new Interactive.Arrow2D({end:'[1,0]', hex: 0x888888}));
+  ax1.addFigure(new Interactive.Arrow2D({end:'[0,1]', hex: 0x888888}));
 
-  ax1.plotExpression('{v1,v2}', 'parallelogram', {opacity: 0.5})
+  ax1.addFigure(new Interactive.Arrow2D({end:'v1', hex: 0xff0000}));
+  ax1.addFigure(new Interactive.Arrow2D({end:'v2', hex: 0x0000ff}));
+  ax1.addFigure(new Interactive.Arrow2D({end:'v3()', hex: 0xff00ff}));
 
-  ax1.plotExpression('A', 'label', {position: 'v1'})
-  ax1.plotExpression('C', 'label', {position: 'v2'})
-  ax1.plotExpression('A+C', 'label', {position: 'v3()'})
+  ax1.addFigure(new Interactive.Hotspot2D({plot: plot1, variable: 'v1'}));
+  ax1.addFigure(new Interactive.Hotspot2D({plot: plot1, variable: 'v2'}));
 
-  ax1.plotExpression('X', 'label', {position: '[1,0]'})
-  ax1.plotExpression('Y', 'label', {position: '[0,1]'})
+  ax1.addFigure(new Interactive.Parallelogram2D({u: 'v1', v: 'v2', opacity: 0.5}));
 
-  ;(function animate() {
-      requestAnimationFrame(animate);
-      plot1.render();
-  })();
+  ax1.addFigure(new Interactive.Label2D({axes: ax1, position: 'v1', label: 'A'}));
+  ax1.addFigure(new Interactive.Label2D({axes: ax1, position: 'v2', label: 'C'}));
+  ax1.addFigure(new Interactive.Label2D({axes: ax1, position: 'v3()', label: 'A+C'}));
+
+  ax1.addFigure(new Interactive.Label2D({axes: ax1, position: '[1, 0]', label: 'X'}));
+  ax1.addFigure(new Interactive.Label2D({axes: ax1, position: '[0, 1]', label: 'Y'}));
+
+  plot1.requestFrame();
 </script>
 <br>
 <big><a href="http://www.math.brown.edu/~banchoff/la1d1.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
@@ -126,20 +130,25 @@ number is "the line along A through the origin".<br>
 </div>
 <script>
   plot2 = new Interactive.Plot();
-  pan2 = plot2.createPanel(document.getElementById('pan2'))
-  ax2 = plot2.createAxes2D(document.getElementById('ax2'), {position: new THREE.Vector3(0.4,0.5,0)})
+  pan2 = plot2.createPanel({container: document.getElementById('pan2')}); 
+  ax2 = plot2.createAxes2D({container: document.getElementById('ax2'),
+    left: -1, right: 2, bottom: -1, top:2});
 
   plot2.execExpression('t=-0.5');
   plot2.execExpression('v1=[1,0.5]');
   plot2.execExpression('v2()=t*v1');
 
-  pan2.addSlider('{t,-2,2,100}', { continuous: true });
+  pan2.createSlider({variable: 't', start: -2, end:2, steps:100, continuousUpdate: true});
   pan2.addReadout('v1');
   pan2.addReadout('t*v1');
 
-  ax2.plotExpression('v1', 'arrow', {hex: 0xff0000});
-  ax2.plotExpression('v2()', 'arrow', {hex:0xffffff, thick: true});
-  ax2.plotExpression('v1', 'hotspot');       
+  ax2.addFigure(new Interactive.Arrow2D({end:'[1,0]', hex: 0x888888}));
+  ax2.addFigure(new Interactive.Arrow2D({end:'[0,1]', hex: 0x888888}));
+
+  ax2.addFigure(new Interactive.Arrow2D({end:'v1', hex: 0xff0000}));
+  ax2.addFigure(new Interactive.Arrow2D({end:'v2()', hex: 0xffffff}));
+  // ax2.plotExpression('v2()', 'arrow', {hex:0xffffff, thick: true});
+  ax2.addFigure(new Interactive.Hotspot2D({plot: plot2, variable: 'v1'}));
 
   ax2.plotExpression('A', 'label', {position: 'v1'})
   ax2.plotExpression('tA', 'label', {position: 'v2()'})
@@ -147,10 +156,7 @@ number is "the line along A through the origin".<br>
   ax2.plotExpression('X', 'label', {position: '[1,0]'})
   ax2.plotExpression('Y', 'label', {position: '[0,1]'})
 
-  ;(function animate() {
-      requestAnimationFrame(animate);
-      plot2.render();
-  })();
+  plot2.requestFrame();
 </script>
 <br>
 <big><a href="http://www.math.brown.edu/~banchoff/la1d2.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
@@ -176,17 +182,21 @@ line along A, obtained when t and s are both equal to 1.<br>
 <br>
 <script>
   plot3 = new Interactive.Plot();
-  pan3 = plot3.createPanel(document.getElementById('pan3'))
-  ax3 = plot3.createAxes2D(document.getElementById('ax3'), {position: new THREE.Vector3(1,0.5,0)})
+  pan3 = plot3.createPanel({container: document.getElementById('pan3')})
+  ax3 = plot3.createAxes2D({container: document.getElementById('ax3'),
+    left: -2, right: 4, bottom: -1, top: 2 });
 
   plot3.execExpression('A=[1,1]');
   plot3.execExpression('C=[2,1/2]');
   plot3.execExpression('t0=-0.8');
 
-  pan3.addSlider('{t0,-1,1,20}', {continuous: true});
+  pan3.createSlider({variable: 't0', start: -1, end:1, steps:20, continuousUpdate: true});
   pan3.addReadout('t0');
 
   plot3.execExpression('X(t)=A + t*C');
+
+  ax3.addFigure(new Interactive.Arrow2D({end:'[1,0]', hex: 0x888888}));
+  ax3.addFigure(new Interactive.Arrow2D({end:'[0,1]', hex: 0x888888}));
 
   ax3.plotExpression('A', 'arrow', {hex: 0xff0000})
   ax3.plotExpression('C', 'arrow', {hex: 0xffffff})
@@ -200,7 +210,7 @@ line along A, obtained when t and s are both equal to 1.<br>
  
   ax3.plotExpression('A', 'label', {position: 'A'})
   ax3.plotExpression('C', 'label', {position: 'C'})
-  ax3.plotExpression('X(t0)', 'label', {position: 'X(t0)'})
+  ax3.plotExpression('(t0)X', 'label', {position: 'X(t0)'})
 
   ax3.plotExpression('A', 'hotspot')
   ax3.plotExpression('C', 'hotspot')
@@ -210,14 +220,11 @@ line along A, obtained when t and s are both equal to 1.<br>
   ax3.plotExpression('X(t){t,-1,1,2}', 'parametric', {color: 'D()'});
 
   plot3.execExpression('opt1=0');
-  pan3.addCheckBox('opt1', {label: "Show position vector X(t0)"});
+  pan3.addCheckBox('opt1', {label: "Show position vector (t0)X"});
 
   ax3.plotExpression('X(t0)', 'arrow', {show: 'opt1', hex: 0x00ff00});
 
-  ;(function animate() {
-      requestAnimationFrame(animate);
-      plot3.render();
-  })();
+  plot3.requestFrame();
 </script>
 <big><a href="http://www.math.brown.edu/~banchoff/la1d4.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
 <br>
@@ -256,11 +263,15 @@ vectors A = (a,b) and C = (c,d) to be ac + bd = A*C.<br>
 <div id="pan4" class="pan"></div>
 <script>
   plot4 = new Interactive.Plot();
-  pan4 = plot4.createPanel(document.getElementById('pan4'))
-  ax4 = plot4.createAxes2D(document.getElementById('ax4'), {position: new THREE.Vector3(0.5,0.5,0)})
+  pan4 = plot4.createPanel({container:document.getElementById('pan4')}); 
+  ax4 = plot4.createAxes2D({container: document.getElementById('ax4'), 
+    left: -1, right: 2, bottom: -1, top:2});
 
   plot4.execExpression('A=[0,1]');
   plot4.execExpression('C=[1,0]');
+
+  ax4.addFigure(new Interactive.Arrow2D({end:'[1,0]', hex: 0x888888}));
+  ax4.addFigure(new Interactive.Arrow2D({end:'[0,1]', hex: 0x888888}));
 
   ax4.plotExpression('A', 'arrow', {hex: 0xff0000})
   ax4.plotExpression('C', 'arrow', {hex: 0x0000ff})
@@ -277,10 +288,7 @@ vectors A = (a,b) and C = (c,d) to be ac + bd = A*C.<br>
   pan4.addReadout('C');
   pan4.addReadout('dot(A,C)')
 
-  ;(function animate() {
-      requestAnimationFrame(animate);
-      plot4.render();
-  })();
+  plot4.requestFrame();
 </script>
 <big><a href="http://www.math.brown.edu/~banchoff/la1d5.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
 <br>
@@ -316,11 +324,15 @@ C*C - (C-A)*(C-A) = 2A*C, by the above calculation.&nbsp; Therefore A*C
 <div id="pan5" class="pan"></div>
 <script>
   plot5 = new Interactive.Plot();
-  pan5 = plot5.createPanel(document.getElementById('pan5'))
-  ax5 = plot5.createAxes2D(document.getElementById('ax5'), {position: new THREE.Vector4(0.5,0.5,0)})
+  pan5 = plot5.createPanel({container:document.getElementById('pan5')}); 
+  ax5 = plot5.createAxes2D({container: document.getElementById('ax5'), 
+    left: -1, right: 2, bottom: -1, top:2});
 
   plot5.execExpression('A=[0.5,1]');
   plot5.execExpression('C=[1,0]');
+
+  ax5.addFigure(new Interactive.Arrow2D({end:'[1,0]', hex: 0x888888}));
+  ax5.addFigure(new Interactive.Arrow2D({end:'[0,1]', hex: 0x888888}));
 
   ax5.plotExpression('A', 'arrow', {hex: 0xff0000})
   ax5.plotExpression('C', 'arrow', {hex: 0x0000ff})
@@ -341,10 +353,7 @@ C*C - (C-A)*(C-A) = 2A*C, by the above calculation.&nbsp; Therefore A*C
   ax5.plotExpression('A*t + (1-t) * dot(A,C)*C/(norm(C)^2) {t,0,1,2}', 'parametric', {color: 'Co()'});
   ax5.plotExpression('t*dot(A,C)*C/(norm(C)^2) {t,0,1,2}', 'parametric');
 
-  ;(function animate() {
-      requestAnimationFrame(animate);
-      plot5.render();
-  })();
+  plot5.requestFrame();
 </script>
 <big><a href="http://www.math.brown.edu/~banchoff/la1d6.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
 <br>

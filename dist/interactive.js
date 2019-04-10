@@ -764,7 +764,7 @@ class Axes {
             if (mesh == null && !this.skip.has(figure)) {
                 let success = true;
                 try {
-                    mesh = figure.getSceneObject(this.plot.getScope());
+                    mesh = figure.render(this.plot.getScope());
                 }
                 catch (e) {
                     success = false;
@@ -772,7 +772,7 @@ class Axes {
                     console.warn('Figure not rendered!');
                     this.skip.add(figure);
                 }
-                if (success) {
+                if (success && mesh) {
                     this.objMap.set(figure, mesh);
                     this.scene.add(mesh);
                 }
@@ -831,7 +831,7 @@ class AxesArgs {
             this.height = this.container.clientHeight;
         }
         if (this.antialias === undefined) {
-            this.antialias = false;
+            this.antialias = true;
         }
     }
 }
@@ -852,6 +852,15 @@ exports.AxesArgs = AxesArgs;
 Object.defineProperty(exports, "__esModule", { value: true });
 const internal_1 = __webpack_require__(/*! ./internal */ "./src/core/internal.ts");
 const THREE = __webpack_require__(/*! three */ "three");
+const three_1 = __webpack_require__(/*! three */ "three");
+const Hotspot2D_1 = __webpack_require__(/*! ../figures/Hotspot2D */ "./src/figures/Hotspot2D.ts");
+const Label2D_1 = __webpack_require__(/*! ../figures/Label2D */ "./src/figures/Label2D.ts");
+const Arrow2D_1 = __webpack_require__(/*! ../figures/Arrow2D */ "./src/figures/Arrow2D.ts");
+const Point2D_1 = __webpack_require__(/*! ../figures/Point2D */ "./src/figures/Point2D.ts");
+const Parametric2D_1 = __webpack_require__(/*! ../figures/Parametric2D */ "./src/figures/Parametric2D.ts");
+const AngleArc2D_1 = __webpack_require__(/*! ../figures/AngleArc2D */ "./src/figures/AngleArc2D.ts");
+const Utils_1 = __webpack_require__(/*! ../utils/Utils */ "./src/utils/Utils.ts");
+const Polygon2D_1 = __webpack_require__(/*! ../figures/Polygon2D */ "./src/figures/Polygon2D.ts");
 /**
  * An axes where 2D elementds can be plotted.
  *
@@ -868,44 +877,162 @@ class Axes2D extends internal_1.Axes {
         this.right = args.right;
         this.top = args.top;
         this.bottom = args.bottom;
-        let self_ = this;
+        this.hotspots = [];
+        this.activeHotspot = null;
+        ////////////////
+        //// Events ////
+        ////////////////
         let clientPosStart = null;
         let cameraPosStart = null;
-        let onPanStart = function (clientX, clientY) {
+        let onPanStart = (clientX, clientY) => {
             clientPosStart = [clientX, clientY];
-            cameraPosStart = self_.camera.position.clone();
+            cameraPosStart = this.camera.position.clone();
         };
-        let onPan = function (clientX, clientY) {
-            let clientBounds = self_.getContainer().getBoundingClientRect();
+        let onPan = (clientX, clientY) => {
+            let clientBounds = this.getContainer().getBoundingClientRect();
             let clientDiff = [clientX - clientPosStart[0], clientY - clientPosStart[1]];
-            let cameraDim = [self_.right - self_.left, self_.top - self_.bottom];
+            let cameraDim = [this.right - this.left, this.top - this.bottom];
             let cameraDiff = [clientDiff[0] / clientBounds.width * cameraDim[0], clientDiff[1] / clientBounds.height * cameraDim[1]];
-            self_.camera.position.x = cameraPosStart.x - cameraDiff[0];
-            self_.camera.position.y = cameraPosStart.y + cameraDiff[1];
-            self_.camera.updateMatrix();
+            this.camera.position.x = cameraPosStart.x - cameraDiff[0];
+            this.camera.position.y = cameraPosStart.y + cameraDiff[1];
+            this.camera.updateMatrix();
+            this.getPlot().requestFrame();
         };
-        let onPanEnd = function (clientX, clientY) {
+        let onHotspotDrag = (clientX, clientY) => {
+            let containerBounds = this.getContainer().getBoundingClientRect();
+            let screenCoords = new THREE.Vector2(clientX - containerBounds.left, clientY - containerBounds.top);
+            let worldCoords = unproject(screenCoords);
+            this.activeHotspot.setPosition(worldCoords);
+        };
+        let onPanEnd = (clientX, clientY) => {
             clientPosStart = null;
             cameraPosStart = null;
         };
+        var unproject = (screenCoords) => {
+            let ratioX = screenCoords.x / this.getContainer().clientWidth;
+            let ratioY = screenCoords.y / this.getContainer().clientHeight;
+            let worldX = this.left + ratioX * (this.right - this.left) + this.camera.position.x;
+            let worldY = this.top - ratioY * (this.top - this.bottom) + this.camera.position.y;
+            return new three_1.Vector2(worldX, worldY);
+        };
+        var findActiveHotspot = (clientX, clientY) => {
+            let leastDistance = 1000; // Arbitrarily large number
+            let containerBounds = this.getContainer().getBoundingClientRect();
+            let screenCoords = new THREE.Vector2(clientX - containerBounds.left, clientY - containerBounds.top);
+            this.activeHotspot = null;
+            for (let hotspot of this.hotspots) {
+                let dist2 = this.project(hotspot.getPosition()).distanceToSquared(screenCoords);
+                if (dist2 <= 20 * 20 && dist2 < leastDistance * leastDistance) {
+                    this.activeHotspot = hotspot;
+                }
+            }
+        };
         this.getContainer().addEventListener('mousedown', (e) => {
             if (e.buttons & 1) {
-                onPanStart(e.clientX, e.clientY);
+                findActiveHotspot(e.clientX, e.clientY);
+                if (this.activeHotspot == null) {
+                    onPanStart(e.clientX, e.clientY);
+                }
             }
         });
         this.getContainer().addEventListener('mousemove', (e) => {
             if (e.buttons & 1) {
-                onPan(e.clientX, e.clientY);
+                if (this.activeHotspot == null) {
+                    onPan(e.clientX, e.clientY);
+                }
+                else {
+                    onHotspotDrag(e.clientX, e.clientY);
+                }
             }
         });
         this.getContainer().addEventListener('mouseup', (e) => {
             if (e.buttons & 1) {
-                onPanEnd(e.clientX, e.clientY);
+                if (this.activeHotspot == null) {
+                    onPanEnd(e.clientX, e.clientY);
+                }
             }
         });
     }
+    addFigure(figure) {
+        if (figure instanceof Hotspot2D_1.Hotspot2D) {
+            this.hotspots.push(figure);
+        }
+        return super.addFigure(figure);
+    }
+    removeFigure(figure) {
+        if (figure instanceof Hotspot2D_1.Hotspot2D) {
+            let i = this.hotspots.indexOf(figure);
+            if (i >= 0) {
+                this.hotspots.splice(i, 1);
+            }
+        }
+        return super.removeFigure(figure);
+    }
     getCamera() {
         return this.camera;
+    }
+    project(worldCoords) {
+        let ratioX = (worldCoords.x - this.camera.position.x - this.left) / (this.right - this.left);
+        let ratioY = (worldCoords.y - this.camera.position.y - this.bottom) / (this.top - this.bottom);
+        let screenX = ratioX * this.getContainer().clientWidth;
+        let screenY = (1 - ratioY) * this.getContainer().clientHeight;
+        return new three_1.Vector2(screenX, screenY);
+    }
+    /**
+     * Supports legacy way of creating figures
+     */
+    plotExpression(expr, type, opts) {
+        let args = Object.assign({}, opts);
+        switch (type) {
+            case 'angle':
+                var parts = expr.split(/{|,|}/g);
+                args.a = parts[1];
+                args.b = parts[2];
+                let angleArc = new AngleArc2D_1.AngleArc2D(args);
+                this.addFigure(angleArc);
+                break;
+            case 'arrow':
+                args.end = expr;
+                let arrow = new Arrow2D_1.Arrow2D(args);
+                this.addFigure(arrow);
+                break;
+            case 'label':
+                args.axes = this;
+                args.label = expr;
+                let label = new Label2D_1.Label2D(args);
+                this.addFigure(label);
+                break;
+            case 'point':
+                args.position = expr;
+                let point = new Point2D_1.Point2D(args);
+                this.addFigure(point);
+                break;
+            case 'hotspot':
+                args.plot = this.getPlot();
+                args.variable = expr;
+                let hotspot = new Hotspot2D_1.Hotspot2D(args);
+                this.addFigure(hotspot);
+                break;
+            case 'parametric':
+                var parts = expr.split(/{|}/g);
+                args.expression = parts[0];
+                let parts2 = parts[1].split(',');
+                args.parameter = parts2[0];
+                args.start = parts2[1];
+                args.end = parts2[2];
+                args.steps = parts2[3];
+                let param = new Parametric2D_1.Parametric2D(args);
+                this.addFigure(param);
+                break;
+            case 'polygon':
+                let verts = Utils_1.bracketAwareSplit(expr.slice(1, expr.length - 1), ',');
+                args.vertices = verts;
+                let poly = new Polygon2D_1.Polygon2D(args);
+                this.addFigure(poly);
+                break;
+            default:
+                throw new Error("Unknown figure type!");
+        }
     }
 }
 exports.Axes2D = Axes2D;
@@ -988,6 +1115,8 @@ exports.Axes3DArgs = Axes3DArgs;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const math = __webpack_require__(/*! mathjs */ "mathjs");
+const React = __webpack_require__(/*! react */ "react");
+const ReactDOM = __webpack_require__(/*! react-dom */ "react-dom");
 class Panel {
     constructor(args) {
         let args2 = new PanelArgs(args);
@@ -995,63 +1124,191 @@ class Panel {
         args2.defaults();
         this.plot = args2.plot;
         this.container = args2.container;
+        this.panelComponents = [];
     }
     createSlider(args) {
-        let args2 = new Panel.SliderArgs(args);
-        args2.validate();
-        args2.defaults();
-        let step = (args2.end - args2.start) / (args2.steps - 1);
-        let self_ = this;
-        let onInput = function (e) {
-            self_.plot.setConstant(args2.variable, parseFloat(this.value));
-            self_.plot.refresh();
+        args.plot = this.plot;
+        let slider = React.createElement(PanelComponent.Slider, Object.assign({}, args, { key: this.panelComponents.length }));
+        this.append(slider);
+    }
+    addReadout(expression) {
+        let args = {
+            plot: this.plot,
+            expression: expression
         };
-        let value = this.plot.getScope()[args.variable];
-        // Set initial value if not already set
-        if (math.typeof(value) != 'number') {
-            value = args2.start;
-            this.plot.setConstant(args2.variable, value);
-        }
-        let slider = document.createElement('input');
-        slider.setAttribute('type', 'range');
-        slider.setAttribute('min', args2.start.toString());
-        slider.setAttribute('max', args2.end.toString());
-        slider.setAttribute('step', step.toString());
-        slider.setAttribute('value', value.toString());
-        slider.addEventListener('input', onInput);
-        this.container.appendChild(slider);
+        let readout = React.createElement(PanelComponent.Readout, Object.assign({}, args, { key: this.panelComponents.length }));
+        this.append(readout);
+    }
+    addCheckBox(variable, opts) {
+        let args = Object.assign({}, opts);
+        args.plot = this.plot;
+        args.variable = variable;
+        let checkbox = React.createElement(PanelComponent.CheckBox, Object.assign({}, args, { key: this.panelComponents.length }));
+        this.append(checkbox);
+    }
+    append(element) {
+        this.panelComponents.push(element);
+        ReactDOM.render(React.createElement("div", null, this.panelComponents.map((elm) => React.createElement("div", null, elm))), this.container);
     }
 }
-Panel.SliderArgs = class {
-    constructor(args) {
-        this.variable = args.variable;
-        this.start = args.start;
-        this.end = args.end;
-        this.steps = args.steps;
-        this.continuousUpdate = args.continuousUpdate;
-    }
-    validate() {
-        if (this.variable === undefined) {
-            throw new Error('Invalid arguments: Variable not defined!');
-        }
-        if (this.start === undefined) {
-            throw new Error('Invalid arguments: Start not defined!');
-        }
-        if (this.end === undefined) {
-            throw new Error('Invalid arguments: End not defined!');
-        }
-        return true;
-    }
-    defaults() {
-        if (this.steps === undefined) {
-            this.steps = 50;
-        }
-        if (this.continuousUpdate === undefined) {
-            this.continuousUpdate = true;
-        }
-    }
-};
 exports.Panel = Panel;
+var PanelComponent;
+(function (PanelComponent) {
+    class Slider extends React.Component {
+        constructor(props) {
+            super(props);
+            this.args = new PanelComponent.SliderArgs(props);
+            this.args.validate();
+            this.args.defaults();
+        }
+        render() {
+            let onInput = () => {
+                this.args.plot.setConstant(this.args.variable, parseFloat(this.sliderElement.value));
+                this.args.plot.refresh();
+                this.args.plot.requestFrame();
+            };
+            let step = (this.args.end - this.args.start) / (this.args.steps - 1);
+            let value = this.args.plot.getScope()[this.args.variable];
+            // Set initial value if not already set
+            if (math.typeof(value) != 'number') {
+                value = this.args.start;
+                this.args.plot.setConstant(this.args.variable, value);
+            }
+            return [this.args.variable + ':', React.createElement("input", { type: "range", min: this.args.start, max: this.args.end, step: step, defaultValue: value, onInput: onInput, ref: (elm) => this.sliderElement = elm, key: "1" })];
+        }
+    }
+    PanelComponent.Slider = Slider;
+    class SliderArgs {
+        constructor(args) {
+            this.plot = args.plot;
+            this.variable = args.variable;
+            this.start = args.start;
+            this.end = args.end;
+            this.steps = args.steps;
+            this.continuousUpdate = args.continuousUpdate;
+        }
+        validate() {
+            if (this.plot === undefined) {
+                throw new Error('Invalid arguments: Plot not defined!');
+            }
+            if (this.variable === undefined) {
+                throw new Error('Invalid arguments: Variable not defined!');
+            }
+            if (this.start === undefined) {
+                throw new Error('Invalid arguments: Start not defined!');
+            }
+            if (this.end === undefined) {
+                throw new Error('Invalid arguments: End not defined!');
+            }
+            return true;
+        }
+        defaults() {
+            if (this.steps === undefined) {
+                this.steps = 50;
+            }
+            if (this.continuousUpdate === undefined) {
+                this.continuousUpdate = true;
+            }
+        }
+    }
+    PanelComponent.SliderArgs = SliderArgs;
+    class Readout extends React.Component {
+        constructor(props) {
+            super(props);
+            this.args = new PanelComponent.ReadoutArgs(props);
+            this.args.validate();
+            this.args.defaults();
+            let getValue = () => {
+                let value = 'N/A';
+                try {
+                    value = '' + this.args.plot.evalExpression(this.args.expression);
+                    value = value.replace(/(\.\d\d\d)\d*/g, "$1");
+                }
+                catch (e) {
+                }
+                return value;
+            };
+            this.state = {
+                value: getValue()
+            };
+            let updateValue = () => {
+                this.setState({
+                    value: getValue()
+                });
+            };
+            this.args.plot.onRefresh(updateValue);
+            this.args.plot.onExecExpression(updateValue);
+        }
+        render() {
+            return [this.args.expression + " =", React.createElement("input", { key: "1", type: "text", disabled: true, value: this.state.value })];
+        }
+    }
+    PanelComponent.Readout = Readout;
+    class ReadoutArgs {
+        constructor(args) {
+            this.plot = args.plot;
+            this.expression = args.expression;
+        }
+        validate() {
+            if (this.plot === undefined) {
+                throw new Error('Invalid arguments: Plot not defined!');
+            }
+            if (this.expression === undefined) {
+                throw new Error('Invalid arguments: Variable not defined!');
+            }
+            return true;
+        }
+        defaults() {
+        }
+    }
+    PanelComponent.ReadoutArgs = ReadoutArgs;
+    class CheckBox extends React.Component {
+        constructor(props) {
+            super(props);
+            this.args = new PanelComponent.CheckBoxArgs(props);
+            this.args.validate();
+            this.args.defaults();
+        }
+        render() {
+            let onInput = () => {
+                let value = this.checkBoxElement.checked ? 1 : 0;
+                this.args.plot.setConstant(this.args.variable, value);
+                this.args.plot.refresh();
+                this.args.plot.requestFrame();
+            };
+            let value = this.args.plot.getScope()[this.args.variable];
+            // Set initial value if not already set
+            if (math.typeof(value) != 'number') {
+                value = 0;
+                this.args.plot.setConstant(this.args.variable, value);
+            }
+            return [this.args.label + ':', React.createElement("input", { type: "checkbox", onInput: onInput, defaultChecked: value, ref: (elm) => this.checkBoxElement = elm, key: "1" })];
+        }
+    }
+    PanelComponent.CheckBox = CheckBox;
+    class CheckBoxArgs {
+        constructor(args) {
+            this.plot = args.plot;
+            this.variable = args.variable;
+            this.label = args.label;
+        }
+        validate() {
+            if (this.plot === undefined) {
+                throw new Error('Invalid arguments: Plot not defined!');
+            }
+            if (this.variable === undefined) {
+                throw new Error('Invalid arguments: Variable not defined!');
+            }
+            return true;
+        }
+        defaults() {
+            if (this.label === undefined) {
+                this.label = this.variable;
+            }
+        }
+    }
+    PanelComponent.CheckBoxArgs = CheckBoxArgs;
+})(PanelComponent = exports.PanelComponent || (exports.PanelComponent = {}));
 class PanelArgs {
     constructor(args) {
         this.plot = args.plot;
@@ -1087,19 +1344,57 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const internal_1 = __webpack_require__(/*! ./internal */ "./src/core/internal.ts");
 const math = __webpack_require__(/*! mathjs */ "mathjs");
 /**
- * A controller for a plot. Can contain several axes, which can in turn contain
- * several figures. Each plot contains its own context on which expression are
- * evaluates/executed
- */
+* A controller for a plot. Can contain several axes, which can in turn contain
+* several figures. Each plot contains its own context on which expression are
+* evaluates/executed
+*/
 class Plot {
     constructor() {
         this.axes = new Set();
         this.scope = {};
+        this.refreshCallbacks = [];
+        this.execExpressionCallbacks = [];
+        this.renderMutex = false;
+        // Some useful functions
+        let eps = Math.pow(2, -52);
+        let eps2 = Math.pow(2, -26);
+        this.scope.nderivative = function (f, x) {
+            if (math.typeof(x) != 'number') {
+                throw new Error('Invalid argument for x');
+            }
+            let h = math.max(math.abs(eps2 * x), eps2) / 2;
+            return math.divide(math.subtract(f(x + h), f(x - h)), 2 * h);
+        };
+        this.scope.lerp = function (a, b, alpha) {
+            if (math.typeof(alpha) != 'number') {
+                throw new Error('Invalid argument for alpha');
+            }
+            return math.add(math.multiply(1 - alpha, a), math.multiply(alpha, b));
+        };
+        // Check visibility when scrolling
+        let checkVisible = (el) => {
+            var elemTop = el.getBoundingClientRect().top;
+            var elemBottom = el.getBoundingClientRect().bottom;
+            var isVisible = (elemBottom >= 0) && (elemTop <= window.innerHeight);
+            return isVisible;
+        };
+        window.addEventListener('scroll', () => {
+            for (let ax of this.axes) {
+                if (checkVisible(ax.getContainer())) {
+                    if (ax.isSleeping())
+                        ax.wake();
+                    ax.render();
+                }
+                else if (!ax.isSleeping()) {
+                    ax.sleep();
+                }
+            }
+        });
     }
     /**
-     * Creates a new 2D axes from given arguments
-     * @param args
-     */
+    * Creates a new 2D axes from given arguments
+    * @param args
+    */
     createAxes2D(args) {
         let axesArgs = new internal_1.Axes2DArgs(args);
         axesArgs.plot = this;
@@ -1108,27 +1403,27 @@ class Plot {
         return newAxes;
     }
     /**
-     * Creates a new 2D axes from given arguments
-     * @param args
-     */
+    * Creates a new 2D axes from given arguments
+    * @param args
+    */
     createAxes3D(args) {
         let axesArgs = new internal_1.Axes3DArgs(args);
         axesArgs.plot = this;
         throw new Error("Method not implemented.");
     }
     /**
-     * Removes the axes if it is present.
-     * @param axes
-     * @returns true is axes was removed. false if it did not exist.
-     */
+    * Removes the axes if it is present.
+    * @param axes
+    * @returns true is axes was removed. false if it did not exist.
+    */
     dropAxes(axes) {
         return this.axes.delete(axes);
     }
     /**
-     * Creates a panel
-     * @param args
-     * @return The new panel
-     */
+    * Creates a panel
+    * @param args
+    * @return The new panel
+    */
     createPanel(args) {
         let args2 = new internal_1.PanelArgs(args);
         args2.plot = this;
@@ -1136,8 +1431,8 @@ class Plot {
         return panel;
     }
     /**
-     * Renders all axes that are awake
-     */
+    * Renders all axes that are on screen
+    */
     render() {
         for (let ax of this.axes) {
             if (!ax.isSleeping()) {
@@ -1146,50 +1441,89 @@ class Plot {
         }
     }
     /**
-     * Refresh all axes
+     * Request a render frame
      */
+    requestFrame() {
+        if (!this.renderMutex) {
+            this.renderMutex = true;
+            requestAnimationFrame(() => {
+                this.render();
+                this.renderMutex = false;
+            });
+        }
+    }
+    /**
+    * Refresh all axes
+    */
     refresh() {
         for (let ax of this.axes) {
             ax.refreshAll();
         }
+        for (let callback of this.refreshCallbacks) {
+            callback();
+        }
     }
     /**
-     * Disposes all GL contexts hosted by this plot
-     */
+    * Disposes all GL contexts hosted by this plot
+    */
     sleep() {
         throw new Error("Method not implemented.");
     }
     /**
-     * Re-instances the GL contexts
-     */
+    * Re-instances the GL contexts
+    */
     wake() {
         throw new Error("Method not implemented.");
     }
     /**
-     * Executes an expression
-     */
+    * Executes an expression
+    */
     execExpression(expr) {
-        math.eval(expr, this.scope);
+        let result = math.eval(expr, this.scope);
+        for (let callback of this.execExpressionCallbacks) {
+            callback(expr);
+        }
+        return result;
     }
     /**
-     * Sets the value of specified variable in the scope.
-     * @param variable
-     * @param value
+     * Evaluates an expression. Identical to exec expressions, but does not trigger onExpressionExec callbacks.
      */
+    evalExpression(expr) {
+        return math.eval(expr, this.scope);
+    }
+    /**
+    * Sets the value of specified variable in the scope.
+    * @param variable
+    * @param value
+    */
     setConstant(variable, value) {
         this.scope[variable] = value;
     }
     /**
-     * Returns the scope used in evaluating expresions. Due to limitations on
-     * how Javascript copies objects, it just returns a shallow copy.
+     * Register a callback to perform when the plot is refreshed
+     * @param callback
      */
+    onRefresh(callback) {
+        this.refreshCallbacks.push(callback);
+    }
+    /**
+     * Register a callback to perform when an expression is executed
+     * @param callback
+     */
+    onExecExpression(callback) {
+        this.execExpressionCallbacks.push(callback);
+    }
+    /**
+    * Returns the scope used in evaluating expresions. Due to limitations on
+    * how Javascript copies objects, it just returns a shallow copy.
+    */
     getScope() {
         return Object.create(this.scope);
     }
     /**
-     * Adds specified axes to graph.
-     * @param axes
-     */
+    * Adds specified axes to graph.
+    * @param axes
+    */
     addAxes(axes) {
         this.axes.add(axes);
     }
@@ -1222,6 +1556,90 @@ __export(__webpack_require__(/*! ./Plot */ "./src/core/Plot.ts"));
 
 /***/ }),
 
+/***/ "./src/figures/AngleArc2D.ts":
+/*!***********************************!*\
+  !*** ./src/figures/AngleArc2D.ts ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const three_1 = __webpack_require__(/*! three */ "three");
+const math = __webpack_require__(/*! mathjs */ "mathjs");
+class AngleArc2D {
+    constructor(args) {
+        let args2 = new AngleArc2DArgs(args);
+        args2.validate();
+        args2.defaults();
+        this.aFun = math.parse(args2.a).compile();
+        this.bFun = math.parse(args2.b).compile();
+        this.hex = args2.hex;
+        this.radius = args2.radius;
+    }
+    render(scope) {
+        let a = new three_1.Vector2(...this.aFun.eval(scope)._data);
+        let b = new three_1.Vector2(...this.bFun.eval(scope)._data);
+        let thetaA = Math.atan2(a.y, a.x);
+        let thetaB = Math.atan2(b.y, b.x);
+        let clockwise = thetaA - thetaB < Math.PI && thetaA - thetaB >= 0;
+        let points;
+        if (Math.abs(a.dot(b)) < 0.01) {
+            let v1 = a.clone().normalize().multiplyScalar(this.radius);
+            let v3 = b.clone().normalize().multiplyScalar(this.radius);
+            let v2 = v1.clone().add(v3);
+            points = [v1, v2, v3];
+        }
+        else {
+            let curve = new three_1.EllipseCurve(0, 0, // ax, aY
+            this.radius, this.radius, // xRadius, yRadius
+            thetaA, thetaB, // aStartAngle, aEndAngle
+            clockwise, // aClockwise
+            0 // aRotation
+            );
+            points = curve.getSpacedPoints(20);
+        }
+        let material = new three_1.LineBasicMaterial({ color: this.hex });
+        let line = new three_1.Line(new three_1.Geometry().setFromPoints(points), material);
+        return line;
+    }
+}
+exports.AngleArc2D = AngleArc2D;
+class AngleArc2DArgs {
+    constructor(args) {
+        this.origin = args.origin;
+        this.a = args.a;
+        this.b = args.b;
+        this.hex = args.hex;
+        this.radius = args.radius;
+    }
+    validate() {
+        if (!this.a) {
+            throw new Error("Invalid arguments: a not defined!");
+        }
+        if (!this.b) {
+            throw new Error("Invalid arguments: b not defined!");
+        }
+        return true;
+    }
+    defaults() {
+        if (this.origin === undefined) {
+            this.origin = '[0,0]';
+        }
+        if (this.hex === undefined) {
+            this.hex = 0xffffff;
+        }
+        if (this.radius === undefined) {
+            this.radius = 0.2;
+        }
+    }
+}
+exports.AngleArc2DArgs = AngleArc2DArgs;
+
+
+/***/ }),
+
 /***/ "./src/figures/Arrow2D.ts":
 /*!********************************!*\
   !*** ./src/figures/Arrow2D.ts ***!
@@ -1244,8 +1662,12 @@ class Arrow2D {
         this.hex = args2.hex;
         this.headLength = args2.headLength;
         this.headWidth = args2.headWidth;
+        this.showFun = math.parse(args2.show).compile();
     }
-    getSceneObject(scope) {
+    render(scope) {
+        let show = this.showFun.eval(scope);
+        if (show == 0)
+            return null;
         let end = this.endFun.eval(scope);
         if (math.typeof(end) != 'Matrix') {
             throw new Error('End expression does not evaluate to a vector (Matrix)!');
@@ -1259,8 +1681,8 @@ class Arrow2D {
         let dir = endVec.clone().sub(startVec).normalize();
         let length = endVec.distanceTo(startVec);
         let hex = this.hex;
-        let headLength = this.headLength * length;
-        let headWidth = this.headWidth * headLength;
+        let headLength = this.headLength;
+        let headWidth = this.headWidth;
         return new three_1.ArrowHelper(dir, startVec, length, hex, headLength, headWidth);
     }
 }
@@ -1272,6 +1694,7 @@ class Arrow2DArgs {
         this.hex = args.hex;
         this.headLength = args.headLength;
         this.headWidth = args.headWidth;
+        this.show = args.show;
     }
     validate() {
         if (!this.end) {
@@ -1291,11 +1714,224 @@ class Arrow2DArgs {
             this.headLength = 0.2;
         }
         if (this.headWidth === undefined) {
-            this.headWidth = 0.5;
+            this.headWidth = 0.1;
+        }
+        if (this.show === undefined) {
+            this.show = '1';
         }
     }
 }
 exports.Arrow2DArgs = Arrow2DArgs;
+
+
+/***/ }),
+
+/***/ "./src/figures/Hotspot2D.ts":
+/*!**********************************!*\
+  !*** ./src/figures/Hotspot2D.ts ***!
+  \**********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const three_1 = __webpack_require__(/*! three */ "three");
+class Hotspot2D {
+    constructor(args) {
+        let args2 = new Hotspot2DArgs(args);
+        args2.validate();
+        args2.defaults();
+        this.plot = args2.plot;
+        this.variable = args2.variable;
+        this.position = null;
+    }
+    getPosition() {
+        if (this.position == null) {
+            let vector = this.plot.getScope()[this.variable];
+            this.position = new three_1.Vector2(...vector._data);
+        }
+        return this.position;
+    }
+    setPosition(position) {
+        this.position = position;
+        this.plot.execExpression(this.variable + '=[' + position.toArray() + ']');
+        this.plot.refresh();
+        this.plot.requestFrame();
+    }
+    render(scope) {
+        return null;
+    }
+}
+exports.Hotspot2D = Hotspot2D;
+class Hotspot2DArgs {
+    constructor(args) {
+        this.plot = args.plot;
+        this.variable = args.variable;
+    }
+    validate() {
+        if (!this.plot) {
+            throw new Error("Invalid arguments: Plot not defined!");
+        }
+        if (!this.variable) {
+            throw new Error("Invalid arguments: Variable not defined!");
+        }
+        return true;
+    }
+    defaults() {
+    }
+}
+exports.Hotspot2DArgs = Hotspot2DArgs;
+
+
+/***/ }),
+
+/***/ "./src/figures/Label2D.ts":
+/*!********************************!*\
+  !*** ./src/figures/Label2D.ts ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const three_1 = __webpack_require__(/*! three */ "three");
+const math = __webpack_require__(/*! mathjs */ "mathjs");
+const Axes2D_1 = __webpack_require__(/*! ../core/Axes2D */ "./src/core/Axes2D.ts");
+class Label2D {
+    constructor(args) {
+        let args2 = new Label2DArgs(args);
+        args2.validate();
+        args2.defaults();
+        this.axes = args2.axes;
+        this.positionFun = math.parse(args2.position).compile();
+        this.label = args.label;
+        ////////////////////////////
+        //// Creating Label Div ////
+        ////////////////////////////
+        let label = document.createElement('div');
+        label.style.position = 'absolute';
+        label.style.width = '100';
+        label.style.height = '100';
+        label.style.color = 'white';
+        label.style.cursor = 'default';
+        // @ts-ignore: Legacy code
+        label.style['pointer-events'] = 'none';
+        // @ts-ignore: Legacy code
+        label.style['-webkit-user-select'] = 'none'; /* Chrome, Opera, Safari */
+        // @ts-ignore: Legacy code
+        label.style['-moz-user-select'] = 'none'; /* Firefox 2+ */
+        // @ts-ignore: Legacy code
+        label.style['-ms-user-select'] = 'none'; /* IE 10+ */
+        // @ts-ignore: Legacy code
+        label.style['user-select'] = 'none'; /* Standard syntax */
+        label.innerHTML = this.label;
+        this.labelElement = label;
+        document.body.appendChild(label);
+    }
+    render(scope) {
+        let position = new three_1.Vector2(...this.positionFun.eval(scope)._data);
+        let coords = this.axes.project(position);
+        let rect = this.axes.getContainer().getBoundingClientRect();
+        this.labelElement.style.top = window.scrollY + coords.y + rect.top + 'px';
+        this.labelElement.style.left = window.scrollX + coords.x + rect.left + 'px';
+        return null;
+    }
+}
+exports.Label2D = Label2D;
+class Label2DArgs {
+    constructor(args) {
+        this.axes = args.axes;
+        this.position = args.position;
+        this.label = args.label;
+    }
+    validate() {
+        if (!this.axes) {
+            throw new Error("Invalid arguments: Axes not defined!");
+        }
+        if (!(this.axes instanceof Axes2D_1.Axes2D)) {
+            throw new Error("Invalid arguments: axes is not an Axes2D");
+        }
+        if (!this.position) {
+            throw new Error("Invalid arguments: Variable not defined!");
+        }
+        return true;
+    }
+    defaults() {
+        if (this.label === undefined) {
+            this.label = this.position;
+        }
+    }
+}
+exports.Label2DArgs = Label2DArgs;
+
+
+/***/ }),
+
+/***/ "./src/figures/Parallelogram2D.ts":
+/*!****************************************!*\
+  !*** ./src/figures/Parallelogram2D.ts ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const three_1 = __webpack_require__(/*! three */ "three");
+const math = __webpack_require__(/*! mathjs */ "mathjs");
+const THREE = __webpack_require__(/*! three */ "three");
+class Parallelogram2D {
+    /**
+     * Creates a parallelogram spanned by args.u and args.v
+     * @param args
+     */
+    constructor(args) {
+        let args2 = new Parallelogram2DArgs(args);
+        args2.validate();
+        args2.defaults();
+        this.uFun = math.parse(args2.u).compile();
+        this.vFun = math.parse(args2.v).compile();
+        this.opacity = args2.opacity;
+    }
+    render(scope) {
+        var o = new three_1.Vector3(0, 0, 0);
+        var u = new three_1.Vector3(...this.uFun.eval(scope)._data, 0);
+        var v = new three_1.Vector3(...this.vFun.eval(scope)._data, 0);
+        var geom = new three_1.Geometry();
+        geom.vertices.push(o);
+        geom.vertices.push(o.clone().add(u));
+        geom.vertices.push(o.clone().add(v));
+        geom.vertices.push(o.clone().add(u).add(v));
+        var f1 = new three_1.Face3(3, 1, 0);
+        var f2 = new three_1.Face3(0, 2, 3);
+        geom.faces.push(f1);
+        geom.faces.push(f2);
+        var mat = new three_1.MeshBasicMaterial({ color: 0xFFFFFF, side: THREE.DoubleSide, opacity: this.opacity, transparent: true });
+        return new three_1.Mesh(geom, mat);
+    }
+}
+exports.Parallelogram2D = Parallelogram2D;
+class Parallelogram2DArgs {
+    constructor(args) {
+        this.u = args.u;
+        this.v = args.v;
+        this.opacity = args.opacity;
+    }
+    validate() {
+        if (!this.u || !this.v) {
+            throw new Error("Invalid arguments: u or v not defined!");
+        }
+        return true;
+    }
+    defaults() {
+        if (this.opacity === undefined) {
+            this.opacity = 1;
+        }
+    }
+}
+exports.Parallelogram2DArgs = Parallelogram2DArgs;
 
 
 /***/ }),
@@ -1331,7 +1967,7 @@ class Parametric2D {
         }
         this.width = args2.width;
     }
-    getSceneObject(scope) {
+    render(scope) {
         let self_ = this;
         let newScope = Object.create(scope);
         // Determine start end step
@@ -1442,6 +2078,124 @@ exports.Parametric2DArgs = Parametric2DArgs;
 
 /***/ }),
 
+/***/ "./src/figures/Point2D.ts":
+/*!********************************!*\
+  !*** ./src/figures/Point2D.ts ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const three_1 = __webpack_require__(/*! three */ "three");
+const math = __webpack_require__(/*! mathjs */ "mathjs");
+class Point2D {
+    constructor(args) {
+        let args2 = new Point2DArgs(args);
+        args2.validate();
+        args2.defaults();
+        this.positionFun = math.parse(args2.position).compile();
+        this.hex = args2.hex;
+        this.radius = args2.radius;
+    }
+    render(scope) {
+        let position = new three_1.Vector3(...this.positionFun.eval(scope)._data, 0);
+        let geometry = new three_1.CircleBufferGeometry(this.radius, 32);
+        let material = new three_1.MeshBasicMaterial({ color: this.hex });
+        let circle = new three_1.Mesh(geometry, material);
+        circle.position.copy(position);
+        return circle;
+    }
+}
+exports.Point2D = Point2D;
+class Point2DArgs {
+    constructor(args) {
+        this.position = args.position;
+        this.hex = args.hex;
+        this.radius = args.radius;
+    }
+    validate() {
+        return true;
+    }
+    defaults() {
+        if (this.hex === undefined) {
+            this.hex = 0xffffff;
+        }
+        if (this.radius === undefined) {
+            this.radius = 0.05;
+        }
+    }
+}
+exports.Point2DArgs = Point2DArgs;
+
+
+/***/ }),
+
+/***/ "./src/figures/Polygon2D.ts":
+/*!**********************************!*\
+  !*** ./src/figures/Polygon2D.ts ***!
+  \**********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const three_1 = __webpack_require__(/*! three */ "three");
+const math = __webpack_require__(/*! mathjs */ "mathjs");
+const THREE = __webpack_require__(/*! three */ "three");
+class Polygon2D {
+    /**
+     * Creates a parallelogram spanned by args.u and args.v
+     * @param args
+     */
+    constructor(args) {
+        let args2 = new Polygon2DArgs(args);
+        args2.validate();
+        args2.defaults();
+        this.vertexFuns = args2.vertices.map((vertex) => math.parse(vertex).compile());
+        this.opacity = args2.opacity;
+    }
+    render(scope) {
+        let vectors = this.vertexFuns.map((vf) => new three_1.Vector2(...vf.eval(scope)._data));
+        let geom = new THREE.Geometry();
+        let i = 0;
+        for (let vector of vectors) {
+            geom.vertices.push(new three_1.Vector3(vector.x, vector.y, 0));
+            if (i > 1) {
+                var f = new THREE.Face3(0, i, i - 1);
+                geom.faces.push(f);
+            }
+            i++;
+        }
+        let mat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, opacity: this.opacity, transparent: true });
+        return new THREE.Mesh(geom, mat);
+    }
+}
+exports.Polygon2D = Polygon2D;
+class Polygon2DArgs {
+    constructor(args) {
+        this.vertices = args.vertices;
+        this.opacity = args.opacity;
+    }
+    validate() {
+        if (!this.vertices) {
+            throw new Error("Invalid arguments: vertices not defined!");
+        }
+        return true;
+    }
+    defaults() {
+        if (this.opacity === undefined) {
+            this.opacity = 1;
+        }
+    }
+}
+exports.Polygon2DArgs = Polygon2DArgs;
+
+
+/***/ }),
+
 /***/ "./src/index.ts":
 /*!**********************!*\
   !*** ./src/index.ts ***!
@@ -1458,12 +2212,61 @@ exports.Axes2DArgs = internal_1.Axes2DArgs;
 exports.Axes3D = internal_1.Axes3D;
 exports.Axes3DArgs = internal_1.Axes3DArgs;
 exports.Plot = internal_1.Plot;
+var AngleArc2D_1 = __webpack_require__(/*! ./figures/AngleArc2D */ "./src/figures/AngleArc2D.ts");
+exports.AngleArc2D = AngleArc2D_1.AngleArc2D;
+exports.AngleArc2DArgs = AngleArc2D_1.AngleArc2DArgs;
 var Arrow2D_1 = __webpack_require__(/*! ./figures/Arrow2D */ "./src/figures/Arrow2D.ts");
 exports.Arrow2D = Arrow2D_1.Arrow2D;
 exports.Arrow2DArgs = Arrow2D_1.Arrow2DArgs;
+var Hotspot2D_1 = __webpack_require__(/*! ./figures/Hotspot2D */ "./src/figures/Hotspot2D.ts");
+exports.Hotspot2D = Hotspot2D_1.Hotspot2D;
+exports.Hotspot2DArgs = Hotspot2D_1.Hotspot2DArgs;
+var Label2D_1 = __webpack_require__(/*! ./figures/Label2D */ "./src/figures/Label2D.ts");
+exports.Label2D = Label2D_1.Label2D;
+exports.Label2DArgs = Label2D_1.Label2DArgs;
 var Parametric2D_1 = __webpack_require__(/*! ./figures/Parametric2D */ "./src/figures/Parametric2D.ts");
 exports.Parametric2D = Parametric2D_1.Parametric2D;
 exports.Parametric2DArgs = Parametric2D_1.Parametric2DArgs;
+var Parallelogram2D_1 = __webpack_require__(/*! ./figures/Parallelogram2D */ "./src/figures/Parallelogram2D.ts");
+exports.Parallelogram2D = Parallelogram2D_1.Parallelogram2D;
+exports.Parallelogram2DArgs = Parallelogram2D_1.Parallelogram2DArgs;
+var Point2D_1 = __webpack_require__(/*! ./figures/Point2D */ "./src/figures/Point2D.ts");
+exports.Point2D = Point2D_1.Point2D;
+exports.Point2DArgs = Point2D_1.Point2DArgs;
+
+
+/***/ }),
+
+/***/ "./src/utils/Utils.ts":
+/*!****************************!*\
+  !*** ./src/utils/Utils.ts ***!
+  \****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function bracketAwareSplit(s, delimiters) {
+    let parts = [''];
+    let depth = 0;
+    for (let c of s) {
+        if (c == '(' || c == '[' || c == '{') {
+            depth++;
+        }
+        if (c == ')' || c == ']' || c == '}') {
+            depth--;
+        }
+        if (depth == 0 && delimiters.includes(c)) {
+            parts.push('');
+        }
+        else {
+            parts[parts.length - 1] += c;
+        }
+    }
+    return parts;
+}
+exports.bracketAwareSplit = bracketAwareSplit;
 
 
 /***/ }),
@@ -1476,6 +2279,28 @@ exports.Parametric2DArgs = Parametric2D_1.Parametric2DArgs;
 /***/ (function(module, exports) {
 
 module.exports = math;
+
+/***/ }),
+
+/***/ "react":
+/*!************************!*\
+  !*** external "React" ***!
+  \************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = React;
+
+/***/ }),
+
+/***/ "react-dom":
+/*!***************************!*\
+  !*** external "ReactDOM" ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = ReactDOM;
 
 /***/ }),
 

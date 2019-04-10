@@ -172,7 +172,7 @@ export abstract class Axes {
             if(mesh == null && !this.skip.has(figure)) {
                 let success = true;
                 try {
-                    mesh = figure.getSceneObject(this.plot.getScope());
+                    mesh = figure.render(this.plot.getScope());
                 } catch (e) {
                     success = false;
                     console.error(e);
@@ -180,7 +180,7 @@ export abstract class Axes {
                     this.skip.add(figure);
                 } 
                 
-                if(success) {
+                if(success && mesh) {
                     this.objMap.set(figure, mesh);
                     this.scene.add(mesh);
                 }
@@ -252,7 +252,7 @@ export abstract class AxesArgs {
         }
         
         if(this.antialias === undefined) {
-            this.antialias = false;
+            this.antialias = true;
         }
     }
 }

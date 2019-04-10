@@ -9,21 +9,32 @@
 
 <script>
     let plot = new Interactive.Plot();
-    let panel = plot.createPanel({ container: document.getElementById('panel') });
+    // let panel = plot.createPanel({ container: document.getElementById('panel') });
 
-    panel.createSlider({variable: 'k', start:0, end:10, steps: 101});
+    // plot.execExpression('k = 0');
+    // panel.createSlider({variable: 'k', start:-10, end:10, steps: 501});
 
-    let axArgs = {container: document.getElementById('container')};
+    let axArgs = {container: document.getElementById('container'), left: -5, right: 5};
     let ax = plot.createAxes2D(axArgs);
     
-    let arr = new Interactive.Arrow2D({end:'[2,4]'});
-    ax.addFigure(arr);
+    let arr1 = new Interactive.Arrow2D({end:'[1,0]'});
+    let arr2 = new Interactive.Arrow2D({end:'[0,1]'});
+    ax.addFigure(arr1);
+    ax.addFigure(arr2);
 
-    plot.execExpression('f(x) = 2sin(x + k)');
-    plot.execExpression('c(x) = [sin(x)^2, cos(x)^2, 1]')
+    plot.execExpression('f(x) = cos(2x) + sin(x)');
+    plot.execExpression('f1(x) = nderivative(f,x)');
+    plot.execExpression('f2(x) = nderivative(f1,x)');
 
-    let par = new Interactive.Parametric2D({expression: '[x, f(x)]', parameter:'x', start: -10, end: 10, step: 100, color: 'c(x)'});
+
+    let par = new Interactive.Parametric2D({expression: '[x, f(x)]', parameter:'x', start: -5, end: 5, step: 100, color: '[1,0,0]'});
     ax.addFigure(par);
+
+    let par2 = new Interactive.Parametric2D({expression: '[x, f1(x)]', parameter:'x', start: -5, end: 5, step: 100, color: '[1,0.5,0]'});
+    ax.addFigure(par2);
+    
+    let par3 = new Interactive.Parametric2D({expression: '[x, f2(x)]', parameter:'x', start: -5, end: 5, step: 100, color: '[1,1,0]'});
+    ax.addFigure(par3);
     
     ;(function animate() {
         requestAnimationFrame(animate);
