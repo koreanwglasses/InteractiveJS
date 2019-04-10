@@ -1224,6 +1224,9 @@ var PanelComponent;
                     value = value.replace(/(\.\d\d\d)\d*/g, "$1");
                 }
                 catch (e) {
+                    if (!(e instanceof Error) || !e.message.includes('Undefined symbol')) {
+                        console.warn(e);
+                    }
                 }
                 return value;
             };
