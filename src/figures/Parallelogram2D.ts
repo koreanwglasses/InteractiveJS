@@ -24,8 +24,8 @@ export class Parallelogram2D implements Figure {
     
     public render(scope : any) : Object3D {
         var o = new Vector3(0, 0, 0);
-        var u = new Vector3(...this.uFun.eval(scope)._data, 0);
-        var v = new Vector3(...this.vFun.eval(scope)._data, 0);
+        var u = new Vector3(...this.uFun.eval(scope)._data, -0.1);
+        var v = new Vector3(...this.vFun.eval(scope)._data, -0.1);
     
         var geom = new Geometry();
         geom.vertices.push(o);

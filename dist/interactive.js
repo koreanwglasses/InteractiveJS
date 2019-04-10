@@ -1652,6 +1652,7 @@ exports.AngleArc2DArgs = AngleArc2DArgs;
 Object.defineProperty(exports, "__esModule", { value: true });
 const three_1 = __webpack_require__(/*! three */ "three");
 const math = __webpack_require__(/*! mathjs */ "mathjs");
+const LineArrowHelper_1 = __webpack_require__(/*! ../utils/LineArrowHelper */ "./src/utils/LineArrowHelper.ts");
 class Arrow2D {
     constructor(args) {
         let args2 = new Arrow2DArgs(args);
@@ -1662,6 +1663,7 @@ class Arrow2D {
         this.hex = args2.hex;
         this.headLength = args2.headLength;
         this.headWidth = args2.headWidth;
+        this.width = args2.width;
         this.showFun = math.parse(args2.show).compile();
     }
     render(scope) {
@@ -1683,7 +1685,12 @@ class Arrow2D {
         let hex = this.hex;
         let headLength = this.headLength;
         let headWidth = this.headWidth;
-        return new three_1.ArrowHelper(dir, startVec, length, hex, headLength, headWidth);
+        if (this.width <= 0) {
+            return new three_1.ArrowHelper(dir, startVec, length, hex, headLength, headWidth);
+        }
+        else {
+            return new LineArrowHelper_1.LineArrowHelper(dir, startVec, length, hex, headLength, headWidth, this.width);
+        }
     }
 }
 exports.Arrow2D = Arrow2D;
@@ -1694,6 +1701,7 @@ class Arrow2DArgs {
         this.hex = args.hex;
         this.headLength = args.headLength;
         this.headWidth = args.headWidth;
+        this.width = args.width;
         this.show = args.show;
     }
     validate() {
@@ -1714,10 +1722,13 @@ class Arrow2DArgs {
             this.headLength = 0.2;
         }
         if (this.headWidth === undefined) {
-            this.headWidth = 0.1;
+            this.headWidth = 0.15;
         }
         if (this.show === undefined) {
             this.show = '1';
+        }
+        if (this.width === undefined) {
+            this.width = 0.01;
         }
     }
 }
@@ -1897,8 +1908,8 @@ class Parallelogram2D {
     }
     render(scope) {
         var o = new three_1.Vector3(0, 0, 0);
-        var u = new three_1.Vector3(...this.uFun.eval(scope)._data, 0);
-        var v = new three_1.Vector3(...this.vFun.eval(scope)._data, 0);
+        var u = new three_1.Vector3(...this.uFun.eval(scope)._data, -0.1);
+        var v = new three_1.Vector3(...this.vFun.eval(scope)._data, -0.1);
         var geom = new three_1.Geometry();
         geom.vertices.push(o);
         geom.vertices.push(o.clone().add(u));
@@ -2233,6 +2244,51 @@ exports.Parallelogram2DArgs = Parallelogram2D_1.Parallelogram2DArgs;
 var Point2D_1 = __webpack_require__(/*! ./figures/Point2D */ "./src/figures/Point2D.ts");
 exports.Point2D = Point2D_1.Point2D;
 exports.Point2DArgs = Point2D_1.Point2DArgs;
+
+
+/***/ }),
+
+/***/ "./src/utils/LineArrowHelper.ts":
+/*!**************************************!*\
+  !*** ./src/utils/LineArrowHelper.ts ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const three_meshline_1 = __webpack_require__(/*! three.meshline */ "./node_modules/three.meshline/src/THREE.MeshLine.js");
+const three_1 = __webpack_require__(/*! three */ "three");
+class LineArrowHelper extends three_1.Object3D {
+    constructor(dir, origin, length, hex, headLength, headWidth, width) {
+        super();
+        if (dir === undefined)
+            dir = new three_1.Vector3(0, 0, 1);
+        if (origin === undefined)
+            origin = new three_1.Vector3(0, 0, 0);
+        if (length === undefined)
+            length = 1;
+        if (hex === undefined)
+            hex = 0xffff00;
+        if (headLength === undefined)
+            headLength = 0.2 * length;
+        if (headWidth === undefined)
+            headWidth = 0.2 * headLength;
+        if (width === undefined)
+            width = 0.01;
+        let end = origin.clone().add(dir.clone().multiplyScalar(length - headLength));
+        let geom = new three_1.Geometry();
+        geom.vertices.push(origin);
+        geom.vertices.push(end);
+        let line = new three_meshline_1.MeshLine();
+        line.setGeometry(geom);
+        let material = new three_meshline_1.MeshLineMaterial({ lineWidth: width, color: new three_1.Color(hex) });
+        this.add(new three_1.Mesh(line.geometry, material));
+        this.add(new three_1.ArrowHelper(dir, origin, length, hex, headLength, headWidth));
+    }
+}
+exports.LineArrowHelper = LineArrowHelper;
 
 
 /***/ }),

@@ -1,6 +1,7 @@
 import { Figure } from '../core/Figure';
 import { Vector3, Mesh, ArrowHelper, Object3D } from 'three';
 import * as math from 'mathjs';
+import {LineArrowHelper} from '../utils/LineArrowHelper';
 
 export class Arrow2D implements Figure {
     private startFun : math.EvalFunction;
@@ -8,6 +9,7 @@ export class Arrow2D implements Figure {
     private hex: number;
     private headLength: number;
     private headWidth: number;
+    private width: number;
 
     private showFun: math.EvalFunction;
     
@@ -22,6 +24,7 @@ export class Arrow2D implements Figure {
         this.hex = args2.hex;
         this.headLength = args2.headLength;
         this.headWidth = args2.headWidth;
+        this.width = args2.width;
 
         this.showFun = math.parse(args2.show).compile();
     }
@@ -50,7 +53,11 @@ export class Arrow2D implements Figure {
         let headLength = this.headLength;
         let headWidth = this.headWidth;     
         
-        return new ArrowHelper(dir, startVec, length, hex, headLength, headWidth);
+        if(this.width <= 0) {
+            return new ArrowHelper(dir, startVec, length, hex, headLength, headWidth);
+        } else {
+            return new LineArrowHelper(dir, startVec, length, hex, headLength, headWidth, this.width);
+        }
     }
 }
 
@@ -60,6 +67,7 @@ export class Arrow2DArgs {
     public hex : number;
     public headLength : number;
     public headWidth : number;
+    public width: number;
 
     /**
      * Arrow is visible is show evals to 1
@@ -72,6 +80,7 @@ export class Arrow2DArgs {
         this.hex = args.hex;
         this.headLength = args.headLength;
         this.headWidth = args.headWidth;
+        this.width = args.width;
 
         this.show = args.show;
     }
@@ -95,10 +104,13 @@ export class Arrow2DArgs {
             this.headLength = 0.2;
         }
         if(this.headWidth === undefined) {
-            this.headWidth = 0.1;
+            this.headWidth = 0.15;
         }
         if(this.show === undefined) {
             this.show = '1';
+        }
+        if(this.width === undefined) {
+            this.width = 0.01;
         }
     }
 }
