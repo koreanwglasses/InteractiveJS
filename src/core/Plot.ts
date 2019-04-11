@@ -88,7 +88,9 @@ export class Plot {
         let axesArgs = new Axes3DArgs(args);
         axesArgs.plot = this;
         
-        throw new Error("Method not implemented.");
+        let newAxes = new Axes3D(axesArgs);
+        this.addAxes(newAxes);
+        return newAxes;
     }
     
     /**

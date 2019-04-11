@@ -347,6 +347,7 @@ C*C - (C-A)*(C-A) = 2A*C, by the above calculation.&nbsp; Therefore A*C
   pan5.addReadout('A');
   pan5.addReadout('C');
   pan5.addReadout('dot(A,C)')
+  pan5.addReadout('acos(dot(A,C)/(norm(A) * norm(C)))', {label: 'Angle (radians)'});
 
   plot5.execExpression('Co() = [0,1,0]')
 

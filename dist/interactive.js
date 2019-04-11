@@ -1087,17 +1087,241 @@ exports.Axes2DArgs = Axes2DArgs;
 Object.defineProperty(exports, "__esModule", { value: true });
 const internal_1 = __webpack_require__(/*! ./internal */ "./src/core/internal.ts");
 const THREE = __webpack_require__(/*! three */ "three");
+const three_1 = __webpack_require__(/*! three */ "three");
+const Arrow3D_1 = __webpack_require__(/*! ../figures/Arrow3D */ "./src/figures/Arrow3D.ts");
+const Label3D_1 = __webpack_require__(/*! ../figures/Label3D */ "./src/figures/Label3D.ts");
+const Hotspot3D_1 = __webpack_require__(/*! ../figures/Hotspot3D */ "./src/figures/Hotspot3D.ts");
+const Point3D_1 = __webpack_require__(/*! ../figures/Point3D */ "./src/figures/Point3D.ts");
+const Utils_1 = __webpack_require__(/*! ../utils/Utils */ "./src/utils/Utils.ts");
+const __1 = __webpack_require__(/*! .. */ "./src/index.ts");
 class Axes3D extends internal_1.Axes {
     constructor(args) {
         super(args);
-        this.camera = new THREE.PerspectiveCamera();
+        this.camera = new THREE.PerspectiveCamera(30);
+        this.camera.position.copy(args.cameraPosition);
+        this.camera.up.copy(args.cameraUp);
+        this.camera.lookAt(args.pointOfInterest);
+        this.pointOfInterest = args.pointOfInterest;
+        this.hotspots = [];
+        this.activeHotspot = null;
+        let clientPosStart = null;
+        let cameraStartPol = 0;
+        let cameraStartAz = 0;
+        let cameraStartR = 1;
+        let cameraStartUp = 1;
+        let cameraStartOr = null;
+        let cameraStartPos = null;
+        let upUnit = null;
+        let rightUnit = null;
+        let onOrbitStart = () => {
+            var sc = new THREE.Spherical();
+            sc.setFromVector3(this.camera.position.clone().sub(this.pointOfInterest));
+            cameraStartPol = sc.phi;
+            cameraStartAz = sc.theta;
+            cameraStartR = sc.radius;
+        };
+        let onOrbit = (clientX, clientY) => {
+            let r = this.camera.position.distanceTo(this.pointOfInterest);
+            let az = cameraStartAz - cameraStartUp * (clientX - clientPosStart[0]) / 100;
+            let pol = cameraStartPol - cameraStartUp * (clientY - clientPosStart[1]) / 100;
+            while (pol > Math.PI) {
+                pol -= 2 * Math.PI;
+            }
+            while (pol <= -Math.PI) {
+                pol += 2 * Math.PI;
+            }
+            if (pol * cameraStartUp < 0) {
+                this.camera.up.y = -1;
+            }
+            if (pol * cameraStartUp > 0) {
+                this.camera.up.y = 1;
+            }
+            this.camera.position.setFromSpherical(new THREE.Spherical(r, pol, az)).add(this.pointOfInterest);
+            this.camera.lookAt(this.pointOfInterest);
+            this.getPlot().requestFrame();
+        };
+        let onMoveStart = () => {
+            cameraStartOr = this.pointOfInterest.clone();
+            cameraStartPos = this.camera.position.clone();
+            let nor = new three_1.Vector3();
+            this.camera.getWorldDirection(nor);
+            rightUnit = nor.clone().cross(new THREE.Vector3(0, 1, 0));
+            upUnit = nor.clone().applyAxisAngle(rightUnit, Math.PI / 2);
+        };
+        let onMove = (clientX, clientY) => {
+            // Pan camera            
+            let r = this.camera.position.distanceTo(this.pointOfInterest);
+            let disp = upUnit.clone().multiplyScalar((clientY - clientPosStart[1])).addScaledVector(rightUnit, -(clientX - clientPosStart[0]));
+            let newCamPos = cameraStartPos.clone().addScaledVector(disp, cameraStartUp * 0.002 * r);
+            let newOrPos = cameraStartOr.clone().addScaledVector(disp, cameraStartUp * 0.002 * r);
+            this.camera.position.copy(newCamPos);
+            this.pointOfInterest.copy(newOrPos);
+            this.camera.lookAt(this.pointOfInterest);
+            this.getPlot().requestFrame();
+            return (clientX - clientPosStart[0]) * (clientX - clientPosStart[0])
+                + (clientY - clientPosStart[1]) * (clientY - clientPosStart[1]) > 25;
+        };
+        let findActiveHotspot = (clientX, clientY) => {
+            let leastDistance = 1000; // Arbitrarily large number
+            let containerBounds = this.getContainer().getBoundingClientRect();
+            let screenCoords = new THREE.Vector2(clientX - containerBounds.left, clientY - containerBounds.top);
+            this.activeHotspot = null;
+            for (let hotspot of this.hotspots) {
+                let hsPos = this.project(hotspot.getPosition());
+                hsPos.x = hsPos.x * containerBounds.width;
+                hsPos.y = (1 - hsPos.y) * containerBounds.height;
+                let dist2 = hsPos.distanceToSquared(screenCoords);
+                if (dist2 <= 20 * 20 && dist2 < leastDistance * leastDistance) {
+                    this.activeHotspot = hotspot;
+                }
+            }
+        };
+        let hotspotStartPos = null;
+        let onHotspotStart = () => {
+            hotspotStartPos = this.activeHotspot.getPosition();
+            let nor = new three_1.Vector3();
+            this.camera.getWorldDirection(nor);
+            rightUnit = nor.clone().cross(new THREE.Vector3(0, 1, 0)).normalize();
+            upUnit = nor.clone().applyAxisAngle(rightUnit, Math.PI / 2).normalize();
+        };
+        let onHotspotDrag = (clientX, clientY) => {
+            let r = this.camera.position.distanceTo(hotspotStartPos);
+            let disp = upUnit.clone().multiplyScalar(-(clientY - clientPosStart[1])).addScaledVector(rightUnit, (clientX - clientPosStart[0]));
+            let newHSPos = hotspotStartPos.clone().addScaledVector(disp, cameraStartUp * 0.004 * r);
+            this.activeHotspot.setPosition(newHSPos);
+        };
+        this.getContainer().addEventListener('mousedown', (e) => {
+            clientPosStart = [e.clientX, e.clientY];
+            if (e.buttons & 1) {
+                findActiveHotspot(e.clientX, e.clientY);
+                if (this.activeHotspot == null) {
+                    onOrbitStart();
+                }
+                else {
+                    onHotspotStart();
+                }
+            }
+            else if (e.buttons & 2) {
+                onMoveStart();
+            }
+        });
+        let suppressContextMenu = false;
+        this.getContainer().addEventListener('mousemove', (e) => {
+            if (e.buttons & 1) {
+                if (this.activeHotspot == null) {
+                    onOrbit(e.clientX, e.clientY);
+                }
+                else {
+                    onHotspotDrag(e.clientX, e.clientY);
+                }
+            }
+            else if (e.buttons & 2) {
+                suppressContextMenu = onMove(e.clientX, e.clientY);
+            }
+        });
+        this.getContainer().addEventListener('contextmenu', (e) => {
+            if (suppressContextMenu) {
+                e.preventDefault();
+                suppressContextMenu = false;
+            }
+        });
     }
     getCamera() {
-        throw new Error("Method not implemented.");
+        return this.camera;
+    }
+    addFigure(figure) {
+        if (figure instanceof Hotspot3D_1.Hotspot3D) {
+            this.hotspots.push(figure);
+        }
+        return super.addFigure(figure);
+    }
+    removeFigure(figure) {
+        if (figure instanceof Hotspot3D_1.Hotspot3D) {
+            let i = this.hotspots.indexOf(figure);
+            if (i >= 0) {
+                this.hotspots.splice(i, 1);
+            }
+        }
+        return super.removeFigure(figure);
+    }
+    /**
+     * Supports legacy way of creating figures
+     */
+    plotExpression(expr, type, opts) {
+        let args = Object.assign({}, opts);
+        switch (type) {
+            case 'angle':
+                var parts = expr.split(/{|,|}/g);
+                args.a = parts[1];
+                args.b = parts[2];
+                let angleArc = new __1.AngleArc3D(args);
+                this.addFigure(angleArc);
+                break;
+            case 'arrow':
+                args.end = expr;
+                let arrow = new Arrow3D_1.Arrow3D(args);
+                this.addFigure(arrow);
+                break;
+            case 'label':
+                args.axes = this;
+                args.label = expr;
+                let label = new Label3D_1.Label3D(args);
+                this.addFigure(label);
+                break;
+            case 'point':
+                args.position = expr;
+                let point = new Point3D_1.Point3D(args);
+                this.addFigure(point);
+                break;
+            case 'hotspot':
+                args.plot = this.getPlot();
+                args.variable = expr;
+                let hotspot = new Hotspot3D_1.Hotspot3D(args);
+                this.addFigure(hotspot);
+                break;
+            case 'polygon':
+                let verts = Utils_1.bracketAwareSplit(expr.slice(1, expr.length - 1), ',');
+                args.vertices = verts;
+                let poly = new __1.Polygon3D(args);
+                this.addFigure(poly);
+                break;
+            default:
+                throw new Error("Unknown figure type!");
+        }
+    }
+    /**
+     * Returns a vector whose x,y coordinates are in the range [0,1]
+     * @param worldCoords
+     */
+    project(worldCoords) {
+        this.camera.updateMatrixWorld(true);
+        let result = worldCoords.clone().project(this.camera).multiplyScalar(0.5).add(new three_1.Vector3(0.5, 0.5, 0));
+        return new three_1.Vector2(result.x, result.y);
     }
 }
 exports.Axes3D = Axes3D;
 class Axes3DArgs extends internal_1.AxesArgs {
+    constructor(args) {
+        super(args);
+        this.pointOfInterest = args.pointOfInterest;
+        this.cameraPosition = args.cameraPosition;
+        this.cameraUp = args.cameraUp;
+    }
+    validate() {
+        return super.validate();
+    }
+    default() {
+        super.default();
+        if (this.pointOfInterest === undefined) {
+            this.pointOfInterest = new three_1.Vector3(0, 0, 0);
+        }
+        if (this.cameraPosition === undefined) {
+            this.cameraPosition = new three_1.Vector3(1, 2, 2);
+        }
+        if (this.cameraUp === undefined) {
+            this.cameraUp = new three_1.Vector3(0, 1, 0);
+        }
+    }
 }
 exports.Axes3DArgs = Axes3DArgs;
 
@@ -1224,9 +1448,7 @@ var PanelComponent;
                     value = value.replace(/(\.\d\d\d)\d*/g, "$1");
                 }
                 catch (e) {
-                    if (!(e instanceof Error) || !e.message.includes('Undefined symbol')) {
-                        console.warn(e);
-                    }
+                    console.error(e);
                 }
                 return value;
             };
@@ -1415,7 +1637,9 @@ class Plot {
     createAxes3D(args) {
         let axesArgs = new internal_1.Axes3DArgs(args);
         axesArgs.plot = this;
-        throw new Error("Method not implemented.");
+        let newAxes = new internal_1.Axes3D(axesArgs);
+        this.addAxes(newAxes);
+        return newAxes;
     }
     /**
     * Removes the axes if it is present.
@@ -1646,6 +1870,96 @@ exports.AngleArc2DArgs = AngleArc2DArgs;
 
 /***/ }),
 
+/***/ "./src/figures/AngleArc3D.ts":
+/*!***********************************!*\
+  !*** ./src/figures/AngleArc3D.ts ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const three_1 = __webpack_require__(/*! three */ "three");
+const math = __webpack_require__(/*! mathjs */ "mathjs");
+class AngleArc3D {
+    constructor(args) {
+        let args2 = new AngleArc3DArgs(args);
+        args2.validate();
+        args2.defaults();
+        this.aFun = math.parse(args2.a).compile();
+        this.bFun = math.parse(args2.b).compile();
+        this.hex = args2.hex;
+        this.radius = args2.radius;
+    }
+    render(scope) {
+        let a3 = new three_1.Vector3(...this.aFun.eval(scope)._data);
+        let b3 = new three_1.Vector3(...this.bFun.eval(scope)._data);
+        let z = new three_1.Vector3().crossVectors(a3, b3).normalize();
+        let x = a3.clone().normalize();
+        let y = new three_1.Vector3().crossVectors(z, x).normalize();
+        let a = new three_1.Vector2(a3.dot(x), a3.dot(y));
+        let b = new three_1.Vector2(b3.dot(x), b3.dot(y));
+        let thetaA = Math.atan2(a.y, a.x);
+        let thetaB = Math.atan2(b.y, b.x);
+        let clockwise = thetaA - thetaB < Math.PI && thetaA - thetaB >= 0;
+        let points;
+        if (Math.abs(a.dot(b)) < 0.01) {
+            let v1 = a.clone().normalize().multiplyScalar(this.radius);
+            let v3 = b.clone().normalize().multiplyScalar(this.radius);
+            let v2 = v1.clone().add(v3);
+            points = [v1, v2, v3];
+        }
+        else {
+            let curve = new three_1.EllipseCurve(0, 0, // ax, aY
+            this.radius, this.radius, // xRadius, yRadius
+            thetaA, thetaB, // aStartAngle, aEndAngle
+            clockwise, // aClockwise
+            0 // aRotation
+            );
+            points = curve.getSpacedPoints(20);
+        }
+        let points3 = points.map((point) => x.clone().multiplyScalar(point.x).add(y.clone().multiplyScalar(point.y)));
+        let material = new three_1.LineBasicMaterial({ color: this.hex });
+        let line = new three_1.Line(new three_1.Geometry().setFromPoints(points3), material);
+        return line;
+    }
+}
+exports.AngleArc3D = AngleArc3D;
+class AngleArc3DArgs {
+    constructor(args) {
+        this.origin = args.origin;
+        this.a = args.a;
+        this.b = args.b;
+        this.hex = args.hex;
+        this.radius = args.radius;
+    }
+    validate() {
+        if (!this.a) {
+            throw new Error("Invalid arguments: a not defined!");
+        }
+        if (!this.b) {
+            throw new Error("Invalid arguments: b not defined!");
+        }
+        return true;
+    }
+    defaults() {
+        if (this.origin === undefined) {
+            this.origin = '[0,0]';
+        }
+        if (this.hex === undefined) {
+            this.hex = 0xffffff;
+        }
+        if (this.radius === undefined) {
+            this.radius = 0.2;
+        }
+    }
+}
+exports.AngleArc3DArgs = AngleArc3DArgs;
+
+
+/***/ }),
+
 /***/ "./src/figures/Arrow2D.ts":
 /*!********************************!*\
   !*** ./src/figures/Arrow2D.ts ***!
@@ -1743,6 +2057,103 @@ exports.Arrow2DArgs = Arrow2DArgs;
 
 /***/ }),
 
+/***/ "./src/figures/Arrow3D.ts":
+/*!********************************!*\
+  !*** ./src/figures/Arrow3D.ts ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const three_1 = __webpack_require__(/*! three */ "three");
+const math = __webpack_require__(/*! mathjs */ "mathjs");
+const LineArrowHelper_1 = __webpack_require__(/*! ../utils/LineArrowHelper */ "./src/utils/LineArrowHelper.ts");
+class Arrow3D {
+    constructor(args) {
+        let args2 = new Arrow3DArgs(args);
+        args2.validate();
+        args2.defaults();
+        this.startFun = math.parse(args2.start).compile();
+        this.endFun = math.parse(args2.end).compile();
+        this.hex = args2.hex;
+        this.headLength = args2.headLength;
+        this.headWidth = args2.headWidth;
+        this.width = args2.width;
+        this.showFun = math.parse(args2.show).compile();
+    }
+    render(scope) {
+        let show = this.showFun.eval(scope);
+        if (show == 0)
+            return null;
+        let end = this.endFun.eval(scope);
+        if (math.typeof(end) != 'Matrix') {
+            throw new Error('End expression does not evaluate to a vector (Matrix)!');
+        }
+        let endVec = new three_1.Vector3(...end._data);
+        let start = this.startFun.eval(scope);
+        if (math.typeof(start) != 'Matrix') {
+            throw new Error('Start expression does not evaluate to vector (Matrix)!');
+        }
+        let startVec = new three_1.Vector3(...start._data);
+        let dir = endVec.clone().sub(startVec).normalize();
+        let length = endVec.distanceTo(startVec);
+        let hex = this.hex;
+        let headLength = this.headLength;
+        let headWidth = this.headWidth;
+        if (this.width <= 0) {
+            return new three_1.ArrowHelper(dir, startVec, length, hex, headLength, headWidth);
+        }
+        else {
+            return new LineArrowHelper_1.LineArrowHelper(dir, startVec, length, hex, headLength, headWidth, this.width);
+        }
+    }
+}
+exports.Arrow3D = Arrow3D;
+class Arrow3DArgs {
+    constructor(args) {
+        this.start = args.start;
+        this.end = args.end;
+        this.hex = args.hex;
+        this.headLength = args.headLength;
+        this.headWidth = args.headWidth;
+        this.width = args.width;
+        this.show = args.show;
+    }
+    validate() {
+        if (!this.end) {
+            throw new Error("Invalid arguments: end not defined!");
+        }
+        return true;
+    }
+    defaults() {
+        let args = {};
+        if (this.start === undefined) {
+            this.start = '[0,0,0]';
+        }
+        if (this.hex === undefined) {
+            this.hex = 0xffffff;
+        }
+        if (this.headLength === undefined) {
+            this.headLength = 0.2;
+        }
+        if (this.headWidth === undefined) {
+            this.headWidth = 0.15;
+        }
+        if (this.show === undefined) {
+            this.show = '1';
+        }
+        if (this.width === undefined) {
+            this.width = 0.05;
+        }
+    }
+}
+exports.Arrow3DArgs = Arrow3DArgs;
+
+
+/***/ }),
+
 /***/ "./src/figures/Hotspot2D.ts":
 /*!**********************************!*\
   !*** ./src/figures/Hotspot2D.ts ***!
@@ -1799,6 +2210,66 @@ class Hotspot2DArgs {
     }
 }
 exports.Hotspot2DArgs = Hotspot2DArgs;
+
+
+/***/ }),
+
+/***/ "./src/figures/Hotspot3D.ts":
+/*!**********************************!*\
+  !*** ./src/figures/Hotspot3D.ts ***!
+  \**********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const three_1 = __webpack_require__(/*! three */ "three");
+class Hotspot3D {
+    constructor(args) {
+        let args2 = new Hotspot3DArgs(args);
+        args2.validate();
+        args2.defaults();
+        this.plot = args2.plot;
+        this.variable = args2.variable;
+        this.position = null;
+    }
+    getPosition() {
+        if (this.position == null) {
+            let vector = this.plot.getScope()[this.variable];
+            this.position = new three_1.Vector3(...vector._data);
+        }
+        return this.position;
+    }
+    setPosition(position) {
+        this.position = position;
+        this.plot.execExpression(this.variable + '=[' + position.toArray() + ']');
+        this.plot.refresh();
+        this.plot.requestFrame();
+    }
+    render(scope) {
+        return null;
+    }
+}
+exports.Hotspot3D = Hotspot3D;
+class Hotspot3DArgs {
+    constructor(args) {
+        this.plot = args.plot;
+        this.variable = args.variable;
+    }
+    validate() {
+        if (!this.plot) {
+            throw new Error("Invalid arguments: Plot not defined!");
+        }
+        if (!this.variable) {
+            throw new Error("Invalid arguments: Variable not defined!");
+        }
+        return true;
+    }
+    defaults() {
+    }
+}
+exports.Hotspot3DArgs = Hotspot3DArgs;
 
 
 /***/ }),
@@ -1886,6 +2357,89 @@ exports.Label2DArgs = Label2DArgs;
 
 /***/ }),
 
+/***/ "./src/figures/Label3D.ts":
+/*!********************************!*\
+  !*** ./src/figures/Label3D.ts ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const three_1 = __webpack_require__(/*! three */ "three");
+const math = __webpack_require__(/*! mathjs */ "mathjs");
+const Axes3D_1 = __webpack_require__(/*! ../core/Axes3D */ "./src/core/Axes3D.ts");
+class Label3D {
+    constructor(args) {
+        let args2 = new Label3DArgs(args);
+        args2.validate();
+        args2.defaults();
+        this.axes = args2.axes;
+        this.positionFun = math.parse(args2.position).compile();
+        this.label = args.label;
+        ////////////////////////////
+        //// Creating Label Div ////
+        ////////////////////////////
+        let label = document.createElement('div');
+        label.style.position = 'absolute';
+        label.style.width = '100';
+        label.style.height = '100';
+        label.style.color = 'white';
+        label.style.cursor = 'default';
+        // @ts-ignore: Legacy code
+        label.style['pointer-events'] = 'none';
+        // @ts-ignore: Legacy code
+        label.style['-webkit-user-select'] = 'none'; /* Chrome, Opera, Safari */
+        // @ts-ignore: Legacy code
+        label.style['-moz-user-select'] = 'none'; /* Firefox 2+ */
+        // @ts-ignore: Legacy code
+        label.style['-ms-user-select'] = 'none'; /* IE 10+ */
+        // @ts-ignore: Legacy code
+        label.style['user-select'] = 'none'; /* Standard syntax */
+        label.innerHTML = this.label;
+        this.labelElement = label;
+        document.body.appendChild(label);
+    }
+    render(scope) {
+        let position = new three_1.Vector3(...this.positionFun.eval(scope)._data);
+        let coords = this.axes.project(position);
+        let rect = this.axes.getContainer().getBoundingClientRect();
+        this.labelElement.style.top = window.scrollY - coords.y * rect.height + rect.bottom + 'px';
+        this.labelElement.style.left = window.scrollX + coords.x * rect.width + rect.left + 'px';
+        return null;
+    }
+}
+exports.Label3D = Label3D;
+class Label3DArgs {
+    constructor(args) {
+        this.axes = args.axes;
+        this.position = args.position;
+        this.label = args.label;
+    }
+    validate() {
+        if (!this.axes) {
+            throw new Error("Invalid arguments: Axes not defined!");
+        }
+        if (!(this.axes instanceof Axes3D_1.Axes3D)) {
+            throw new Error("Invalid arguments: axes is not an Axes2D");
+        }
+        if (!this.position) {
+            throw new Error("Invalid arguments: Variable not defined!");
+        }
+        return true;
+    }
+    defaults() {
+        if (this.label === undefined) {
+            this.label = this.position;
+        }
+    }
+}
+exports.Label3DArgs = Label3DArgs;
+
+
+/***/ }),
+
 /***/ "./src/figures/Parallelogram2D.ts":
 /*!****************************************!*\
   !*** ./src/figures/Parallelogram2D.ts ***!
@@ -1949,6 +2503,78 @@ class Parallelogram2DArgs {
     }
 }
 exports.Parallelogram2DArgs = Parallelogram2DArgs;
+
+
+/***/ }),
+
+/***/ "./src/figures/Parallelogram3D.ts":
+/*!****************************************!*\
+  !*** ./src/figures/Parallelogram3D.ts ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const three_1 = __webpack_require__(/*! three */ "three");
+const math = __webpack_require__(/*! mathjs */ "mathjs");
+const THREE = __webpack_require__(/*! three */ "three");
+class Parallelogram3D {
+    /**
+     * Creates a parallelogram spanned by args.u and args.v
+     * @param args
+     */
+    constructor(args) {
+        let args2 = new Parallelogram3DArgs(args);
+        args2.validate();
+        args2.defaults();
+        this.oFun = math.parse(args2.origin).compile();
+        this.uFun = math.parse(args2.u).compile();
+        this.vFun = math.parse(args2.v).compile();
+        this.opacity = args2.opacity;
+    }
+    render(scope) {
+        var o = new three_1.Vector3(...this.oFun.eval(scope)._data);
+        var u = new three_1.Vector3(...this.uFun.eval(scope)._data);
+        var v = new three_1.Vector3(...this.vFun.eval(scope)._data);
+        var geom = new three_1.Geometry();
+        geom.vertices.push(o);
+        geom.vertices.push(o.clone().add(u));
+        geom.vertices.push(o.clone().add(v));
+        geom.vertices.push(o.clone().add(u).add(v));
+        var f1 = new three_1.Face3(3, 1, 0);
+        var f2 = new three_1.Face3(0, 2, 3);
+        geom.faces.push(f1);
+        geom.faces.push(f2);
+        var mat = new three_1.MeshBasicMaterial({ color: 0xFFFFFF, side: THREE.DoubleSide, opacity: this.opacity, transparent: true, depthTest: false });
+        return new three_1.Mesh(geom, mat);
+    }
+}
+exports.Parallelogram3D = Parallelogram3D;
+class Parallelogram3DArgs {
+    constructor(args) {
+        this.origin = args.origin;
+        this.u = args.u;
+        this.v = args.v;
+        this.opacity = args.opacity;
+    }
+    validate() {
+        if (!this.u || !this.v) {
+            throw new Error("Invalid arguments: u or v not defined!");
+        }
+        return true;
+    }
+    defaults() {
+        if (this.origin === undefined) {
+            this.origin = '[0,0,0]';
+        }
+        if (this.opacity === undefined) {
+            this.opacity = 1;
+        }
+    }
+}
+exports.Parallelogram3DArgs = Parallelogram3DArgs;
 
 
 /***/ }),
@@ -2095,6 +2721,148 @@ exports.Parametric2DArgs = Parametric2DArgs;
 
 /***/ }),
 
+/***/ "./src/figures/ParametricCurve3D.ts":
+/*!******************************************!*\
+  !*** ./src/figures/ParametricCurve3D.ts ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const three_meshline_1 = __webpack_require__(/*! three.meshline */ "./node_modules/three.meshline/src/THREE.MeshLine.js");
+const math = __webpack_require__(/*! mathjs */ "mathjs");
+const three_1 = __webpack_require__(/*! three */ "three");
+class ParametricCurve3D {
+    constructor(args) {
+        let args2 = new ParametricCurve3DArgs(args);
+        args2.validate();
+        args2.defaults();
+        this.expressionFun = math.parse(args2.expression).compile();
+        this.parameter = args.parameter;
+        this.startFun = math.parse(args2.start).compile();
+        this.endFun = math.parse(args2.end).compile();
+        this.stepsFun = math.parse(args2.steps).compile();
+        if (args.color == null) {
+            this.colorFun = null;
+        }
+        else {
+            this.colorFun = math.parse(args2.color).compile();
+        }
+        this.width = args2.width;
+    }
+    render(scope) {
+        let self_ = this;
+        let newScope = Object.create(scope);
+        // Determine start end step
+        let start = this.startFun.eval(scope);
+        if (math.typeof(start) != 'number') {
+            throw new Error("Start does not evaluate to a number!");
+        }
+        let end = this.endFun.eval(scope);
+        if (math.typeof(end) != 'number') {
+            throw new Error("End does not evaluate to a number!");
+        }
+        let steps = this.stepsFun.eval(scope);
+        if (math.typeof(steps) != 'number') {
+            throw new Error("Step does not evaluate to a number!");
+        }
+        // Create parametric function
+        let parametricFun = function (t) {
+            newScope[self_.parameter] = t;
+            return self_.expressionFun.eval(newScope);
+        };
+        // Test expression returns correct type
+        if (math.typeof(parametricFun(start)) != 'Matrix') {
+            throw new Error("Expression does not evaluate to a vector (Matrix)!");
+        }
+        // Create color function
+        let colorFun;
+        if (this.colorFun != null) {
+            // Test to make sure color returns correct type
+            newScope[this.parameter] = start;
+            if (math.typeof(this.colorFun.eval(newScope)) != 'Matrix') {
+                throw new Error("Color does not evaluate to a vector (Matrix)!");
+            }
+            colorFun = function (t) {
+                newScope[self_.parameter] = t;
+                let result = self_.colorFun.eval(newScope);
+                return [...result._data];
+            };
+        }
+        else {
+            colorFun = function (t) {
+                return [1, 1, 1];
+            };
+        }
+        let step = (end - start) / (steps - 1);
+        let verts = new Float32Array(steps * 3);
+        let colors = new Float32Array(steps * 4);
+        for (let i = 0; i < steps; i++) {
+            let t = start + i * step;
+            let point = parametricFun(t);
+            let color = colorFun(t);
+            verts[i * 3] = point._data[0];
+            verts[i * 3 + 1] = point._data[1];
+            verts[i * 3 + 2] = point._data[2];
+            colors[i * 4] = color[0];
+            colors[i * 4 + 1] = color[1];
+            colors[i * 4 + 2] = color[2];
+            colors[i * 4 + 3] = 1;
+        }
+        let geom = new three_1.BufferGeometry();
+        geom.addAttribute('position', new three_1.BufferAttribute(verts, 3));
+        geom.addAttribute('color', new three_1.BufferAttribute(colors, 4));
+        let line = new three_meshline_1.MeshLine();
+        line.setGeometry(geom);
+        let material = new three_meshline_1.MeshLineMaterial({ useGlobalColor: 0, lineWidth: this.width });
+        return new three_1.Mesh(line.geometry, material);
+    }
+}
+exports.ParametricCurve3D = ParametricCurve3D;
+class ParametricCurve3DArgs {
+    constructor(args) {
+        this.expression = args.expression;
+        this.parameter = args.parameter;
+        this.start = args.start;
+        this.end = args.end;
+        this.steps = args.steps;
+        this.color = args.color;
+        this.width = args.width;
+    }
+    validate() {
+        if (!this.expression) {
+            throw new Error("Invalid arguments: expression not defined!");
+        }
+        if (!this.parameter) {
+            throw new Error("Invalid arguments: parameter (variable) not defined!");
+        }
+        if (this.start === undefined) {
+            throw new Error("Invalid arguments: start not defined!");
+        }
+        if (this.end === undefined) {
+            throw new Error("Invalid arguments: end not defined!");
+        }
+        return true;
+    }
+    defaults() {
+        if (this.steps === undefined) {
+            this.steps = '50';
+        }
+        if (this.color === undefined) {
+            this.color = null;
+        }
+        if (this.width === undefined) {
+            this.width = 0.01;
+        }
+    }
+}
+exports.ParametricCurve3DArgs = ParametricCurve3DArgs;
+
+
+/***/ }),
+
 /***/ "./src/figures/Point2D.ts":
 /*!********************************!*\
   !*** ./src/figures/Point2D.ts ***!
@@ -2145,6 +2913,60 @@ class Point2DArgs {
     }
 }
 exports.Point2DArgs = Point2DArgs;
+
+
+/***/ }),
+
+/***/ "./src/figures/Point3D.ts":
+/*!********************************!*\
+  !*** ./src/figures/Point3D.ts ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const three_1 = __webpack_require__(/*! three */ "three");
+const math = __webpack_require__(/*! mathjs */ "mathjs");
+class Point3D {
+    constructor(args) {
+        let args2 = new Point3DArgs(args);
+        args2.validate();
+        args2.defaults();
+        this.positionFun = math.parse(args2.position).compile();
+        this.hex = args2.hex;
+        this.radius = args2.radius;
+    }
+    render(scope) {
+        let position = new three_1.Vector3(...this.positionFun.eval(scope)._data);
+        let geometry = new three_1.SphereBufferGeometry(this.radius, 32, 32);
+        let material = new three_1.MeshBasicMaterial({ color: this.hex });
+        let circle = new three_1.Mesh(geometry, material);
+        circle.position.copy(position);
+        return circle;
+    }
+}
+exports.Point3D = Point3D;
+class Point3DArgs {
+    constructor(args) {
+        this.position = args.position;
+        this.hex = args.hex;
+        this.radius = args.radius;
+    }
+    validate() {
+        return true;
+    }
+    defaults() {
+        if (this.hex === undefined) {
+            this.hex = 0xffffff;
+        }
+        if (this.radius === undefined) {
+            this.radius = 0.05;
+        }
+    }
+}
+exports.Point3DArgs = Point3DArgs;
 
 
 /***/ }),
@@ -2213,6 +3035,70 @@ exports.Polygon2DArgs = Polygon2DArgs;
 
 /***/ }),
 
+/***/ "./src/figures/Polygon3D.ts":
+/*!**********************************!*\
+  !*** ./src/figures/Polygon3D.ts ***!
+  \**********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const three_1 = __webpack_require__(/*! three */ "three");
+const math = __webpack_require__(/*! mathjs */ "mathjs");
+const THREE = __webpack_require__(/*! three */ "three");
+class Polygon3D {
+    /**
+     * Creates a parallelogram spanned by args.u and args.v
+     * @param args
+     */
+    constructor(args) {
+        let args2 = new Polygon3DArgs(args);
+        args2.validate();
+        args2.defaults();
+        this.vertexFuns = args2.vertices.map((vertex) => math.parse(vertex).compile());
+        this.opacity = args2.opacity;
+    }
+    render(scope) {
+        let vectors = this.vertexFuns.map((vf) => new three_1.Vector3(...vf.eval(scope)._data));
+        let geom = new THREE.Geometry();
+        let i = 0;
+        for (let vector of vectors) {
+            geom.vertices.push(vector);
+            if (i > 1) {
+                var f = new THREE.Face3(0, i, i - 1);
+                geom.faces.push(f);
+            }
+            i++;
+        }
+        let mat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, opacity: this.opacity, transparent: true });
+        return new THREE.Mesh(geom, mat);
+    }
+}
+exports.Polygon3D = Polygon3D;
+class Polygon3DArgs {
+    constructor(args) {
+        this.vertices = args.vertices;
+        this.opacity = args.opacity;
+    }
+    validate() {
+        if (!this.vertices) {
+            throw new Error("Invalid arguments: vertices not defined!");
+        }
+        return true;
+    }
+    defaults() {
+        if (this.opacity === undefined) {
+            this.opacity = 1;
+        }
+    }
+}
+exports.Polygon3DArgs = Polygon3DArgs;
+
+
+/***/ }),
+
 /***/ "./src/index.ts":
 /*!**********************!*\
   !*** ./src/index.ts ***!
@@ -2232,24 +3118,51 @@ exports.Plot = internal_1.Plot;
 var AngleArc2D_1 = __webpack_require__(/*! ./figures/AngleArc2D */ "./src/figures/AngleArc2D.ts");
 exports.AngleArc2D = AngleArc2D_1.AngleArc2D;
 exports.AngleArc2DArgs = AngleArc2D_1.AngleArc2DArgs;
+var AngleArc3D_1 = __webpack_require__(/*! ./figures/AngleArc3D */ "./src/figures/AngleArc3D.ts");
+exports.AngleArc3D = AngleArc3D_1.AngleArc3D;
+exports.AngleArc3DArgs = AngleArc3D_1.AngleArc3DArgs;
 var Arrow2D_1 = __webpack_require__(/*! ./figures/Arrow2D */ "./src/figures/Arrow2D.ts");
 exports.Arrow2D = Arrow2D_1.Arrow2D;
 exports.Arrow2DArgs = Arrow2D_1.Arrow2DArgs;
+var Arrow3D_1 = __webpack_require__(/*! ./figures/Arrow3D */ "./src/figures/Arrow3D.ts");
+exports.Arrow3D = Arrow3D_1.Arrow3D;
+exports.Arrow3DArgs = Arrow3D_1.Arrow3DArgs;
 var Hotspot2D_1 = __webpack_require__(/*! ./figures/Hotspot2D */ "./src/figures/Hotspot2D.ts");
 exports.Hotspot2D = Hotspot2D_1.Hotspot2D;
 exports.Hotspot2DArgs = Hotspot2D_1.Hotspot2DArgs;
+var Hotspot3D_1 = __webpack_require__(/*! ./figures/Hotspot3D */ "./src/figures/Hotspot3D.ts");
+exports.Hotspot3D = Hotspot3D_1.Hotspot3D;
+exports.Hotspot3DArgs = Hotspot3D_1.Hotspot3DArgs;
 var Label2D_1 = __webpack_require__(/*! ./figures/Label2D */ "./src/figures/Label2D.ts");
 exports.Label2D = Label2D_1.Label2D;
 exports.Label2DArgs = Label2D_1.Label2DArgs;
+var Label3D_1 = __webpack_require__(/*! ./figures/Label3D */ "./src/figures/Label3D.ts");
+exports.Label3D = Label3D_1.Label3D;
+exports.Label3DArgs = Label3D_1.Label3DArgs;
 var Parametric2D_1 = __webpack_require__(/*! ./figures/Parametric2D */ "./src/figures/Parametric2D.ts");
 exports.Parametric2D = Parametric2D_1.Parametric2D;
 exports.Parametric2DArgs = Parametric2D_1.Parametric2DArgs;
+var ParametricCurve3D_1 = __webpack_require__(/*! ./figures/ParametricCurve3D */ "./src/figures/ParametricCurve3D.ts");
+exports.ParametricCurve3D = ParametricCurve3D_1.ParametricCurve3D;
+exports.ParametricCurve3DArgs = ParametricCurve3D_1.ParametricCurve3DArgs;
 var Parallelogram2D_1 = __webpack_require__(/*! ./figures/Parallelogram2D */ "./src/figures/Parallelogram2D.ts");
 exports.Parallelogram2D = Parallelogram2D_1.Parallelogram2D;
 exports.Parallelogram2DArgs = Parallelogram2D_1.Parallelogram2DArgs;
+var Parallelogram3D_1 = __webpack_require__(/*! ./figures/Parallelogram3D */ "./src/figures/Parallelogram3D.ts");
+exports.Parallelogram3D = Parallelogram3D_1.Parallelogram3D;
+exports.Parallelogram3DArgs = Parallelogram3D_1.Parallelogram3DArgs;
 var Point2D_1 = __webpack_require__(/*! ./figures/Point2D */ "./src/figures/Point2D.ts");
 exports.Point2D = Point2D_1.Point2D;
 exports.Point2DArgs = Point2D_1.Point2DArgs;
+var Point3D_1 = __webpack_require__(/*! ./figures/Point3D */ "./src/figures/Point3D.ts");
+exports.Point3D = Point3D_1.Point3D;
+exports.Point3DArgs = Point3D_1.Point3DArgs;
+var Polygon2D_1 = __webpack_require__(/*! ./figures/Polygon2D */ "./src/figures/Polygon2D.ts");
+exports.Polygon2D = Polygon2D_1.Polygon2D;
+exports.Polygon2DArgs = Polygon2D_1.Polygon2DArgs;
+var Polygon3D_1 = __webpack_require__(/*! ./figures/Polygon3D */ "./src/figures/Polygon3D.ts");
+exports.Polygon3D = Polygon3D_1.Polygon3D;
+exports.Polygon3DArgs = Polygon3D_1.Polygon3DArgs;
 
 
 /***/ }),

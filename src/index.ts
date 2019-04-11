@@ -1,8 +1,17 @@
 export { Axes2D, Axes2DArgs, Axes3D, Axes3DArgs, Plot } from './core/internal';
 export { AngleArc2D, AngleArc2DArgs} from './figures/AngleArc2D';
+export { AngleArc3D, AngleArc3DArgs} from './figures/AngleArc3D';
 export { Arrow2D, Arrow2DArgs } from './figures/Arrow2D';
+export { Arrow3D, Arrow3DArgs } from './figures/Arrow3D';
 export { Hotspot2D, Hotspot2DArgs } from './figures/Hotspot2D';
+export { Hotspot3D, Hotspot3DArgs } from './figures/Hotspot3D';
 export { Label2D, Label2DArgs} from './figures/Label2D';
+export { Label3D, Label3DArgs} from './figures/Label3D';
 export { Parametric2D, Parametric2DArgs } from './figures/Parametric2D'; 
+export { ParametricCurve3D, ParametricCurve3DArgs } from './figures/ParametricCurve3D'; 
 export { Parallelogram2D, Parallelogram2DArgs } from './figures/Parallelogram2D'; 
+export { Parallelogram3D, Parallelogram3DArgs } from './figures/Parallelogram3D'; 
 export { Point2D, Point2DArgs } from './figures/Point2D'; 
+export { Point3D, Point3DArgs } from './figures/Point3D'; 
+export { Polygon2D, Polygon2DArgs } from './figures/Polygon2D';
+export { Polygon3D, Polygon3DArgs } from './figures/Polygon3D';
