@@ -173,7 +173,7 @@ number is "the line along A through the origin". <br>
   plot2.execExpression('A=[1, 1, 0.5]');
 
   pan2.createSlider({variable: 'r', start: -2, end: 2, steps: 20, continuousUpdate: true});
-  pan2.addReadout('A');
+  pan2.addReadout('A', {editable: true});
   pan2.addReadout('r*A');
 
   ax2.plotExpression('[1,0,0]', 'arrow', {hex: 0x888888, width: 0, headWidth: 0.05});
@@ -187,7 +187,7 @@ number is "the line along A through the origin". <br>
   ax2.plotExpression('A', 'arrow', {hex: 0xff0000});
   ax2.plotExpression('r*A', 'arrow', {hex: 0xdddddd});
 
-
+  ax2.plotExpression('A', 'hotspot');
 </script>
 
 <big><a href="http://www.math.brown.edu/~banchoff/la2d2.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
