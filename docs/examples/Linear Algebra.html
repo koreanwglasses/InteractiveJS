@@ -75,8 +75,8 @@ through the origin, then A+C also lies on this line.<br>
   plot1.execExpression('v2=[1,0.2]');
   plot1.execExpression('v3()=v1+v2');
 
-  pan1.addReadout('v1');
-  pan1.addReadout('v2');
+  pan1.addReadout('v1', {editable: true});
+  pan1.addReadout('v2', {editable: true});
   pan1.addReadout('v1+v2');
 
   ax1.addFigure(new Interactive.Arrow2D({end:'[1,0]', hex: 0x888888}));
@@ -139,7 +139,7 @@ number is "the line along A through the origin".<br>
   plot2.execExpression('v2()=t*v1');
 
   pan2.createSlider({variable: 't', start: -2, end:2, steps:100, continuousUpdate: true});
-  pan2.addReadout('v1');
+  pan2.addReadout('v1', {editable: true});
   pan2.addReadout('t*v1');
 
   ax2.addFigure(new Interactive.Arrow2D({end:'[1,0]', hex: 0x888888}));
@@ -284,8 +284,8 @@ vectors A = (a,b) and C = (c,d) to be ac + bd = A*C.<br>
 
   ax4.plotExpression('{A,C}','angle');
 
-  pan4.addReadout('A');
-  pan4.addReadout('C');
+  pan4.addReadout('A', {editable: true});
+  pan4.addReadout('C', {editable: true});
   pan4.addReadout('dot(A,C)')
   pan4.addReadout('acos(dot(A,C)/(norm(A) * norm(C)))', {label: 'Angle (radians)'});
 
@@ -344,8 +344,8 @@ C*C - (C-A)*(C-A) = 2A*C, by the above calculation.&nbsp; Therefore A*C
   ax5.plotExpression('A', 'hotspot')
   ax5.plotExpression('C', 'hotspot')
 
-  pan5.addReadout('A');
-  pan5.addReadout('C');
+  pan5.addReadout('A', {editable: true});
+  pan5.addReadout('C', {editable: true});
   pan5.addReadout('dot(A,C)')
   pan5.addReadout('acos(dot(A,C)/(norm(A) * norm(C)))', {label: 'Angle (radians)'});
 

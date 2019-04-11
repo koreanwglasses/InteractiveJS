@@ -100,9 +100,9 @@ Addition".</span><br style="color: rgb(0, 0, 0);">
   plot1.execExpression('A=[0.26,0.69,0.22]');
   plot1.execExpression('C=[0.86,0.40,-0.56]');
 
-  pan1.addReadout('A');
-  pan1.addReadout('B');
-  pan1.addReadout('C');
+  pan1.addReadout('A', {editable: true});
+  pan1.addReadout('B', {editable: true});
+  pan1.addReadout('C', {editable: true});
 
   ax1.plotExpression('A', 'arrow', {hex: 0xff0000});
   ax1.plotExpression('B', 'arrow', {hex: 0x0000ff});
@@ -126,6 +126,8 @@ Addition".</span><br style="color: rgb(0, 0, 0);">
   ax1.addFigure(new Interactive.Parallelogram3D({origin: 'C', u: 'A', v:'B', opacity: 0.3, hex:0xdd00dd }));
   ax1.addFigure(new Interactive.Parallelogram3D({origin: 'A', u: 'B', v:'C', opacity: 0.3, hex:0x00dd00 }));
   ax1.addFigure(new Interactive.Parallelogram3D({origin: 'B', u: 'C', v:'A', opacity: 0.3, hex:0xdd7700 }));
+
+  plot1.requestFrame();
 </script>
 <big><a href="http://www.math.brown.edu/~banchoff/la2d1.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
 <br>
@@ -225,8 +227,8 @@ line along A, obtained when t and s are both equal to 1.</span></font></p>
   plot3.execExpression('t0=-1')
 
   pan3.createSlider({variable: 't0', start: -1, end: 1, steps: 20, continuousUpdate: true});
-  pan3.addReadout('A');
-  pan3.addReadout('C');
+  pan3.addReadout('A', {editable: true});
+  pan3.addReadout('C', {editable: true});
 
   ax3.plotExpression('[1,0,0]', 'arrow', {hex: 0x888888, width: 0, headWidth: 0.05});
   ax3.plotExpression('[0,1,0]', 'arrow', {hex: 0x888888, width: 0, headWidth: 0.05});
@@ -302,9 +304,9 @@ by vectors B and C is the collection of all vectors of the form A + sB
   plot4.execExpression('B=[.1, 0.1, 1]');
   plot4.execExpression('C=[1, 0.1, 0.5]');
 
-  pan4.addReadout('A');
-  pan4.addReadout('B');
-  pan4.addReadout('C');
+  pan4.addReadout('A', {editable: true});
+  pan4.addReadout('B', {editable: true});
+  pan4.addReadout('C', {editable: true});
 
   ax4.plotExpression('A', 'arrow', {hex: 0xff0000});
   ax4.plotExpression('B', 'arrow', {hex: 0x00ff00});
@@ -415,8 +417,8 @@ a<sub>1</sub>c<sub>1</sub> + a<sub>2</sub>c<sub>2</sub> + a<sub>3</sub>c<sub>3</
 
   ax5.addFigure(new Interactive.AngleArc3D({a: 'A', b: 'C'}));
 
-  pan5.addReadout('A');
-  pan5.addReadout('C');
+  pan5.addReadout('A', {editable: true});
+  pan5.addReadout('C', {editable: true});
   pan5.addReadout('dot(A,C)')
   pan5.addReadout('acos(dot(A,C)/(norm(A) * norm(C)))', {label: 'Angle (radians)'});
 
@@ -481,8 +483,8 @@ cos(θ) = A*C/(|A||C|).<br>
   ax6.plotExpression('A', 'hotspot')
   ax6.plotExpression('C', 'hotspot')
 
-  pan6.addReadout('A');
-  pan6.addReadout('C');
+  pan6.addReadout('A', {editable: true});
+  pan6.addReadout('C', {editable: true});
   pan6.addReadout('dot(A,C)')
   pan6.addReadout('acos(dot(A,C)/(norm(A) * norm(C)))', {label: 'Angle (radians)'});
 
@@ -545,7 +547,7 @@ Similarly x(b<sub>1</sub>c<sub>2</sub>-b<sub>2</sub>c<sub>1</sub>) + z(b<sub>3</
 =
 0.&nbsp; One<br>
 solution to the problem is then (x,y.z) =
-(b<sub>2</sub>c<sub>3</sub>-b<sub>3</sub>c<sub>2</sub>,b<sub>1</sub>c<sub>3</sub>-b<sub>3</sub>c<sub>1</sub>,b<sub>2</sub>c<sub>1</sub>-b<sub>1</sub>c<sub>2</sub>).<br>
+(b<sub>2</sub>c<sub>3</sub>-b<sub>3</sub>c<sub>2</sub>,-b<sub>1</sub>c<sub>3</sub>+b<sub>3</sub>c<sub>1</sub>,b<sub>1</sub>c<sub>2</sub>-b<sub>2</sub>c<sub>1</sub>).<br>
 This vector, perpendicular to B and C, is called the "cross product of B<br>
 and C" and is denoted by B x C.<br>
 <br>
@@ -579,8 +581,8 @@ and C" and is denoted by B x C.<br>
   ax7.plotExpression('B', 'hotspot')
   ax7.plotExpression('C', 'hotspot')
 
-  pan7.addReadout('B');
-  pan7.addReadout('C');
+  pan7.addReadout('B', {editable: true});
+  pan7.addReadout('C', {editable: true});
   pan7.addReadout('norm(cross(B,C))', {label: '||B x C||'});
 
   ax7.addFigure(new Interactive.AngleArc3D({a: 'B', b: 'C'}));

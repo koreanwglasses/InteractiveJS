@@ -16,6 +16,9 @@ export class Hotspot3D implements Figure {
         this.plot = args2.plot;
         this.variable = args2.variable;
         this.position = null;
+
+        this.plot.onRefresh(() => this.position = null);
+        this.plot.onExecExpression(() => this.position = null);
     }
 
     public getPosition(): Vector3 {

@@ -146,9 +146,11 @@ export namespace PanelComponent {
 
     export class Readout extends React.Component {
         props: any;
-        state: {value: string};
+        state: {value: string, message: string};
 
         private args: PanelComponent.ReadoutArgs;
+
+        private inputElement: HTMLInputElement;
 
         public constructor(props: any) {
             super(props);
@@ -169,22 +171,51 @@ export namespace PanelComponent {
             }
 
             this.state = {
-                value: getValue()
+                value: getValue(),
+                message: ''
             };
 
             let updateValue = () => {
-                this.setState({
-                    value: getValue()   
-                });
+                if(this.inputElement !== document.activeElement)
+                    this.inputElement.value = getValue();
             };
 
             this.args.plot.onRefresh(updateValue);
             this.args.plot.onExecExpression(updateValue);
+
+            this.onInput = this.onInput.bind(this);
+        }
+
+        private onInput() {
+            let expr = this.inputElement.value;
+            try {
+                this.args.plot.evalExpression(expr);
+            } catch (e) {
+                if(e instanceof Error) {
+                    this.setState({
+                        message: e.message
+                    });
+                }
+                return;
+            }
+            this.setState({
+                message: ''
+            })
+            this.args.plot.execExpression(this.args.expression + '=' + expr);
+            this.args.plot.refresh();
+            this.args.plot.requestFrame();
         }
 
         public render() {
-            return [this.args.label + " =", <input key="1" type="text"
-                disabled={true} value={this.state.value}></input>];
+            return [this.args.label + " =", 
+                <input key="1"
+                    type="text"
+                    onInput={this.onInput}
+                    defaultValue={this.state.value}
+                    disabled={!this.args.editable}
+                    ref={(elm) => this.inputElement = elm}>
+                </input>,
+                <span style={{color: "red"}}>{this.state.message}</span>];
         }
     }
 
@@ -192,11 +223,13 @@ export namespace PanelComponent {
         public plot: Plot;
         public expression: string;
         public label: string;
+        public editable: boolean;
 
         public constructor(args: any) {
             this.plot = args.plot;
             this.expression = args.expression;
             this.label = args.label;
+            this.editable = args.editable;
         }
 
         public validate() : boolean {
@@ -212,6 +245,9 @@ export namespace PanelComponent {
         public defaults() : void {
             if(this.label === undefined) {
                 this.label = this.expression;
+            }
+            if(this.editable === undefined) {
+                this.editable = false;
             }
         }
     }
