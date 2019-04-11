@@ -71,13 +71,13 @@ through the origin, then A+C also lies on this line.<br>
   ax1 = plot1.createAxes2D({container: document.getElementById('ax1'),
     left: -1, right: 2, bottom: -1, top:2});
 
-  pan1.addReadout('v1');
-  pan1.addReadout('v2');
-  pan1.addReadout('v1+v2');
-
   plot1.execExpression('v1=[0.3,1]');
   plot1.execExpression('v2=[1,0.2]');
   plot1.execExpression('v3()=v1+v2');
+
+  pan1.addReadout('v1');
+  pan1.addReadout('v2');
+  pan1.addReadout('v1+v2');
 
   ax1.addFigure(new Interactive.Arrow2D({end:'[1,0]', hex: 0x888888}));
   ax1.addFigure(new Interactive.Arrow2D({end:'[0,1]', hex: 0x888888}));

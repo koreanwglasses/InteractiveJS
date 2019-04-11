@@ -163,9 +163,7 @@ export namespace PanelComponent {
                     value = '' + this.args.plot.evalExpression(this.args.expression);
                     value = value.replace(/(\.\d\d\d)\d*/g, "$1");
                 } catch (e) {
-                    if(!(e instanceof Error) || !e.message.includes('Undefined symbol')) {
-                        console.warn(e);
-                    }
+                    console.error(e);
                 }
                 return value;
             }
