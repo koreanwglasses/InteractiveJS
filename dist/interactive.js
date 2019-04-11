@@ -2532,6 +2532,7 @@ class Parallelogram3D {
         this.oFun = math.parse(args2.origin).compile();
         this.uFun = math.parse(args2.u).compile();
         this.vFun = math.parse(args2.v).compile();
+        this.hex = args2.hex;
         this.opacity = args2.opacity;
     }
     render(scope) {
@@ -2547,7 +2548,7 @@ class Parallelogram3D {
         var f2 = new three_1.Face3(0, 2, 3);
         geom.faces.push(f1);
         geom.faces.push(f2);
-        var mat = new three_1.MeshBasicMaterial({ color: 0xFFFFFF, side: THREE.DoubleSide, opacity: this.opacity, transparent: true, depthTest: false });
+        var mat = new three_1.MeshBasicMaterial({ color: this.hex, side: THREE.DoubleSide, opacity: this.opacity, transparent: true, depthTest: false });
         return new three_1.Mesh(geom, mat);
     }
 }
@@ -2557,6 +2558,7 @@ class Parallelogram3DArgs {
         this.origin = args.origin;
         this.u = args.u;
         this.v = args.v;
+        this.hex = args.hex;
         this.opacity = args.opacity;
     }
     validate() {
@@ -2568,6 +2570,9 @@ class Parallelogram3DArgs {
     defaults() {
         if (this.origin === undefined) {
             this.origin = '[0,0,0]';
+        }
+        if (this.hex === undefined) {
+            this.hex = 0xffffff;
         }
         if (this.opacity === undefined) {
             this.opacity = 1;

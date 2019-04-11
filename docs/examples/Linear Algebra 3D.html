@@ -119,13 +119,13 @@ Addition".</span><br style="color: rgb(0, 0, 0);">
   ax1.plotExpression('B', 'hotspot');
   ax1.plotExpression('C', 'hotspot');
 
-  ax1.addFigure(new Interactive.Parallelogram3D({u: 'A', v:'B', opacity: 0.55}));
-  ax1.addFigure(new Interactive.Parallelogram3D({u: 'B', v:'C', opacity: 0.48}));
-  ax1.addFigure(new Interactive.Parallelogram3D({u: 'C', v:'A', opacity: 0.41}));
+  ax1.addFigure(new Interactive.Parallelogram3D({u: 'A', v:'B', opacity: 0.3, hex: 0xdd00dd }));
+  ax1.addFigure(new Interactive.Parallelogram3D({u: 'B', v:'C', opacity: 0.3, hex: 0x00dd00 }));
+  ax1.addFigure(new Interactive.Parallelogram3D({u: 'C', v:'A', opacity: 0.3, hex: 0xdd7700 }));
 
-  ax1.addFigure(new Interactive.Parallelogram3D({origin: 'C', u: 'A', v:'B', opacity: 0.34}));
-  ax1.addFigure(new Interactive.Parallelogram3D({origin: 'A', u: 'B', v:'C', opacity: 0.27}));
-  ax1.addFigure(new Interactive.Parallelogram3D({origin: 'B', u: 'C', v:'A', opacity: 0.2}));
+  ax1.addFigure(new Interactive.Parallelogram3D({origin: 'C', u: 'A', v:'B', opacity: 0.3, hex:0xdd00dd }));
+  ax1.addFigure(new Interactive.Parallelogram3D({origin: 'A', u: 'B', v:'C', opacity: 0.3, hex:0x00dd00 }));
+  ax1.addFigure(new Interactive.Parallelogram3D({origin: 'B', u: 'C', v:'A', opacity: 0.3, hex:0xdd7700 }));
 </script>
 <big><a href="http://www.math.brown.edu/~banchoff/la2d1.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
 <br>

@@ -7,6 +7,7 @@ export class Parallelogram3D implements Figure {
     private oFun : math.EvalFunction; 
     private uFun : math.EvalFunction;
     private vFun : math.EvalFunction;
+    private hex :number;
     private opacity: number;
     
     /**
@@ -21,6 +22,7 @@ export class Parallelogram3D implements Figure {
         this.oFun = math.parse(args2.origin).compile();
         this.uFun = math.parse(args2.u).compile();
         this.vFun = math.parse(args2.v).compile();
+        this.hex = args2.hex;
         this.opacity = args2.opacity;
     }
     
@@ -41,7 +43,7 @@ export class Parallelogram3D implements Figure {
         geom.faces.push(f1);                
         geom.faces.push(f2);
 
-        var mat = new MeshBasicMaterial({color: 0xFFFFFF, side: THREE.DoubleSide, opacity: this.opacity, transparent: true, depthTest: false});
+        var mat = new MeshBasicMaterial({color: this.hex, side: THREE.DoubleSide, opacity: this.opacity, transparent: true, depthTest: false});
 
         return new Mesh( geom, mat );
     }
@@ -51,12 +53,15 @@ export class Parallelogram3DArgs {
     public origin: string;
     public u: string;
     public v: string;
+
+    public hex: number;
     public opacity: number;
     
     public constructor(args : any) {
         this.origin = args.origin;
         this.u = args.u;
         this.v = args.v;
+        this.hex = args.hex;
         this.opacity = args.opacity;
     }
     
@@ -70,6 +75,9 @@ export class Parallelogram3DArgs {
     public defaults() : void {
         if (this.origin === undefined) {
             this.origin = '[0,0,0]';
+        }
+        if(this.hex === undefined) {
+            this.hex = 0xffffff;
         }
         if (this.opacity === undefined) {
             this.opacity = 1;
