@@ -59,7 +59,7 @@ export class Plot {
             for(let ax of this.axes) {
                 if(checkVisible(ax.getContainer())) {
                     if(ax.isSleeping()) ax.wake();
-                    ax.render(); 
+                    this.requestFrame();
                 } else if (!ax.isSleeping()) {
                     ax.sleep();
                 }
