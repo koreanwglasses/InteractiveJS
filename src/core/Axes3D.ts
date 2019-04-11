@@ -130,7 +130,7 @@ export class Axes3D extends Axes {
         let onHotspotDrag = (clientX: number, clientY: number) => {
             let r = this.camera.position.distanceTo(hotspotStartPos);
             let disp = upUnit.clone().multiplyScalar(-(clientY - clientPosStart[1])).addScaledVector(rightUnit, (clientX - clientPosStart[0]))
-            let newHSPos = hotspotStartPos.clone().addScaledVector(disp, cameraStartUp * 0.004 * r)
+            let newHSPos = hotspotStartPos.clone().addScaledVector(disp, cameraStartUp * 0.0022 * r)
 
             this.activeHotspot.setPosition(newHSPos);
         }
