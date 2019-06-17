@@ -645,7 +645,7 @@ class Axes {
         this.figures = new Set();
         this.objMap = new Map();
         this.skip = new Set();
-        if (this.isLightMode) {
+        if (this.lightMode) {
             this.scene.background = new THREE.Color(0xFFFFFF);
         }
         this.wake();

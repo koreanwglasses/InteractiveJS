@@ -41,7 +41,7 @@ export abstract class Axes {
         this.objMap = new Map<Figure, THREE.Mesh>();
         this.skip = new Set<Figure>();
         
-        if(this.isLightMode) {
+        if(this.lightMode) {
             this.scene.background = new THREE.Color( 0xFFFFFF );
         }
 
