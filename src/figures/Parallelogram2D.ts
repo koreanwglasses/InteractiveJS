@@ -2,6 +2,8 @@ import { Vector3, Object3D, Geometry, Face3, MeshBasicMaterial, Mesh } from 'thr
 import * as math from 'mathjs';
 import * as THREE from 'three';
 import { Figure } from '../core/Figure';
+import { Axes2D } from '../core/Axes2D';
+import { Axes } from '../core/Axes';
 
 export class Parallelogram2D implements Figure {
     private uFun : math.EvalFunction;
@@ -22,7 +24,7 @@ export class Parallelogram2D implements Figure {
         this.opacity = args2.opacity;
     }
     
-    public render(scope : any) : Object3D {
+    public render(scope : any, axes: Axes) : Object3D {
         var o = new Vector3(0, 0, 0);
         var u = new Vector3(...this.uFun.eval(scope)._data, -0.1);
         var v = new Vector3(...this.vFun.eval(scope)._data, -0.1);
@@ -39,7 +41,8 @@ export class Parallelogram2D implements Figure {
         geom.faces.push(f1);                
         geom.faces.push(f2);
 
-        var mat = new MeshBasicMaterial({color: 0xFFFFFF, side: THREE.DoubleSide, opacity: this.opacity, transparent: true});
+        const color = axes.isLightMode() ? 0x000000 : 0xFFFFFF;
+        var mat = new MeshBasicMaterial({color: color, side: THREE.DoubleSide, opacity: this.opacity, transparent: true});
 
         return new Mesh( geom, mat );
     }

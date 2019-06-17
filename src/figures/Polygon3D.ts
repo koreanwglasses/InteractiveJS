@@ -1,7 +1,8 @@
 import { Vector3, Object3D, Geometry, Face3, MeshBasicMaterial, Mesh, Vector2 } from 'three';
 import * as math from 'mathjs';
 import * as THREE from 'three';
-import { Figure } from '../core/Figure';
+import { Figure, } from '../core/Figure';
+import { Axes } from '../core/Axes';
 
 export class Polygon3D implements Figure {
     private vertexFuns : math.EvalFunction[];
@@ -20,7 +21,7 @@ export class Polygon3D implements Figure {
         this.opacity = args2.opacity;
     }
     
-    public render(scope : any) : Object3D {
+    public render(scope : any, axes: Axes) : Object3D {
         let vectors = this.vertexFuns.map((vf) => new Vector3(...vf.eval(scope)._data) );
     
         let geom = new THREE.Geometry();
@@ -34,7 +35,8 @@ export class Polygon3D implements Figure {
             i++;
         }
 
-        let mat = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide, opacity: this.opacity, transparent: true});
+        const color = axes.isLightMode() ? 0x000000 : 0xFFFFFF;
+        let mat = new THREE.MeshBasicMaterial({color: color, side: THREE.DoubleSide, opacity: this.opacity, transparent: true});
 
         return new THREE.Mesh( geom, mat );
     }

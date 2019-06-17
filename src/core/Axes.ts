@@ -14,6 +14,8 @@ export abstract class Axes {
     private renderer: THREE.WebGLRenderer;
     private scene: THREE.Scene;
     private antialias: boolean;
+
+    private lightMode: boolean;
     
     private figures: Set<Figure>;
     private objMap: Map<Figure, THREE.Object3D>;
@@ -30,6 +32,7 @@ export abstract class Axes {
         this.width = args.width;
         this.height = args.height;
         this.antialias = args.antialias;
+        this.lightMode = args.lightMode;
         
         this.renderer = null;
         this.scene = new THREE.Scene();
@@ -38,6 +41,10 @@ export abstract class Axes {
         this.objMap = new Map<Figure, THREE.Mesh>();
         this.skip = new Set<Figure>();
         
+        if(this.isLightMode) {
+            this.scene.background = new THREE.Color( 0xFFFFFF );
+        }
+
         this.wake();
     }
     
@@ -152,6 +159,10 @@ export abstract class Axes {
         return this.renderer == null;
     }
     
+    public isLightMode(): boolean {
+        return this.lightMode;
+    }
+
     protected getRenderer(): THREE.WebGLRenderer {
         return this.renderer;
     }
@@ -172,7 +183,7 @@ export abstract class Axes {
             if(mesh == null && !this.skip.has(figure)) {
                 let success = true;
                 try {
-                    mesh = figure.render(this.plot.getScope());
+                    mesh = figure.render(this.plot.getScope(), this);
                 } catch (e) {
                     success = false;
                     console.error(e);
@@ -201,10 +212,17 @@ export abstract class AxesArgs {
     public height: number;
     
     public antialias: boolean;
+    public lightMode: boolean;
     
     public constructor(args: any) {
         this.plot = args.plot;
         this.container = args.container;
+
+        this.width = args.width;
+        this.height = args.height;
+        
+        this.antialias = args.antialias;
+        this.lightMode = args.lightMode;
     }
     
     /**
@@ -253,6 +271,9 @@ export abstract class AxesArgs {
         
         if(this.antialias === undefined) {
             this.antialias = true;
+        }
+        if(this.lightMode === undefined) {
+            this.lightMode = false;
         }
     }
 }

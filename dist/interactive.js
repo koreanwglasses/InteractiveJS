@@ -639,11 +639,15 @@ class Axes {
         this.width = args.width;
         this.height = args.height;
         this.antialias = args.antialias;
+        this.lightMode = args.lightMode;
         this.renderer = null;
         this.scene = new THREE.Scene();
         this.figures = new Set();
         this.objMap = new Map();
         this.skip = new Set();
+        if (this.isLightMode) {
+            this.scene.background = new THREE.Color(0xFFFFFF);
+        }
         this.wake();
     }
     /**
@@ -748,6 +752,9 @@ class Axes {
     isSleeping() {
         return this.renderer == null;
     }
+    isLightMode() {
+        return this.lightMode;
+    }
     getRenderer() {
         return this.renderer;
     }
@@ -764,7 +771,7 @@ class Axes {
             if (mesh == null && !this.skip.has(figure)) {
                 let success = true;
                 try {
-                    mesh = figure.render(this.plot.getScope());
+                    mesh = figure.render(this.plot.getScope(), this);
                 }
                 catch (e) {
                     success = false;
@@ -789,6 +796,10 @@ class AxesArgs {
     constructor(args) {
         this.plot = args.plot;
         this.container = args.container;
+        this.width = args.width;
+        this.height = args.height;
+        this.antialias = args.antialias;
+        this.lightMode = args.lightMode;
     }
     /**
     * Checks if arguments are valid. Returns true if valid. Throws error if not.
@@ -832,6 +843,9 @@ class AxesArgs {
         }
         if (this.antialias === undefined) {
             this.antialias = true;
+        }
+        if (this.lightMode === undefined) {
+            this.lightMode = false;
         }
     }
 }
@@ -2333,7 +2347,7 @@ class Label2D {
         label.style.position = 'absolute';
         label.style.width = '100';
         label.style.height = '100';
-        label.style.color = 'white';
+        label.style.color = this.axes.isLightMode() ? 'black' : 'white';
         label.style.cursor = 'default';
         // @ts-ignore: Legacy code
         label.style['pointer-events'] = 'none';
@@ -2416,7 +2430,7 @@ class Label3D {
         label.style.position = 'absolute';
         label.style.width = '100';
         label.style.height = '100';
-        label.style.color = 'white';
+        label.style.color = this.axes.isLightMode() ? 'black' : 'white';
         label.style.cursor = 'default';
         // @ts-ignore: Legacy code
         label.style['pointer-events'] = 'none';
@@ -2497,7 +2511,7 @@ class Parallelogram2D {
         this.vFun = math.parse(args2.v).compile();
         this.opacity = args2.opacity;
     }
-    render(scope) {
+    render(scope, axes) {
         var o = new three_1.Vector3(0, 0, 0);
         var u = new three_1.Vector3(...this.uFun.eval(scope)._data, -0.1);
         var v = new three_1.Vector3(...this.vFun.eval(scope)._data, -0.1);
@@ -2510,7 +2524,8 @@ class Parallelogram2D {
         var f2 = new three_1.Face3(0, 2, 3);
         geom.faces.push(f1);
         geom.faces.push(f2);
-        var mat = new three_1.MeshBasicMaterial({ color: 0xFFFFFF, side: THREE.DoubleSide, opacity: this.opacity, transparent: true });
+        const color = axes.isLightMode() ? 0x000000 : 0xFFFFFF;
+        var mat = new three_1.MeshBasicMaterial({ color: color, side: THREE.DoubleSide, opacity: this.opacity, transparent: true });
         return new three_1.Mesh(geom, mat);
     }
 }
@@ -3032,7 +3047,7 @@ class Polygon2D {
         this.vertexFuns = args2.vertices.map((vertex) => math.parse(vertex).compile());
         this.opacity = args2.opacity;
     }
-    render(scope) {
+    render(scope, axes) {
         let vectors = this.vertexFuns.map((vf) => new three_1.Vector2(...vf.eval(scope)._data));
         let geom = new THREE.Geometry();
         let i = 0;
@@ -3044,7 +3059,8 @@ class Polygon2D {
             }
             i++;
         }
-        let mat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, opacity: this.opacity, transparent: true });
+        const color = axes.isLightMode() ? 0x000000 : 0xFFFFFF;
+        let mat = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide, opacity: this.opacity, transparent: true });
         return new THREE.Mesh(geom, mat);
     }
 }
@@ -3096,7 +3112,7 @@ class Polygon3D {
         this.vertexFuns = args2.vertices.map((vertex) => math.parse(vertex).compile());
         this.opacity = args2.opacity;
     }
-    render(scope) {
+    render(scope, axes) {
         let vectors = this.vertexFuns.map((vf) => new three_1.Vector3(...vf.eval(scope)._data));
         let geom = new THREE.Geometry();
         let i = 0;
@@ -3108,7 +3124,8 @@ class Polygon3D {
             }
             i++;
         }
-        let mat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, opacity: this.opacity, transparent: true });
+        const color = axes.isLightMode() ? 0x000000 : 0xFFFFFF;
+        let mat = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide, opacity: this.opacity, transparent: true });
         return new THREE.Mesh(geom, mat);
     }
 }

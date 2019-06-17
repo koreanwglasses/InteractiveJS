@@ -28,8 +28,9 @@ export class Label2D implements Figure {
         label.style.position = 'absolute';
         label.style.width = '100';
         label.style.height = '100';
-        label.style.color = 'white';
 
+        label.style.color = this.axes.isLightMode() ? 'black' : 'white';
+        
         label.style.cursor = 'default';
         // @ts-ignore: Legacy code
         label.style['pointer-events'] = 'none';
