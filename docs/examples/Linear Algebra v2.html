@@ -1,0 +1,375 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- saved from url=(0047)http://www.math.brown.edu/~banchoff/LinAlg.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>Linear Algebra</title>
+  <script type="text/javascript">
+// <!--
+function openwindow(lnk, nme)
+{
+if (! window.focus)return true;
+var href;
+if (typeof(lnk) == 'string')
+href=lnk;
+else
+href=lnk.href;
+window.open(href, nme, 'width=300,height=300,scrollbars=yes');
+return false;
+}
+// -->
+  </script>
+<style>
+/* Plots */
+.ax {
+  background: repeating-linear-gradient( 45deg,
+  #606dbc,
+  #606dbc 10px,
+  #465298 10px,
+  #465298 20px);
+  border: 2px solid black;
+}
+</style>
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/103/three.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.9.0/math.js"></script>
+<script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+<script src="../../dist/interactive.js"></script>
+VECTOR ADDITION IN THE PLANE <br>
+<br>
+Vectors in the plane are given by arrows based at the origin. We denote
+by the single letter A the vector from the origin O = (0,0) to the
+point (a,b). <br>
+<br>
+To add two vectors A = (a,b) and C = (c,d), we add their coordinates,
+so A + C = (a,b) + (c,d) = (a+c,b+d). <br>
+<br>
+Note that the
+slope of the line
+containing (a,b) and (a+c,b+d) is
+the same as the slope of the line containing (0,0) and (c,d) so these
+two lines are parallel. Simimilarly the slope of the line containing
+(c,d) and (a+c,b+d) is the same as the slope of the line containing
+(0,0) and (a,b) so these two lines are also parallel. It follows that
+the quadrilateral from O to A to A+C to C and back to O has opposite
+sides parallel so it is a parallelogram. The point A+C is therefore the
+intersection of the line through A parallel to the line along C and the
+line through C parallel to the line along A. The definition of vector
+addition is often called "the parallelogram law". <br>
+<br>
+Note that if A and C are themselves parallel, lying along a line
+through the origin, then A+C also lies on this line.<br>
+<br>
+<!-- <img style="width: 245px; height: 155px;" alt="figure1-1" src="./Linear Algebra_files/lafigure1-1.png"><br> -->
+<div id="plot1" class="plot">
+<div id="ax1" class="ax" style="width: 400px; height: 400px;"></div>
+<div id="pan1" class="pan"></div>
+</div>
+<script>
+  plot1 = new Interactive.Plot();
+  pan1 = plot1.createPanel({container: document.getElementById('pan1')});
+  ax1 = plot1.createAxes2D({container: document.getElementById('ax1'),
+    left: -1.5, right: 2.5, bottom: -1.5, top:2.5, lightMode: true });
+
+  plot1.execExpression('v1=[0.3,1]');
+  plot1.execExpression('v2=[1,0.2]');
+  plot1.execExpression('v3()=v1+v2');
+
+  pan1.addReadout('v1', {editable: true});
+  pan1.addReadout('v2', {editable: true});
+  pan1.addReadout('v1+v2');
+
+  ax1.addFigure(new Interactive.Arrow2D({end:'[1,0]', hex: 0x888888}));
+  ax1.addFigure(new Interactive.Arrow2D({end:'[0,1]', hex: 0x888888}));
+
+  ax1.addFigure(new Interactive.Arrow2D({end:'v1', hex: 0xff0000}));
+  ax1.addFigure(new Interactive.Arrow2D({end:'v2', hex: 0x0000ff}));
+  ax1.addFigure(new Interactive.Arrow2D({end:'v3()', hex: 0xff00ff}));
+
+  ax1.addFigure(new Interactive.Hotspot2D({plot: plot1, variable: 'v1'}));
+  ax1.addFigure(new Interactive.Hotspot2D({plot: plot1, variable: 'v2'}));
+
+  ax1.addFigure(new Interactive.Parallelogram2D({u: 'v1', v: 'v2', opacity: 0.2}));
+
+  ax1.addFigure(new Interactive.Label2D({axes: ax1, position: 'v1', label: 'A'}));
+  ax1.addFigure(new Interactive.Label2D({axes: ax1, position: 'v2', label: 'C'}));
+  ax1.addFigure(new Interactive.Label2D({axes: ax1, position: 'v3()', label: 'A+C'}));
+
+  ax1.addFigure(new Interactive.Label2D({axes: ax1, position: '[1, 0]', label: 'X'}));
+  ax1.addFigure(new Interactive.Label2D({axes: ax1, position: '[0, 1]', label: 'Y'}));
+
+  plot1.requestFrame();
+</script>
+<br>
+<big><a href="http://www.math.brown.edu/~banchoff/la1d1.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
+<br>
+<br>
+SCALAR MULTIPLICATION IN THE PLANE<br>
+<br>
+<br>
+Multiplication of a vector A by the real number r is defined by rA =
+r(a,b) = (ra, rb). <br>
+<br>
+Geometrically rA represents a stretching of A by a scale factor r if
+r &gt; 1 and a shrinking by a scale factor r is 0 &lt; r &lt; 1. We
+speak of the number r as a "scalar" and rA as a "scalar multiple of A".
+Note that 1A = 1(a,b) = (1a,1b) = (a,b) = A and 0A = O(a,b) = (0a,0b) =
+(0,0) = O. Multiplying A by -1 produces a vector -1A = -1(a,b) =
+((-1)a,(-1)b) = (-a,-b), and when we add this vector to A, we get A +
+(-1)A = (a,b) + (-a,-b) = (0,0) = O. Thus (-1)A is the "additive
+inverse of A" denoted -A. Similarly if 0 &lt; r, then (-r)A = -(rA),
+the additive inverse of rA. <br>
+<br>
+It follows that the collection of all vectors tA where t is a real
+number is "the line along A through the origin".<br>
+<br>
+<!-- <img style="width: 217px; height: 157px;" alt="figure1-2" src="./Linear Algebra_files/lafigure1-2.png"> -->
+<div id="plot2" class="plot">
+<div id="ax2" class="ax" style="width: 400px; height: 400px;"></div>
+<div id="pan2" class="pan"></div>
+</div>
+<script>
+  plot2 = new Interactive.Plot();
+  pan2 = plot2.createPanel({container: document.getElementById('pan2')}); 
+  ax2 = plot2.createAxes2D({container: document.getElementById('ax2'),
+    left: -1.5, right: 2.5, bottom: -1.5, top:2.5, lightMode: true});
+
+  plot2.execExpression('t=-0.5');
+  plot2.execExpression('v1=[1,0.5]');
+  plot2.execExpression('v2()=t*v1');
+
+  pan2.createSlider({variable: 't', start: -2, end:2, steps:100, continuousUpdate: true});
+  pan2.addReadout('v1', {editable: true});
+  pan2.addReadout('t*v1');
+
+  ax2.addFigure(new Interactive.Arrow2D({end:'[1,0]', hex: 0x888888}));
+  ax2.addFigure(new Interactive.Arrow2D({end:'[0,1]', hex: 0x888888}));
+
+  ax2.addFigure(new Interactive.Arrow2D({end:'v1', hex: 0xff0000}));
+  ax2.addFigure(new Interactive.Arrow2D({end:'v2()', hex: 0xc0c0c0}));
+  // ax2.plotExpression('v2()', 'arrow', {hex:0xffffff, thick: true});
+  ax2.addFigure(new Interactive.Hotspot2D({plot: plot2, variable: 'v1'}));
+
+  ax2.plotExpression('A', 'label', {position: 'v1'})
+  ax2.plotExpression('tA', 'label', {position: 'v2()'})
+
+  ax2.plotExpression('X', 'label', {position: '[1,0]'})
+  ax2.plotExpression('Y', 'label', {position: '[0,1]'})
+
+  plot2.requestFrame();
+</script>
+<br>
+<big><a href="http://www.math.brown.edu/~banchoff/la1d2.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
+<br>
+<br>
+VECTOR EQUATIONS FOR LINES IN THE PLANE <br>
+<br>
+The line through C parallel to the line along A is the collection of
+points C + tA for all real t. <br>
+<br>
+Similarly the line through A parallel to the line alonge C is the
+collection A + sC for real scalars s. If A and C are not themselves
+parallel, then the point A+C is the intersection of the line through A
+parallel to the line along C and the line through C parallel to the
+line along A, obtained when t and s are both equal to 1.<br>
+<br>
+<!-- <img style="width: 443px; height: 199px;" alt="figure1-3" src="./Linear Algebra_files/lafigure1-3.png"><br> -->
+<div id="plot3" class="plot">
+<div id="ax3" class="ax" style="width: 600px; height: 300px;"></div>
+<div id="pan3" class="pan"></div>
+&nbsp;
+<big><a href="http://www.math.brown.edu/~banchoff/la1d3.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
+<br>
+<script>
+  plot3 = new Interactive.Plot();
+  pan3 = plot3.createPanel({container: document.getElementById('pan3')})
+  ax3 = plot3.createAxes2D({container: document.getElementById('ax3'),
+    left: -2, right: 4, bottom: -1, top: 2, lightMode: true });
+
+  plot3.execExpression('A=[1,1]');
+  plot3.execExpression('C=[2,1/2]');
+  plot3.execExpression('t0=-0.8');
+
+  pan3.createSlider({variable: 't0', start: -1, end:1, steps:20, continuousUpdate: true});
+  pan3.addReadout('t0');
+
+  plot3.execExpression('X(t)=A + t*C');
+
+  ax3.addFigure(new Interactive.Arrow2D({end:'[1,0]', hex: 0x888888}));
+  ax3.addFigure(new Interactive.Arrow2D({end:'[0,1]', hex: 0x888888}));
+
+  ax3.plotExpression('A', 'arrow', {hex: 0xff0000})
+  ax3.plotExpression('C', 'arrow', {hex: 0xc0c0c0})
+
+  ax3.plotExpression('A', 'point', {hex: 0xff0000})
+  ax3.plotExpression('C', 'point', {hex: 0xc0c0c0})
+  ax3.plotExpression('X(t0)', 'point', {hex: 0xc0c0c0})
+
+  ax3.plotExpression('X', 'label', {position: '[1,0]'})
+  ax3.plotExpression('Y', 'label', {position: '[0,1]'})
+ 
+  ax3.plotExpression('A', 'label', {position: 'A'})
+  ax3.plotExpression('C', 'label', {position: 'C'})
+  ax3.plotExpression('(t0)X', 'label', {position: 'X(t0)'})
+
+  ax3.plotExpression('A', 'hotspot')
+  ax3.plotExpression('C', 'hotspot')
+
+  plot3.execExpression('D() = [0,1,0]')
+
+  ax3.plotExpression('X(t){t,-1,1,2}', 'parametric', {color: 'D()'});
+
+  plot3.execExpression('opt1=0');
+  pan3.addCheckBox('opt1', {label: "Show position vector (t0)X"});
+
+  ax3.plotExpression('X(t0)', 'arrow', {show: 'opt1', hex: 0x00ff00});
+
+  plot3.requestFrame();
+</script>
+<big><a href="http://www.math.brown.edu/~banchoff/la1d4.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
+<br>
+<br>
+LENGTH, ANGLE, AND DOT PRODUCT IN THE PLANE<br>
+<br>
+By the Pythagorean theorem, the "length" of the vector from O = (0,0)
+to A = (a,b) is √(a<sup>2</sup> + b<sup>2</sup>), denoted |A|.<br>
+<br>
+Note that |A| &gt;= 0 for all A, and |A| = 0 if and only if A = O.<br>
+<br>
+Furthermore |cA| = |c||A| where |c| denotes the absolute value of the
+scalar c,<br>
+<br>
+Also the distance from A to C is given by the length of the vector C-A,
+and |C-A| &lt; |C| + |A|.&nbsp; This is called the "triangle
+inequality".<br>
+<br>
+Each of these three properties can be proved by using coordinate.<br>
+<br>
+Condition for Perpendicularity:&nbsp; By the Pythagorean Theorem, the
+vectors A and C are the legs of a right triangle if |A|<sup>2</sup> +
+|C|<sup>2</sup> =
+|C-A|<sup>2</sup>, which in coordinates becomes a<sup>2</sup> + b<sup>2</sup>
++ c<sup>2</sup> + d<sup>2</sup> = (c-a)<sup>2</sup> +
+(d-a)<sup>2</sup> = c<sup>2</sup> - 2ac + a<sup>2</sup> + d<sup>2</sup>
+-2db + b<sup>2</sup>.&nbsp; This condition is
+then equivalent to ac + bd = 0.&nbsp; We define the "dot product" or
+"inner product" of the
+vectors A = (a,b) and C = (c,d) to be ac + bd = A*C.<br>
+<br>
+<!-- <img style="width: 151px; height: 149px;" alt="figure4" src="./Linear Algebra_files/lafigure1-4.png"><br> -->
+<br>
+<div id="plot4" class="plot">
+<div id="ax4" class="ax" style="width: 400px; height: 400px;"></div>
+<div id="pan4" class="pan"></div>
+<script>
+  plot4 = new Interactive.Plot();
+  pan4 = plot4.createPanel({container:document.getElementById('pan4')}); 
+  ax4 = plot4.createAxes2D({container: document.getElementById('ax4'), 
+    left: -1.5, right: 2.5, bottom: -1.5, top:2.5, lightMode: true});
+
+  plot4.execExpression('A=[0,1]');
+  plot4.execExpression('C=[1,0]');
+
+  ax4.addFigure(new Interactive.Arrow2D({end:'[1,0]', hex: 0x888888}));
+  ax4.addFigure(new Interactive.Arrow2D({end:'[0,1]', hex: 0x888888}));
+
+  ax4.plotExpression('A', 'arrow', {hex: 0xff0000})
+  ax4.plotExpression('C', 'arrow', {hex: 0x0000ff})
+
+  ax4.plotExpression('X', 'label', {position: '[1,0]'})
+  ax4.plotExpression('Y', 'label', {position: '[0,1]'})
+ 
+  ax4.plotExpression('A', 'hotspot')
+  ax4.plotExpression('C', 'hotspot')
+
+  ax4.plotExpression('{A,C}','angle',{hex: 0});
+
+  pan4.addReadout('A', {editable: true});
+  pan4.addReadout('C', {editable: true});
+  pan4.addReadout('dot(A,C)')
+  pan4.addReadout('acos(dot(A,C)/(norm(A) * norm(C)))', {label: 'Angle (radians)'});
+
+  plot4.requestFrame();
+</script>
+<big><a href="http://www.math.brown.edu/~banchoff/la1d5.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
+<br>
+<br>
+Note that A*(C+E) = A*C + A*E and (tA)*C = t(A*C).&nbsp; Also A*C = C*A
+for any two vectors A and C, and A*A = |A|<sup>2</sup>, which equals
+zero if and
+only if
+A = O.&nbsp; Note also that the dot product of any vector with the zero
+vector is 0, so we say that O is perpendicular to all vectors.&nbsp;
+Note that (C-A)*(C-A) = C*(C-A) + (-A)*(C-A) = C*C - C*A - A*C + A*A =
+C*C - 2A*C
++ A*A.<br>
+<br>
+Exercise:&nbsp; Find the value of t such that the vector A + tC is
+perpendicular to C, where C is a non-zero vector.<br>
+<br>
+If A and C are non-zero vectors that make an angle θ at the
+origin, then (|A|sin(θ))<sup>2</sup> = |C-A|<sup>2</sup> -
+(|C|-|A|cos(θ))<sup>2</sup>
+=
+|C-A|<sup>2</sup> - |C|<sup>2</sup> + 2|A||C|cos(θ) -
+(|A|cos(θ))<sup>2</sup>, from which
+it follows that 2|A||C|cos(θ) = |A|<sup>2</sup> + |C|<sup>2</sup>
+- |C-A|<sup>2</sup> = A*A +
+C*C - (C-A)*(C-A) = 2A*C, by the above calculation.&nbsp; Therefore A*C
+= |A||C|cos(θ), and cos(θ) = A*C/(|A||C|).<br>
+<br>
+<!-- <img style="width: 148px; height: 152px;" alt="figure5" src="./Linear Algebra_files/lafigure1-5.png"><br> -->
+<br>
+<div id="plot5" class="plot">
+<div id="ax5" class="ax" style="width: 400px; height: 400px;"></div>
+<div id="pan5" class="pan"></div>
+<script>
+  plot5 = new Interactive.Plot();
+  pan5 = plot5.createPanel({container:document.getElementById('pan5')}); 
+  ax5 = plot5.createAxes2D({container: document.getElementById('ax5'), 
+    left: -1.5, right: 2.5, bottom: -1.5, top:2.5, lightMode: true});
+
+  plot5.execExpression('A=[0.5,1]');
+  plot5.execExpression('C=[1,0]');
+
+  ax5.addFigure(new Interactive.Arrow2D({end:'[1,0]', hex: 0x888888}));
+  ax5.addFigure(new Interactive.Arrow2D({end:'[0,1]', hex: 0x888888}));
+
+  ax5.plotExpression('A', 'arrow', {hex: 0xff0000})
+  ax5.plotExpression('C', 'arrow', {hex: 0x0000ff})
+
+  ax5.plotExpression('X', 'label', {position: '[1,0]'})
+  ax5.plotExpression('Y', 'label', {position: '[0,1]'})
+ 
+  ax5.plotExpression('A', 'hotspot')
+  ax5.plotExpression('C', 'hotspot')
+
+  pan5.addReadout('A', {editable: true});
+  pan5.addReadout('C', {editable: true});
+  pan5.addReadout('dot(A,C)')
+  pan5.addReadout('acos(dot(A,C)/(norm(A) * norm(C)))', {label: 'Angle (radians)'});
+
+  plot5.execExpression('Co() = [0,1,0]')
+
+  ax5.plotExpression('{[0,0],A,C}','polygon', {opacity: 0.2});
+  ax5.plotExpression('A*t + (1-t) * dot(A,C)*C/(norm(C)^2) {t,0,1,2}', 'parametric', {color: 'Co()'});
+  ax5.plotExpression('t*dot(A,C)*C/(norm(C)^2) {t,0,1,2}', 'parametric', {color: '[0.8, 0.8, 0.8]'});
+
+  plot5.requestFrame();
+</script>
+<big><a href="http://www.math.brown.edu/~banchoff/la1d6.html" onclick="return openwindow(this, &#39;Demo Help&#39;)">[D]</a></big>
+<br>
+<br>
+Exercise:&nbsp; Find the cosine of the angle between A =
+(cos(a),sin(a)) and C = (cos(c),sin(c)) where 0 &lt; a &lt; c &lt;
+π/2.<br>
+<br>
+Exercise:&nbsp; Show that the area of the triangle with sides A and C
+equals (1/2)|A||C|sin(θ) = (1/2)√((A*A)(C*C)-(A*C)<sup>2</sup>) =
+(1/2)|ad - bc| Then observe that the area of the parallelogram with
+vertices O, A, A+C, and C is equal to |ad - bc|.<br>
+<br>
+
+
+</body><script src="chrome-extension://ocggccaacacpienfcgmgcihoombokbbj/pages/client/livestartpage-message-add.js"></script></html>
