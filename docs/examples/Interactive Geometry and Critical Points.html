@@ -242,6 +242,7 @@
                                                         </div>
                                                         <div id="fig1" class="centered">
                                                             <div id="ax1" style="width:250px;height:250px;display:inline-block;" class="ax"></div>
+                                                            <br>
                                                             <div id="pan1" style="display:inline-block;"></div>
                                                             <script>
                                                                 var plot1 = new Interactive.Plot();
@@ -306,21 +307,23 @@
                                                                 <br>
                                                             </div>
                                                             <div id="fig2" class="centered">
-                                                                <div id="ax2" style="width:250px;height:250px;display:inline-block;" class="ax"></div>
+                                                                <div id="ax2a" style="width:250px;height:250px;display:inline-block;" class="ax"></div>
+                                                                <div id="ax2b" style="width:250px;height:250px;display:inline-block;" class="ax"></div>
                                                                 <div id="pan2" style="display:inline-block;"></div>
                                                                 <script>
                                                                     var plot2 = new Interactive.Plot();
-                                                                    var ax2 = plot2.createAxes2D(document.getElementById('ax2'), { zoom: 100, fixedZoom: true });
-                                                                    var pan2 = plot2.createPanel(document.getElementById('pan2'))
-                                                                    plot2.execExpression('u=1')
-                                                                    plot2.execExpression('v=1')
-                                                                    plot2.execExpression('f(x)=-(x^4)+u*x^2+v*x')
+                                                                    var ax2a = plot2.createAxes2D(document.getElementById('ax2a'), { zoom: 100, fixedZoom: true });
+                                                                    var ax2b = plot2.createAxes2D(document.getElementById('ax2b'), { zoom: 100, fixedZoom: true });
+                                                                    plot2.execExpression('X=[1,1]')
+                                                                    plot2.execExpression('u()=X[1]')
+                                                                    plot2.execExpression('v()=X[2]')
+                                                                    plot2.execExpression('f(x)=-(x^4)+u()*x^2+v()*x')
                                                                     plot2.execExpression('c(t)=select(round(sign(diff2(f, t)) + 2) + round(sign(diff(f, t))/2 + 1/2), [0.5, 0.5, 0.5], [0.5, 0, 0], [1, 1, 1], [1, 0, 0])');
                                                                     
-                                                                    pan2.addSlider('{u,-2,2,100}', { continuous: true });
-                                                                    pan2.addSlider('{v,-2,2,100}', { continuous: true });
-                                                                    ax2.plotExpression('[t,f(t)]{t,-3,3,100}', 'parametric', { color: 'c(t)' })
-                                                                    
+                                                                    ax2a.plotExpression('[t,f(t)]{t,-3,3,100}', 'parametric', { color: 'c(t)' })
+                                                                    ax2b.plotExpression('X', 'point') 
+                                                                    ax2b.plotExpression('X', 'hotspot') 
+
                                                                     ; (function animate() {
                                                                         requestAnimationFrame(animate);
                                                                         plot2.render();
@@ -383,6 +386,7 @@
                                                             <div id="fig3" class="centered">
                                                                 <div id="ax3a" style="width:300px;height:250px;display:inline-block;" class="ax"></div>
                                                                 <div id="ax3b" style="width:250px;height:250px;display:inline-block;" class="ax"></div>
+                                                                <br>
                                                                 <div id="pan3" style="display:inline-block;"></div>
                                                                 <script>
                                                                     var plot3 = new Interactive.Plot();
@@ -460,6 +464,7 @@
                                                             <div id="fig4" class="centered">
                                                                 <div id="ax4a" style="width:250px;height:250px;display:inline-block;" class="ax"></div>
                                                                 <div id="ax4b" style="width:250px;height:250px;display:inline-block;" class="ax"></div>
+                                                                <br>
                                                                 <div id="pan4" style="display:inline-block;"></div>
                                                                 <script>
                                                                     var plot4 = new Interactive.Plot();
@@ -574,6 +579,7 @@
                                                                                         <div id="ax5a" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
                                                                                         <div id="ax5b" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
                                                                                         <div id="ax5c" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
+                                                                                        <br>
                                                                                         <div id="pan5" style="display:inline-block;"></div>
                                                                                         
                                                                                         <script>
@@ -701,8 +707,9 @@
                                                                                                             <div id="fig6" class="centered">
                                                                                                                 <div id="ax6a" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
                                                                                                                 <div id="ax6b" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
+                                                                                                                <br>
                                                                                                                 <div id="pan6" style="display:inline-block;"></div>
-                                                                                                                
+                                                                                                                <br>
                                                                                                                 <script>
                                                                                                                     var plot6 = new Interactive.Plot();
                                                                                                                     var ax6a = plot6.createAxes3D(document.getElementById('ax6a'), { zoom: 1.1 });
@@ -932,6 +939,7 @@
                                                                                                                 </div>
                                                                                                                 <div id="fig9" class="centered">
                                                                                                                     <div id="ax9a" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
+                                                                                                                    <br>
                                                                                                                     <div id="pan9" style="display:inline-block;"></div>
                                                                                                                     
                                                                                                                     <script>
@@ -1025,6 +1033,7 @@
                                                                                                 </div>
                                                                                                 <div id="fig12" class="centered">
                                                                                                     <div id="ax12a" style="width:300px;height:300px;display:inline-block;" class="ax"></div>
+                                                                                                    <br>
                                                                                                     <div id="pan12" style="display:inline-block;"></div>
                                                                                                     
                                                                                                     <script>
@@ -1188,7 +1197,7 @@
                                                                                                 <p>
                                                                                                 </p>
                                                                                                 <div class="textdiv">
-                                                                                                    Special thanks are due to Michael Schwarz, who wrote the Java demonstrations used for the illustrations in this article.
+                                                                                                    Special thanks are due to Michael Schwarz, who wrote the Java demonstrations used for the illustrations in this article, and to Frederick Choi, who updated them.
                                                                                                     The software for the Java applets was created at
                                                                                                     <st1:place w:st="on">
                                                                                                     <st1:placename w:st="on">Brown</st1:placename>
